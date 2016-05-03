@@ -68,7 +68,7 @@ namespace Rampastring.XNAUI
 
             Location = location;
 
-            ScrollWheelValue = (ms.ScrollWheelValue - previousMouseState.ScrollWheelValue) / 120;
+            ScrollWheelValue = (ms.ScrollWheelValue - previousMouseState.ScrollWheelValue) / 40;
 
             LeftPressed = ms.LeftButton == ButtonState.Pressed;
 

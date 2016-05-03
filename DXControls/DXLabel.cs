@@ -16,15 +16,28 @@ namespace Rampastring.XNAUI.DXControls
 
         public int FontIndex { get; set; }
 
+        public override string Text
+        {
+            get
+            {
+                return base.Text;
+            }
+
+            set
+            {
+                base.Text = value;
+
+                if (!String.IsNullOrEmpty(base.Text))
+                {
+                    Vector2 textSize = Renderer.GetTextDimensions(Text, FontIndex);
+                    ClientRectangle = new Rectangle(ClientRectangle.X, ClientRectangle.Y, (int)textSize.X, (int)textSize.Y);
+                }
+            }
+        }
+
         public override void Initialize()
         {
             base.Initialize();
-
-            if (!String.IsNullOrEmpty(Text))
-            {
-                Vector2 textSize = Renderer.GetTextDimensions(Text, FontIndex);
-                ClientRectangle = new Rectangle(ClientRectangle.X, ClientRectangle.Y, (int)textSize.X, (int)textSize.Y);
-            }
         }
 
         protected override void ParseAttributeFromINI(IniFile iniFile, string key, string value)

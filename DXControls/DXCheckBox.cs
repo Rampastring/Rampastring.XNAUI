@@ -10,7 +10,7 @@ namespace Rampastring.XNAUI.DXControls
     /// </summary>
     public class DXCheckBox : DXControl
     {
-        const int TEXT_PADDING = 2;
+        const int TEXT_PADDING = 3;
 
         public DXCheckBox(WindowManager windowManager) : base(windowManager)
         {
@@ -27,7 +27,12 @@ namespace Rampastring.XNAUI.DXControls
 
         public bool Checked { get; set; }
 
-        public bool AllowChecking { get; set; }
+        bool _allowChecking = true;
+        public bool AllowChecking
+        {
+            get { return _allowChecking; }
+            set { _allowChecking = true; }
+        }
 
         public int FontIndex { get; set; }
 

@@ -1,5 +1,7 @@
 ﻿using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Graphics;
+using Rampastring.Tools;
 using System;
 using System.Collections.Generic;
 
@@ -75,9 +77,14 @@ namespace Rampastring.XNAUI.DXControls
         Texture2D dropDownTexture { get; set; }
         Texture2D dropDownOpenTexture { get; set; }
 
+        public SoundEffect ClickSoundEffect { get; set; }
+        SoundEffectInstance _clickSoundInstance;
+
         bool leftClickHandled = false;
 
         int hoveredIndex = 0;
+
+        #region AddItem methods
 
         /// <summary>
         /// Adds an item into the drop-down.
@@ -132,6 +139,8 @@ namespace Rampastring.XNAUI.DXControls
             Items.Add(item);
         }
 
+        #endregion
+
         public override void Initialize()
         {
             base.Initialize();
@@ -140,6 +149,9 @@ namespace Rampastring.XNAUI.DXControls
             dropDownOpenTexture = AssetLoader.LoadTexture("openedComboBoxArrow.png");
 
             ClientRectangle = new Rectangle(ClientRectangle.X, ClientRectangle.Y, ClientRectangle.Width, dropDownTexture.Height);
+
+            if (ClickSoundEffect != null)
+                _clickSoundInstance = ClickSoundEffect.CreateInstance();
         }
 
         public override void Update(GameTime gameTime)
@@ -157,6 +169,9 @@ namespace Rampastring.XNAUI.DXControls
         public override void OnLeftClick()
         {
             base.OnLeftClick();
+
+            if (_clickSoundInstance != null)
+                _clickSoundInstance.Play();
 
             if (!IsDroppedDown)
             {

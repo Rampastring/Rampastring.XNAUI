@@ -105,11 +105,11 @@ namespace Rampastring.XNAUI.DXControls
 
         public void Clear()
         {
-            foreach (DXListBoxItem item in Items)
-            {
-                if (item.Texture != null)
-                    item.Texture.Dispose();
-            }
+            //foreach (DXListBoxItem item in Items)
+            //{
+            //    if (item.Texture != null)
+            //        item.Texture.Dispose();
+            //}
 
             Items.Clear();
         }
