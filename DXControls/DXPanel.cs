@@ -97,15 +97,9 @@ namespace Rampastring.XNAUI.DXControls
             base.Update(gameTime);
         }
 
-        public override void Draw(GameTime gameTime)
+        protected void DrawPanel()
         {
             Color color = GetRemapColor();
-
-            //if (OriginalRenderTarget != null)
-            //{
-            //    GraphicsDevice.SetRenderTarget(renderTarget);
-            //    GraphicsDevice.Clear(Color.MonoGameOrange);
-            //}
 
             Rectangle windowRectangle = WindowRectangle();
 
@@ -159,23 +153,13 @@ namespace Rampastring.XNAUI.DXControls
             {
                 Renderer.DrawRectangle(windowRectangle, GetColorWithAlpha(BorderColor));
             }
+        }
+
+        public override void Draw(GameTime gameTime)
+        {
+            DrawPanel();
 
             base.Draw(gameTime);
-
-            //if (OriginalRenderTarget != null)
-            //{
-            //    Renderer.EndDraw();
-
-            //    GraphicsDevice.SetRenderTarget(OriginalRenderTarget);
-
-            //    Renderer.BeginDraw2();
-
-            //    Renderer.DrawTexture(renderTarget, windowRectangle, GetColorWithAlpha(Color.White));
-
-            //    Renderer.EndDraw();
-
-            //    Renderer.BeginDraw();
-            //}
         }
 
         public override Color GetColorWithAlpha(Color baseColor)

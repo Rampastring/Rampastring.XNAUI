@@ -17,6 +17,7 @@ namespace Rampastring.XNAUI.DXControls
             BorderColor = UISettings.PanelBorderColor;
             FocusColor = UISettings.FocusColor;
             BackColor = UISettings.BackgroundColor;
+            DisabledItemColor = Color.Gray;
         }
 
         public delegate void SelectedIndexChangedEventHandler(object sender, EventArgs e);
@@ -73,6 +74,8 @@ namespace Rampastring.XNAUI.DXControls
         public Color FocusColor { get; set; }
 
         public Color BackColor { get; set; }
+
+        public Color DisabledItemColor { get; set; }
 
         Texture2D dropDownTexture { get; set; }
         Texture2D dropDownOpenTexture { get; set; }
@@ -164,6 +167,24 @@ namespace Rampastring.XNAUI.DXControls
                 OnLeftClick(); 
 
             leftClickHandled = false;
+
+            if (!IsDroppedDown)
+                return;
+
+            // Update hovered index
+
+            Point p = GetCursorPoint();
+
+            if (p.Y > dropDownTexture.Height + 1)
+            {
+                int y = p.Y - dropDownTexture.Height + 1;
+                int itemIndex = y / _itemHeight;
+
+                if (itemIndex < Items.Count && itemIndex > -1)
+                {
+                    hoveredIndex = Items[itemIndex].Selectable ? itemIndex : -1;
+                }
+            }
         }
 
         public override void OnLeftClick()
@@ -173,14 +194,18 @@ namespace Rampastring.XNAUI.DXControls
             if (_clickSoundInstance != null)
                 _clickSoundInstance.Play();
 
+            leftClickHandled = true;
+
             if (!IsDroppedDown)
             {
+                if (!_allowDropDown)
+                    return;
+
                 Rectangle wr = WindowRectangle();
 
                 IsDroppedDown = true;
                 ClientRectangle = new Rectangle(ClientRectangle.X, ClientRectangle.Y, ClientRectangle.Width, dropDownTexture.Height + 1 + ItemHeight * Items.Count);
                 hoveredIndex = -1;
-                leftClickHandled = true;
                 return;
             }
 
@@ -191,34 +216,17 @@ namespace Rampastring.XNAUI.DXControls
                 int y = p.Y - dropDownTexture.Height + 1;
                 int itemIndex = y / _itemHeight;
 
-                if (itemIndex >= Items.Count || itemIndex < 0)
-                    SelectedIndex = 0;
-                else if (Items[itemIndex].Selectable)
-                    SelectedIndex = itemIndex;
+                if (itemIndex < Items.Count && itemIndex > -1)
+                {
+                    if (Items[itemIndex].Selectable)
+                        SelectedIndex = itemIndex;
+                    else
+                        return;
+                }
             }
 
             IsDroppedDown = false;
             ClientRectangle = new Rectangle(ClientRectangle.X, ClientRectangle.Y, ClientRectangle.Width, dropDownTexture.Height);
-
-            leftClickHandled = true;
-        }
-
-        public override void OnMouseMove()
-        {
-            base.OnMouseMove();
-
-            if (!IsDroppedDown)
-                return;
-
-            Point p = GetCursorPoint();
-
-            if (p.Y > dropDownTexture.Height + 1)
-            {
-                int y = p.Y - dropDownTexture.Height + 1;
-                int itemIndex = y / _itemHeight;
-
-                hoveredIndex = itemIndex;
-            }
         }
 
         public override void Draw(GameTime gameTime)
@@ -273,7 +281,15 @@ namespace Rampastring.XNAUI.DXControls
                             textX += item.Texture.Width + 1;
                         }
 
-                        Renderer.DrawStringWithShadow(item.Text, FontIndex, new Vector2(wr.X + textX, y + 1), item.TextColor);
+                        Color textColor;
+
+                        if (item.Selectable)
+                            textColor = item.TextColor;
+                        else
+                            textColor = DisabledItemColor;
+
+                        
+                        Renderer.DrawStringWithShadow(item.Text, FontIndex, new Vector2(wr.X + textX, y + 1), textColor);
                     }
                 }
                 else

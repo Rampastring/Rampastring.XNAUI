@@ -361,8 +361,10 @@ namespace Rampastring.XNAUI.DXControls
 
                 for (int i = Children.Count - 1; i > -1; i--)
                 {
-                    if (Children[i].Visible && Children[i].InputEnabled && 
-                        Children[i].WindowRectangle().Contains(Cursor.Location) && !activeChildFound)
+                    DXControl child = Children[i];
+
+                    if (child.Visible && (child.Focused || (child.InputEnabled && 
+                        child.WindowRectangle().Contains(Cursor.Location) && !activeChildFound)))
                     {
                         Children[i].IsActive = true;
                         activeChildFound = true;

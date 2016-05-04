@@ -358,10 +358,10 @@ namespace Rampastring.XNAUI
                 {
                     DXControl control = Controls[i];
 
-                    if ((!activeControlFound &&
-                        control.ClientRectangle.Contains(Cursor.Location) &&
-                        control.Visible) 
-                        || control.Focused)
+                    if (control.Visible && (!activeControlFound &&
+                        control.ClientRectangle.Contains(Cursor.Location)
+                        || 
+                        control.Focused))
                     {
                         control.IsActive = true;
                         activeControlFound = true;

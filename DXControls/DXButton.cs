@@ -16,7 +16,7 @@ namespace Rampastring.XNAUI.DXControls
         {
             AlphaRate = UISettings.DefaultAlphaRate;
             TextColorIdle = UISettings.ButtonColor;
-            TextColorHover = UISettings.AltColor;
+            TextColorHover = UISettings.ButtonHoverColor;
         }
 
         public Texture2D IdleTexture { get; set; }

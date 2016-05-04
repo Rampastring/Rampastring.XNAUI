@@ -182,8 +182,10 @@ namespace Rampastring.XNAUI.DXControls
                 checkedTexture = DisabledCheckedTexture;
             }
 
-            int checkBoxYPosition = ClientRectangle.Y;
-            int textYPosition = ClientRectangle.Y + textLocationY;
+            Rectangle displayRectangle = WindowRectangle();
+
+            int checkBoxYPosition = displayRectangle.Y;
+            int textYPosition = displayRectangle.Y + textLocationY;
 
             if (textLocationY < 0)
             {
@@ -192,11 +194,11 @@ namespace Rampastring.XNAUI.DXControls
                 // rectangle and the check-box in the middle of the text.
                 // This is necessary for input to work properly.
                 checkBoxYPosition -= textLocationY;
-                textYPosition = ClientRectangle.Y;
+                textYPosition = displayRectangle.Y;
             }
 
             Renderer.DrawStringWithShadow(Text, FontIndex,
-                new Vector2(ClientRectangle.X + checkedTexture.Width + TEXT_PADDING, textYPosition),
+                new Vector2(displayRectangle.X + checkedTexture.Width + TEXT_PADDING, textYPosition),
                 _textColor);
 
             // Might not be worth it to save one draw-call per frame with a confusing
@@ -204,24 +206,24 @@ namespace Rampastring.XNAUI.DXControls
             if (checkedAlpha == 0.0)
             {
                 Renderer.DrawTexture(clearTexture,
-                    new Rectangle(ClientRectangle.X, checkBoxYPosition,
+                    new Rectangle(displayRectangle.X, checkBoxYPosition,
                     clearTexture.Width, clearTexture.Height), Color.White);
             }
             else if (checkedAlpha == 1.0)
             {
                 Renderer.DrawTexture(checkedTexture,
-                    new Rectangle(ClientRectangle.X, checkBoxYPosition,
+                    new Rectangle(displayRectangle.X, checkBoxYPosition,
                     clearTexture.Width, clearTexture.Height), 
                     new Color(255, 255, 255, (int)(checkedAlpha * 255)));
             }
             else
             {
                 Renderer.DrawTexture(clearTexture,
-                    new Rectangle(ClientRectangle.X, checkBoxYPosition,
+                    new Rectangle(displayRectangle.X, checkBoxYPosition,
                     clearTexture.Width, clearTexture.Height), Color.White);
 
                 Renderer.DrawTexture(checkedTexture,
-                    new Rectangle(ClientRectangle.X, checkBoxYPosition,
+                    new Rectangle(displayRectangle.X, checkBoxYPosition,
                     clearTexture.Width, clearTexture.Height),
                     new Color(255, 255, 255, (int)(checkedAlpha * 255)));
             }

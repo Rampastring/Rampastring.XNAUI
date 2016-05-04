@@ -11,6 +11,8 @@ namespace Rampastring.XNAUI
 
         public static Color ButtonColor { get; set; }
 
+        public static Color ButtonHoverColor { get; set; }
+
         public static Color BackgroundColor { get; set; }
 
         public static Color PanelBorderColor { get; set; }

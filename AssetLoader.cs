@@ -15,12 +15,14 @@ namespace Rampastring.XNAUI
         public static List<string> AssetSearchPaths;
 
         static List<Texture2D> TextureCache;
+        static List<SoundEffect> SoundCache;
 
         public static void Initialize(GraphicsDevice gd)
         {
             GraphicsDevice = gd;
             AssetSearchPaths = new List<string>();
             TextureCache = new List<Texture2D>();
+            SoundCache = new List<SoundEffect>();
         }
 
         /// <summary>
@@ -103,12 +105,22 @@ namespace Rampastring.XNAUI
 
         public static SoundEffect LoadSound(string name)
         {
+            SoundEffect cachedSound = SoundCache.Find(se => se.Name == name);
+
+            if (cachedSound != null)
+                return cachedSound;
+
             foreach (string searchPath in AssetSearchPaths)
             {
                 if (File.Exists(searchPath + name))
                 {
                     using (FileStream fs = File.OpenRead(searchPath + name))
-                        return SoundEffect.FromStream(fs);
+                    {
+                        SoundEffect se = SoundEffect.FromStream(fs);
+                        se.Name = name;
+                        SoundCache.Add(se);
+                        return se;
+                    }
                 }
             }
 
