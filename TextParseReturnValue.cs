@@ -34,6 +34,9 @@ namespace Rampastring.XNAUI
 
         public static List<string> GetFixedTextLines(SpriteFont spriteFont, int width, string text)
         {
+            if (String.IsNullOrEmpty(text))
+                return new List<string>();
+
             string line = String.Empty;
             List<string> returnValue = new List<string>();
             string[] wordArray = text.Split(' ');

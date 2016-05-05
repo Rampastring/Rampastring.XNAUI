@@ -160,6 +160,13 @@ namespace Rampastring.XNAUI.DXControls
             if (textLines.Count == 0)
                 textLines.Add(String.Empty);
             listBoxItem.TextLines = textLines;
+
+            if (textLines.Count == 1)
+            {
+                Vector2 textSize = Renderer.GetTextDimensions(textLines[0], FontIndex);
+                listBoxItem.TextYPadding = (LineHeight - (int)textSize.Y) / 2;
+            }
+
             Items.Add(listBoxItem);
         }
 
@@ -403,15 +410,25 @@ namespace Rampastring.XNAUI.DXControls
 
                 if (lbItem.Texture != null)
                 {
+                    int textureHeight = lbItem.Texture.Height;
+                    int textureYPosition = 0;
+
+                    if (lbItem.Texture.Height > LineHeight)
+                        textureHeight = LineHeight;
+                    else
+                        textureYPosition = (LineHeight - textureHeight) / 2;
+
                     Renderer.DrawTexture(lbItem.Texture,
-                        new Rectangle(windowRectangle.X + x, windowRectangle.Y + height, LineHeight, LineHeight), GetColorWithAlpha(Color.White));
-                    x += LineHeight + 2;
+                        new Rectangle(windowRectangle.X + x, windowRectangle.Y + height + textureYPosition, 
+                        lbItem.Texture.Width, textureHeight), Color.White);
+
+                    x += lbItem.Texture.Width + 2;
                 }
 
                 for (int j = 0; j < lbItem.TextLines.Count; j++)
                 {
                     Renderer.DrawStringWithShadow(lbItem.TextLines[j], FontIndex, 
-                        new Vector2(windowRectangle.X + x, windowRectangle.Y + height + j * LineHeight), GetColorWithAlpha(lbItem.TextColor));
+                        new Vector2(windowRectangle.X + x, windowRectangle.Y + height + j * LineHeight + lbItem.TextYPadding), GetColorWithAlpha(lbItem.TextColor));
                 }
 
                 height += lbItem.TextLines.Count * LineHeight;
@@ -428,6 +445,8 @@ namespace Rampastring.XNAUI.DXControls
         public Texture2D Texture { get; set; }
 
         public string Text { get; set; }
+
+        public int TextYPadding { get; set; }
 
         bool selectable = true;
         public bool Selectable

@@ -26,8 +26,18 @@ namespace Rampastring.XNAUI.DXControls
 
         public int FontIndex { get; set; }
 
+        int _lineHeight = 15;
+        public int LineHeight
+        {
+            get { return _lineHeight; }
+            set { _lineHeight = value; }
+        }
+
+        public bool DrawListBoxBorders { get; set; }
+
         List<ListBoxColumn> columns = new List<ListBoxColumn>();
         List<DXListBox> listBoxes = new List<DXListBox>();
+        List<DXPanel> headers = new List<DXPanel>();
 
         bool handleSelectedIndexChanged = true;
 
@@ -70,15 +80,21 @@ namespace Rampastring.XNAUI.DXControls
                 AddChild(headerPanel);
                 headerPanel.AddChild(header);
 
-                headerPanel.ClientRectangle = new Rectangle(w, 0, column.Width, header.ClientRectangle.Height + 3);
+                if (DrawListBoxBorders)
+                    headerPanel.ClientRectangle = new Rectangle(w, 0, column.Width + 1, header.ClientRectangle.Height + 3);
+                else
+                    headerPanel.ClientRectangle = new Rectangle(w, 0, column.Width, header.ClientRectangle.Height + 3);
+
+                headers.Add(headerPanel);
 
                 DXListBox listBox = new DXListBox(WindowManager);
                 listBox.FontIndex = FontIndex;
-                listBox.ClientRectangle = new Rectangle(w, headerPanel.ClientRectangle.Bottom - 1, column.Width + 2, this.ClientRectangle.Height - headerPanel.ClientRectangle.Bottom + 1);
-                listBox.DrawBorders = false;
+                listBox.ClientRectangle = new Rectangle(w, headerPanel.ClientRectangle.Bottom - 1, column.Width + 1, this.ClientRectangle.Height - headerPanel.ClientRectangle.Bottom + 1);
+                listBox.DrawBorders = DrawListBoxBorders;
                 listBox.TopIndexChanged += ListBox_TopIndexChanged;
                 listBox.SelectedIndexChanged += ListBox_SelectedIndexChanged;
                 listBox.TextBorderDistance = 5;
+                listBox.LineHeight = _lineHeight;
 
                 listBoxes.Add(listBox);
 
@@ -88,7 +104,21 @@ namespace Rampastring.XNAUI.DXControls
             }
 
             DXListBox lb = listBoxes[listBoxes.Count - 1];
-            lb.ClientRectangle = new Rectangle(lb.ClientRectangle.X, lb.ClientRectangle.Y, lb.ClientRectangle.Width - 2, lb.ClientRectangle.Height);
+
+            if (DrawListBoxBorders)
+            {
+                lb.ClientRectangle = new Rectangle(lb.ClientRectangle.X, lb.ClientRectangle.Y,
+                    lb.ClientRectangle.Width - 1, lb.ClientRectangle.Height);
+                DXPanel headerPanel = headers[headers.Count - 1];
+                headerPanel.ClientRectangle = new Rectangle(headerPanel.ClientRectangle.X,
+                    headerPanel.ClientRectangle.Y, headerPanel.ClientRectangle.Width - 1,
+                    headerPanel.ClientRectangle.Height);
+            }
+            else
+            {
+                lb.ClientRectangle = new Rectangle(lb.ClientRectangle.X, lb.ClientRectangle.Y,
+                    lb.ClientRectangle.Width - 2, lb.ClientRectangle.Height);
+            }
         }
 
         private void ListBox_SelectedIndexChanged(object sender, EventArgs e)
@@ -125,6 +155,11 @@ namespace Rampastring.XNAUI.DXControls
                 lb.Clear();
         }
 
+        public void SetTopIndex(int topIndex)
+        {
+            listBoxes[0].TopIndex = topIndex;
+        }
+
         public void AddItem(List<string> info, bool selectable)
         {
             if (info.Count != listBoxes.Count)
@@ -145,6 +180,15 @@ namespace Rampastring.XNAUI.DXControls
             {
                 listBoxes[i].AddItem(info[i], selectable);
             }
+        }
+
+        public void AddItem(DXListBoxItem[] items)
+        {
+            if (items.Length != listBoxes.Count)
+                throw new Exception("DXMultiColumnListBox.AddItem: Invalid amount of list box items for added item!");
+
+            for (int i = 0; i < items.Length; i++)
+                listBoxes[i].AddItem(items[i]);
         }
     }
 

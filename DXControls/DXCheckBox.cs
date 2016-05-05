@@ -31,7 +31,7 @@ namespace Rampastring.XNAUI.DXControls
         public bool AllowChecking
         {
             get { return _allowChecking; }
-            set { _allowChecking = true; }
+            set { _allowChecking = value; }
         }
 
         public int FontIndex { get; set; }
@@ -171,7 +171,7 @@ namespace Rampastring.XNAUI.DXControls
             Texture2D clearTexture;
             Texture2D checkedTexture;
 
-            if (Enabled)
+            if (AllowChecking)
             {
                 clearTexture = ClearTexture;
                 checkedTexture = CheckedTexture;
@@ -197,9 +197,18 @@ namespace Rampastring.XNAUI.DXControls
                 textYPosition = displayRectangle.Y;
             }
 
-            Renderer.DrawStringWithShadow(Text, FontIndex,
-                new Vector2(displayRectangle.X + checkedTexture.Width + TEXT_PADDING, textYPosition),
-                _textColor);
+            if (!String.IsNullOrEmpty(Text))
+            {
+                Color textColor = _textColor;
+                if (AllowChecking)
+                    textColor = _textColor;
+                else
+                    textColor = Color.Gray;
+
+                Renderer.DrawStringWithShadow(Text, FontIndex,
+                    new Vector2(displayRectangle.X + checkedTexture.Width + TEXT_PADDING, textYPosition),
+                    textColor);
+            }
 
             // Might not be worth it to save one draw-call per frame with a confusing
             // if-else routine, but oh well
