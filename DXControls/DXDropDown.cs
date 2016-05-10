@@ -164,7 +164,7 @@ namespace Rampastring.XNAUI.DXControls
             // Hide the drop-down if the left mouse button is clicked while the
             // cursor isn't on this control
             if (IsDroppedDown && Cursor.LeftClicked && !leftClickHandled)
-                OnLeftClick(); 
+                OnLeftClick();
 
             leftClickHandled = false;
 
@@ -175,15 +175,19 @@ namespace Rampastring.XNAUI.DXControls
 
             Point p = GetCursorPoint();
 
-            if (p.Y > dropDownTexture.Height + 1)
+            if (!IsActive || 
+                p.Y < dropDownTexture.Height + 1)
             {
-                int y = p.Y - dropDownTexture.Height + 1;
-                int itemIndex = y / _itemHeight;
+                hoveredIndex = -1;
+                return;
+            }
 
-                if (itemIndex < Items.Count && itemIndex > -1)
-                {
-                    hoveredIndex = Items[itemIndex].Selectable ? itemIndex : -1;
-                }
+            int y = p.Y - dropDownTexture.Height - 1;
+            int itemIndex = y / _itemHeight;
+
+            if (itemIndex < Items.Count && itemIndex > -1)
+            {
+                hoveredIndex = Items[itemIndex].Selectable ? itemIndex : -1;
             }
         }
 
@@ -211,9 +215,10 @@ namespace Rampastring.XNAUI.DXControls
 
             Point p = GetCursorPoint();
 
-            if (p.Y > dropDownTexture.Height + 1)
+            if (IsActive && 
+                p.Y > dropDownTexture.Height + 1)
             {
-                int y = p.Y - dropDownTexture.Height + 1;
+                int y = p.Y - dropDownTexture.Height - 1;
                 int itemIndex = y / _itemHeight;
 
                 if (itemIndex < Items.Count && itemIndex > -1)

@@ -128,6 +128,11 @@ namespace Rampastring.XNAUI.DXControls
                     (int)textDimensions.X + TEXT_PADDING + CheckedTexture.Width,
                     Math.Max((int)textDimensions.Y, CheckedTexture.Height));
             }
+            else
+            {
+                ClientRectangle = new Rectangle(ClientRectangle.X, ClientRectangle.Y, 
+                    CheckedTexture.Width, CheckedTexture.Height);
+            }
         }
 
         public override void OnLeftClick()

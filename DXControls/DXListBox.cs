@@ -38,11 +38,11 @@ namespace Rampastring.XNAUI.DXControls
 
         public int FontIndex { get; set; }
 
-        int _textBorderDistance = 3;
+        int _itemBorderDistance = 3;
         public int TextBorderDistance
         {
-            get { return _textBorderDistance; }
-            set { _textBorderDistance = value; }
+            get { return _itemBorderDistance; }
+            set { _itemBorderDistance = value; }
         }
 
         int topIndex = 0;
@@ -399,7 +399,7 @@ namespace Rampastring.XNAUI.DXControls
                 if (height + lbItem.TextLines.Count * LineHeight > ClientRectangle.Height)
                     break;
 
-                int x = _textBorderDistance;
+                int x = _itemBorderDistance;
 
                 if (i == SelectedIndex)
                 {

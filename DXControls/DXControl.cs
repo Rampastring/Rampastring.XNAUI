@@ -399,10 +399,9 @@ namespace Rampastring.XNAUI.DXControls
                     OnMouseScrolled();
                 }
             }
-            else
+            else if (CursorOnControl)
             {
-                if (CursorOnControl)
-                    OnMouseLeave();
+                OnMouseLeave();
 
                 CursorOnControl = false;
             }

@@ -38,11 +38,11 @@ namespace Rampastring.XNAUI.DXControls
 
         public int FontIndex { get; set; }
 
-        bool allowClick = true;
+        bool _allowClick = true;
         public bool AllowClick
         {
-            get { return allowClick; }
-            set { allowClick = value; }
+            get { return _allowClick; }
+            set { _allowClick = value; }
         }
 
         string _text = String.Empty;
