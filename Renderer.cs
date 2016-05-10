@@ -52,17 +52,10 @@ namespace Rampastring.XNAUI
 
         public static void BeginDraw()
         {
-            BlendState bs = new BlendState();
-            //bs.SeparateAlphaBlendEnabled = true;
-            bs.AlphaDestinationBlend = Blend.One;
-            bs.AlphaSourceBlend = Blend.SourceAlpha;
-            bs.ColorSourceBlend = Blend.SourceAlpha;
-            bs.ColorDestinationBlend = Blend.InverseSourceAlpha;
-
-            SpriteBatch.Begin(SpriteSortMode.Deferred, bs);
+            BeginDraw(SamplerState.LinearClamp);
         }
 
-        public static void BeginDraw2()
+        public static void BeginDraw(SamplerState ss)
         {
             BlendState bs = new BlendState();
             bs.AlphaDestinationBlend = Blend.One;
@@ -70,7 +63,7 @@ namespace Rampastring.XNAUI
             bs.ColorSourceBlend = Blend.SourceAlpha;
             bs.ColorDestinationBlend = Blend.InverseSourceAlpha;
 
-            SpriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend);
+            SpriteBatch.Begin(SpriteSortMode.Deferred, bs, ss);
         }
 
         public static void DrawTexture(Texture2D texture, Rectangle rectangle, Color color)
