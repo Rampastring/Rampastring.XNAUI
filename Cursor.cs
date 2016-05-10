@@ -6,11 +6,12 @@ namespace Rampastring.XNAUI
 {
     public class Cursor : DrawableGameComponent
     {
-        public Cursor(Game game)
-            : base(game)
+        public Cursor(WindowManager windowManager)
+            : base(windowManager.Game)
         {
             previousMouseState = Mouse.GetState();
             RemapColor = Color.White;
+            this.windowManager = windowManager;
         }
 
         public Point Location { get; set; }
@@ -37,6 +38,8 @@ namespace Rampastring.XNAUI
 
         public Color RemapColor { get; set; }
 
+        WindowManager windowManager;
+
         public override void Initialize()
         {
         }
@@ -61,8 +64,8 @@ namespace Rampastring.XNAUI
 
             Point location = DrawnLocation;
 
-            location = new Point((int)(location.X / WindowManager.Instance.ScaleRatio), (int)(location.Y / WindowManager.Instance.ScaleRatio));
-            location = location - new Point(WindowManager.Instance.SceneXPosition, WindowManager.Instance.SceneYPosition);
+            location = location - new Point(windowManager.SceneXPosition, windowManager.SceneYPosition);
+            location = new Point((int)(location.X / windowManager.ScaleRatio), (int)(location.Y / windowManager.ScaleRatio));
 
             HasMoved = (location != Location);
 

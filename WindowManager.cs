@@ -18,17 +18,10 @@ namespace Rampastring.XNAUI
         public WindowManager(Game game, GraphicsDeviceManager graphics) : base(game)
         {
             this.graphics = graphics;
-
-            if (Instance != null)
-                throw new Exception("WindowManager already exists!");
-
-            Instance = this;
         }
 
         public delegate void GameFormClosingEventHandler(object sender, FormClosingEventArgs eventArgs);
         public event GameFormClosingEventHandler GameFormClosing;
-
-        public static WindowManager Instance;
 
         public Cursor Cursor;
         public RKeyboard Keyboard;
@@ -83,21 +76,34 @@ namespace Rampastring.XNAUI
             renderResX = x;
             renderResY = y;
 
-            double intendedRatio = renderResX / (double)renderResY;
-            double xyRatio = resolutionWidth / (double)resolutionHeight;
+            double xRatio = (resolutionWidth) / (double)x;
+            double yRatio = (resolutionHeight) / (double)y;
 
-            double ratioDifference = xyRatio - intendedRatio;
+            double ratio;
 
-            if (ratioDifference > 0.0)
+            int texturePositionX = 0;
+            int texturePositionY = 0;
+            int textureHeight = 0;
+            int textureWidth = 0;
+
+            if (xRatio > yRatio)
             {
-                SceneXPosition = (int)(ratioDifference * resolutionHeight) / 2;
-                ScaleRatio = resolutionHeight / (double)renderResY;
+                ratio = yRatio;
+                textureHeight = resolutionHeight;
+                textureWidth = (int)(x * ratio);
+                texturePositionX = (int)(resolutionWidth - textureWidth) / 2;
             }
             else
             {
-                SceneYPosition = (int)(-ratioDifference * resolutionWidth) / 2;
-                ScaleRatio = resolutionWidth / (double)renderResX;
+                ratio = xRatio;
+                textureWidth = resolutionWidth;
+                textureHeight = (int)(y * ratio);
+                texturePositionY = (int)(resolutionHeight - textureHeight) / 2;
             }
+
+            ScaleRatio = ratio;
+            SceneXPosition = texturePositionX;
+            SceneYPosition = texturePositionY;
 
             Logger.Log("Scale ratio: " + ScaleRatio);
 
@@ -107,7 +113,7 @@ namespace Rampastring.XNAUI
 
         public void Initialize(ContentManager content, string contentPath)
         {
-            Cursor = new Cursor(Game);
+            Cursor = new Cursor(this);
             Keyboard = new RKeyboard(Game);
             Renderer.Initialize(GraphicsDevice, content, contentPath);
 
@@ -346,38 +352,33 @@ namespace Rampastring.XNAUI
             _hasFocus = (System.Windows.Forms.Form.ActiveForm != null);
 #endif
             Cursor.HasFocus = _hasFocus;
-            Keyboard.HasFocus = _hasFocus;
-
-            bool activeControlFound = false;
 
             DXControl activeControl = null;
 
             if (_hasFocus)
-            {
-                for (int i = Controls.Count - 1; i > -1; i--)
-                {
-                    DXControl control = Controls[i];
-
-                    if (control.Visible && (!activeControlFound &&
-                        control.ClientRectangle.Contains(Cursor.Location)
-                        || 
-                        control.Focused))
-                    {
-                        control.IsActive = true;
-                        activeControlFound = true;
-                        activeControl = control;
-                    }
-                    else if (activeControl != control)
-                        control.IsActive = false;
-
-                    if (control.Enabled)
-                        control.Update(gameTime);
-                }
-
                 Keyboard.Update(gameTime);
-            }
 
             Cursor.Update(gameTime);
+
+            for (int i = Controls.Count - 1; i > -1; i--)
+            {
+                DXControl control = Controls[i];
+
+                if (_hasFocus && control.Visible && 
+                    (activeControl == null &&
+                    control.ClientRectangle.Contains(Cursor.Location)
+                    ||
+                    control.Focused))
+                {
+                    control.IsActive = true;
+                    activeControl = control;
+                }
+                else
+                    control.IsActive = false;
+
+                if (control.Enabled)
+                    control.Update(gameTime);
+            }
 
             base.Update(gameTime);
         }

@@ -25,15 +25,10 @@ namespace Rampastring.XNAUI
 
         static Keys[] pressedKeys = new Keys[0];
 
-        public bool HasFocus { get; set; }
-
         public List<Keys> PressedKeys;
 
         public override void Update(GameTime gameTime)
         {
-            if (!HasFocus)
-                return;
-
             KeyboardState = Keyboard.GetState();
             PressedKeys.Clear();
 
