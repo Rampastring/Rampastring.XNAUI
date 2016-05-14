@@ -79,10 +79,12 @@ namespace Rampastring.XNAUI.DXControls
             foreach (DXPanel headerPanel in headers)
                 width += headerPanel.ClientRectangle.Width;
 
+            header.ClientRectangle = new Rectangle(width - 1, 0, header.ClientRectangle.Width, header.ClientRectangle.Height);
+
             headers.Add(header);
             AddChild(header);
 
-            listBox.ClientRectangle = new Rectangle(width, header.ClientRectangle.Bottom - 1,
+            listBox.ClientRectangle = new Rectangle(width - 1, header.ClientRectangle.Bottom - 1,
                 header.ClientRectangle.Width, this.ClientRectangle.Height - header.ClientRectangle.Bottom + 1);
             listBox.DrawBorders = DrawListBoxBorders;
             listBox.LineHeight = _lineHeight;
@@ -123,7 +125,16 @@ namespace Rampastring.XNAUI.DXControls
 
                 DXListBox listBox = new DXListBox(WindowManager);
                 listBox.FontIndex = FontIndex;
-                listBox.ClientRectangle = new Rectangle(width, headerPanel.ClientRectangle.Bottom - 1, column.Width + 1, this.ClientRectangle.Height - headerPanel.ClientRectangle.Bottom + 1);
+                if (DrawListBoxBorders)
+                {
+                    listBox.ClientRectangle = new Rectangle(width, headerPanel.ClientRectangle.Bottom - 1,
+                        column.Width + 1, this.ClientRectangle.Height - headerPanel.ClientRectangle.Bottom + 1);
+                }
+                else
+                {
+                    listBox.ClientRectangle = new Rectangle(width, headerPanel.ClientRectangle.Bottom - 1,
+                        column.Width + 2, this.ClientRectangle.Height - headerPanel.ClientRectangle.Bottom + 1);
+                }
                 listBox.DrawBorders = DrawListBoxBorders;
                 listBox.TopIndexChanged += ListBox_TopIndexChanged;
                 listBox.SelectedIndexChanged += ListBox_SelectedIndexChanged;

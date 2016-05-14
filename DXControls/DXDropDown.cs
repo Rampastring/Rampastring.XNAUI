@@ -1,14 +1,13 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Graphics;
-using Rampastring.Tools;
 using System;
 using System.Collections.Generic;
 
 namespace Rampastring.XNAUI.DXControls
 {
     /// <summary>
-    /// A combo box, commonly also known as a drop-down box.
+    /// A drop-down.
     /// </summary>
     public class DXDropDown : DXControl
     {
@@ -173,22 +172,12 @@ namespace Rampastring.XNAUI.DXControls
 
             // Update hovered index
 
-            Point p = GetCursorPoint();
+            int itemIndexOnCursor = GetItemIndexOnCursor();
 
-            if (!IsActive || 
-                p.Y < dropDownTexture.Height + 1)
-            {
+            if (itemIndexOnCursor > -1 && Items[itemIndexOnCursor].Selectable)
+                hoveredIndex = itemIndexOnCursor;
+            else
                 hoveredIndex = -1;
-                return;
-            }
-
-            int y = p.Y - dropDownTexture.Height - 1;
-            int itemIndex = y / _itemHeight;
-
-            if (itemIndex < Items.Count && itemIndex > -1)
-            {
-                hoveredIndex = Items[itemIndex].Selectable ? itemIndex : -1;
-            }
         }
 
         public override void OnLeftClick()
@@ -213,25 +202,45 @@ namespace Rampastring.XNAUI.DXControls
                 return;
             }
 
-            Point p = GetCursorPoint();
+            int itemIndexOnCursor = GetItemIndexOnCursor();
 
-            if (IsActive && 
-                p.Y > dropDownTexture.Height + 1)
+            if (itemIndexOnCursor > -1)
             {
-                int y = p.Y - dropDownTexture.Height - 1;
-                int itemIndex = y / _itemHeight;
-
-                if (itemIndex < Items.Count && itemIndex > -1)
-                {
-                    if (Items[itemIndex].Selectable)
-                        SelectedIndex = itemIndex;
-                    else
-                        return;
-                }
+                if (Items[itemIndexOnCursor].Selectable)
+                    SelectedIndex = itemIndexOnCursor;
+                else
+                    return;
             }
 
             IsDroppedDown = false;
             ClientRectangle = new Rectangle(ClientRectangle.X, ClientRectangle.Y, ClientRectangle.Width, dropDownTexture.Height);
+        }
+
+        /// <summary>
+        /// Returns the index of the item that the cursor currently points to.
+        /// </summary>
+        private int GetItemIndexOnCursor()
+        {
+            Point p = GetCursorPoint();
+
+            Rectangle displayRectangle = WindowRectangle();
+
+            if (p.X < 0 || p.X > ClientRectangle.Width ||
+                p.Y > ClientRectangle.Height ||
+                p.Y < dropDownTexture.Height + 1)
+            {
+                return -1;
+            }
+
+            int y = p.Y - dropDownTexture.Height - 1;
+            int itemIndex = y / _itemHeight;
+
+            if (itemIndex < Items.Count && itemIndex > -1)
+            {
+                return itemIndex;
+            }
+
+            return -1;
         }
 
         public override void Draw(GameTime gameTime)
@@ -302,37 +311,6 @@ namespace Rampastring.XNAUI.DXControls
             }
 
             base.Draw(gameTime);
-        }
-    }
-
-    public class DXDropDownItem
-    {
-        public Color TextColor { get; set; }
-
-        public Texture2D Texture { get; set; }
-
-        public string Text { get; set; }
-
-        bool selectable = true;
-        public bool Selectable
-        {
-            get { return selectable; }
-            set { selectable = value; }
-        }
-
-        float alpha = 1.0f;
-        public float Alpha
-        {
-            get { return alpha; }
-            set
-            {
-                if (value < 0.0f)
-                    alpha = 0.0f;
-                else if (value > 1.0f)
-                    alpha = 1.0f;
-                else
-                    alpha = value;
-            }
         }
     }
 }

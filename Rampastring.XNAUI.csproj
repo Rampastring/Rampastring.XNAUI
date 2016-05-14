@@ -51,8 +51,10 @@
     <Compile Include="DXControls\Callback.cs" />
     <Compile Include="DXControls\DXButton.cs" />
     <Compile Include="DXControls\DXCheckBox.cs" />
+    <Compile Include="DXControls\DXContextMenu.cs" />
     <Compile Include="DXControls\DXDropDown.cs" />
     <Compile Include="DXControls\DXControl.cs" />
+    <Compile Include="DXControls\DXDropDownItem.cs" />
     <Compile Include="DXControls\DXLabel.cs" />
     <Compile Include="DXControls\DXListBox.cs" />
     <Compile Include="DXControls\DXMultiColumnListBox.cs" />

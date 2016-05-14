@@ -147,5 +147,25 @@ namespace Rampastring.XNAUI
                 throw new Exception("AssetLoader.GetColorFromString: Failed to convert " + colorString + " to a valid color!");
             }
         }
+
+        /// <summary>
+        /// Creates a color based on a color string in the form "R,G,B,A". All values must be between 0 and 255.
+        /// </summary>
+        public static Color GetARGBColorFromString(string colorString)
+        {
+            try
+            {
+                string[] colorArray = colorString.Split(',');
+                Color color = new Color(Convert.ToByte(colorArray[0]), 
+                    Convert.ToByte(colorArray[1]), 
+                    Convert.ToByte(colorArray[2]),
+                    Convert.ToByte(colorArray[3]));
+                return color;
+            }
+            catch
+            {
+                throw new Exception("AssetLoader.GetColorFromString: Failed to convert " + colorString + " to a valid color!");
+            }
+        }
     }
 }

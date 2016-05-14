@@ -412,6 +412,8 @@ namespace Rampastring.XNAUI
 
             Renderer.BeginDraw();
 
+            //Renderer.DrawTexture(renderTarget, Vector2.Zero, 0.02f, Vector2.Zero, new Vector2(1f, 1f), Color.White);
+
             Renderer.DrawTexture(renderTarget, new Rectangle(SceneXPosition, SceneYPosition,
                 resolutionWidth - (SceneXPosition * 2), resolutionHeight - (SceneYPosition * 2)), Color.White);
 

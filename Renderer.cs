@@ -81,6 +81,14 @@ namespace Rampastring.XNAUI
             SpriteBatch.Draw(texture, location, null, null, origin, rotation, scale, color, SpriteEffects.None, 0f);
         }
 
+        public static void DrawString(string text, int fontIndex, float scale, Vector2 location, Color color)
+        {
+            if (fontIndex >= Fonts.Count)
+                throw new Exception("Invalid font index: " + fontIndex);
+
+            SpriteBatch.DrawString(Fonts[fontIndex], text, location, color, 0f, Vector2.Zero, scale, SpriteEffects.None, 0f);
+        }
+
         public static void DrawStringWithShadow(string text, int fontIndex, Vector2 location, Color color)
         {
             if (fontIndex >= Fonts.Count)
