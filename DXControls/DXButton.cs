@@ -173,13 +173,13 @@ namespace Rampastring.XNAUI.DXControls
                     ClickSoundEffect = AssetLoader.LoadSound(value);
                     return;
                 case "AdaptiveText":
-                    AdaptiveText = Utilities.BooleanFromString(value, true);
+                    AdaptiveText = Conversions.BooleanFromString(value, true);
                     return;
                 case "AlphaRate":
-                    AlphaRate = Utilities.FloatFromString(value, 0.01f);
+                    AlphaRate = Conversions.FloatFromString(value, 0.01f);
                     return;
                 case "FontIndex":
-                    FontIndex = Utilities.IntFromString(value, 0);
+                    FontIndex = Conversions.IntFromString(value, 0);
                     if (adaptiveText)
                         Text = _text;
                     return;

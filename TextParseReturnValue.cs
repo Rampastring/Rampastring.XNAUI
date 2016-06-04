@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using Microsoft.Xna.Framework.Graphics;
+using System.Text;
 
 namespace Rampastring.XNAUI
 {
@@ -34,26 +35,50 @@ namespace Rampastring.XNAUI
 
         public static List<string> GetFixedTextLines(SpriteFont spriteFont, int width, string text)
         {
-            if (String.IsNullOrEmpty(text))
+            if (string.IsNullOrEmpty(text))
                 return new List<string>();
 
-            string line = String.Empty;
+            string line = string.Empty;
             List<string> returnValue = new List<string>();
             string[] wordArray = text.Split(' ');
 
-            foreach (string word in wordArray)
+            if (wordArray.Length == 1)
             {
-                if (spriteFont.MeasureString(line + word).Length() > width)
+                StringBuilder sb = new StringBuilder();
+
+                string word = wordArray[0];
+
+                for (int i = 0; i < word.Length; i++)
                 {
-                    returnValue.Add(line);
-                    line = String.Empty;
+                    if (spriteFont.MeasureString(sb.ToString() + wordArray[0][i]).X > width)
+                    {
+                        returnValue.Add(sb.ToString());
+                        sb.Clear();
+                    }
+
+                    sb.Append(word[i]);
                 }
 
-                line = line + word + " ";
+                if (sb.Length > 0)
+                    returnValue.Add(sb.ToString());
+            }
+            else
+            {
+                foreach (string word in wordArray)
+                {
+                    if (spriteFont.MeasureString(line + word).X > width)
+                    {
+                        returnValue.Add(line);
+                        line = string.Empty;
+                    }
+
+                    line = line + word + " ";
+                }
+
+                if (!string.IsNullOrEmpty(line) && line.Length > 1)
+                    returnValue.Add(line);
             }
 
-            if (!String.IsNullOrEmpty(line) && line.Length > 1)
-                returnValue.Add(line);
             return returnValue;
         }
     }

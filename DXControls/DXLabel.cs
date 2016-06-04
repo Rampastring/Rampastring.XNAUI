@@ -45,7 +45,7 @@ namespace Rampastring.XNAUI.DXControls
             switch (key)
             {
                 case "FontIndex":
-                    FontIndex = Utilities.IntFromString(value, 0);
+                    FontIndex = Conversions.IntFromString(value, 0);
                     return;
             }
 

@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Drawing;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Graphics;
 using Rampastring.Tools;
+using Color = Microsoft.Xna.Framework.Color;
 
 namespace Rampastring.XNAUI
 {
@@ -103,6 +105,16 @@ namespace Rampastring.XNAUI
             return texture;
         }
 
+        public static Texture2D TextureFromImage(Image image)
+        {
+            using (MemoryStream stream = new MemoryStream())
+            {
+                image.Save(stream, System.Drawing.Imaging.ImageFormat.Png);
+                stream.Seek(0, SeekOrigin.Begin);
+                return Texture2D.FromStream(GraphicsDevice, stream);
+            }
+        }
+
         public static SoundEffect LoadSound(string name)
         {
             SoundEffect cachedSound = SoundCache.Find(se => se.Name == name);
@@ -151,7 +163,7 @@ namespace Rampastring.XNAUI
         /// <summary>
         /// Creates a color based on a color string in the form "R,G,B,A". All values must be between 0 and 255.
         /// </summary>
-        public static Color GetARGBColorFromString(string colorString)
+        public static Color GetRGBAColorFromString(string colorString)
         {
             try
             {
@@ -164,7 +176,7 @@ namespace Rampastring.XNAUI
             }
             catch
             {
-                throw new Exception("AssetLoader.GetColorFromString: Failed to convert " + colorString + " to a valid color!");
+                throw new Exception("AssetLoader.GetRGBAColorFromString: Failed to convert " + colorString + " to a valid color!");
             }
         }
     }

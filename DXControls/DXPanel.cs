@@ -63,13 +63,13 @@ namespace Rampastring.XNAUI.DXControls
                         DrawMode = PanelBackgroundImageDrawMode.STRETCHED;
                     return;
                 case "AlphaRate":
-                    AlphaRate = Utilities.FloatFromString(value, 0.01f);
+                    AlphaRate = Conversions.FloatFromString(value, 0.01f);
                     return;
                 case "BackgroundTexture":
                     BackgroundTexture = AssetLoader.LoadTexture(value);
                     return;
                 case "DrawBorders":
-                    DrawBorders = Utilities.BooleanFromString(value, true);
+                    DrawBorders = Conversions.BooleanFromString(value, true);
                     return;
                 case "Padding":
                     string[] parts = value.Split(',');

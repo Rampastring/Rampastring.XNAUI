@@ -10,6 +10,7 @@ using System.Drawing;
 using Color = Microsoft.Xna.Framework.Color;
 using Rectangle = Microsoft.Xna.Framework.Rectangle;
 using System.IO;
+using Rampastring.XNAUI.Input;
 
 namespace Rampastring.XNAUI
 {
@@ -20,13 +21,15 @@ namespace Rampastring.XNAUI
             this.graphics = graphics;
         }
 
-        public delegate void GameFormClosingEventHandler(object sender, FormClosingEventArgs eventArgs);
+        public delegate void GameFormClosingEventHandler(object sender, FormClosingEventArgs e);
         public event GameFormClosingEventHandler GameFormClosing;
 
-        public Cursor Cursor;
+        public Input.Cursor Cursor;
         public RKeyboard Keyboard;
 
         List<DXControl> Controls = new List<DXControl>();
+
+        List<Callback> Callbacks = new List<Callback>();
 
         private readonly object locker = new object();
 
@@ -113,9 +116,11 @@ namespace Rampastring.XNAUI
 
         public void Initialize(ContentManager content, string contentPath)
         {
-            Cursor = new Cursor(this);
+            Cursor = new Input.Cursor(this);
             Keyboard = new RKeyboard(Game);
             Renderer.Initialize(GraphicsDevice, content, contentPath);
+
+            KeyboardEventInput.Initialize(Game.Window);
 
             gameForm = (Form)Form.FromHandle(Game.Window.Handle);
 
@@ -123,6 +128,18 @@ namespace Rampastring.XNAUI
             {
                 gameForm.FormClosing += GameForm_FormClosing_Event;
             }
+        }
+
+        /// <summary>
+        /// Schedules a delegate to be executed on the next game loop frame, 
+        /// on the main game thread.
+        /// </summary>
+        /// <param name="d">The delegate.</param>
+        /// <param name="args">The arguments to be passed on to the delegate.</param>
+        public void AddCallback(Delegate d, params object[] args)
+        {
+            lock (locker)
+                Callbacks.Add(new Callback(d, args));
         }
 
         private void GameForm_FormClosing_Event(object sender, FormClosingEventArgs e)
@@ -352,6 +369,14 @@ namespace Rampastring.XNAUI
             _hasFocus = (System.Windows.Forms.Form.ActiveForm != null);
 #endif
             Cursor.HasFocus = _hasFocus;
+
+            lock (locker)
+            {
+                foreach (Callback c in Callbacks)
+                    c.Invoke();
+
+                Callbacks.Clear();
+            }
 
             DXControl activeControl = null;
 

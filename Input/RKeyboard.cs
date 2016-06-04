@@ -4,7 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Rampastring.XNAUI
+namespace Rampastring.XNAUI.Input
 {
     /// <summary>
     /// A class for handling the keyboard.
@@ -18,12 +18,12 @@ namespace Rampastring.XNAUI
             KeyboardState = Keyboard.GetState();
         }
 
-        public delegate void KeyPressedEventHandler(object sender, KeyPressEventArgs eventArgs);
+        public delegate void KeyPressedEventHandler(object sender, KeyPressEventArgs e);
         public event KeyPressedEventHandler OnKeyPressed;
 
         public KeyboardState KeyboardState;
 
-        static Keys[] pressedKeys = new Keys[0];
+        Keys[] DownKeys = new Keys[0];
 
         public List<Keys> PressedKeys;
 
@@ -32,16 +32,17 @@ namespace Rampastring.XNAUI
             KeyboardState = Keyboard.GetState();
             PressedKeys.Clear();
 
-            foreach (Keys key in pressedKeys)
+            foreach (Keys key in DownKeys)
             {
                 if (KeyboardState.IsKeyUp(key))
                 {
                     DoKeyPress(key);
                     PressedKeys.Add(key);
+                    
                 }
             }
 
-            pressedKeys = KeyboardState.GetPressedKeys();
+            DownKeys = KeyboardState.GetPressedKeys();
         }
 
         void DoKeyPress(Keys key)
@@ -50,9 +51,9 @@ namespace Rampastring.XNAUI
                 OnKeyPressed(this, new KeyPressEventArgs(key));
         }
 
-        public static bool IsKeyHeldDown(Keys key)
+        public bool IsKeyHeldDown(Keys key)
         {
-            return pressedKeys.Contains(key);
+            return DownKeys.Contains(key);
         }
     }
 

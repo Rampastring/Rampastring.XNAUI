@@ -3,6 +3,7 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Rampastring.XNAUI.DXControls
 {
@@ -14,7 +15,7 @@ namespace Rampastring.XNAUI.DXControls
             DefaultItemColor = UISettings.AltColor;
         }
 
-        const double SCROLL_REPEAT_TIME = 0.05;
+        const double SCROLL_REPEAT_TIME = 0.03;
         const double FAST_SCROLL_TRIGGER_TIME = 0.4;
 
         public delegate void HoveredIndexChangedEventHandler(object sender, EventArgs e);
@@ -26,7 +27,7 @@ namespace Rampastring.XNAUI.DXControls
         public delegate void TopIndexChangedEventHandler(object sender, EventArgs e);
         public event TopIndexChangedEventHandler TopIndexChanged;
 
-        List<DXListBoxItem> Items = new List<DXListBoxItem>();
+        public List<DXListBoxItem> Items = new List<DXListBoxItem>();
 
         public Texture2D BorderTexture { get; set; }
 
@@ -54,8 +55,7 @@ namespace Rampastring.XNAUI.DXControls
                 if (value != topIndex)
                 {
                     topIndex = value;
-                    if (TopIndexChanged != null)
-                        TopIndexChanged(this, EventArgs.Empty);
+                    TopIndexChanged?.Invoke(this, EventArgs.Empty);
                 }
             }
         }
@@ -165,6 +165,11 @@ namespace Rampastring.XNAUI.DXControls
             {
                 Vector2 textSize = Renderer.GetTextDimensions(textLines[0], FontIndex);
                 listBoxItem.TextYPadding = (LineHeight - (int)textSize.Y) / 2;
+
+                if (listBoxItem.IsHeader)
+                {
+                    listBoxItem.TextXPadding = (ClientRectangle.Width - (int)textSize.X) / 2;
+                }
             }
 
             Items.Add(listBoxItem);
@@ -202,6 +207,26 @@ namespace Rampastring.XNAUI.DXControls
             }
 
             return Items.Count - 1;
+        }
+
+        public void ScrollToBottom()
+        {
+            // Calculate the number of lines we need to scroll
+            int lastDisplayedItemIndex = GetLastDisplayedItemIndex();
+
+            int linesToScroll = 0;
+
+            for (int i = lastDisplayedItemIndex + 1; i < Items.Count; i++)
+                linesToScroll += Items[i].TextLines.Count;
+
+            // Now let's scroll by the necessary number of lines
+            int scrolledLines = 0;
+
+            while (scrolledLines < linesToScroll)
+            {
+                scrolledLines += Items[TopIndex].TextLines.Count;
+                TopIndex++;
+            }
         }
 
         public override void Initialize()
@@ -251,11 +276,11 @@ namespace Rampastring.XNAUI.DXControls
 
             if (IsActive)
             {
-                if (RKeyboard.IsKeyHeldDown(Keys.Up))
+                if (Keyboard.IsKeyHeldDown(Keys.Up))
                 {
                     HandleScrollKeyDown(gameTime, ScrollUp);
                 }
-                else if (RKeyboard.IsKeyHeldDown(Keys.Down))
+                else if (Keyboard.IsKeyHeldDown(Keys.Down))
                 {
                     HandleScrollKeyDown(gameTime, ScrollDown);
                 }
@@ -425,10 +450,13 @@ namespace Rampastring.XNAUI.DXControls
                     x += lbItem.Texture.Width + 2;
                 }
 
+                x += lbItem.TextXPadding;
+
                 for (int j = 0; j < lbItem.TextLines.Count; j++)
                 {
                     Renderer.DrawStringWithShadow(lbItem.TextLines[j], FontIndex, 
-                        new Vector2(windowRectangle.X + x, windowRectangle.Y + height + j * LineHeight + lbItem.TextYPadding), GetColorWithAlpha(lbItem.TextColor));
+                        new Vector2(windowRectangle.X + x, windowRectangle.Y + height + j * LineHeight + lbItem.TextYPadding),
+                        GetColorWithAlpha(lbItem.TextColor));
                 }
 
                 height += lbItem.TextLines.Count * LineHeight;
@@ -444,9 +472,15 @@ namespace Rampastring.XNAUI.DXControls
 
         public Texture2D Texture { get; set; }
 
+        public bool IsHeader { get; set; }
+
         public string Text { get; set; }
 
+        public object Tag { get; set; }
+
         public int TextYPadding { get; set; }
+
+        public int TextXPadding { get; set; }
 
         bool selectable = true;
         public bool Selectable

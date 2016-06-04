@@ -2,7 +2,7 @@
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 
-namespace Rampastring.XNAUI
+namespace Rampastring.XNAUI.Input
 {
     public class Cursor : DrawableGameComponent
     {

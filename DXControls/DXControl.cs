@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using Rampastring.Tools;
+using Rampastring.XNAUI.Input;
 
 namespace Rampastring.XNAUI.DXControls
 {
@@ -57,7 +58,7 @@ namespace Rampastring.XNAUI.DXControls
         /// <summary>
         /// The display rectangle of the control inside its parent.
         /// </summary>
-        public Rectangle ClientRectangle { get; set; }
+        public virtual Rectangle ClientRectangle { get; set; }
 
         Color remapColor = Color.White;
         public Color RemapColor
@@ -276,23 +277,23 @@ namespace Rampastring.XNAUI.DXControls
                     Text = value;
                     break;
                 case "Visible":
-                    Visible = Utilities.BooleanFromString(value, true);
+                    Visible = Conversions.BooleanFromString(value, true);
                     Enabled = Visible;
                     break;
                 case "Enabled":
-                    Enabled = Utilities.BooleanFromString(value, true);
+                    Enabled = Conversions.BooleanFromString(value, true);
                     break;
                 case "DistanceFromRightBorder":
                     if (Parent != null)
                     {
-                        ClientRectangle = new Rectangle(Parent.ClientRectangle.Width - ClientRectangle.Width - Utilities.IntFromString(value, 0),
+                        ClientRectangle = new Rectangle(Parent.ClientRectangle.Width - ClientRectangle.Width - Conversions.IntFromString(value, 0),
                             ClientRectangle.Y, ClientRectangle.Width, ClientRectangle.Height);
                     }
                     break;
                 case "DistanceFromBottomBorder":
                     if (Parent != null)
                     {
-                        ClientRectangle = new Rectangle(ClientRectangle.X, Parent.ClientRectangle.Height - ClientRectangle.Height - Utilities.IntFromString(value, 0),
+                        ClientRectangle = new Rectangle(ClientRectangle.X, Parent.ClientRectangle.Height - ClientRectangle.Height - Conversions.IntFromString(value, 0),
                             ClientRectangle.Width, ClientRectangle.Height);
                     }
                     break;
@@ -300,14 +301,14 @@ namespace Rampastring.XNAUI.DXControls
                     if (Parent != null)
                     {
                         ClientRectangle = new Rectangle(ClientRectangle.X, ClientRectangle.Y,
-                            Parent.ClientRectangle.Width - Utilities.IntFromString(value, 0), ClientRectangle.Height);
+                            Parent.ClientRectangle.Width - ClientRectangle.X - Conversions.IntFromString(value, 0), ClientRectangle.Height);
                     }
                     break;
                 case "FillHeight":
                     if (Parent != null)
                     {
                         ClientRectangle = new Rectangle(ClientRectangle.X, ClientRectangle.Y,
-                            ClientRectangle.Width, Parent.ClientRectangle.Height - Utilities.IntFromString(value, 0));
+                            ClientRectangle.Width, Parent.ClientRectangle.Height - ClientRectangle.Y - Conversions.IntFromString(value, 0));
                     }
                     break;
             }

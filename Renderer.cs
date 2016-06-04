@@ -4,6 +4,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Content;
 using System.IO;
+using System.Text;
 
 namespace Rampastring.XNAUI
 {
@@ -38,6 +39,27 @@ namespace Rampastring.XNAUI
             }
 
             whitePixelTexture = AssetLoader.CreateTexture(Color.White, 1, 1);
+        }
+
+        /// <summary>
+        /// Returns a version of the given string where all characters that don't
+        /// appear in the given font have been replaced with question marks.
+        /// </summary>
+        /// <param name="str">The string.</param>
+        /// <param name="fontIndex">The index of the font.</param>
+        public static string GetSafeString(string str, int fontIndex)
+        {
+            SpriteFont sf = Fonts[fontIndex];
+
+            StringBuilder sb = new StringBuilder(str);
+
+            for (int i = 0; i < str.Length; i++)
+            {
+                if (!sf.Characters.Contains(str[i]))
+                    sb.Replace(str[i], '?');
+            }
+
+            return sb.ToString();
         }
 
         public static TextParseReturnValue FixText(string text, int fontIndex, int width)

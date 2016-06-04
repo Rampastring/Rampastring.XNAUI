@@ -92,19 +92,19 @@ namespace Rampastring.XNAUI.DXControls
             switch (key)
             {
                 case "FontIndex":
-                    FontIndex = Utilities.IntFromString(value, 0);
+                    FontIndex = Conversions.IntFromString(value, 0);
                     return;
                 case "HighlightColor":
                     HighlightColor = AssetLoader.GetColorFromString(value);
                     return;
                 case "AlphaRate":
-                    AlphaRate = Utilities.DoubleFromString(value, AlphaRate);
+                    AlphaRate = Conversions.DoubleFromString(value, AlphaRate);
                     return;
                 case "AllowChecking":
-                    AllowChecking = Utilities.BooleanFromString(value, true);
+                    AllowChecking = Conversions.BooleanFromString(value, true);
                     return;
                 case "Checked":
-                    Checked = Utilities.BooleanFromString(value, true);
+                    Checked = Conversions.BooleanFromString(value, true);
                     return;
             }
 

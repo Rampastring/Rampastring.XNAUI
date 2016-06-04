@@ -1,6 +1,7 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Graphics;
+using Rampastring.Tools;
 using System;
 using System.Collections.Generic;
 
@@ -63,6 +64,20 @@ namespace Rampastring.XNAUI.DXControls
 
                 if (value != oldSelectedIndex && SelectedIndexChanged != null)
                     SelectedIndexChanged(this, EventArgs.Empty);
+            }
+        }
+
+        /// <summary>
+        /// Gets the currently selected item of the drop-down control.
+        /// </summary>
+        public DXDropDownItem SelectedItem
+        {
+            get
+            {
+                if (SelectedIndex < 0 || SelectedIndex >= Items.Count)
+                    return null;
+
+                return Items[SelectedIndex];
             }
         }
 

@@ -18,6 +18,11 @@ namespace Rampastring.XNAUI.DXControls
 
         public string Text { get; set; }
 
+        /// <summary>
+        /// An object for containing custom info in the drop down item.
+        /// </summary>
+        public object Tag { get; set; }
+
         bool selectable = true;
         public bool Selectable
         {
