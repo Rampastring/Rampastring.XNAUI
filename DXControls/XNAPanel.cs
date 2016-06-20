@@ -5,9 +5,9 @@ using System;
 
 namespace Rampastring.XNAUI.DXControls
 {
-    public class DXPanel : DXControl
+    public class XNAPanel : XNAControl
     {
-        public DXPanel(WindowManager windowManager) : base(windowManager)
+        public XNAPanel(WindowManager windowManager) : base(windowManager)
         {
             BorderColor = UISettings.PanelBorderColor;
         }
@@ -26,7 +26,7 @@ namespace Rampastring.XNAUI.DXControls
         }
 
         /// <summary>
-        /// If this is set, the DXPanel will render itself on a separate render target.
+        /// If this is set, the XNAPanel will render itself on a separate render target.
         /// After the rendering is complete, it'll set this render target to be the
         /// primary render target.
         /// </summary>
@@ -79,7 +79,7 @@ namespace Rampastring.XNAUI.DXControls
                     int bottom = Int32.Parse(parts[3]);
                     ClientRectangle = new Rectangle(ClientRectangle.X - left, ClientRectangle.Y - top,
                         ClientRectangle.Width + left + right, ClientRectangle.Height + top + bottom);
-                    foreach (DXControl child in Children)
+                    foreach (XNAControl child in Children)
                     {
                         child.ClientRectangle = new Rectangle(child.ClientRectangle.X + left,
                             child.ClientRectangle.Y + top, child.ClientRectangle.Width, child.ClientRectangle.Height);

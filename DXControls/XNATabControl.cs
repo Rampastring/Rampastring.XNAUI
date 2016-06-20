@@ -9,9 +9,9 @@ namespace Rampastring.XNAUI.DXControls
     /// <summary>
     /// A control that has multiple tabs, of which only one can be selected at a time.
     /// </summary>
-    public class DXTabControl : DXControl
+    public class XNATabControl : XNAControl
     {
-        public DXTabControl(WindowManager windowManager) : base(windowManager)
+        public XNATabControl(WindowManager windowManager) : base(windowManager)
         {
             TextColor = UISettings.AltColor;
         }

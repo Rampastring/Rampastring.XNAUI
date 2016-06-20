@@ -10,9 +10,9 @@ namespace Rampastring.XNAUI.DXControls
     /// <summary>
     /// A basic button.
     /// </summary>
-    public class DXButton : DXControl
+    public class XNAButton : XNAControl
     {
-        public DXButton(WindowManager windowManager) : base(windowManager) 
+        public XNAButton(WindowManager windowManager) : base(windowManager) 
         {
             AlphaRate = UISettings.DefaultAlphaRate;
             TextColorIdle = UISettings.ButtonColor;

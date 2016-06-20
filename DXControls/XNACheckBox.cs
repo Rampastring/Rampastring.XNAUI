@@ -8,16 +8,18 @@ namespace Rampastring.XNAUI.DXControls
     /// <summary>
     /// A check-box.
     /// </summary>
-    public class DXCheckBox : DXControl
+    public class XNACheckBox : XNAControl
     {
         const int TEXT_PADDING = 3;
 
-        public DXCheckBox(WindowManager windowManager) : base(windowManager)
+        public XNACheckBox(WindowManager windowManager) : base(windowManager)
         {
             RemapColor = UISettings.TextColor;
             HighlightColor = UISettings.AltColor;
             AlphaRate = UISettings.DefaultAlphaRate * 2.0;
         }
+
+        public event EventHandler CheckedChanged;
 
         public Texture2D CheckedTexture { get; set; }
         public Texture2D ClearTexture { get; set; }
@@ -25,7 +27,19 @@ namespace Rampastring.XNAUI.DXControls
         public Texture2D DisabledCheckedTexture { get; set; }
         public Texture2D DisabledClearTexture { get; set; }
 
-        public bool Checked { get; set; }
+        bool _checked = false;
+        public bool Checked
+        {
+            get { return _checked; }
+            set
+            {
+                bool originalValue = _checked;
+                _checked = value;
+
+                if (_checked != originalValue)
+                    CheckedChanged?.Invoke(this, EventArgs.Empty);
+            }
+        }
 
         bool _allowChecking = true;
         public bool AllowChecking
@@ -122,7 +136,7 @@ namespace Rampastring.XNAUI.DXControls
             {
                 Vector2 textDimensions = Renderer.GetTextDimensions(Text, FontIndex);
 
-                textLocationY = (CheckedTexture.Height - (int)textDimensions.Y) / 2;
+                textLocationY = (CheckedTexture.Height - (int)textDimensions.Y) / 2 - 1;
 
                 ClientRectangle = new Rectangle(ClientRectangle.X, ClientRectangle.Y,
                     (int)textDimensions.X + TEXT_PADDING + CheckedTexture.Width,

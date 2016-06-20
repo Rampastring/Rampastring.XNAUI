@@ -7,6 +7,8 @@ namespace Rampastring.XNAUI
     {
         public static Color TextColor { get; set; }
 
+        public static Color SubtleTextColor { get; set; }
+
         public static Color AltColor { get; set; }
 
         public static Color ButtonColor { get; set; }

@@ -7,9 +7,9 @@ namespace Rampastring.XNAUI.DXControls
     /// <summary>
     /// A static label control.
     /// </summary>
-    public class DXLabel : DXControl
+    public class XNALabel : XNAControl
     {
-        public DXLabel(WindowManager windowManager) : base(windowManager)
+        public XNALabel(WindowManager windowManager) : base(windowManager)
         {
             RemapColor = UISettings.TextColor;
         }

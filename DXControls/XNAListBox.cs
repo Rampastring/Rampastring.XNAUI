@@ -7,9 +7,9 @@ using System.Linq;
 
 namespace Rampastring.XNAUI.DXControls
 {
-    public class DXListBox : DXPanel
+    public class XNAListBox : XNAPanel
     {
-        public DXListBox(WindowManager windowManager) : base(windowManager)
+        public XNAListBox(WindowManager windowManager) : base(windowManager)
         {
             FocusColor = UISettings.FocusColor;
             DefaultItemColor = UISettings.AltColor;
@@ -27,6 +27,8 @@ namespace Rampastring.XNAUI.DXControls
         public delegate void TopIndexChangedEventHandler(object sender, EventArgs e);
         public event TopIndexChangedEventHandler TopIndexChanged;
 
+        #region Public members
+
         public List<DXListBoxItem> Items = new List<DXListBoxItem>();
 
         public Texture2D BorderTexture { get; set; }
@@ -38,6 +40,13 @@ namespace Rampastring.XNAUI.DXControls
         public int LineHeight = 15;
 
         public int FontIndex { get; set; }
+
+        bool _allowMultiLineItems = true;
+        public bool AllowMultiLineItems
+        {
+            get { return _allowMultiLineItems; }
+            set { _allowMultiLineItems = value; }
+        }
 
         int _itemBorderDistance = 3;
         public int TextBorderDistance
@@ -60,7 +69,29 @@ namespace Rampastring.XNAUI.DXControls
             }
         }
 
-        public int LastIndex { get; set; }
+        public int LastIndex
+        {
+            get
+            {
+                int height = 2;
+
+                Rectangle windowRectangle = WindowRectangle();
+
+                for (int i = TopIndex; i < Items.Count; i++)
+                {
+                    DXListBoxItem lbItem = Items[i];
+
+                    height += lbItem.TextLines.Count * LineHeight;
+
+                    if (height > ClientRectangle.Height)
+                        return i - 1;
+                }
+
+                return Items.Count - 1;
+            }
+        }
+
+        #endregion
 
         float itemAlphaRate = 0.01f;
         public float ItemAlphaRate
@@ -128,6 +159,11 @@ namespace Rampastring.XNAUI.DXControls
             AddItem(text, DefaultItemColor, selectable);
         }
 
+        public void AddItem(string text, Color textColor)
+        {
+            AddItem(text, textColor, true);
+        }
+
         public void AddItem(string text, Color textColor, bool selectable)
         {
             DXListBoxItem item = new DXListBoxItem();
@@ -139,19 +175,19 @@ namespace Rampastring.XNAUI.DXControls
 
         public void AddItem(DXListBoxItem listBoxItem)
         {
-            if (LastIndex == Items.Count - 1 && GetTotalLineCount() > GetNumberOfLinesOnList())
-            {
-                int scrolledLineCount = 0;
-                while (true)
-                {
-                    DXListBoxItem topItem = Items[TopIndex];
-                    TopIndex++;
-                    scrolledLineCount += topItem.TextLines.Count;
+            //if (LastIndex == Items.Count - 1 && GetTotalLineCount() > GetNumberOfLinesOnList())
+            //{
+            //    int scrolledLineCount = 0;
+            //    while (true)
+            //    {
+            //        DXListBoxItem topItem = Items[TopIndex];
+            //        TopIndex++;
+            //        scrolledLineCount += topItem.TextLines.Count;
 
-                    if (scrolledLineCount >= listBoxItem.TextLines.Count || TopIndex == Items.Count - 1)
-                        break;
-                }
-            }
+            //        if (scrolledLineCount >= listBoxItem.TextLines.Count || TopIndex == Items.Count - 1)
+            //            break;
+            //    }
+            //}
 
             int width = ClientRectangle.Width - 4;
             if (listBoxItem.Texture != null)
@@ -160,6 +196,9 @@ namespace Rampastring.XNAUI.DXControls
             if (textLines.Count == 0)
                 textLines.Add(String.Empty);
             listBoxItem.TextLines = textLines;
+
+            if (textLines.Count > 1 && !AllowMultiLineItems)
+                textLines.RemoveRange(1, textLines.Count - 1);
 
             if (textLines.Count == 1)
             {
@@ -190,29 +229,10 @@ namespace Rampastring.XNAUI.DXControls
             return (ClientRectangle.Height - 4) / LineHeight;
         }
 
-        public int GetLastDisplayedItemIndex()
-        {
-            int height = 2;
-
-            Rectangle windowRectangle = WindowRectangle();
-
-            for (int i = TopIndex; i < Items.Count; i++)
-            {
-                DXListBoxItem lbItem = Items[i];
-
-                height += lbItem.TextLines.Count * LineHeight;
-
-                if (height > ClientRectangle.Height)
-                    return i - 1;
-            }
-
-            return Items.Count - 1;
-        }
-
         public void ScrollToBottom()
         {
             // Calculate the number of lines we need to scroll
-            int lastDisplayedItemIndex = GetLastDisplayedItemIndex();
+            int lastDisplayedItemIndex = LastIndex;
 
             int linesToScroll = 0;
 
@@ -258,7 +278,7 @@ namespace Rampastring.XNAUI.DXControls
                 if (Items[i].Selectable)
                 {
                     SelectedIndex = i;
-                    while (GetLastDisplayedItemIndex() < i)
+                    while (LastIndex < i)
                         TopIndex++;
                     return;
                 }
@@ -322,8 +342,6 @@ namespace Rampastring.XNAUI.DXControls
 
         public override void OnMouseScrolled()
         {
-            base.OnMouseScrolled();
-
             if (GetTotalLineCount() <= GetNumberOfLinesOnList())
             {
                 TopIndex = 0;
@@ -335,17 +353,19 @@ namespace Rampastring.XNAUI.DXControls
             if (TopIndex < 0)
                 TopIndex = 0;
 
-            int lastIndex = GetLastDisplayedItemIndex();
+            int lastIndex = LastIndex;
 
             if (lastIndex == Items.Count - 1)
             {
-                while (GetLastDisplayedItemIndex() == lastIndex)
+                while (LastIndex == lastIndex)
                 {
                     TopIndex--;
                 }
 
                 TopIndex++;
             }
+
+            base.OnMouseScrolled();
         }
 
         public override void OnMouseOnControl(MouseEventArgs eventArgs)
@@ -424,7 +444,7 @@ namespace Rampastring.XNAUI.DXControls
                 if (height + lbItem.TextLines.Count * LineHeight > ClientRectangle.Height)
                     break;
 
-                int x = _itemBorderDistance;
+                int x = TextBorderDistance;
 
                 if (i == SelectedIndex)
                 {
@@ -476,6 +496,9 @@ namespace Rampastring.XNAUI.DXControls
 
         public string Text { get; set; }
 
+        /// <summary>
+        /// Stores optional custom data associated with the list box item.
+        /// </summary>
         public object Tag { get; set; }
 
         public int TextYPadding { get; set; }

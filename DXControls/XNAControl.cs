@@ -9,9 +9,11 @@ namespace Rampastring.XNAUI.DXControls
     /// <summary>
     /// The base class for a XNA-based UI control.
     /// </summary>
-    public class DXControl : DrawableGameComponent
+    public class XNAControl : DrawableGameComponent
     {
-        public DXControl(WindowManager windowManager) : base(windowManager.Game)
+        const double DOUBLE_CLICK_TIME = 1.0;
+
+        public XNAControl(WindowManager windowManager) : base(windowManager.Game)
         {
             _windowManager = windowManager;
             Cursor = windowManager.Cursor;
@@ -32,11 +34,10 @@ namespace Rampastring.XNAUI.DXControls
         public event EventHandler MouseScrolled;
 
         public event EventHandler LeftClick;
+        public event EventHandler DoubleLeftClick;
         public event EventHandler RightClick;
 
         #endregion
-
-        public DXControl Parent;
 
         WindowManager _windowManager;
 
@@ -48,10 +49,13 @@ namespace Rampastring.XNAUI.DXControls
             get { return _windowManager; }
         }
 
+        #region Public members
+        public XNAControl Parent { get; set; }
+
         public Cursor Cursor;
         public RKeyboard Keyboard;
 
-        public List<DXControl> Children = new List<DXControl>();
+        public List<XNAControl> Children = new List<XNAControl>();
 
         public string Name { get; set; }
 
@@ -70,7 +74,7 @@ namespace Rampastring.XNAUI.DXControls
         bool CursorOnControl = false;
 
         float alpha = 1.0f;
-        public float Alpha
+        public virtual float Alpha
         {
             get
             { 
@@ -112,6 +116,10 @@ namespace Rampastring.XNAUI.DXControls
         }
 
         bool isActive = false;
+
+        /// <summary>
+        /// Gets or sets a bool that determines whether this control is the current focus of input.
+        /// </summary>
         public bool IsActive
         { 
             get
@@ -141,6 +149,10 @@ namespace Rampastring.XNAUI.DXControls
             }
         }
 
+        #endregion
+
+        TimeSpan timeSinceLastLeftClick = TimeSpan.Zero;
+
         public Color GetRemapColor()
         {
             return GetColorWithAlpha(RemapColor);
@@ -160,22 +172,6 @@ namespace Rampastring.XNAUI.DXControls
             return new Rectangle(GetLocationX(), GetLocationY(), ClientRectangle.Width, ClientRectangle.Height);
         }
 
-        private readonly object locker = new object();
-
-        List<Callback> Callbacks = new List<Callback>();
-
-        /// <summary>
-        /// Schedules a delegate to be executed on the next game loop frame, 
-        /// on the main game thread.
-        /// </summary>
-        /// <param name="d">The delegate.</param>
-        /// <param name="args">The arguments to be passed on to the delegate.</param>
-        public void AddCallback(Delegate d, params object[] args)
-        {
-            lock (locker)
-                Callbacks.Add(new Callback(d, args));
-        }
-
         public int GetLocationX()
         {
             if (Parent != null)
@@ -190,43 +186,6 @@ namespace Rampastring.XNAUI.DXControls
                 return ClientRectangle.Y + Parent.GetLocationY();
 
             return ClientRectangle.Y;
-        }
-
-        /// <summary>
-        /// Adds a child control to the control.
-        /// </summary>
-        /// <param name="child">The child control.</param>
-        public void AddChild(DXControl child)
-        {
-            child.Parent = this;
-            child.Initialize();
-            Children.Add(child);
-        }
-
-        /// <summary>
-        /// Adds a child control to the control, making the added child
-        /// the "first child" of this control.
-        /// </summary>
-        /// <param name="child">The child control.</param>
-        public void AddChildToFirstIndex(DXControl child)
-        {
-            child.Parent = this;
-            child.Initialize();
-            Children.Insert(0, child);
-        }
-
-        public virtual void GetAttributes(IniFile iniFile)
-        {
-            foreach (DXControl child in Children)
-                child.GetAttributes(iniFile);
-
-            List<string> keys = iniFile.GetSectionKeys(Name);
-
-            if (keys == null)
-                return;
-
-            foreach (string key in keys)
-                ParseAttributeFromINI(iniFile, key, iniFile.GetStringValue(Name, key, String.Empty));
         }
 
         /// <summary>
@@ -253,6 +212,69 @@ namespace Rampastring.XNAUI.DXControls
         public Point GetCursorPoint()
         {
             return new Point(Cursor.Location.X - WindowRectangle().X, Cursor.Location.Y - WindowRectangle().Y);
+        }
+
+        private readonly object locker = new object();
+
+        List<Callback> Callbacks = new List<Callback>();
+
+        /// <summary>
+        /// Schedules a delegate to be executed on the next game loop frame, 
+        /// on the main game thread.
+        /// </summary>
+        /// <param name="d">The delegate.</param>
+        /// <param name="args">The arguments to be passed on to the delegate.</param>
+        public void AddCallback(Delegate d, params object[] args)
+        {
+            lock (locker)
+                Callbacks.Add(new Callback(d, args));
+        }
+
+        /// <summary>
+        /// Adds a child control to the control.
+        /// </summary>
+        /// <param name="child">The child control.</param>
+        public void AddChild(XNAControl child)
+        {
+            child.Parent = this;
+            child.Initialize();
+            Children.Add(child);
+        }
+
+        /// <summary>
+        /// Adds a child control to the control without calling the child's Initialize method.
+        /// </summary>
+        /// <param name="child">The child control.</param>
+        public void AddChildWithoutInitialize(XNAControl child)
+        {
+            child.Parent = this;
+            Children.Add(child);
+        }
+
+        /// <summary>
+        /// Adds a child control to the control, making the added child
+        /// the "first child" of this control.
+        /// </summary>
+        /// <param name="child">The child control.</param>
+        public void AddChildToFirstIndex(XNAControl child)
+        {
+            child.Parent = this;
+            child.Initialize();
+            Children.Insert(0, child);
+        }
+
+        public virtual void GetAttributes(IniFile iniFile)
+        {
+            foreach (XNAControl child in Children)
+                child.GetAttributes(iniFile);
+
+            List<string> keys = iniFile.GetSectionKeys(Name);
+
+            if (keys == null)
+                return;
+
+            foreach (string key in keys)
+                ParseAttributeFromINI(iniFile, key, iniFile.GetStringValue(Name, key, String.Empty));
         }
 
         protected virtual void ParseAttributeFromINI(IniFile iniFile, string key, string value)
@@ -319,7 +341,7 @@ namespace Rampastring.XNAUI.DXControls
         /// </summary>
         public virtual void Kill()
         {
-            foreach (DXControl child in Children)
+            foreach (XNAControl child in Children)
                 child.Kill();
 
             Killed = true;
@@ -327,7 +349,7 @@ namespace Rampastring.XNAUI.DXControls
 
         public virtual void RefreshSize()
         {
-            foreach (DXControl child in Children)
+            foreach (XNAControl child in Children)
                 child.RefreshSize();
         }
 
@@ -338,6 +360,8 @@ namespace Rampastring.XNAUI.DXControls
         public override void Update(GameTime gameTime)
         {
             Rectangle rectangle = WindowRectangle();
+
+            timeSinceLastLeftClick += gameTime.ElapsedGameTime;
 
             lock (locker)
             {
@@ -362,7 +386,7 @@ namespace Rampastring.XNAUI.DXControls
 
                 for (int i = Children.Count - 1; i > -1; i--)
                 {
-                    DXControl child = Children[i];
+                    XNAControl child = Children[i];
 
                     if (child.Visible && (child.Focused || (child.InputEnabled && 
                         child.WindowRectangle().Contains(Cursor.Location) && !activeChildFound)))
@@ -453,7 +477,24 @@ namespace Rampastring.XNAUI.DXControls
         /// </summary>
         public virtual void OnLeftClick()
         {
+            if (timeSinceLastLeftClick < TimeSpan.FromSeconds(DOUBLE_CLICK_TIME))
+            {
+                OnDoubleLeftClick();
+                return;
+            }
+
+            timeSinceLastLeftClick = TimeSpan.Zero;
+
             LeftClick?.Invoke(this, EventArgs.Empty);
+        }
+
+        /// <summary>
+        /// Called when the left mouse button has been 
+        /// clicked twice on the control's client rectangle.
+        /// </summary>
+        public virtual void OnDoubleLeftClick()
+        {
+            DoubleLeftClick?.Invoke(this, EventArgs.Empty);
         }
 
         /// <summary>

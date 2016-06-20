@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Rampastring.Tools;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -22,6 +23,7 @@ namespace Rampastring.XNAUI.DXControls
 
         public void Invoke()
         {
+            Logger.Log("Executing callback " + d.Method.Name);
             d.DynamicInvoke(arguments);
         }
     }

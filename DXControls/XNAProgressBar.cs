@@ -3,9 +3,9 @@ using System;
 
 namespace Rampastring.XNAUI.DXControls
 {
-    public class DXProgressBar : DXControl
+    public class XNAProgressBar : XNAControl
     {
-        public DXProgressBar(WindowManager windowManager) : base(windowManager)
+        public XNAProgressBar(WindowManager windowManager) : base(windowManager)
         {
             BorderColor = UISettings.PanelBorderColor;
             FilledColor = UISettings.AltColor;

@@ -17,9 +17,9 @@ namespace Rampastring.XNAUI.DXControls
         public int Index { get; set; }
     }
 
-    public class DXContextMenu : DXControl
+    public class XNAContextMenu : XNAControl
     {
-        public DXContextMenu(WindowManager windowManager) : base(windowManager)
+        public XNAContextMenu(WindowManager windowManager) : base(windowManager)
         {
             BorderColor = UISettings.PanelBorderColor;
             FocusColor = UISettings.FocusColor;
@@ -37,7 +37,7 @@ namespace Rampastring.XNAUI.DXControls
             set { _itemHeight = value; }
         }
 
-        public List<DXDropDownItem> Items = new List<DXDropDownItem>();
+        public List<XNADropDownItem> Items = new List<XNADropDownItem>();
 
         public Color BorderColor { get; set; }
 
@@ -59,7 +59,7 @@ namespace Rampastring.XNAUI.DXControls
         /// Adds an item into the context menu.
         /// </summary>
         /// <param name="item">The item.</param>
-        public void AddItem(DXDropDownItem item)
+        public void AddItem(XNADropDownItem item)
         {
             Items.Add(item);
             ClientRectangle = new Rectangle(ClientRectangle.X, ClientRectangle.Y,
@@ -72,7 +72,7 @@ namespace Rampastring.XNAUI.DXControls
         /// <param name="text">The text of the item.</param>
         public void AddItem(string text)
         {
-            DXDropDownItem item = new DXDropDownItem();
+            XNADropDownItem item = new XNADropDownItem();
             item.Text = text;
             item.TextColor = UISettings.AltColor;
 
@@ -87,7 +87,7 @@ namespace Rampastring.XNAUI.DXControls
         /// <param name="texture">The item's texture.</param>
         public void AddItem(string text, Texture2D texture)
         {
-            DXDropDownItem item = new DXDropDownItem();
+            XNADropDownItem item = new XNADropDownItem();
             item.Text = text;
             item.TextColor = UISettings.AltColor;
             item.Texture = texture;
@@ -103,7 +103,7 @@ namespace Rampastring.XNAUI.DXControls
         /// <param name="color">The color of the item's text.</param>
         public void AddItem(string text, Color color)
         {
-            DXDropDownItem item = new DXDropDownItem();
+            XNADropDownItem item = new XNADropDownItem();
             item.Text = text;
             item.TextColor = color;
 
@@ -199,7 +199,7 @@ namespace Rampastring.XNAUI.DXControls
 
             for (int i = 0; i < Items.Count; i++)
             {
-                DXDropDownItem item = Items[i];
+                XNADropDownItem item = Items[i];
 
                 int y = wr.Y + 1 + i * ItemHeight;
                 if (hoveredIndex == i)

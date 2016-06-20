@@ -4,9 +4,9 @@ using Microsoft.Xna.Framework.Audio;
 
 namespace Rampastring.XNAUI.DXControls
 {
-    public class DXTrackbar : DXPanel
+    public class XNATrackbar : XNAPanel
     {
-        public DXTrackbar(WindowManager windowManager) : base(windowManager)
+        public XNATrackbar(WindowManager windowManager) : base(windowManager)
         {
             
         }

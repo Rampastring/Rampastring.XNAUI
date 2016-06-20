@@ -47,22 +47,23 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AssetLoader.cs" />
-    <Compile Include="DXControls\DXTextBox.cs" />
+    <Compile Include="DXControls\XNASuggestionTextBox.cs" />
+    <Compile Include="DXControls\XNATextBox.cs" />
     <Compile Include="Input\Cursor.cs" />
     <Compile Include="DXControls\Callback.cs" />
-    <Compile Include="DXControls\DXButton.cs" />
-    <Compile Include="DXControls\DXCheckBox.cs" />
-    <Compile Include="DXControls\DXContextMenu.cs" />
-    <Compile Include="DXControls\DXDropDown.cs" />
-    <Compile Include="DXControls\DXControl.cs" />
-    <Compile Include="DXControls\DXDropDownItem.cs" />
-    <Compile Include="DXControls\DXLabel.cs" />
-    <Compile Include="DXControls\DXListBox.cs" />
-    <Compile Include="DXControls\DXMultiColumnListBox.cs" />
-    <Compile Include="DXControls\DXPanel.cs" />
-    <Compile Include="DXControls\DXProgressBar.cs" />
-    <Compile Include="DXControls\DXTabControl.cs" />
-    <Compile Include="DXControls\DXTrackbar.cs" />
+    <Compile Include="DXControls\XNAButton.cs" />
+    <Compile Include="DXControls\XNACheckBox.cs" />
+    <Compile Include="DXControls\XNAContextMenu.cs" />
+    <Compile Include="DXControls\XNADropDown.cs" />
+    <Compile Include="DXControls\XNAControl.cs" />
+    <Compile Include="DXControls\XNADropDownItem.cs" />
+    <Compile Include="DXControls\XNALabel.cs" />
+    <Compile Include="DXControls\XNAListBox.cs" />
+    <Compile Include="DXControls\XNAMultiColumnListBox.cs" />
+    <Compile Include="DXControls\XNAPanel.cs" />
+    <Compile Include="DXControls\XNAProgressBar.cs" />
+    <Compile Include="DXControls\XNATabControl.cs" />
+    <Compile Include="DXControls\XNATrackbar.cs" />
     <Compile Include="DXControls\MouseEventArgs.cs" />
     <Compile Include="Input\KeyboardEventArgs.cs" />
     <Compile Include="Input\KeyboardEventInput.cs" />

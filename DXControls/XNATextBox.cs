@@ -12,26 +12,32 @@ namespace Rampastring.XNAUI.DXControls
     /// <summary>
     /// A text input control.
     /// </summary>
-    public class DXTextBox : DXControl
+    public class XNATextBox : XNAControl
     {
-        public event EventHandler EnterPressed;
         const int TEXT_HORIZONTAL_MARGIN = 3;
         const int TEXT_VERTICAL_MARGIN = 2;
         const double SCROLL_REPEAT_TIME = 0.03;
         const double FAST_SCROLL_TRIGGER_TIME = 0.4;
 
-        public DXTextBox(WindowManager windowManager) : base(windowManager)
+        public XNATextBox(WindowManager windowManager) : base(windowManager)
         {
             IdleBorderColor = UISettings.PanelBorderColor;
             ActiveBorderColor = UISettings.AltColor;
             TextColor = UISettings.AltColor;
+            BackColor = UISettings.BackgroundColor;
         }
 
-        public Color TextColor { get; set; }
+        public event EventHandler EnterPressed;
+        public event EventHandler SelectedChanged;
+        public event EventHandler InputReceived;
+
+        public virtual Color TextColor { get; set; }
 
         public Color IdleBorderColor { get; set; }
 
         public Color ActiveBorderColor { get; set; }
+
+        public Color BackColor { get; set; }
 
         public int FontIndex { get; set; }
 
@@ -57,8 +63,30 @@ namespace Rampastring.XNAUI.DXControls
                 textStartPosition = 0;
                 textEndPosition = text.Length;
 
+                if (text.Length > MaximumTextLength)
+                    text = text.Substring(0, MaximumTextLength);
+
                 while (!TextFitsBox())
                     textEndPosition--;
+            }
+        }
+
+        bool active = false;
+
+        /// <summary>
+        /// Gets a bool that determines whether the text-box is currently activated.
+        /// </summary>
+        public bool IsSelected
+        {
+            get { return active; }
+            set
+            {
+                bool oldValue = active;
+
+                active = value;
+
+                if (active != oldValue)
+                    OnSelectedChanged();
             }
         }
 
@@ -67,7 +95,6 @@ namespace Rampastring.XNAUI.DXControls
         int inputPosition;
         int textStartPosition;
         int textEndPosition;
-        bool active = false;
         bool leftClickHandled = false;
 
         TimeSpan scrollKeyTime = TimeSpan.Zero;
@@ -203,6 +230,8 @@ namespace Rampastring.XNAUI.DXControls
 
                     break;
             }
+
+            InputReceived?.Invoke(this, EventArgs.Empty);
         }
 
         private bool IsCtrlHeldDown()
@@ -220,7 +249,7 @@ namespace Rampastring.XNAUI.DXControls
 
         public override void OnLeftClick()
         {
-            active = true;
+            IsSelected = true;
 
             leftClickHandled = true;
 
@@ -232,9 +261,9 @@ namespace Rampastring.XNAUI.DXControls
             base.Update(gameTime);
 
             if (Cursor.LeftClicked && !leftClickHandled)
-                active = false;
+                IsSelected = false;
 
-            if (active)
+            if (IsSelected)
             {
                 if (Keyboard.IsKeyHeldDown(Keys.Left))
                     HandleScrollKeyDown(gameTime, ScrollLeft);
@@ -334,6 +363,8 @@ namespace Rampastring.XNAUI.DXControls
         {
             Rectangle displayRectangle = WindowRectangle();
 
+            Renderer.FillRectangle(displayRectangle, BackColor);
+
             if (active && Enabled)
                 Renderer.DrawRectangle(displayRectangle, ActiveBorderColor);
             else
@@ -355,6 +386,11 @@ namespace Rampastring.XNAUI.DXControls
             }
 
             base.Draw(gameTime);
+        }
+
+        public virtual void OnSelectedChanged()
+        {
+            SelectedChanged?.Invoke(this, EventArgs.Empty);
         }
     }
 }

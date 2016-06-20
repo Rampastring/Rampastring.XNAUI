@@ -27,7 +27,7 @@ namespace Rampastring.XNAUI
         public Input.Cursor Cursor;
         public RKeyboard Keyboard;
 
-        List<DXControl> Controls = new List<DXControl>();
+        List<XNAControl> Controls = new List<XNAControl>();
 
         List<Callback> Callbacks = new List<Callback>();
 
@@ -153,7 +153,7 @@ namespace Rampastring.XNAUI
         /// in the list of controls.
         /// </summary>
         /// <param name="control">The control to add.</param>
-        public void AddAndInitializeControl(DXControl control)
+        public void AddAndInitializeControl(XNAControl control)
         {
             if (Controls.Contains(control))
             {
@@ -169,7 +169,7 @@ namespace Rampastring.XNAUI
         /// in the list of controls.
         /// </summary>
         /// <param name="control">The control to insert.</param>
-        public void InsertAndInitializeControl(DXControl control)
+        public void InsertAndInitializeControl(XNAControl control)
         {
             if (Controls.Contains(control))
             {
@@ -179,7 +179,7 @@ namespace Rampastring.XNAUI
             Controls.Insert(0, control);
         }
 
-        public void CenterControlOnScreen(DXControl control)
+        public void CenterControlOnScreen(XNAControl control)
         {
             control.ClientRectangle = new Rectangle((RenderResolutionX - control.ClientRectangle.Width) / 2,
                 (RenderResolutionY - control.ClientRectangle.Height) / 2, control.ClientRectangle.Width, control.ClientRectangle.Height);
@@ -236,6 +236,14 @@ namespace Rampastring.XNAUI
                 return;
 
             gameForm.Show();
+        }
+
+        public void FlashWindow()
+        {
+            if (gameForm == null)
+                return;
+
+            WindowFlasher.FlashWindowEx(gameForm);
         }
 
         public void SetIcon(string path)
@@ -295,7 +303,7 @@ namespace Rampastring.XNAUI
             gameForm.FormClosing -= GameForm_FormClosing;
         }
 
-        public void RemoveControl(DXControl control)
+        public void RemoveControl(XNAControl control)
         {
             Controls.Remove(control);
         }
@@ -378,7 +386,7 @@ namespace Rampastring.XNAUI
                 Callbacks.Clear();
             }
 
-            DXControl activeControl = null;
+            XNAControl activeControl = null;
 
             if (_hasFocus)
                 Keyboard.Update(gameTime);
@@ -387,7 +395,7 @@ namespace Rampastring.XNAUI
 
             for (int i = Controls.Count - 1; i > -1; i--)
             {
-                DXControl control = Controls[i];
+                XNAControl control = Controls[i];
 
                 if (_hasFocus && control.Visible && 
                     (activeControl == null &&
@@ -445,7 +453,8 @@ namespace Rampastring.XNAUI
             //if (!String.IsNullOrEmpty(activeControlText))
             //    Renderer.DrawStringWithShadow(activeControlText, 0, Vector2.Zero, Color.White);
 
-            Cursor.Draw(gameTime);
+            if (Cursor.Visible)
+                Cursor.Draw(gameTime);
 
             Renderer.EndDraw();
 

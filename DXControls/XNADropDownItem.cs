@@ -10,7 +10,7 @@ namespace Rampastring.XNAUI.DXControls
     /// <summary>
     /// A drop-down / context menu item.
     /// </summary>
-    public class DXDropDownItem
+    public class XNADropDownItem
     {
         public Color TextColor { get; set; }
 
