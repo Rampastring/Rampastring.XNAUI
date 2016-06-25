@@ -2,7 +2,7 @@
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Audio;
 
-namespace Rampastring.XNAUI.DXControls
+namespace Rampastring.XNAUI.XNAControls
 {
     public class XNATrackbar : XNAPanel
     {

@@ -4,7 +4,7 @@ using Microsoft.Xna.Framework.Graphics;
 using System;
 using System.Collections.Generic;
 
-namespace Rampastring.XNAUI.DXControls
+namespace Rampastring.XNAUI.XNAControls
 {
     /// <summary>
     /// A control that has multiple tabs, of which only one can be selected at a time.

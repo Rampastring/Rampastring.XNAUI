@@ -2,7 +2,7 @@
 using Rampastring.Tools;
 using System;
 
-namespace Rampastring.XNAUI.DXControls
+namespace Rampastring.XNAUI.XNAControls
 {
     /// <summary>
     /// A static label control.

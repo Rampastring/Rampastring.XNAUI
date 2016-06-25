@@ -5,7 +5,7 @@ using Microsoft.Xna.Framework.Input;
 using Rampastring.Tools;
 using System;
 
-namespace Rampastring.XNAUI.DXControls
+namespace Rampastring.XNAUI.XNAControls
 {
     /// <summary>
     /// A basic button.
@@ -17,6 +17,7 @@ namespace Rampastring.XNAUI.DXControls
             AlphaRate = UISettings.DefaultAlphaRate;
             TextColorIdle = UISettings.ButtonColor;
             TextColorHover = UISettings.ButtonHoverColor;
+            TextColorDisabled = UISettings.DisabledButtonColor;
         }
 
         public Texture2D IdleTexture { get; set; }
@@ -82,6 +83,8 @@ namespace Rampastring.XNAUI.DXControls
         public Color TextColorIdle { get; set; }
 
         public Color TextColorHover { get; set; }
+
+        public Color TextColorDisabled { get; set; }
 
         Color textColor = Color.White;
 
@@ -270,7 +273,7 @@ namespace Rampastring.XNAUI.DXControls
             Vector2 textPosition = new Vector2(windowRectangle.X + TextXPosition, windowRectangle.Y + TextYPosition);
 
             if (!Enabled || !AllowClick)
-                Renderer.DrawStringWithShadow(_text, FontIndex, textPosition, GetColorWithAlpha(Color.DarkGray));
+                Renderer.DrawStringWithShadow(_text, FontIndex, textPosition, TextColorDisabled);
             else
                 Renderer.DrawStringWithShadow(_text, FontIndex, textPosition, GetColorWithAlpha(textColor));
 

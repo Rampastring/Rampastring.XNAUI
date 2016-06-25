@@ -13,6 +13,8 @@ namespace Rampastring.XNAUI
 
         public static Color ButtonColor { get; set; }
 
+        public static Color DisabledButtonColor { get; set; }
+
         public static Color ButtonHoverColor { get; set; }
 
         public static Color BackgroundColor { get; set; }
@@ -32,5 +34,7 @@ namespace Rampastring.XNAUI
         public static Texture2D CheckBoxDisabledClearTexture { get; set; }
 
         public static float DefaultAlphaRate = 0.005f;
+
+        public static float CheckBoxAlphaRate = 0.05f;
     }
 }

@@ -2,7 +2,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace Rampastring.XNAUI.DXControls
+namespace Rampastring.XNAUI.XNAControls
 {
     /// <summary>
     /// A list box with multiple columns.
@@ -260,13 +260,7 @@ namespace Rampastring.XNAUI.DXControls
 
         public void AddItem(List<string> info, bool selectable)
         {
-            if (info.Count != listBoxes.Count)
-                throw new Exception("DXMultiColumnListBox.AddItem: Invalid amount of info for added item!");
-
-            for (int i = 0; i < info.Count; i++)
-            {
-                listBoxes[i].AddItem(info[i], selectable);
-            }
+            AddItem(info.ToArray(), selectable);
         }
 
         public void AddItem(string[] info, bool selectable)
@@ -280,7 +274,12 @@ namespace Rampastring.XNAUI.DXControls
             }
         }
 
-        public void AddItem(DXListBoxItem[] items)
+        public void AddItem(List<XNAListBoxItem> items)
+        {
+            AddItem(items.ToArray());
+        }
+
+        public void AddItem(XNAListBoxItem[] items)
         {
             if (items.Length != listBoxes.Count)
                 throw new Exception("DXMultiColumnListBox.AddItem: Invalid amount of list box items for added item!");
@@ -289,7 +288,7 @@ namespace Rampastring.XNAUI.DXControls
                 listBoxes[i].AddItem(items[i]);
         }
 
-        public DXListBoxItem GetItem(int columnIndex, int itemIndex)
+        public XNAListBoxItem GetItem(int columnIndex, int itemIndex)
         {
             return listBoxes[columnIndex].Items[itemIndex];
         }

@@ -5,23 +5,42 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace Rampastring.XNAUI.DXControls
+namespace Rampastring.XNAUI.XNAControls
 {
-    /// <summary>
-    /// A drop-down / context menu item.
-    /// </summary>
-    public class XNADropDownItem
+    public class XNAListBoxItem
     {
+        public XNAListBoxItem() { }
+
+        public XNAListBoxItem(string text)
+        {
+            Text = text;
+            TextColor = UISettings.AltColor;
+        }
+
+        public XNAListBoxItem(string text, Color textColor)
+        {
+            Text = text;
+            TextColor = textColor;
+        }
+
         public Color TextColor { get; set; }
 
+        public Color BackgroundColor { get; set; }
+
         public Texture2D Texture { get; set; }
+
+        public bool IsHeader { get; set; }
 
         public string Text { get; set; }
 
         /// <summary>
-        /// An object for containing custom info in the drop down item.
+        /// Stores optional custom data associated with the list box item.
         /// </summary>
         public object Tag { get; set; }
+
+        public int TextYPadding { get; set; }
+
+        public int TextXPadding { get; set; }
 
         bool selectable = true;
         public bool Selectable
@@ -30,7 +49,7 @@ namespace Rampastring.XNAUI.DXControls
             set { selectable = value; }
         }
 
-        float alpha = 1.0f;
+        float alpha = 0.0f;
         public float Alpha
         {
             get { return alpha; }
@@ -44,5 +63,7 @@ namespace Rampastring.XNAUI.DXControls
                     alpha = value;
             }
         }
+
+        public List<string> TextLines = new List<string>();
     }
 }

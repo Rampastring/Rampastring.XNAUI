@@ -7,7 +7,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace Rampastring.XNAUI.DXControls
+namespace Rampastring.XNAUI.XNAControls
 {
     /// <summary>
     /// A text input control.
@@ -61,13 +61,22 @@ namespace Rampastring.XNAUI.DXControls
                 text = value;
                 inputPosition = 0;
                 textStartPosition = 0;
-                textEndPosition = text.Length;
 
                 if (text.Length > MaximumTextLength)
                     text = text.Substring(0, MaximumTextLength);
 
+                textEndPosition = text.Length;
+
                 while (!TextFitsBox())
+                {
                     textEndPosition--;
+
+                    if (textEndPosition < textStartPosition)
+                    {
+                        textEndPosition = textStartPosition;
+                        break;
+                    }
+                }
             }
         }
 
@@ -93,8 +102,8 @@ namespace Rampastring.XNAUI.DXControls
         string text = string.Empty;
         string savedText = string.Empty;
         int inputPosition;
-        int textStartPosition;
-        int textEndPosition;
+        int textStartPosition { get; set; }
+        int textEndPosition { get; set; }
         bool leftClickHandled = false;
 
         TimeSpan scrollKeyTime = TimeSpan.Zero;
@@ -242,6 +251,9 @@ namespace Rampastring.XNAUI.DXControls
 
         private bool TextFitsBox()
         {
+            if (String.IsNullOrEmpty(text))
+                return true;
+
             return Renderer.GetTextDimensions(
                         text.Substring(textStartPosition, textEndPosition - textStartPosition),
                         FontIndex).X < ClientRectangle.Width - TEXT_HORIZONTAL_MARGIN * 2;
@@ -252,6 +264,8 @@ namespace Rampastring.XNAUI.DXControls
             IsSelected = true;
 
             leftClickHandled = true;
+
+            inputPosition = textEndPosition;
 
             base.OnLeftClick();
         }

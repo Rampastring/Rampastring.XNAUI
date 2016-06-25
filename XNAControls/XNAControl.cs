@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using Rampastring.Tools;
 using Rampastring.XNAUI.Input;
 
-namespace Rampastring.XNAUI.DXControls
+namespace Rampastring.XNAUI.XNAControls
 {
     /// <summary>
     /// The base class for a XNA-based UI control.
@@ -195,7 +195,7 @@ namespace Rampastring.XNAUI.DXControls
         {
             if (Parent == null)
             {
-                // Logger.Log("Error: CenterOnParent called for a control which has no parent!");
+                WindowManager.CenterControlOnScreen(this);
                 return;
             }
 
@@ -477,6 +477,8 @@ namespace Rampastring.XNAUI.DXControls
         /// </summary>
         public virtual void OnLeftClick()
         {
+            LeftClick?.Invoke(this, EventArgs.Empty);
+
             if (timeSinceLastLeftClick < TimeSpan.FromSeconds(DOUBLE_CLICK_TIME))
             {
                 OnDoubleLeftClick();
@@ -484,8 +486,6 @@ namespace Rampastring.XNAUI.DXControls
             }
 
             timeSinceLastLeftClick = TimeSpan.Zero;
-
-            LeftClick?.Invoke(this, EventArgs.Empty);
         }
 
         /// <summary>

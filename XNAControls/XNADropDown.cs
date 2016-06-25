@@ -5,7 +5,7 @@ using Rampastring.Tools;
 using System;
 using System.Collections.Generic;
 
-namespace Rampastring.XNAUI.DXControls
+namespace Rampastring.XNAUI.XNAControls
 {
     /// <summary>
     /// A drop-down.
@@ -169,6 +169,37 @@ namespace Rampastring.XNAUI.DXControls
 
             if (ClickSoundEffect != null)
                 _clickSoundInstance = ClickSoundEffect.CreateInstance();
+        }
+
+        protected override void ParseAttributeFromINI(IniFile iniFile, string key, string value)
+        {
+            switch (key)
+            {
+                case "ItemHeight":
+                    ItemHeight = Conversions.IntFromString(value, ItemHeight);
+                    return;
+                case "ClickSoundEffect":
+                    ClickSoundEffect = AssetLoader.LoadSound(value);
+                    _clickSoundInstance = ClickSoundEffect.CreateInstance();
+                    return;
+                case "FontIndex":
+                    FontIndex = Conversions.IntFromString(value, FontIndex);
+                    return;
+                case "BorderColor":
+                    BorderColor = AssetLoader.GetRGBAColorFromString(value);
+                    return;
+                case "FocusColor":
+                    FocusColor = AssetLoader.GetRGBAColorFromString(value);
+                    return;
+                case "BackColor":
+                    BackColor = AssetLoader.GetRGBAColorFromString(value);
+                    return;
+                case "DisabledItemColor":
+                    DisabledItemColor = AssetLoader.GetColorFromString(value);
+                    return;
+            }
+
+            base.ParseAttributeFromINI(iniFile, key, value);
         }
 
         public override void Update(GameTime gameTime)

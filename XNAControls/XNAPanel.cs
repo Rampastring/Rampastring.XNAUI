@@ -3,7 +3,7 @@ using Microsoft.Xna.Framework.Graphics;
 using Rampastring.Tools;
 using System;
 
-namespace Rampastring.XNAUI.DXControls
+namespace Rampastring.XNAUI.XNAControls
 {
     public class XNAPanel : XNAControl
     {

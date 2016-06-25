@@ -1,22 +1,23 @@
 ﻿using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Graphics;
 using Rampastring.Tools;
 using System;
 
-namespace Rampastring.XNAUI.DXControls
+namespace Rampastring.XNAUI.XNAControls
 {
     /// <summary>
     /// A check-box.
     /// </summary>
     public class XNACheckBox : XNAControl
     {
-        const int TEXT_PADDING = 3;
+        const int TEXT_PADDING_DEFAULT = 3;
 
         public XNACheckBox(WindowManager windowManager) : base(windowManager)
         {
             RemapColor = UISettings.TextColor;
             HighlightColor = UISettings.AltColor;
-            AlphaRate = UISettings.DefaultAlphaRate * 2.0;
+            AlphaRate = UISettings.CheckBoxAlphaRate * 2.0;
         }
 
         public event EventHandler CheckedChanged;
@@ -26,6 +27,8 @@ namespace Rampastring.XNAUI.DXControls
 
         public Texture2D DisabledCheckedTexture { get; set; }
         public Texture2D DisabledClearTexture { get; set; }
+
+        public SoundEffect CheckSoundEffect { get; set; }
 
         bool _checked = false;
         public bool Checked
@@ -49,6 +52,14 @@ namespace Rampastring.XNAUI.DXControls
         }
 
         public int FontIndex { get; set; }
+
+        int _textPadding = TEXT_PADDING_DEFAULT;
+
+        public int TextPadding
+        {
+            get { return _textPadding; }
+            set { _textPadding = value; }
+        }
 
         public Color HighlightColor { get; set; }
 
@@ -75,6 +86,8 @@ namespace Rampastring.XNAUI.DXControls
 
         double checkedAlpha = 0.0;
 
+        SoundEffectInstance checkSoundEffectInstance;
+
         public override void Initialize()
         {
             if (CheckedTexture == null)
@@ -97,6 +110,9 @@ namespace Rampastring.XNAUI.DXControls
             {
                 checkedAlpha = 1.0;
             }
+
+            if (CheckSoundEffect != null)
+                checkSoundEffectInstance = CheckSoundEffect.CreateInstance();
 
             base.Initialize();
         }
@@ -130,7 +146,7 @@ namespace Rampastring.XNAUI.DXControls
             if (CheckedTexture == null)
                 return;
 
-            textLocationX = CheckedTexture.Width + TEXT_PADDING;
+            textLocationX = CheckedTexture.Width + TEXT_PADDING_DEFAULT;
 
             if (!String.IsNullOrEmpty(Text))
             {
@@ -139,7 +155,7 @@ namespace Rampastring.XNAUI.DXControls
                 textLocationY = (CheckedTexture.Height - (int)textDimensions.Y) / 2 - 1;
 
                 ClientRectangle = new Rectangle(ClientRectangle.X, ClientRectangle.Y,
-                    (int)textDimensions.X + TEXT_PADDING + CheckedTexture.Width,
+                    (int)textDimensions.X + TEXT_PADDING_DEFAULT + CheckedTexture.Width,
                     Math.Max((int)textDimensions.Y, CheckedTexture.Height));
             }
             else
@@ -152,7 +168,11 @@ namespace Rampastring.XNAUI.DXControls
         public override void OnLeftClick()
         {
             if (AllowChecking)
+            {
                 Checked = !Checked;
+                if (checkSoundEffectInstance != null)
+                    checkSoundEffectInstance.Play();
+            }
 
             base.OnLeftClick();
         }
@@ -225,7 +245,7 @@ namespace Rampastring.XNAUI.DXControls
                     textColor = Color.Gray;
 
                 Renderer.DrawStringWithShadow(Text, FontIndex,
-                    new Vector2(displayRectangle.X + checkedTexture.Width + TEXT_PADDING, textYPosition),
+                    new Vector2(displayRectangle.X + checkedTexture.Width + TextPadding, textYPosition),
                     textColor);
             }
 

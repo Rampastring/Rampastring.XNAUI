@@ -5,7 +5,7 @@ using System.Text;
 using Microsoft.Xna.Framework;
 using Rampastring.Tools;
 
-namespace Rampastring.XNAUI.DXControls
+namespace Rampastring.XNAUI.XNAControls
 {
     /// <summary>
     /// A text box that displays a "suggestion" text when it's not active.

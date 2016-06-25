@@ -4,8 +4,9 @@ using Microsoft.Xna.Framework.Input;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 
-namespace Rampastring.XNAUI.DXControls
+namespace Rampastring.XNAUI.XNAControls
 {
     public class XNAListBox : XNAPanel
     {
@@ -29,7 +30,7 @@ namespace Rampastring.XNAUI.DXControls
 
         #region Public members
 
-        public List<DXListBoxItem> Items = new List<DXListBoxItem>();
+        public List<XNAListBoxItem> Items = new List<XNAListBoxItem>();
 
         public Texture2D BorderTexture { get; set; }
 
@@ -79,7 +80,7 @@ namespace Rampastring.XNAUI.DXControls
 
                 for (int i = TopIndex; i < Items.Count; i++)
                 {
-                    DXListBoxItem lbItem = Items[i];
+                    XNAListBoxItem lbItem = Items[i];
 
                     height += lbItem.TextLines.Count * LineHeight;
 
@@ -166,14 +167,14 @@ namespace Rampastring.XNAUI.DXControls
 
         public void AddItem(string text, Color textColor, bool selectable)
         {
-            DXListBoxItem item = new DXListBoxItem();
+            XNAListBoxItem item = new XNAListBoxItem();
             item.TextColor = textColor;
             item.Text = text;
             item.Selectable = selectable;
             AddItem(item);
         }
 
-        public void AddItem(DXListBoxItem listBoxItem)
+        public void AddItem(XNAListBoxItem listBoxItem)
         {
             //if (LastIndex == Items.Count - 1 && GetTotalLineCount() > GetNumberOfLinesOnList())
             //{
@@ -197,6 +198,26 @@ namespace Rampastring.XNAUI.DXControls
                 textLines.Add(String.Empty);
             listBoxItem.TextLines = textLines;
 
+            // Split too long lines
+            for (int i = 0; i < textLines.Count; i++)
+            {
+                string line = textLines[i];
+
+                StringBuilder sb = new StringBuilder(line);
+
+                while (Renderer.GetTextDimensions(sb.ToString(), FontIndex).X >
+                    ClientRectangle.Width - TextBorderDistance * 2)
+                {
+                    sb.Remove(sb.Length - 1, 1);
+                }
+
+                if (sb.ToString() != line)
+                {
+                    textLines[i] = sb.ToString();
+                    textLines.Insert(i + 1, line.Substring(sb.Length));
+                }
+            }
+
             if (textLines.Count > 1 && !AllowMultiLineItems)
                 textLines.RemoveRange(1, textLines.Count - 1);
 
@@ -218,7 +239,7 @@ namespace Rampastring.XNAUI.DXControls
         {
             int lineCount = 0;
 
-            foreach (DXListBoxItem item in Items)
+            foreach (XNAListBoxItem item in Items)
                 lineCount += item.TextLines.Count;
 
             return lineCount;
@@ -288,7 +309,7 @@ namespace Rampastring.XNAUI.DXControls
 
         public override void Update(GameTime gameTime)
         {
-            foreach (DXListBoxItem lbItem in Items)
+            foreach (XNAListBoxItem lbItem in Items)
             {
                 if (lbItem.Alpha < 1.0f)
                     lbItem.Alpha += ItemAlphaRate;
@@ -411,7 +432,7 @@ namespace Rampastring.XNAUI.DXControls
 
             for (int i = TopIndex; i < Items.Count; i++)
             {
-                DXListBoxItem lbItem = Items[i];
+                XNAListBoxItem lbItem = Items[i];
 
                 height += lbItem.TextLines.Count * LineHeight;
 
@@ -439,7 +460,7 @@ namespace Rampastring.XNAUI.DXControls
 
             for (int i = TopIndex; i < Items.Count; i++)
             { 
-                DXListBoxItem lbItem = Items[i];
+                XNAListBoxItem lbItem = Items[i];
 
                 if (height + lbItem.TextLines.Count * LineHeight > ClientRectangle.Height)
                     break;
@@ -482,51 +503,5 @@ namespace Rampastring.XNAUI.DXControls
                 height += lbItem.TextLines.Count * LineHeight;
             }
         }
-    }
-
-    public class DXListBoxItem
-    {
-        public Color TextColor { get; set; }
-
-        public Color BackgroundColor { get; set; }
-
-        public Texture2D Texture { get; set; }
-
-        public bool IsHeader { get; set; }
-
-        public string Text { get; set; }
-
-        /// <summary>
-        /// Stores optional custom data associated with the list box item.
-        /// </summary>
-        public object Tag { get; set; }
-
-        public int TextYPadding { get; set; }
-
-        public int TextXPadding { get; set; }
-
-        bool selectable = true;
-        public bool Selectable
-        {
-            get { return selectable; }
-            set { selectable = value; }
-        }
-
-        float alpha = 0.0f;
-        public float Alpha
-        {
-            get { return alpha; }
-            set
-            {
-                if (value < 0.0f)
-                    alpha = 0.0f;
-                else if (value > 1.0f)
-                    alpha = 1.0f;
-                else
-                    alpha = value;
-            }
-        }
-
-        public List<string> TextLines = new List<string>();
     }
 }
