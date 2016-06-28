@@ -1,6 +1,7 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using System;
 
 namespace Rampastring.XNAUI.Input
 {
@@ -13,6 +14,8 @@ namespace Rampastring.XNAUI.Input
             RemapColor = Color.White;
             this.windowManager = windowManager;
         }
+
+        public event EventHandler LeftClickEvent;
 
         public Point Location { get; set; }
         Point DrawnLocation { get; set; }
@@ -76,6 +79,9 @@ namespace Rampastring.XNAUI.Input
             LeftPressed = ms.LeftButton == ButtonState.Pressed;
 
             LeftClicked = !LeftPressed && previousMouseState.LeftButton == ButtonState.Pressed;
+
+            if (LeftClicked)
+                LeftClickEvent?.Invoke(this, EventArgs.Empty);
 
             RightClicked = ms.RightButton == ButtonState.Released && previousMouseState.RightButton == ButtonState.Pressed;
 

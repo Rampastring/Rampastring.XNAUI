@@ -117,6 +117,20 @@ namespace Rampastring.XNAUI.XNAControls
             }
         }
 
+        /// <summary>
+        /// Gets the currently selected list box item.
+        /// </summary>
+        public XNAListBoxItem SelectedItem
+        {
+            get
+            {
+                if (SelectedIndex < 0 || SelectedIndex >= Items.Count)
+                    return null;
+
+                return Items[SelectedIndex];
+            }
+        }
+
         int hoveredIndex = -1;
         public int HoveredIndex
         {
@@ -497,7 +511,7 @@ namespace Rampastring.XNAUI.XNAControls
                 {
                     Renderer.DrawStringWithShadow(lbItem.TextLines[j], FontIndex, 
                         new Vector2(windowRectangle.X + x, windowRectangle.Y + height + j * LineHeight + lbItem.TextYPadding),
-                        GetColorWithAlpha(lbItem.TextColor));
+                        lbItem.TextColor);
                 }
 
                 height += lbItem.TextLines.Count * LineHeight;
