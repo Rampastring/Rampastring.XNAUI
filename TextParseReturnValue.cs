@@ -54,6 +54,7 @@ namespace Rampastring.XNAUI
                     {
                         returnValue.Add(sb.ToString());
                         sb.Clear();
+                        break;
                     }
 
                     sb.Append(word[i]);
@@ -68,7 +69,7 @@ namespace Rampastring.XNAUI
                 {
                     if (spriteFont.MeasureString(line + word).X > width)
                     {
-                        returnValue.Add(line);
+                        returnValue.Add(line.Remove(line.Length - 1));
                         line = string.Empty;
                     }
 

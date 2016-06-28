@@ -3,7 +3,6 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text;
 
 namespace Rampastring.XNAUI.XNAControls
@@ -204,7 +203,7 @@ namespace Rampastring.XNAUI.XNAControls
             //    }
             //}
 
-            int width = ClientRectangle.Width - 4;
+            int width = ClientRectangle.Width - TextBorderDistance * 2;
             if (listBoxItem.Texture != null)
                 width -= listBoxItem.Texture.Width + 2;
             List<string> textLines = Renderer.GetFixedTextLines(listBoxItem.Text, FontIndex, width);
@@ -213,24 +212,24 @@ namespace Rampastring.XNAUI.XNAControls
             listBoxItem.TextLines = textLines;
 
             // Split too long lines
-            for (int i = 0; i < textLines.Count; i++)
-            {
-                string line = textLines[i];
+            //for (int i = 0; i < textLines.Count; i++)
+            //{
+            //    string line = textLines[i];
 
-                StringBuilder sb = new StringBuilder(line);
+            //    StringBuilder sb = new StringBuilder(line);
 
-                while (Renderer.GetTextDimensions(sb.ToString(), FontIndex).X >
-                    ClientRectangle.Width - TextBorderDistance * 2)
-                {
-                    sb.Remove(sb.Length - 1, 1);
-                }
+            //    while (Renderer.GetTextDimensions(sb.ToString(), FontIndex).X >
+            //        ClientRectangle.Width - TextBorderDistance * 2)
+            //    {
+            //        sb.Remove(sb.Length - 1, 1);
+            //    }
 
-                if (sb.ToString() != line)
-                {
-                    textLines[i] = sb.ToString();
-                    textLines.Insert(i + 1, line.Substring(sb.Length));
-                }
-            }
+            //    if (sb.ToString() != line)
+            //    {
+            //        textLines[i] = sb.ToString();
+            //        textLines.Insert(i + 1, line.Substring(sb.Length));
+            //    }
+            //}
 
             if (textLines.Count > 1 && !AllowMultiLineItems)
                 textLines.RemoveRange(1, textLines.Count - 1);

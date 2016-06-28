@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Drawing;
-using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Graphics;
 using Rampastring.Tools;
