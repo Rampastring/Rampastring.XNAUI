@@ -45,7 +45,12 @@ namespace Rampastring.XNAUI.XNAControls
         public bool AllowDropDown
         {
             get { return _allowDropDown; }
-            set { _allowDropDown = value; }
+            set
+            {
+                _allowDropDown = value;
+                if (IsDroppedDown)
+                    IsDroppedDown = false;
+            }
         }
 
         int _selectedIndex = -1;
@@ -206,15 +211,35 @@ namespace Rampastring.XNAUI.XNAControls
         {
             base.Update(gameTime);
 
-            // Hide the drop-down if the left mouse button is clicked while the
-            // cursor isn't on this control
-            if (IsDroppedDown && Cursor.LeftClicked && !leftClickHandled)
-                OnLeftClick();
+            if (Cursor.LeftPressed)
+            {
+                if (IsActive)
+                {
+                    if (!AllowDropDown)
+                        return;
 
-            leftClickHandled = false;
+                    if (IsDroppedDown)
+                        return;
 
-            if (!IsDroppedDown)
-                return;
+                    if (_clickSoundInstance != null)
+                        _clickSoundInstance.Play();
+
+                    Rectangle wr = WindowRectangle();
+
+                    IsDroppedDown = true;
+                    ClientRectangle = new Rectangle(ClientRectangle.X, ClientRectangle.Y, ClientRectangle.Width, dropDownTexture.Height + 1 + ItemHeight * Items.Count);
+                    hoveredIndex = -1;
+                    return;
+                }
+                else
+                {
+                    if (IsDroppedDown)
+                    {
+                        IsDroppedDown = false;
+                        ClientRectangle = new Rectangle(ClientRectangle.X, ClientRectangle.Y, ClientRectangle.Width, dropDownTexture.Height);
+                    }
+                }
+            }
 
             // Update hovered index
 
@@ -230,25 +255,20 @@ namespace Rampastring.XNAUI.XNAControls
         {
             base.OnLeftClick();
 
-            if (_clickSoundInstance != null)
-                _clickSoundInstance.Play();
-
             leftClickHandled = true;
 
             if (!IsDroppedDown)
             {
-                if (!_allowDropDown)
-                    return;
-
-                Rectangle wr = WindowRectangle();
-
-                IsDroppedDown = true;
-                ClientRectangle = new Rectangle(ClientRectangle.X, ClientRectangle.Y, ClientRectangle.Width, dropDownTexture.Height + 1 + ItemHeight * Items.Count);
-                hoveredIndex = -1;
                 return;
             }
 
             int itemIndexOnCursor = GetItemIndexOnCursor();
+
+            if (itemIndexOnCursor == -1)
+                return;
+
+            if (_clickSoundInstance != null)
+                _clickSoundInstance.Play();
 
             if (itemIndexOnCursor > -1)
             {
@@ -296,10 +316,13 @@ namespace Rampastring.XNAUI.XNAControls
 
             if (p.X < 0 || p.X > ClientRectangle.Width ||
                 p.Y > ClientRectangle.Height ||
-                p.Y < dropDownTexture.Height + 1)
+                p.Y < 0)
             {
-                return -1;
+                return -2;
             }
+
+            if (p.Y < dropDownTexture.Height + 1)
+                return -1;
 
             int y = p.Y - dropDownTexture.Height - 1;
             int itemIndex = y / _itemHeight;
