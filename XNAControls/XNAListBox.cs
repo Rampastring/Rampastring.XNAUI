@@ -412,9 +412,9 @@ namespace Rampastring.XNAUI.XNAControls
 
         public override void OnRightClick()
         {
-            base.OnRightClick();
-
             SelectedIndex = -1;
+
+            base.OnRightClick();
         }
 
         public override void OnLeftClick()

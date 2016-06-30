@@ -102,9 +102,9 @@ namespace Rampastring.XNAUI.XNAControls
         public SoundEffect ClickSoundEffect { get; set; }
         SoundEffectInstance _clickSoundInstance;
 
-        bool leftClickHandled = false;
-
         int hoveredIndex = 0;
+
+        bool clickedAfterOpen = false;
 
         #region AddItem methods
 
@@ -226,6 +226,7 @@ namespace Rampastring.XNAUI.XNAControls
 
                     Rectangle wr = WindowRectangle();
 
+                    clickedAfterOpen = false;
                     IsDroppedDown = true;
                     ClientRectangle = new Rectangle(ClientRectangle.X, ClientRectangle.Y, ClientRectangle.Width, dropDownTexture.Height + 1 + ItemHeight * Items.Count);
                     hoveredIndex = -1;
@@ -235,8 +236,7 @@ namespace Rampastring.XNAUI.XNAControls
                 {
                     if (IsDroppedDown)
                     {
-                        IsDroppedDown = false;
-                        ClientRectangle = new Rectangle(ClientRectangle.X, ClientRectangle.Y, ClientRectangle.Width, dropDownTexture.Height);
+                        OnLeftClick();
                     }
                 }
             }
@@ -255,8 +255,6 @@ namespace Rampastring.XNAUI.XNAControls
         {
             base.OnLeftClick();
 
-            leftClickHandled = true;
-
             if (!IsDroppedDown)
             {
                 return;
@@ -264,8 +262,11 @@ namespace Rampastring.XNAUI.XNAControls
 
             int itemIndexOnCursor = GetItemIndexOnCursor();
 
-            if (itemIndexOnCursor == -1)
+            if (itemIndexOnCursor == -1 && !clickedAfterOpen)
+            {
+                clickedAfterOpen = true;
                 return;
+            }
 
             if (_clickSoundInstance != null)
                 _clickSoundInstance.Play();

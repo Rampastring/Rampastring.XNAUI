@@ -55,21 +55,21 @@ namespace Rampastring.XNAUI.XNAControls
             set
             {
                 text = value;
-                inputPosition = 0;
-                textStartPosition = 0;
+                InputPosition = 0;
+                TextStartPosition = 0;
 
                 if (text.Length > MaximumTextLength)
                     text = text.Substring(0, MaximumTextLength);
 
-                textEndPosition = text.Length;
+                TextEndPosition = text.Length;
 
                 while (!TextFitsBox())
                 {
-                    textEndPosition--;
+                    TextEndPosition--;
 
-                    if (textEndPosition < textStartPosition)
+                    if (TextEndPosition < TextStartPosition)
                     {
-                        textEndPosition = textStartPosition;
+                        TextEndPosition = TextStartPosition;
                         break;
                     }
                 }
@@ -97,9 +97,22 @@ namespace Rampastring.XNAUI.XNAControls
 
         string text = string.Empty;
         string savedText = string.Empty;
-        int inputPosition;
-        int textStartPosition { get; set; }
-        int textEndPosition { get; set; }
+
+        /// <summary>
+        /// The input character index inside the textbox text.
+        /// </summary>
+        public int InputPosition { get; set; }
+
+        /// <summary>
+        /// The start character index of the visible part of the text string.
+        /// </summary>
+        public int TextStartPosition { get; set; }
+
+        /// <summary>
+        /// The end character index of the visible part of the text string.
+        /// </summary>
+        public int TextEndPosition { get; set; }
+
         bool leftClickHandled = false;
 
         TimeSpan scrollKeyTime = TimeSpan.Zero;
@@ -122,16 +135,16 @@ namespace Rampastring.XNAUI.XNAControls
             switch (e.PressedKey)
             {
                 case Keys.Home:
-                    textStartPosition = 0;
-                    textEndPosition = 0;
-                    inputPosition = 0;
+                    TextStartPosition = 0;
+                    TextEndPosition = 0;
+                    InputPosition = 0;
 
                     while (true)
                     {
-                        if (textEndPosition < text.Length &&
+                        if (TextEndPosition < text.Length &&
                             TextFitsBox())
                         {
-                            textEndPosition++;
+                            TextEndPosition++;
                             continue;
                         }
 
@@ -140,15 +153,15 @@ namespace Rampastring.XNAUI.XNAControls
 
                     break;
                 case Keys.End:
-                    textEndPosition = text.Length;
-                    inputPosition = text.Length;
-                    textStartPosition = 0;
+                    TextEndPosition = text.Length;
+                    InputPosition = text.Length;
+                    TextStartPosition = 0;
 
                     while (true)
                     {
                         if (!TextFitsBox())
                         {
-                            textStartPosition++;
+                            TextStartPosition++;
                             continue;
                         }
 
@@ -194,22 +207,22 @@ namespace Rampastring.XNAUI.XNAControls
                 case '\x0009': // Tab
                     break;
                 case '\b': // Backspace
-                    if (text.Length > 0 && inputPosition > 0)
+                    if (text.Length > 0 && InputPosition > 0)
                     {
-                        text = text.Remove(inputPosition - 1, 1);
-                        inputPosition--;
+                        text = text.Remove(InputPosition - 1, 1);
+                        InputPosition--;
 
-                        if (textStartPosition > 0)
-                            textStartPosition--;
+                        if (TextStartPosition > 0)
+                            TextStartPosition--;
 
-                        textEndPosition--;
+                        TextEndPosition--;
                     }
                     break;
                 case '\x001b': // ESC
-                    inputPosition = 0;
+                    InputPosition = 0;
                     text = string.Empty;
-                    textStartPosition = 0;
-                    textEndPosition = 0;
+                    TextStartPosition = 0;
+                    TextEndPosition = 0;
                     break;
                 default:
                     if (text.Length == MaximumTextLength)
@@ -219,17 +232,17 @@ namespace Rampastring.XNAUI.XNAControls
                     if (Renderer.GetSafeString(e.Character.ToString(), FontIndex) != e.Character.ToString())
                         break;
 
-                    text = text.Insert(inputPosition, e.Character.ToString());
-                    inputPosition++;
+                    text = text.Insert(InputPosition, e.Character.ToString());
+                    InputPosition++;
 
-                    if (textEndPosition == text.Length - 1 ||
-                        inputPosition > textEndPosition)
+                    if (TextEndPosition == text.Length - 1 ||
+                        InputPosition > TextEndPosition)
                     {
-                        textEndPosition++;
+                        TextEndPosition++;
 
                         while (!TextFitsBox())
                         {
-                            textStartPosition++;
+                            TextStartPosition++;
                         }
                     }
 
@@ -251,7 +264,7 @@ namespace Rampastring.XNAUI.XNAControls
                 return true;
 
             return Renderer.GetTextDimensions(
-                        text.Substring(textStartPosition, textEndPosition - textStartPosition),
+                        text.Substring(TextStartPosition, TextEndPosition - TextStartPosition),
                         FontIndex).X < ClientRectangle.Width - TEXT_HORIZONTAL_MARGIN * 2;
         }
 
@@ -261,7 +274,7 @@ namespace Rampastring.XNAUI.XNAControls
 
             leftClickHandled = true;
 
-            inputPosition = textEndPosition;
+            InputPosition = TextEndPosition;
 
             base.OnLeftClick();
         }
@@ -294,53 +307,53 @@ namespace Rampastring.XNAUI.XNAControls
 
         void ScrollLeft()
         {
-            if (inputPosition == 0)
+            if (InputPosition == 0)
                 return;
 
-            inputPosition--;
-            if (inputPosition < textStartPosition)
+            InputPosition--;
+            if (InputPosition < TextStartPosition)
             {
-                textStartPosition--;
+                TextStartPosition--;
 
                 while (!TextFitsBox())
-                    textEndPosition--;
+                    TextEndPosition--;
             }
         }
 
         void ScrollRight()
         {
-            if (inputPosition >= text.Length)
+            if (InputPosition >= text.Length)
                 return;
 
-            inputPosition++;
+            InputPosition++;
 
-            if (inputPosition > textEndPosition)
+            if (InputPosition > TextEndPosition)
             {
-                textEndPosition++;
+                TextEndPosition++;
 
                 while (!TextFitsBox())
                 {
-                    textStartPosition++;
+                    TextStartPosition++;
                 }
             }
         }
 
         void DeleteCharacter()
         {
-            if (text.Length > inputPosition)
+            if (text.Length > InputPosition)
             {
-                text = text.Remove(inputPosition, 1);
+                text = text.Remove(InputPosition, 1);
 
-                if (textStartPosition > 0)
+                if (TextStartPosition > 0)
                 {
-                    textStartPosition--;
+                    TextStartPosition--;
                 }
 
                 //Logger.Log(textEndPosition.ToString());
                 //Logger.Log(text.Length.ToString());
 
-                if (textEndPosition >= text.Length || !TextFitsBox())
-                    textEndPosition--;
+                if (TextEndPosition >= text.Length || !TextFitsBox())
+                    TextEndPosition--;
             }
         }
 
@@ -380,7 +393,7 @@ namespace Rampastring.XNAUI.XNAControls
             else
                 Renderer.DrawRectangle(displayRectangle, IdleBorderColor);
 
-            Renderer.DrawStringWithShadow(Text.Substring(textStartPosition, textEndPosition - textStartPosition),
+            Renderer.DrawStringWithShadow(Text.Substring(TextStartPosition, TextEndPosition - TextStartPosition),
                 FontIndex, new Vector2(displayRectangle.X + TEXT_HORIZONTAL_MARGIN, displayRectangle.Y + TEXT_VERTICAL_MARGIN),
                 TextColor);
 
@@ -388,7 +401,7 @@ namespace Rampastring.XNAUI.XNAControls
             {
                 int barLocationX = TEXT_HORIZONTAL_MARGIN;
 
-                string inputText = text.Substring(textStartPosition, inputPosition - textStartPosition);
+                string inputText = text.Substring(TextStartPosition, InputPosition - TextStartPosition);
                 barLocationX += (int)Renderer.GetTextDimensions(inputText, FontIndex).X;
 
                 Renderer.DrawRectangle(new Rectangle(displayRectangle.X + barLocationX,

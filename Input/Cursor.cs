@@ -21,6 +21,7 @@ namespace Rampastring.XNAUI.Input
         Point DrawnLocation { get; set; }
 
         public bool HasMoved { get; set; }
+        public bool IsOnScreen { get; set; }
 
         public Texture2D[] Textures;
 
@@ -66,6 +67,15 @@ namespace Rampastring.XNAUI.Input
             }
 
             Point location = DrawnLocation;
+
+            //if (location.X < 0 || location.Y < 0 ||
+            //    location.X > windowManager.ResolutionWidth ||
+            //    location.X > windowManager.ResolutionHeight)
+            //{
+            //    IsOnScreen = false;
+            //}
+            //else
+                IsOnScreen = true;
 
             location = location - new Point(windowManager.SceneXPosition, windowManager.SceneYPosition);
             location = new Point((int)(location.X / windowManager.ScaleRatio), (int)(location.Y / windowManager.ScaleRatio));

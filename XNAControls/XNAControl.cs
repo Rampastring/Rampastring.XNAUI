@@ -377,7 +377,7 @@ namespace Rampastring.XNAUI.XNAControls
                 return;
             }
 
-            if (IsActive && rectangle.Contains(Cursor.Location))
+            if (Cursor.IsOnScreen && IsActive && rectangle.Contains(Cursor.Location))
             {
                 if (!CursorOnControl)
                     OnMouseEnter();
