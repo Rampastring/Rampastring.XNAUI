@@ -129,7 +129,7 @@ namespace Rampastring.XNAUI.XNAControls
 
         private void Keyboard_OnKeyPressed(object sender, KeyPressEventArgs e)
         {
-            if (!active || !Enabled)
+            if (!active || !Enabled || !Parent.Enabled)
                 return;
 
             switch (e.PressedKey)
