@@ -21,8 +21,7 @@ namespace Rampastring.XNAUI
             this.graphics = graphics;
         }
 
-        public delegate void GameFormClosingEventHandler(object sender, FormClosingEventArgs e);
-        public event GameFormClosingEventHandler GameFormClosing;
+        public event EventHandler GameClosing;
 
         public Input.Cursor Cursor;
         public RKeyboard Keyboard;
@@ -108,10 +107,14 @@ namespace Rampastring.XNAUI
             SceneXPosition = texturePositionX;
             SceneYPosition = texturePositionY;
 
-            Logger.Log("Scale ratio: " + ScaleRatio);
-
             renderTarget = new RenderTarget2D(GraphicsDevice, renderResX, renderResY, false, SurfaceFormat.Color,
                 DepthFormat.None, 0, RenderTargetUsage.PreserveContents);
+        }
+
+        public void CloseGame()
+        {
+            GameClosing?.Invoke(this, EventArgs.Empty);
+            Game.Exit();
         }
 
         public void Initialize(ContentManager content, string contentPath)
@@ -144,8 +147,7 @@ namespace Rampastring.XNAUI
 
         private void GameForm_FormClosing_Event(object sender, FormClosingEventArgs e)
         {
-            if (GameFormClosing != null)
-                GameFormClosing(this, e);
+            GameClosing?.Invoke(this, EventArgs.Empty);
         }
 
         /// <summary>

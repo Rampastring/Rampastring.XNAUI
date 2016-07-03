@@ -3,7 +3,6 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using System;
 using System.Collections.Generic;
-using System.Text;
 
 namespace Rampastring.XNAUI.XNAControls
 {
@@ -148,6 +147,14 @@ namespace Rampastring.XNAUI.XNAControls
             }
         }
 
+        /// <summary>
+        /// Returns the number of text lines that can fit on the list box at a time.
+        /// </summary>
+        public int NumberOfLinesOnList
+        {
+            get { return (ClientRectangle.Height - 4) / LineHeight; }
+        }
+
         public void Clear()
         {
             //foreach (DXListBoxItem item in Items)
@@ -258,29 +265,38 @@ namespace Rampastring.XNAUI.XNAControls
             return lineCount;
         }
 
-        int GetNumberOfLinesOnList()
-        {
-            return (ClientRectangle.Height - 4) / LineHeight;
-        }
-
         public void ScrollToBottom()
         {
-            // Calculate the number of lines we need to scroll
-            int lastDisplayedItemIndex = LastIndex;
+            int displayedLineCount = NumberOfLinesOnList;
+            int currentLineCount = 0;
+            TopIndex = Items.Count;
 
-            int linesToScroll = 0;
-
-            for (int i = lastDisplayedItemIndex + 1; i < Items.Count; i++)
-                linesToScroll += Items[i].TextLines.Count;
-
-            // Now let's scroll by the necessary number of lines
-            int scrolledLines = 0;
-
-            while (scrolledLines < linesToScroll)
+            for (int i = Items.Count - 1; i > -1; i--)
             {
-                scrolledLines += Items[TopIndex].TextLines.Count;
-                TopIndex++;
+                currentLineCount += Items[i].TextLines.Count;
+
+                if (currentLineCount <= displayedLineCount)
+                    TopIndex--;
+                else
+                    break;
             }
+
+            //// Calculate the number of lines we need to scroll
+            //int lastDisplayedItemIndex = LastIndex;
+
+            //int linesToScroll = 0;
+
+            //for (int i = lastDisplayedItemIndex + 1; i < Items.Count; i++)
+            //    linesToScroll += Items[i].TextLines.Count;
+
+            //// Now let's scroll by the necessary number of lines
+            //int scrolledLines = 0;
+
+            //while (scrolledLines < linesToScroll)
+            //{
+            //    scrolledLines += Items[TopIndex].TextLines.Count;
+            //    TopIndex++;
+            //}
         }
 
         public override void Initialize()
@@ -376,7 +392,7 @@ namespace Rampastring.XNAUI.XNAControls
 
         public override void OnMouseScrolled()
         {
-            if (GetTotalLineCount() <= GetNumberOfLinesOnList())
+            if (GetTotalLineCount() <= NumberOfLinesOnList)
             {
                 TopIndex = 0;
                 return;
