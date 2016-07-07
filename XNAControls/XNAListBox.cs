@@ -180,6 +180,11 @@ namespace Rampastring.XNAUI.XNAControls
             AddItem(text, DefaultItemColor, selectable);
         }
 
+        public void AddItem(string text, Texture2D texture)
+        {
+            AddItem(text, DefaultItemColor, texture, true);
+        }
+
         public void AddItem(string text, Color textColor)
         {
             AddItem(text, textColor, true);
@@ -187,9 +192,15 @@ namespace Rampastring.XNAUI.XNAControls
 
         public void AddItem(string text, Color textColor, bool selectable)
         {
+            AddItem(text, textColor, null, selectable);
+        }
+
+        public void AddItem(string text, Color textColor, Texture2D texture, bool selectable)
+        {
             XNAListBoxItem item = new XNAListBoxItem();
             item.TextColor = textColor;
             item.Text = text;
+            item.Texture = texture;
             item.Selectable = selectable;
             AddItem(item);
         }

@@ -337,6 +337,15 @@ namespace Rampastring.XNAUI.XNAControls
         }
 
         /// <summary>
+        /// Disables and hides the control.
+        /// </summary>
+        public void Disable()
+        {
+            Enabled = false;
+            Visible = false;
+        }
+
+        /// <summary>
         /// Destroys the control and all child controls to free up resources.
         /// </summary>
         public virtual void Kill()

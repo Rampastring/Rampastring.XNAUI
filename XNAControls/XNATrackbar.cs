@@ -1,6 +1,7 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Audio;
+using Rampastring.Tools;
 
 namespace Rampastring.XNAUI.XNAControls
 {
@@ -45,23 +46,23 @@ namespace Rampastring.XNAUI.XNAControls
                 clickEffectInstance = SoundEffectOnClick.CreateInstance();
         }
 
-        //protected override void ParseAttributeFromINI(IniFile iniFile, string key)
-        //{
-        //    switch (key)
-        //    {
-        //        case "MinValue":
-        //            MinValue = iniFile.GetIntValue(Name, "MinValue", 0);
-        //            return;
-        //        case "MaxValue":
-        //            MaxValue = iniFile.GetIntValue(Name, "MaxValue", 10);
-        //            return;
-        //        case "Value":
-        //            Value = iniFile.GetIntValue(Name, "Value", 0);
-        //            return;
-        //    }
+        protected override void ParseAttributeFromINI(IniFile iniFile, string key, string value)
+        {
+            switch (key)
+            {
+                case "MinValue":
+                    MinValue = iniFile.GetIntValue(Name, "MinValue", 0);
+                    return;
+                case "MaxValue":
+                    MaxValue = iniFile.GetIntValue(Name, "MaxValue", 10);
+                    return;
+                case "Value":
+                    Value = iniFile.GetIntValue(Name, "Value", 0);
+                    return;
+            }
 
-        //    base.ParseAttributeFromINI(iniFile, key);
-        //}
+            base.ParseAttributeFromINI(iniFile, key, value);
+        }
 
         public override void OnLeftClick()
         {

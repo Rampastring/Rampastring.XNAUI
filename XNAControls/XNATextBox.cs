@@ -196,7 +196,7 @@ namespace Rampastring.XNAUI.XNAControls
 
         private void KeyboardEventInput_CharEntered(object sender, KeyboardEventArgs e)
         {
-            if (!active || !Enabled)
+            if (!active || !Enabled || !Parent.Enabled)
                 return;
 
             switch (e.Character)

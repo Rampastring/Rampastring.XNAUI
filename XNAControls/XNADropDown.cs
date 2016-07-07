@@ -343,7 +343,7 @@ namespace Rampastring.XNAUI.XNAControls
             Renderer.FillRectangle(new Rectangle(wr.X + 1, wr.Y + 1, wr.Width - 2, wr.Height - 2), BackColor);
             Renderer.DrawRectangle(new Rectangle(wr.X, wr.Y, wr.Width, dropDownTexture.Height), BorderColor);
 
-            if (SelectedIndex > -1)
+            if (SelectedIndex > -1 && SelectedIndex < Items.Count)
             {
                 XNADropDownItem item = Items[SelectedIndex];
 
