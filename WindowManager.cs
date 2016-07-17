@@ -399,7 +399,7 @@ namespace Rampastring.XNAUI
             {
                 XNAControl control = Controls[i];
 
-                if (_hasFocus && control.Visible && 
+                if (_hasFocus && control.Enabled && 
                     (activeControl == null &&
                     control.ClientRectangle.Contains(Cursor.Location)
                     ||

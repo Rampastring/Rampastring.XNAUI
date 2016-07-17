@@ -153,6 +153,17 @@ namespace Rampastring.XNAUI.XNAControls
 
         TimeSpan timeSinceLastLeftClick = TimeSpan.Zero;
 
+        /// <summary>
+        /// Checks if the last parent of this control is active.
+        /// </summary>
+        public bool IsLastParentActive()
+        {
+            if (Parent != null)
+                return Parent.IsLastParentActive();
+
+            return isActive;
+        }
+
         public Color GetRemapColor()
         {
             return GetColorWithAlpha(RemapColor);
@@ -234,7 +245,7 @@ namespace Rampastring.XNAUI.XNAControls
         /// Adds a child control to the control.
         /// </summary>
         /// <param name="child">The child control.</param>
-        public void AddChild(XNAControl child)
+        public virtual void AddChild(XNAControl child)
         {
             child.Parent = this;
             child.Initialize();
@@ -346,6 +357,15 @@ namespace Rampastring.XNAUI.XNAControls
         }
 
         /// <summary>
+        /// Enables and shows the control.
+        /// </summary>
+        public void Enable()
+        {
+            Enabled = true;
+            Visible = true;
+        }
+
+        /// <summary>
         /// Destroys the control and all child controls to free up resources.
         /// </summary>
         public virtual void Kill()
@@ -372,12 +392,17 @@ namespace Rampastring.XNAUI.XNAControls
 
             timeSinceLastLeftClick += gameTime.ElapsedGameTime;
 
-            lock (locker)
-            {
-                foreach (Callback c in Callbacks)
-                    c.Invoke();
+            int callbackCount = Callbacks.Count;
 
-                Callbacks.Clear();
+            if (callbackCount > 0)
+            {
+                lock (locker)
+                {
+                    for (int i = 0; i < callbackCount; i++)
+                        Callbacks[i].Invoke();
+
+                    Callbacks.RemoveRange(0, callbackCount);
+                }
             }
 
             if (IgnoreInputOnFrame)

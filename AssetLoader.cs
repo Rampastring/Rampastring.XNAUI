@@ -6,24 +6,28 @@ using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Graphics;
 using Rampastring.Tools;
 using Color = Microsoft.Xna.Framework.Color;
+using Microsoft.Xna.Framework.Content;
+using Microsoft.Xna.Framework.Media;
 
 namespace Rampastring.XNAUI
 {
     public static class AssetLoader
     {
-        static GraphicsDevice GraphicsDevice;
+        static GraphicsDevice graphicsDevice;
+        static ContentManager contentManager;
 
         public static List<string> AssetSearchPaths;
 
-        static List<Texture2D> TextureCache;
-        static List<SoundEffect> SoundCache;
+        static List<Texture2D> textureCache;
+        static List<SoundEffect> soundCache;
 
-        public static void Initialize(GraphicsDevice gd)
+        public static void Initialize(GraphicsDevice gd, ContentManager content)
         {
-            GraphicsDevice = gd;
+            graphicsDevice = gd;
             AssetSearchPaths = new List<string>();
-            TextureCache = new List<Texture2D>();
-            SoundCache = new List<SoundEffect>();
+            textureCache = new List<Texture2D>();
+            soundCache = new List<SoundEffect>();
+            contentManager = content;
         }
 
         /// <summary>
@@ -34,7 +38,7 @@ namespace Rampastring.XNAUI
         /// <returns>The texture if it was found and could be loaded, otherwise a dummy texture.</returns>
         public static Texture2D LoadTexture(string name)
         {
-            Texture2D cachedTexture = TextureCache.Find(t => t.Name == name);
+            Texture2D cachedTexture = textureCache.Find(t => t.Name == name);
 
             if (cachedTexture != null)
                 return cachedTexture;
@@ -45,8 +49,8 @@ namespace Rampastring.XNAUI
                 {
                     using (FileStream fs = File.OpenRead(searchPath + name))
                     {
-                        Texture2D texture = Texture2D.FromStream(GraphicsDevice, fs);
-                        TextureCache.Add(texture);
+                        Texture2D texture = Texture2D.FromStream(graphicsDevice, fs);
+                        textureCache.Add(texture);
                         texture.Name = name;
                         return texture;
                     }
@@ -56,7 +60,7 @@ namespace Rampastring.XNAUI
             using (MemoryStream ms = new MemoryStream())
             {
                 Properties.Resources.hotbutton.Save(ms, System.Drawing.Imaging.ImageFormat.Png);
-                return Texture2D.FromStream(GraphicsDevice, ms);
+                return Texture2D.FromStream(graphicsDevice, ms);
             }
         }
 
@@ -68,8 +72,8 @@ namespace Rampastring.XNAUI
                 {
                     using (FileStream fs = File.OpenRead(searchPath + name))
                     {
-                        Texture2D texture = Texture2D.FromStream(GraphicsDevice, fs);
-                        TextureCache.Add(texture);
+                        Texture2D texture = Texture2D.FromStream(graphicsDevice, fs);
+                        textureCache.Add(texture);
                         texture.Name = name;
                         return texture;
                     }
@@ -79,7 +83,7 @@ namespace Rampastring.XNAUI
             using (MemoryStream ms = new MemoryStream())
             {
                 Properties.Resources.hotbutton.Save(ms, System.Drawing.Imaging.ImageFormat.Png);
-                return Texture2D.FromStream(GraphicsDevice, ms);
+                return Texture2D.FromStream(graphicsDevice, ms);
             }
         }
 
@@ -92,7 +96,7 @@ namespace Rampastring.XNAUI
         /// <returns>A texture.</returns>
         public static Texture2D CreateTexture(Color color, int width, int height)
         {
-            Texture2D texture = new Texture2D(GraphicsDevice, width, height, false, SurfaceFormat.Color);
+            Texture2D texture = new Texture2D(graphicsDevice, width, height, false, SurfaceFormat.Color);
 
             Color[] colorArray = new Color[width * height];
 
@@ -110,13 +114,13 @@ namespace Rampastring.XNAUI
             {
                 image.Save(stream, System.Drawing.Imaging.ImageFormat.Png);
                 stream.Seek(0, SeekOrigin.Begin);
-                return Texture2D.FromStream(GraphicsDevice, stream);
+                return Texture2D.FromStream(graphicsDevice, stream);
             }
         }
 
         public static SoundEffect LoadSound(string name)
         {
-            SoundEffect cachedSound = SoundCache.Find(se => se.Name == name);
+            SoundEffect cachedSound = soundCache.Find(se => se.Name == name);
 
             if (cachedSound != null)
                 return cachedSound;
@@ -129,7 +133,7 @@ namespace Rampastring.XNAUI
                     {
                         SoundEffect se = SoundEffect.FromStream(fs);
                         se.Name = name;
-                        SoundCache.Add(se);
+                        soundCache.Add(se);
                         return se;
                     }
                 }
@@ -138,6 +142,19 @@ namespace Rampastring.XNAUI
             Logger.Log("AssetLoader.LoadSound: Sound not found! " + name);
 
             return null;
+        }
+
+        public static Song LoadSong(string name)
+        {
+            try
+            {
+                return contentManager.Load<Song>(name);
+            }
+            catch (Exception ex)
+            {
+                Logger.Log("Loading song " + name + " failed! Message: " + ex.Message);
+                return null;
+            }
         }
 
         /// <summary>
