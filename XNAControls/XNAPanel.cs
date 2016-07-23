@@ -14,7 +14,7 @@ namespace Rampastring.XNAUI.XNAControls
 
         public PanelBackgroundImageDrawMode DrawMode = PanelBackgroundImageDrawMode.TILED;
 
-        public Texture2D BackgroundTexture { get; set; }
+        public virtual Texture2D BackgroundTexture { get; set; }
 
         public Color BorderColor { get; set; }
 

@@ -199,13 +199,15 @@ namespace Rampastring.XNAUI
 
         public void SetBorderlessMode(bool value)
         {
-            if (gameForm == null)
-                return;
+            Game.Window.IsBorderless = value;
 
-            if (value)
-                gameForm.FormBorderStyle = FormBorderStyle.None;
-            else
-                gameForm.FormBorderStyle = FormBorderStyle.FixedSingle;
+            //if (gameForm == null)
+            //    return;
+
+            //if (value)
+            //    gameForm.FormBorderStyle = FormBorderStyle.None;
+            //else
+            //    gameForm.FormBorderStyle = FormBorderStyle.FixedSingle;
         }
 
         public void MinimizeWindow()

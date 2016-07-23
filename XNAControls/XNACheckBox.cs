@@ -11,7 +11,7 @@ namespace Rampastring.XNAUI.XNAControls
     /// </summary>
     public class XNACheckBox : XNAControl
     {
-        const int TEXT_PADDING_DEFAULT = 3;
+        const int TEXT_PADDING_DEFAULT = 5;
 
         public XNACheckBox(WindowManager windowManager) : base(windowManager)
         {

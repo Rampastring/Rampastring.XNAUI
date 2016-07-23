@@ -81,6 +81,11 @@ namespace Rampastring.XNAUI.XNAControls
             Tabs.RemoveAt(index);
         }
 
+        public void AddTab(string text, Texture2D defaultTexture, Texture2D pressedTexture)
+        {
+            AddTab(text, defaultTexture, pressedTexture, true);
+        }
+
         public void AddTab(string text, Texture2D defaultTexture, Texture2D pressedTexture, bool selectable)
         {
             Tab tab = new Tab(text, defaultTexture, pressedTexture, selectable);
