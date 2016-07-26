@@ -148,7 +148,7 @@ namespace Rampastring.XNAUI.XNAControls
 
             textLocationX = CheckedTexture.Width + TEXT_PADDING_DEFAULT;
 
-            if (!String.IsNullOrEmpty(Text))
+            if (!string.IsNullOrEmpty(Text))
             {
                 Vector2 textDimensions = Renderer.GetTextDimensions(Text, FontIndex);
 
@@ -171,7 +171,7 @@ namespace Rampastring.XNAUI.XNAControls
             {
                 Checked = !Checked;
                 if (checkSoundEffectInstance != null)
-                    checkSoundEffectInstance.Play();
+                    AudioMaster.PlaySound(checkSoundEffectInstance);
             }
 
             base.OnLeftClick();

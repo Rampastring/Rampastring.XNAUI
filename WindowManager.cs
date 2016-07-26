@@ -11,6 +11,7 @@ using Color = Microsoft.Xna.Framework.Color;
 using Rectangle = Microsoft.Xna.Framework.Rectangle;
 using System.IO;
 using Rampastring.XNAUI.Input;
+using System.Diagnostics;
 
 namespace Rampastring.XNAUI
 {
@@ -115,6 +116,17 @@ namespace Rampastring.XNAUI
         {
             GameClosing?.Invoke(this, EventArgs.Empty);
             Game.Exit();
+        }
+
+        public void RestartGame()
+        {
+            CloseGame();
+
+            Application.DoEvents();
+
+            //Process.Start(Application.ExecutablePath);
+            //Environment.Exit(0);
+            Application.Restart();
         }
 
         public void Initialize(ContentManager content, string contentPath)

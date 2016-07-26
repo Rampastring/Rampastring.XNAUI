@@ -29,8 +29,8 @@ namespace Rampastring.XNAUI.XNAControls
                     return;
 
                 _selectedTab = value;
-                if (SelectedIndexChanged != null)
-                    SelectedIndexChanged(this, EventArgs.Empty);
+
+                SelectedIndexChanged?.Invoke(this, EventArgs.Empty);
             }
         }
 
@@ -123,7 +123,7 @@ namespace Rampastring.XNAUI.XNAControls
                                 _soundInstance.Stop();
                             }
 
-                            _soundInstance.Play();
+                            AudioMaster.PlaySound(_soundInstance);
                         }
 
                         SelectedTab = i;

@@ -24,7 +24,7 @@ namespace Rampastring.XNAUI
         public void Play()
         {
             if (Enabled && seInstance != null)
-                seInstance.Play();
+                AudioMaster.PlaySound(seInstance);
         }
     }
 }

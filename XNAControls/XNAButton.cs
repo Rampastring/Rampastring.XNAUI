@@ -24,10 +24,43 @@ namespace Rampastring.XNAUI.XNAControls
 
         public Texture2D HoverTexture { get; set; }
 
-        public SoundEffect HoverSoundEffect { get; set; }
+        SoundEffect _hoverSoundEffect;
+        public SoundEffect HoverSoundEffect
+        {
+            get { return _hoverSoundEffect; }
+            set
+            {
+                if (hoverSoundInstance != null)
+                    hoverSoundInstance.Dispose();
+
+                if (value != null)
+                    hoverSoundInstance = value.CreateInstance();
+                else
+                    hoverSoundInstance = null;
+
+                _hoverSoundEffect = value;
+            }
+        }
+
         SoundEffectInstance hoverSoundInstance;
 
-        public SoundEffect ClickSoundEffect { get; set; }
+        SoundEffect _clickSoundEffect;
+        public SoundEffect ClickSoundEffect
+        {
+            get { return _clickSoundEffect; }
+            set
+            {
+                if (clickSoundInstance != null)
+                    clickSoundInstance.Dispose();
+
+                if (value != null)
+                    clickSoundInstance = value.CreateInstance();
+                else
+                    clickSoundInstance = null;
+
+                _clickSoundEffect = value;
+            }
+        }
         SoundEffectInstance clickSoundInstance { get; set; }
 
         public float AlphaRate { get; set; }
@@ -110,7 +143,7 @@ namespace Rampastring.XNAUI.XNAControls
 #if !WINDOWSGL
             if (HoverSoundEffect != null)
             {
-                hoverSoundInstance.Play();
+                AudioMaster.PlaySound(hoverSoundInstance);
             }
 #endif
         }
@@ -143,12 +176,6 @@ namespace Rampastring.XNAUI.XNAControls
 
         public override void Initialize()
         {
-            if (HoverSoundEffect != null)
-                hoverSoundInstance = HoverSoundEffect.CreateInstance();
-
-            if (ClickSoundEffect != null)
-                clickSoundInstance = ClickSoundEffect.CreateInstance();
-
             if (IdleTexture != null)
             {
                 ClientRectangle = new Rectangle(ClientRectangle.X, ClientRectangle.Y,

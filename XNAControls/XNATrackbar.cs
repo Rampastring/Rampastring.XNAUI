@@ -2,6 +2,7 @@
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Audio;
 using Rampastring.Tools;
+using System;
 
 namespace Rampastring.XNAUI.XNAControls
 {
@@ -11,6 +12,8 @@ namespace Rampastring.XNAUI.XNAControls
         {
             
         }
+
+        public event EventHandler ValueChanged;
 
         public int MinValue { get; set; }
 
@@ -22,12 +25,17 @@ namespace Rampastring.XNAUI.XNAControls
             get { return value; }
             set
             {
+                int oldValue = this.value;
+
                 if (value > MaxValue)
                     this.value = MaxValue;
                 else if (value < MinValue)
                     this.value = MinValue;
                 else
                     this.value = value;
+
+                if (oldValue != this.value)
+                    ValueChanged?.Invoke(this, EventArgs.Empty);
             }
         }
 
@@ -117,9 +125,9 @@ namespace Rampastring.XNAUI.XNAControls
 
             int tabCount = MaxValue - MinValue;
 
-            int pixelsPerTab = windowRectangle.Width / tabCount;
+            double pixelsPerTab = windowRectangle.Width / (double)tabCount;
 
-            int tabLocationX = tabIndex * pixelsPerTab - (ButtonTexture.Width / 2);
+            double tabLocationX = tabIndex * pixelsPerTab - (ButtonTexture.Width / 2);
 
             if (tabIndex == 0)
                 tabLocationX += ButtonTexture.Width / 2;
@@ -127,7 +135,7 @@ namespace Rampastring.XNAUI.XNAControls
                 tabLocationX -= ButtonTexture.Width / 2;
 
             Renderer.DrawTexture(ButtonTexture,
-                new Rectangle(windowRectangle.X + tabLocationX, windowRectangle.Y, ButtonTexture.Width, windowRectangle.Height),
+                new Rectangle((int)(windowRectangle.X + tabLocationX), windowRectangle.Y, ButtonTexture.Width, windowRectangle.Height),
                 GetColorWithAlpha(Color.White));
         }
     }

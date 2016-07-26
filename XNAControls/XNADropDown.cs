@@ -222,7 +222,7 @@ namespace Rampastring.XNAUI.XNAControls
                         return;
 
                     if (_clickSoundInstance != null)
-                        _clickSoundInstance.Play();
+                        AudioMaster.PlaySound(_clickSoundInstance);
 
                     Rectangle wr = WindowRectangle();
 
@@ -269,7 +269,7 @@ namespace Rampastring.XNAUI.XNAControls
             }
 
             if (_clickSoundInstance != null)
-                _clickSoundInstance.Play();
+                AudioMaster.PlaySound(_clickSoundInstance);
 
             if (itemIndexOnCursor > -1)
             {

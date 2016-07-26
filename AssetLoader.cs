@@ -64,6 +64,22 @@ namespace Rampastring.XNAUI
             }
         }
 
+        /// <summary>
+        /// Checks if a specified asset file exists.
+        /// </summary>
+        /// <param name="name"></param>
+        /// <returns></returns>
+        public static bool AssetExists(string name)
+        {
+            foreach (string searchPath in AssetSearchPaths)
+            {
+                if (File.Exists(searchPath + name))
+                    return true;
+            }
+
+            return false;
+        }
+
         public static Texture2D LoadTextureUncached(string name)
         {
             foreach (string searchPath in AssetSearchPaths)

@@ -412,13 +412,16 @@ namespace Rampastring.XNAUI.XNAControls
             TopIndex -= Cursor.ScrollWheelValue;
 
             if (TopIndex < 0)
+            {
                 TopIndex = 0;
+                return;
+            }
 
             int lastIndex = LastIndex;
 
             if (lastIndex == Items.Count - 1)
             {
-                while (LastIndex == lastIndex)
+                while (LastIndex == lastIndex && TopIndex > 0)
                 {
                     TopIndex--;
                 }
