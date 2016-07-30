@@ -336,12 +336,24 @@ namespace Rampastring.XNAUI.XNAControls
                         ClientRectangle = new Rectangle(ClientRectangle.X, ClientRectangle.Y,
                             Parent.ClientRectangle.Width - ClientRectangle.X - Conversions.IntFromString(value, 0), ClientRectangle.Height);
                     }
+                    else
+                    {
+                        ClientRectangle = new Rectangle(ClientRectangle.X, ClientRectangle.Y,
+                            WindowManager.RenderResolutionX - ClientRectangle.X - Conversions.IntFromString(value, 0),
+                            ClientRectangle.Height);
+                    }
                     break;
                 case "FillHeight":
                     if (Parent != null)
                     {
                         ClientRectangle = new Rectangle(ClientRectangle.X, ClientRectangle.Y,
                             ClientRectangle.Width, Parent.ClientRectangle.Height - ClientRectangle.Y - Conversions.IntFromString(value, 0));
+                    }
+                    else
+                    {
+                        ClientRectangle = new Rectangle(ClientRectangle.X, ClientRectangle.Y,
+                            ClientRectangle.Width,
+                            WindowManager.RenderResolutionY - ClientRectangle.Y - Conversions.IntFromString(value, 0));
                     }
                     break;
             }

@@ -1,5 +1,6 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
+using Rampastring.Tools;
 using Rampastring.XNAUI.Input;
 using System;
 
@@ -14,6 +15,8 @@ namespace Rampastring.XNAUI.XNAControls
         const int TEXT_VERTICAL_MARGIN = 2;
         const double SCROLL_REPEAT_TIME = 0.03;
         const double FAST_SCROLL_TRIGGER_TIME = 0.4;
+        const double BAR_ON_TIME = 0.5;
+        const double BAR_OFF_TIME = 0.5;
 
         public XNATextBox(WindowManager windowManager) : base(windowManager)
         {
@@ -38,6 +41,8 @@ namespace Rampastring.XNAUI.XNAControls
         public int FontIndex { get; set; }
 
         int _maximumTextLength = int.MaxValue;
+
+        TimeSpan barTimer = TimeSpan.Zero;
 
         public int MaximumTextLength
         {
@@ -135,6 +140,9 @@ namespace Rampastring.XNAUI.XNAControls
             switch (e.PressedKey)
             {
                 case Keys.Home:
+                    if (text.Length == 0)
+                        return;
+
                     TextStartPosition = 0;
                     TextEndPosition = 0;
                     InputPosition = 0;
@@ -147,6 +155,8 @@ namespace Rampastring.XNAUI.XNAControls
                             TextEndPosition++;
                             continue;
                         }
+
+                        TextEndPosition--;
 
                         break;
                     }
@@ -183,7 +193,7 @@ namespace Rampastring.XNAUI.XNAControls
 
                     Text = System.Windows.Forms.Clipboard.GetText();
 
-                    break;
+                    goto case Keys.End;
                 case Keys.C:
                     if (!IsCtrlHeldDown())
                         break;
@@ -249,6 +259,8 @@ namespace Rampastring.XNAUI.XNAControls
                     break;
             }
 
+            barTimer = TimeSpan.Zero;
+
             InputReceived?.Invoke(this, EventArgs.Empty);
         }
 
@@ -276,6 +288,8 @@ namespace Rampastring.XNAUI.XNAControls
 
             InputPosition = TextEndPosition;
 
+            barTimer = TimeSpan.Zero;
+
             base.OnLeftClick();
         }
 
@@ -285,6 +299,11 @@ namespace Rampastring.XNAUI.XNAControls
 
             if (Cursor.LeftClicked && !leftClickHandled)
                 IsSelected = false;
+
+            barTimer += gameTime.ElapsedGameTime;
+
+            if (barTimer > TimeSpan.FromSeconds(BAR_ON_TIME + BAR_OFF_TIME))
+                barTimer -= TimeSpan.FromSeconds(BAR_ON_TIME + BAR_OFF_TIME);
 
             if (IsSelected)
             {
@@ -349,10 +368,7 @@ namespace Rampastring.XNAUI.XNAControls
                     TextStartPosition--;
                 }
 
-                //Logger.Log(textEndPosition.ToString());
-                //Logger.Log(text.Length.ToString());
-
-                if (TextEndPosition >= text.Length || !TextFitsBox())
+                if (TextEndPosition > text.Length || !TextFitsBox())
                     TextEndPosition--;
             }
         }
@@ -397,7 +413,7 @@ namespace Rampastring.XNAUI.XNAControls
                 FontIndex, new Vector2(displayRectangle.X + TEXT_HORIZONTAL_MARGIN, displayRectangle.Y + TEXT_VERTICAL_MARGIN),
                 TextColor);
 
-            if (active && Enabled)
+            if (active && Enabled && barTimer.TotalSeconds < BAR_ON_TIME)
             {
                 int barLocationX = TEXT_HORIZONTAL_MARGIN;
 

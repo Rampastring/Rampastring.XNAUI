@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using Microsoft.Xna.Framework.Graphics;
 using System.Text;
+using Rampastring.Tools;
 
 namespace Rampastring.XNAUI
 {
@@ -42,43 +43,46 @@ namespace Rampastring.XNAUI
             List<string> returnValue = new List<string>();
             string[] wordArray = text.Split(' ');
 
-            if (wordArray.Length == 1)
+            foreach (string word in wordArray)
             {
-                StringBuilder sb = new StringBuilder();
-
-                string word = wordArray[0];
-
-                for (int i = 0; i < word.Length; i++)
+                if (spriteFont.MeasureString(line + word).X > width)
                 {
-                    if (spriteFont.MeasureString(sb.ToString() + wordArray[0][i]).X > width)
-                    {
-                        returnValue.Add(sb.ToString());
-                        sb.Clear();
-                        break;
-                    }
-
-                    sb.Append(word[i]);
-                }
-
-                if (sb.Length > 0)
-                    returnValue.Add(sb.ToString());
-            }
-            else
-            {
-                foreach (string word in wordArray)
-                {
-                    if (spriteFont.MeasureString(line + word).X > width)
+                    if (line.Length > 0)
                     {
                         returnValue.Add(line.Remove(line.Length - 1));
-                        line = string.Empty;
                     }
 
-                    line = line + word + " ";
+                    // Split individual words that are longer than the allowed width
+                    if (spriteFont.MeasureString(word).X > width)
+                    {
+                        StringBuilder sb = new StringBuilder();
+
+                        for (int i = 0; i < word.Length; i++)
+                        {
+                            if (spriteFont.MeasureString(sb.ToString() + word[i]).X > width)
+                            {
+                                returnValue.Add(sb.ToString());
+                                sb.Clear();
+                            }
+
+                            sb.Append(word[i]);
+                        }
+
+                        if (sb.Length > 0)
+                            line = sb.ToString() + " ";
+
+                        continue;
+                    }
+
+                    line = word + " ";
+                    continue;
                 }
 
-                if (!string.IsNullOrEmpty(line) && line.Length > 1)
-                    returnValue.Add(line);
+                line = line + word + " ";
             }
+
+            if (!string.IsNullOrEmpty(line) && line.Length > 1)
+                returnValue.Add(line);
 
             return returnValue;
         }

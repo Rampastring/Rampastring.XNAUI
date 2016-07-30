@@ -25,6 +25,11 @@ namespace Rampastring.XNAUI
             }
         }
 
+        public static float GetVolume()
+        {
+            return volume;
+        }
+
         public static void PlaySound(SoundEffectInstance seInstance)
         {
             seInstance.Volume = volume;

@@ -226,7 +226,7 @@ namespace Rampastring.XNAUI.XNAControls
                 width -= listBoxItem.Texture.Width + 2;
             List<string> textLines = Renderer.GetFixedTextLines(listBoxItem.Text, FontIndex, width);
             if (textLines.Count == 0)
-                textLines.Add(String.Empty);
+                textLines.Add(string.Empty);
             listBoxItem.TextLines = textLines;
 
             // Split too long lines
