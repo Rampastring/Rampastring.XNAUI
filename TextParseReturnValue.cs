@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using Microsoft.Xna.Framework.Graphics;
 using System.Text;
-using Rampastring.Tools;
 
 namespace Rampastring.XNAUI
 {

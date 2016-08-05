@@ -11,7 +11,6 @@ using Color = Microsoft.Xna.Framework.Color;
 using Rectangle = Microsoft.Xna.Framework.Rectangle;
 using System.IO;
 using Rampastring.XNAUI.Input;
-using System.Diagnostics;
 
 namespace Rampastring.XNAUI
 {

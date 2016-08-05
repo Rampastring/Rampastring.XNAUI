@@ -229,26 +229,6 @@ namespace Rampastring.XNAUI.XNAControls
                 textLines.Add(string.Empty);
             listBoxItem.TextLines = textLines;
 
-            // Split too long lines
-            //for (int i = 0; i < textLines.Count; i++)
-            //{
-            //    string line = textLines[i];
-
-            //    StringBuilder sb = new StringBuilder(line);
-
-            //    while (Renderer.GetTextDimensions(sb.ToString(), FontIndex).X >
-            //        ClientRectangle.Width - TextBorderDistance * 2)
-            //    {
-            //        sb.Remove(sb.Length - 1, 1);
-            //    }
-
-            //    if (sb.ToString() != line)
-            //    {
-            //        textLines[i] = sb.ToString();
-            //        textLines.Insert(i + 1, line.Substring(sb.Length));
-            //    }
-            //}
-
             if (textLines.Count > 1 && !AllowMultiLineItems)
                 textLines.RemoveRange(1, textLines.Count - 1);
 

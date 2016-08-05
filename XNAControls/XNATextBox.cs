@@ -1,6 +1,5 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
-using Rampastring.Tools;
 using Rampastring.XNAUI.Input;
 using System;
 
