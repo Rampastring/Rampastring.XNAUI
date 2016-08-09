@@ -2,6 +2,7 @@
 using Microsoft.Xna.Framework.Input;
 using Rampastring.XNAUI.Input;
 using System;
+using System.Text;
 
 namespace Rampastring.XNAUI.XNAControls
 {
@@ -127,83 +128,11 @@ namespace Rampastring.XNAUI.XNAControls
         {
             base.Initialize();
 
-            KeyboardEventInput.CharEntered += KeyboardEventInput_CharEntered;
+            Game.Window.TextInput += Window_TextInput;
             Keyboard.OnKeyPressed += Keyboard_OnKeyPressed;
         }
 
-        private void Keyboard_OnKeyPressed(object sender, KeyPressEventArgs e)
-        {
-            if (!active || !Enabled || !IsLastParentActive())
-                return;
-
-            switch (e.PressedKey)
-            {
-                case Keys.Home:
-                    if (text.Length == 0)
-                        return;
-
-                    TextStartPosition = 0;
-                    TextEndPosition = 0;
-                    InputPosition = 0;
-
-                    while (true)
-                    {
-                        if (TextEndPosition < text.Length &&
-                            TextFitsBox())
-                        {
-                            TextEndPosition++;
-                            continue;
-                        }
-
-                        TextEndPosition--;
-
-                        break;
-                    }
-
-                    break;
-                case Keys.End:
-                    TextEndPosition = text.Length;
-                    InputPosition = text.Length;
-                    TextStartPosition = 0;
-
-                    while (true)
-                    {
-                        if (!TextFitsBox())
-                        {
-                            TextStartPosition++;
-                            continue;
-                        }
-
-                        break;
-                    }
-
-                    break;
-                case Keys.X:
-                    if (!IsCtrlHeldDown())
-                        break;
-
-                    System.Windows.Forms.Clipboard.SetText(text);
-                    Text = string.Empty;
-
-                    break;
-                case Keys.V:
-                    if (!IsCtrlHeldDown())
-                        break;
-
-                    Text = System.Windows.Forms.Clipboard.GetText();
-
-                    goto case Keys.End;
-                case Keys.C:
-                    if (!IsCtrlHeldDown())
-                        break;
-
-                    System.Windows.Forms.Clipboard.SetText(text);
-
-                    break;
-            }
-        }
-
-        private void KeyboardEventInput_CharEntered(object sender, KeyboardEventArgs e)
+        private void Window_TextInput(object sender, TextInputEventArgs e)
         {
             if (!active || !Enabled || !Parent.Enabled)
                 return;
@@ -263,6 +192,84 @@ namespace Rampastring.XNAUI.XNAControls
             InputReceived?.Invoke(this, EventArgs.Empty);
         }
 
+        private void Keyboard_OnKeyPressed(object sender, KeyPressEventArgs e)
+        {
+            if (!active || !Enabled || !IsLastParentActive())
+                return;
+
+            switch (e.PressedKey)
+            {
+                case Keys.Home:
+                    if (text.Length == 0)
+                        return;
+
+                    TextStartPosition = 0;
+                    TextEndPosition = 0;
+                    InputPosition = 0;
+
+                    while (true)
+                    {
+                        if (TextEndPosition < text.Length)
+                        {
+                            TextEndPosition++;
+
+                            if (!TextFitsBox())
+                            {
+                                TextEndPosition--;
+                                break;
+                            }
+
+                            continue;
+                        }
+
+                        //TextEndPosition--;
+
+                        break;
+                    }
+
+                    break;
+                case Keys.End:
+                    TextEndPosition = text.Length;
+                    InputPosition = text.Length;
+                    TextStartPosition = 0;
+
+                    while (true)
+                    {
+                        if (!TextFitsBox())
+                        {
+                            TextStartPosition++;
+                            continue;
+                        }
+
+                        break;
+                    }
+
+                    break;
+                case Keys.X:
+                    if (!IsCtrlHeldDown())
+                        break;
+
+                    System.Windows.Forms.Clipboard.SetText(text);
+                    Text = string.Empty;
+
+                    break;
+                case Keys.V:
+                    if (!IsCtrlHeldDown())
+                        break;
+
+                    Text = System.Windows.Forms.Clipboard.GetText();
+
+                    goto case Keys.End;
+                case Keys.C:
+                    if (!IsCtrlHeldDown())
+                        break;
+
+                    System.Windows.Forms.Clipboard.SetText(text);
+
+                    break;
+            }
+        }
+
         private bool IsCtrlHeldDown()
         {
             return Keyboard.IsKeyHeldDown(Keys.RightControl) ||
@@ -281,11 +288,33 @@ namespace Rampastring.XNAUI.XNAControls
 
         public override void OnLeftClick()
         {
-            IsSelected = true;
+            if (IsSelected)
+            {
+                int x = GetCursorPoint().X;
+                int inputPosition = TextEndPosition;
+
+                StringBuilder text = new StringBuilder();
+
+                for (int i = TextStartPosition; i < TextEndPosition - TextStartPosition; i++)
+                {
+                    text.Append(Text[i]);
+                    if (Renderer.GetTextDimensions(text.ToString(), FontIndex).X + 
+                        TEXT_HORIZONTAL_MARGIN > x)
+                    {
+                        inputPosition = i - 1;
+                        break;
+                    }
+                }
+
+                InputPosition = inputPosition;
+            }
+            else
+            {
+                IsSelected = true;
+                InputPosition = TextEndPosition;
+            }
 
             leftClickHandled = true;
-
-            InputPosition = TextEndPosition;
 
             barTimer = TimeSpan.Zero;
 

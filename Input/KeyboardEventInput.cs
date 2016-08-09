@@ -6,6 +6,8 @@ namespace Rampastring.XNAUI.Input
 {
     /// <summary>
     /// Handles text input. XNA does not have a built-in system for text input.
+    /// *************DEPRECATED: MonoGame has a way of detecting text input,
+    /// via the Game.Window.TextInput event!
     /// http://www.gamedev.net/topic/457783-xna-getting-text-from-keyboard/
     /// </summary>
     public static class KeyboardEventInput
@@ -64,6 +66,10 @@ namespace Rampastring.XNAUI.Input
         /// <param name="window">The XNA window to which text input should be linked.</param>
         public static void Initialize(GameWindow window)
         {
+#if LINUX
+            return;
+#endif
+
             if (initialized)
                 throw new InvalidOperationException("KeyboardEventInput.Initialize can only be called once!");
 

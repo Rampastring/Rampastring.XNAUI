@@ -134,7 +134,7 @@ namespace Rampastring.XNAUI
             Keyboard = new RKeyboard(Game);
             Renderer.Initialize(GraphicsDevice, content, contentPath);
 
-            KeyboardEventInput.Initialize(Game.Window);
+            //KeyboardEventInput.Initialize(Game.Window);
 
             gameForm = (Form)Form.FromHandle(Game.Window.Handle);
 
