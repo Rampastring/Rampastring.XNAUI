@@ -7,10 +7,15 @@ namespace Rampastring.XNAUI
 {
     public static class AudioMaster
     {
+        public static bool DisableSounds = false;
+
         private static float volume { get; set; }
 
         public static void SetVolume(float volume)
         {
+            if (DisableSounds)
+                return;
+
             AudioMaster.volume = volume;
             try
             {
@@ -29,6 +34,9 @@ namespace Rampastring.XNAUI
 
         public static void PlaySound(SoundEffectInstance seInstance)
         {
+            if (DisableSounds)
+                return;
+
             seInstance.Volume = volume;
             seInstance.Play();
         }
