@@ -139,29 +139,6 @@ namespace Rampastring.XNAUI.XNAControls
 
             switch (e.Character)
             {
-                case '\r': // Enter / return
-                    EnterPressed?.Invoke(this, EventArgs.Empty);
-                    break;
-                case '\x0009': // Tab
-                    break;
-                case '\b': // Backspace
-                    if (text.Length > 0 && InputPosition > 0)
-                    {
-                        text = text.Remove(InputPosition - 1, 1);
-                        InputPosition--;
-
-                        if (TextStartPosition > 0)
-                            TextStartPosition--;
-
-                        TextEndPosition--;
-                    }
-                    break;
-                case '\x001b': // ESC
-                    InputPosition = 0;
-                    text = string.Empty;
-                    TextStartPosition = 0;
-                    TextEndPosition = 0;
-                    break;
                 default:
                     if (text.Length == MaximumTextLength)
                         break;
@@ -222,8 +199,6 @@ namespace Rampastring.XNAUI.XNAControls
                             continue;
                         }
 
-                        //TextEndPosition--;
-
                         break;
                     }
 
@@ -266,6 +241,15 @@ namespace Rampastring.XNAUI.XNAControls
 
                     System.Windows.Forms.Clipboard.SetText(text);
 
+                    break;
+                case Keys.Enter:
+                    EnterPressed?.Invoke(this, EventArgs.Empty);
+                    break;
+                case Keys.Escape:
+                    InputPosition = 0;
+                    text = string.Empty;
+                    TextStartPosition = 0;
+                    TextEndPosition = 0;
                     break;
             }
         }
@@ -341,6 +325,8 @@ namespace Rampastring.XNAUI.XNAControls
                     HandleScrollKeyDown(gameTime, ScrollRight);
                 else if (Keyboard.IsKeyHeldDown(Keys.Delete))
                     HandleScrollKeyDown(gameTime, DeleteCharacter);
+                else if (Keyboard.IsKeyHeldDown(Keys.Back))
+                    HandleScrollKeyDown(gameTime, Backspace);
                 else
                 {
                     isScrollingQuickly = false;
@@ -398,6 +384,20 @@ namespace Rampastring.XNAUI.XNAControls
 
                 if (TextEndPosition > text.Length || !TextFitsBox())
                     TextEndPosition--;
+            }
+        }
+
+        void Backspace()
+        {
+            if (text.Length > 0 && InputPosition > 0)
+            {
+                text = text.Remove(InputPosition - 1, 1);
+                InputPosition--;
+
+                if (TextStartPosition > 0)
+                    TextStartPosition--;
+
+                TextEndPosition--;
             }
         }
 
