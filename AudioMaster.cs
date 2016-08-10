@@ -37,6 +37,11 @@ namespace Rampastring.XNAUI
             if (DisableSounds)
                 return;
 
+            _PlaySound(seInstance);
+        }
+
+        private static void _PlaySound(SoundEffectInstance seInstance)
+        {
             seInstance.Volume = volume;
             seInstance.Play();
         }

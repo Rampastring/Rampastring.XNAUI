@@ -211,14 +211,6 @@ namespace Rampastring.XNAUI
         public void SetBorderlessMode(bool value)
         {
             Game.Window.IsBorderless = value;
-
-            //if (gameForm == null)
-            //    return;
-
-            //if (value)
-            //    gameForm.FormBorderStyle = FormBorderStyle.None;
-            //else
-            //    gameForm.FormBorderStyle = FormBorderStyle.FixedSingle;
         }
 
         public void MinimizeWindow()
@@ -389,7 +381,7 @@ namespace Rampastring.XNAUI
 #if WINDOWSGL
             _hasFocus = true;
 #else
-            _hasFocus = (System.Windows.Forms.Form.ActiveForm != null);
+            _hasFocus = gameForm == null || (System.Windows.Forms.Form.ActiveForm != null);
 #endif
             Cursor.HasFocus = _hasFocus;
 
