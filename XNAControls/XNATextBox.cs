@@ -139,6 +139,18 @@ namespace Rampastring.XNAUI.XNAControls
 
             switch (e.Character)
             {
+                /*/ There are a bunch of keys that are detected as text input on
+                 * Windows builds of MonoGame, but not on WindowsGL or Linux builds of MonoGame.
+                 * We already handle these keys (enter, tab, backspace, escape) by other means,
+                 * so we don't want to handle them also as text input on Windows to avoid 
+                 * potentially harmful extra triggering of the InputReceived event.
+                 * So, we detect that input here and return on these keys.
+                /*/
+                case '\r':      // Enter / return
+                case '\x0009':  // Tab
+                case '\b':      // Backspace
+                case '\x001b':  // ESC
+                    return;
                 default:
                     if (text.Length == MaximumTextLength)
                         break;
@@ -385,6 +397,8 @@ namespace Rampastring.XNAUI.XNAControls
                 if (TextEndPosition > text.Length || !TextFitsBox())
                     TextEndPosition--;
             }
+
+            InputReceived?.Invoke(this, EventArgs.Empty);
         }
 
         void Backspace()
@@ -399,6 +413,8 @@ namespace Rampastring.XNAUI.XNAControls
 
                 TextEndPosition--;
             }
+
+            InputReceived?.Invoke(this, EventArgs.Empty);
         }
 
         void HandleScrollKeyDown(GameTime gameTime, Action action)
@@ -424,6 +440,8 @@ namespace Rampastring.XNAUI.XNAControls
                 isScrollingQuickly = true;
                 timeSinceLastScroll = TimeSpan.Zero;
             }
+
+            barTimer = TimeSpan.Zero;
         }
 
         public override void Draw(GameTime gameTime)
