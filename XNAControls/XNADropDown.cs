@@ -48,8 +48,12 @@ namespace Rampastring.XNAUI.XNAControls
             set
             {
                 _allowDropDown = value;
-                if (IsDroppedDown)
+                if (!_allowDropDown && IsDroppedDown)
+                {
                     IsDroppedDown = false;
+                    ClientRectangle = new Rectangle(ClientRectangle.X, ClientRectangle.Y,
+                        ClientRectangle.Width, dropDownTexture.Height);
+                }
             }
         }
 
@@ -228,7 +232,8 @@ namespace Rampastring.XNAUI.XNAControls
 
                     clickedAfterOpen = false;
                     IsDroppedDown = true;
-                    ClientRectangle = new Rectangle(ClientRectangle.X, ClientRectangle.Y, ClientRectangle.Width, dropDownTexture.Height + 1 + ItemHeight * Items.Count);
+                    ClientRectangle = new Rectangle(ClientRectangle.X, ClientRectangle.Y,
+                        ClientRectangle.Width, dropDownTexture.Height + 1 + ItemHeight * Items.Count);
                     hoveredIndex = -1;
                     return;
                 }
@@ -280,7 +285,8 @@ namespace Rampastring.XNAUI.XNAControls
             }
 
             IsDroppedDown = false;
-            ClientRectangle = new Rectangle(ClientRectangle.X, ClientRectangle.Y, ClientRectangle.Width, dropDownTexture.Height);
+            ClientRectangle = new Rectangle(ClientRectangle.X, ClientRectangle.Y,
+                ClientRectangle.Width, dropDownTexture.Height);
         }
 
         public override void OnMouseScrolled()
