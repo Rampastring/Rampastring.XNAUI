@@ -291,6 +291,9 @@ namespace Rampastring.XNAUI.XNAControls
 
         public override void OnMouseScrolled()
         {
+            if (!AllowDropDown)
+                return;
+
             if (Cursor.ScrollWheelValue < 0)
             {
                 if (SelectedIndex >= Items.Count - 1)
