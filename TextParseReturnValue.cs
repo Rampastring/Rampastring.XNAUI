@@ -7,29 +7,29 @@ namespace Rampastring.XNAUI
 {
     public class TextParseReturnValue
     {
-        public int lineAmount = 1;
-        public string text;
+        public int LineCount = 1;
+        public string Text;
 
         public static TextParseReturnValue FixText(SpriteFont spriteFont, int width, string text)
         {
             string line = String.Empty;
             TextParseReturnValue returnValue = new TextParseReturnValue();
-            returnValue.text = String.Empty;
+            returnValue.Text = String.Empty;
             string[] wordArray = text.Split(' ');
 
             foreach (string word in wordArray)
             {
                 if (spriteFont.MeasureString(line + word).Length() > width)
                 {
-                    returnValue.text = returnValue.text + line + '\n';
-                    returnValue.lineAmount = returnValue.lineAmount + 1;
+                    returnValue.Text = returnValue.Text + line + Environment.NewLine;
+                    returnValue.LineCount = returnValue.LineCount + 1;
                     line = String.Empty;
                 }
 
                 line = line + word + " ";
             }
 
-            returnValue.text = returnValue.text + line;
+            returnValue.Text = returnValue.Text + line;
             return returnValue;
         }
 
