@@ -48,7 +48,8 @@ namespace Rampastring.XNAUI.XNAControls
         {
             base.Initialize();
 
-            ButtonTexture = AssetLoader.LoadTexture("trackbarButton.png");
+            if (ButtonTexture == null)
+                ButtonTexture = AssetLoader.LoadTexture("trackbarButton.png");
 
             if (SoundEffectOnClick != null)
                 clickEffectInstance = SoundEffectOnClick.CreateInstance();
