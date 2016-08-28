@@ -17,7 +17,7 @@
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
-    <OutputPath>bin\Debug\</OutputPath>
+    <OutputPath>bin\AnyCPU\Debug\</OutputPath>
     <DefineConstants>TRACE;DEBUG</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
@@ -25,7 +25,23 @@
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
-    <OutputPath>bin\Release\</OutputPath>
+    <OutputPath>bin\AnyCPU\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|Windows' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Windows\Debug\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|Windows' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Windows\Release\</OutputPath>
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
@@ -69,8 +85,8 @@
       <ItemGroup>
         <Reference Include="MonoGame.Framework, Version=3.5.0.1636, Culture=neutral, processorArchitecture=MSIL">
           <SpecificVersion>False</SpecificVersion>
-          <HintPath Condition=" '$(Platform)' != 'WindowsGL'">..\DXClient\References\Windows\MonoGame.Framework.dll</HintPath>
-          <HintPath Condition=" '$(Platform)' == 'WindowsGL'">..\DXClient\References\WindowsGL\MonoGame.Framework.dll</HintPath>
+          <HintPath Condition=" '$(Platform)' != 'WindowsGL'">References\Windows\MonoGame.Framework.dll</HintPath>
+          <HintPath Condition=" '$(Platform)' == 'WindowsGL'">References\WindowsGL\MonoGame.Framework.dll</HintPath>
         </Reference>
       </ItemGroup>
     </When>
@@ -107,6 +123,10 @@
     </Otherwise>
   </Choose>
   <ItemGroup>
+    <Reference Include="Rampastring.Tools, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>References\Rampastring.Tools.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Drawing" />
@@ -163,13 +183,6 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\hotbutton.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\Rampastring.Tools\Rampastring.Tools.csproj">
-      <Project>{9f40961f-535a-480c-93c5-6877ed6a8626}</Project>
-      <Name>Rampastring.Tools</Name>
-      <SetConfiguration Condition=" '$(Platform)' == 'WindowsGL' ">Platform=AnyCPU</SetConfiguration>
-    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

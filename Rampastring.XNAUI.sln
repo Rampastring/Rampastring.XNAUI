@@ -1,0 +1,40 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 14
+VisualStudioVersion = 14.0.25123.0
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Rampastring.XNAUI", "Rampastring.XNAUI.csproj", "{3EAF996D-7F03-433B-A9A5-17E69AC97C76}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Debug|Windows = Debug|Windows
+		Debug|WindowsGL = Debug|WindowsGL
+		Debug|XNAFramework = Debug|XNAFramework
+		Release|Any CPU = Release|Any CPU
+		Release|Windows = Release|Windows
+		Release|WindowsGL = Release|WindowsGL
+		Release|XNAFramework = Release|XNAFramework
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{3EAF996D-7F03-433B-A9A5-17E69AC97C76}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3EAF996D-7F03-433B-A9A5-17E69AC97C76}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3EAF996D-7F03-433B-A9A5-17E69AC97C76}.Debug|Windows.ActiveCfg = Debug|Any CPU
+		{3EAF996D-7F03-433B-A9A5-17E69AC97C76}.Debug|Windows.Build.0 = Debug|Any CPU
+		{3EAF996D-7F03-433B-A9A5-17E69AC97C76}.Debug|WindowsGL.ActiveCfg = Debug|WindowsGL
+		{3EAF996D-7F03-433B-A9A5-17E69AC97C76}.Debug|WindowsGL.Build.0 = Debug|WindowsGL
+		{3EAF996D-7F03-433B-A9A5-17E69AC97C76}.Debug|XNAFramework.ActiveCfg = Debug|XNAFramework
+		{3EAF996D-7F03-433B-A9A5-17E69AC97C76}.Debug|XNAFramework.Build.0 = Debug|XNAFramework
+		{3EAF996D-7F03-433B-A9A5-17E69AC97C76}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3EAF996D-7F03-433B-A9A5-17E69AC97C76}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3EAF996D-7F03-433B-A9A5-17E69AC97C76}.Release|Windows.ActiveCfg = Release|Windows
+		{3EAF996D-7F03-433B-A9A5-17E69AC97C76}.Release|Windows.Build.0 = Release|Windows
+		{3EAF996D-7F03-433B-A9A5-17E69AC97C76}.Release|WindowsGL.ActiveCfg = Release|WindowsGL
+		{3EAF996D-7F03-433B-A9A5-17E69AC97C76}.Release|WindowsGL.Build.0 = Release|WindowsGL
+		{3EAF996D-7F03-433B-A9A5-17E69AC97C76}.Release|XNAFramework.ActiveCfg = Release|XNAFramework
+		{3EAF996D-7F03-433B-A9A5-17E69AC97C76}.Release|XNAFramework.Build.0 = Release|XNAFramework
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
