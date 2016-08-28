@@ -130,11 +130,15 @@ namespace Rampastring.XNAUI
 
         public void Initialize(ContentManager content, string contentPath)
         {
+            base.Initialize();
+
             Cursor = new Input.Cursor(this);
             Keyboard = new RKeyboard(Game);
             Renderer.Initialize(GraphicsDevice, content, contentPath);
 
-            //KeyboardEventInput.Initialize(Game.Window);
+#if XNA
+            KeyboardEventInput.Initialize(Game.Window);
+#endif
 
             gameForm = (Form)Form.FromHandle(Game.Window.Handle);
 
@@ -210,7 +214,15 @@ namespace Rampastring.XNAUI
 
         public void SetBorderlessMode(bool value)
         {
+
+#if !XNA
             Game.Window.IsBorderless = value;
+#else
+            if (value)
+                gameForm.FormBorderStyle = FormBorderStyle.None;
+            else
+                gameForm.FormBorderStyle = FormBorderStyle.FixedSingle;
+#endif
         }
 
         public void MinimizeWindow()

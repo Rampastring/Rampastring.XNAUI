@@ -77,7 +77,7 @@ namespace Rampastring.XNAUI.Input
             //else
                 IsOnScreen = true;
 
-            location = location - new Point(windowManager.SceneXPosition, windowManager.SceneYPosition);
+            location = new Point(location.X - windowManager.SceneXPosition, location.Y - windowManager.SceneYPosition);
             location = new Point((int)(location.X / windowManager.ScaleRatio), (int)(location.Y / windowManager.ScaleRatio));
 
             HasMoved = (location != Location);
@@ -103,7 +103,7 @@ namespace Rampastring.XNAUI.Input
             Texture2D texture = Textures[TextureIndex];
 
             Renderer.DrawTexture(texture,
-                new Rectangle(DrawnLocation, new Point(texture.Width, texture.Height)), RemapColor);
+                new Rectangle(DrawnLocation.X, DrawnLocation.Y, texture.Width, texture.Height), RemapColor);
         }
     }
 }

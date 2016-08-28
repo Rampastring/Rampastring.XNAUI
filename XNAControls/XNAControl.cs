@@ -448,7 +448,9 @@ namespace Rampastring.XNAUI.XNAControls
 
                 CursorOnControl = true;
 
-                MouseEventArgs mouseEventArgs = new MouseEventArgs(Cursor.Location - rectangle.Location);
+                MouseEventArgs mouseEventArgs = new MouseEventArgs(
+                    new Point(Cursor.Location.X - rectangle.Location.X,
+                    Cursor.Location.Y - rectangle.Location.Y));
 
                 OnMouseOnControl(mouseEventArgs);
 

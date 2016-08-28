@@ -128,16 +128,32 @@ namespace Rampastring.XNAUI.XNAControls
         {
             base.Initialize();
 
+#if !XNA
             Game.Window.TextInput += Window_TextInput;
+#else
+            KeyboardEventInput.CharEntered += KeyboardEventInput_CharEntered;
+#endif
             Keyboard.OnKeyPressed += Keyboard_OnKeyPressed;
         }
 
+#if XNA
+        private void KeyboardEventInput_CharEntered(object sender, KeyboardEventArgs e)
+        {
+            HandleCharInput(e.Character);
+        }
+#else
         private void Window_TextInput(object sender, TextInputEventArgs e)
+        {
+            HandleCharInput(e.Character);
+        }
+#endif
+
+        private void HandleCharInput(char character)
         {
             if (!active || !Enabled || !Parent.Enabled)
                 return;
 
-            switch (e.Character)
+            switch (character)
             {
                 /*/ There are a bunch of keys that are detected as text input on
                  * Windows builds of MonoGame, but not on WindowsGL or Linux builds of MonoGame.
@@ -156,10 +172,10 @@ namespace Rampastring.XNAUI.XNAControls
                         break;
 
                     // Don't allow typing characters that don't exist in the spritefont
-                    if (Renderer.GetSafeString(e.Character.ToString(), FontIndex) != e.Character.ToString())
+                    if (Renderer.GetSafeString(character.ToString(), FontIndex) != character.ToString())
                         break;
 
-                    text = text.Insert(InputPosition, e.Character.ToString());
+                    text = text.Insert(InputPosition, character.ToString());
                     InputPosition++;
 
                     if (TextEndPosition == text.Length - 1 ||

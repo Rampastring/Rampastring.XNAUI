@@ -80,12 +80,25 @@ namespace Rampastring.XNAUI
         public static void BeginDraw(SamplerState ss)
         {
             BlendState bs = new BlendState();
+
+
+
+#if XNA
+            //bs.AlphaDestinationBlend = Blend.DestinationAlpha;
+            //bs.ColorDestinationBlend = Blend.DestinationAlpha;
+
+            SpriteBatch.Begin(SpriteSortMode.Deferred, BlendState.NonPremultiplied);
+#else
             bs.AlphaDestinationBlend = Blend.One;
+            bs.ColorDestinationBlend = Blend.InverseSourceAlpha;
             bs.AlphaSourceBlend = Blend.SourceAlpha;
             bs.ColorSourceBlend = Blend.SourceAlpha;
-            bs.ColorDestinationBlend = Blend.InverseSourceAlpha;
 
-            SpriteBatch.Begin(SpriteSortMode.Deferred, bs, ss);
+            SpriteBatch.Begin(SpriteSortMode.Deferred, bs, ss, 
+                DepthStencilState.None, RasterizerState.CullCounterClockwise);
+#endif
+
+
         }
 
         public static void DrawTexture(Texture2D texture, Rectangle rectangle, Color color)
@@ -98,9 +111,14 @@ namespace Rampastring.XNAUI
             SpriteBatch.Draw(texture, destinationRectangle, sourceRectangle, color);
         }
 
+
         public static void DrawTexture(Texture2D texture, Vector2 location, float rotation, Vector2 origin, Vector2 scale, Color color)
         {
+#if !XNA
             SpriteBatch.Draw(texture, location, null, null, origin, rotation, scale, color, SpriteEffects.None, 0f);
+#else
+            SpriteBatch.Draw(texture, location, null, color, rotation, origin, scale, SpriteEffects.None, 0f);
+#endif
         }
 
         public static void DrawString(string text, int fontIndex, float scale, Vector2 location, Color color)

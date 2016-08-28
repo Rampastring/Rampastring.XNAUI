@@ -6,8 +6,8 @@ namespace Rampastring.XNAUI.Input
 {
     /// <summary>
     /// Handles text input. XNA does not have a built-in system for text input.
-    /// *************DEPRECATED: MonoGame has a way of detecting text input,
-    /// via the Game.Window.TextInput event!
+    /// Note: MonoGame has a way of detecting text input,
+    /// via the Game.Window.TextInput event:
     /// http://www.gamedev.net/topic/457783-xna-getting-text-from-keyboard/
     /// </summary>
     public static class KeyboardEventInput
