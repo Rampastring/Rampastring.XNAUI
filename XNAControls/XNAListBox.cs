@@ -1,6 +1,7 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using Rampastring.XNAUI.Input;
 using System;
 using System.Collections.Generic;
 
@@ -294,10 +295,22 @@ namespace Rampastring.XNAUI.XNAControls
         {
             base.Initialize();
 
-            BorderTexture = AssetLoader.CreateTexture(Color.White, 1, 1);
+            if (BorderTexture == null)
+                BorderTexture = AssetLoader.CreateTexture(Color.White, 1, 1);
+
+            Keyboard.OnKeyPressed += Keyboard_OnKeyPressed;
         }
 
-        void ScrollUp()
+        private void Keyboard_OnKeyPressed(object sender, KeyPressEventArgs e)
+        {
+            if (!IsActive || !Enabled || SelectedItem == null)
+                return;
+
+            if (e.PressedKey == Keys.C && Keyboard.IsCtrlHeldDown())
+                System.Windows.Forms.Clipboard.SetText(SelectedItem.Text);
+        }
+
+        private void ScrollUp()
         {
             for (int i = SelectedIndex - 1; i > -1; i--)
             {
@@ -311,7 +324,7 @@ namespace Rampastring.XNAUI.XNAControls
             }
         }
 
-        void ScrollDown()
+        private void ScrollDown()
         {
             int scrollLineCount = 1;
             for (int i = SelectedIndex + 1; i < Items.Count; i++)
@@ -356,7 +369,12 @@ namespace Rampastring.XNAUI.XNAControls
             base.Update(gameTime);
         }
 
-        void HandleScrollKeyDown(GameTime gameTime, Action action)
+        /// <summary>
+        /// Handles input from scrolling keys.
+        /// </summary>
+        /// <param name="gameTime">GameTime.</param>
+        /// <param name="action">The action to execute when scrolling.</param>
+        private void HandleScrollKeyDown(GameTime gameTime, Action action)
         {
             if (scrollKeyTime.Equals(TimeSpan.Zero))
                 action();
@@ -381,6 +399,9 @@ namespace Rampastring.XNAUI.XNAControls
             }
         }
 
+        /// <summary>
+        /// Handles input from a scroll wheel.
+        /// </summary>
         public override void OnMouseScrolled()
         {
             if (GetTotalLineCount() <= NumberOfLinesOnList)
@@ -412,6 +433,9 @@ namespace Rampastring.XNAUI.XNAControls
             base.OnMouseScrolled();
         }
 
+        /// <summary>
+        /// Updates the hovered item index while the cursor is on this control.
+        /// </summary>
         public override void OnMouseOnControl(MouseEventArgs eventArgs)
         {
             base.OnMouseOnControl(eventArgs);
@@ -420,6 +444,9 @@ namespace Rampastring.XNAUI.XNAControls
             HoveredIndex = itemIndex;
         }
 
+        /// <summary>
+        /// Clears the selection on right-click.
+        /// </summary>
         public override void OnRightClick()
         {
             SelectedIndex = -1;
@@ -427,6 +454,9 @@ namespace Rampastring.XNAUI.XNAControls
             base.OnRightClick();
         }
 
+        /// <summary>
+        /// Selects an item when the user left-clicks on this control.
+        /// </summary>
         public override void OnLeftClick()
         {
             base.OnLeftClick();
@@ -440,6 +470,9 @@ namespace Rampastring.XNAUI.XNAControls
                 SelectedIndex = itemIndex;
         }
 
+        /// <summary>
+        /// Updates the hovered index when the mouse cursor leaves this control's client rectangle.
+        /// </summary>
         public override void OnMouseLeave()
         {
             base.OnMouseLeave();
@@ -447,7 +480,7 @@ namespace Rampastring.XNAUI.XNAControls
             HoveredIndex = -1;
         }
 
-        int GetItemIndexOnCursor(Point mouseLocation)
+        private int GetItemIndexOnCursor(Point mouseLocation)
         {
             int height = 2;
 

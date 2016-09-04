@@ -68,14 +68,9 @@ namespace Rampastring.XNAUI.Input
 
             Point location = DrawnLocation;
 
-            //if (location.X < 0 || location.Y < 0 ||
-            //    location.X > windowManager.ResolutionWidth ||
-            //    location.X > windowManager.ResolutionHeight)
-            //{
-            //    IsOnScreen = false;
-            //}
-            //else
-                IsOnScreen = true;
+            IsOnScreen = !(location.X < 0 || location.Y < 0 ||
+                location.X > windowManager.ResolutionWidth ||
+                location.Y > windowManager.ResolutionHeight);
 
             location = new Point(location.X - windowManager.SceneXPosition, location.Y - windowManager.SceneYPosition);
             location = new Point((int)(location.X / windowManager.ScaleRatio), (int)(location.Y / windowManager.ScaleRatio));

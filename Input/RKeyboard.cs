@@ -55,6 +55,12 @@ namespace Rampastring.XNAUI.Input
         {
             return DownKeys.Contains(key);
         }
+
+        public bool IsCtrlHeldDown()
+        {
+            return IsKeyHeldDown(Keys.RightControl) ||
+                        IsKeyHeldDown(Keys.LeftControl);
+        }
     }
 
     public class KeyPressEventArgs : EventArgs

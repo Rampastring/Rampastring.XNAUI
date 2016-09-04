@@ -150,7 +150,7 @@ namespace Rampastring.XNAUI.XNAControls
 
         private void HandleCharInput(char character)
         {
-            if (!active || !Enabled || !Parent.Enabled)
+            if (!active || !Enabled || !Parent.Enabled || !WindowManager.HasFocus)
                 return;
 
             switch (character)
@@ -199,7 +199,7 @@ namespace Rampastring.XNAUI.XNAControls
 
         private void Keyboard_OnKeyPressed(object sender, KeyPressEventArgs e)
         {
-            if (!active || !Enabled || !IsLastParentActive())
+            if (!active || !Enabled || !Parent.Enabled || !WindowManager.HasFocus)
                 return;
 
             switch (e.PressedKey)
@@ -249,7 +249,7 @@ namespace Rampastring.XNAUI.XNAControls
 
                     break;
                 case Keys.X:
-                    if (!IsCtrlHeldDown())
+                    if (!Keyboard.IsCtrlHeldDown())
                         break;
 
                     System.Windows.Forms.Clipboard.SetText(text);
@@ -257,17 +257,18 @@ namespace Rampastring.XNAUI.XNAControls
 
                     break;
                 case Keys.V:
-                    if (!IsCtrlHeldDown())
+                    if (!Keyboard.IsCtrlHeldDown())
                         break;
 
                     Text = System.Windows.Forms.Clipboard.GetText();
 
                     goto case Keys.End;
                 case Keys.C:
-                    if (!IsCtrlHeldDown())
+                    if (!Keyboard.IsCtrlHeldDown())
                         break;
 
-                    System.Windows.Forms.Clipboard.SetText(text);
+                    if (!string.IsNullOrEmpty(text))
+                        System.Windows.Forms.Clipboard.SetText(text);
 
                     break;
                 case Keys.Enter:
@@ -280,12 +281,6 @@ namespace Rampastring.XNAUI.XNAControls
                     TextEndPosition = 0;
                     break;
             }
-        }
-
-        private bool IsCtrlHeldDown()
-        {
-            return Keyboard.IsKeyHeldDown(Keys.RightControl) ||
-                        Keyboard.IsKeyHeldDown(Keys.LeftControl);
         }
 
         private bool TextFitsBox()
