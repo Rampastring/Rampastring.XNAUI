@@ -37,6 +37,8 @@ namespace Rampastring.XNAUI.XNAControls
         public event EventHandler DoubleLeftClick;
         public event EventHandler RightClick;
 
+        public event EventHandler ClientRectangleUpdated;
+
         #endregion
 
         WindowManager _windowManager;
@@ -59,10 +61,25 @@ namespace Rampastring.XNAUI.XNAControls
 
         public string Name { get; set; }
 
+
+        private Rectangle _clientRectangle;
+
         /// <summary>
         /// The display rectangle of the control inside its parent.
         /// </summary>
-        public virtual Rectangle ClientRectangle { get; set; }
+        public virtual Rectangle ClientRectangle
+        {
+            get
+            {
+                return _clientRectangle;
+            }
+            set
+            {
+                _clientRectangle = value;
+
+                ClientRectangleUpdated?.Invoke(this, EventArgs.Empty);
+            }
+        }
 
         Color remapColor = Color.White;
         public Color RemapColor

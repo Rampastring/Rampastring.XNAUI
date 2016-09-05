@@ -8,7 +8,7 @@ using System.Text;
 namespace Rampastring.XNAUI.XNAControls
 {
     /// <summary>
-    /// A vertical scroll bar, mainly for list boxes but could also be utilized
+    /// A vertical scroll bar, mainly for list boxes but it could also be utilized
     /// by other controls.
     /// </summary>
     public class XNAScrollBar : XNAControl
@@ -34,10 +34,22 @@ namespace Rampastring.XNAUI.XNAControls
         public event EventHandler Scrolled;
         public event EventHandler ScrolledToBottom;
 
+        /// <summary>
+        /// The number of items in the scrollable parent control.
+        /// </summary>
         public int ItemCount { get; set; }
 
+        /// <summary>
+        /// The number of items that the scrollable parent control
+        /// is able to display at once.
+        /// </summary>
         public int DisplayedItemCount { get; set; }
 
+        /// <summary>
+        /// The index of the first displayed item of the scrollable parent control's items.
+        /// The parent of the scroll-bar has to keep the scrollbar up-to-date when the 
+        /// top index of the parent changes.
+        /// </summary>
         public int TopIndex { get; set; }
 
         public override Rectangle ClientRectangle
@@ -53,6 +65,7 @@ namespace Rampastring.XNAUI.XNAControls
                 btnScrollDown.ClientRectangle = new Rectangle(0, 
                     ClientRectangle.Height - btnScrollDown.ClientRectangle.Height,
                     btnScrollDown.ClientRectangle.Width, btnScrollDown.ClientRectangle.Height);
+                Refresh();
             }
         }
 
@@ -68,8 +81,6 @@ namespace Rampastring.XNAUI.XNAControls
 
         private int scrollablePixels { get; set; }
 
-        private double linesPerScrolledPixel { get; set; }
-
         private int buttonMinY = 0;
 
         private int buttonMaxY = 0;
@@ -80,10 +91,12 @@ namespace Rampastring.XNAUI.XNAControls
 
         private XNAButton btnScrollDown;
 
-        Texture2D background;
-        Texture2D thumbMiddle;
-        Texture2D thumbTop;
-        Texture2D thumbBottom;
+        private Texture2D background;
+        private Texture2D thumbMiddle;
+        private Texture2D thumbTop;
+        private Texture2D thumbBottom;
+
+        private bool isHeldDown = false;
 
         public override void Initialize()
         {
@@ -101,6 +114,9 @@ namespace Rampastring.XNAUI.XNAControls
             thumbBottom = AssetLoader.LoadTexture("sbThumbBottom.png");
         }
 
+        /// <summary>
+        /// Scrolls up when the user presses on the "scroll up" arrow.
+        /// </summary>
         private void BtnScrollUp_LeftClick(object sender, EventArgs e)
         {
             if (TopIndex > 0)
@@ -111,6 +127,9 @@ namespace Rampastring.XNAUI.XNAControls
             Scrolled?.Invoke(this, EventArgs.Empty);
         }
 
+        /// <summary>
+        /// Scrolls down when the user presses on the "scroll down" arrow.
+        /// </summary>
         private void BtnScrollDown_LeftClick(object sender, EventArgs e)
         {
             int nonDisplayedLines = ItemCount - DisplayedItemCount;
@@ -123,6 +142,9 @@ namespace Rampastring.XNAUI.XNAControls
             Scrolled?.Invoke(this, EventArgs.Empty);
         }
 
+        /// <summary>
+        /// Refreshes the scroll bar's thumb size.
+        /// </summary>
         public void Refresh()
         {
             int height = ClientRectangle.Height - 
@@ -134,17 +156,13 @@ namespace Rampastring.XNAUI.XNAControls
             {
                 buttonHeight = height;
                 scrollablePixels = 0;
-                return;
             }
             else
             {
-                //buttonHeight = Math.Max(height - (int)(height * nonDisplayedLines / (double)ItemCount),
-                //    MIN_BUTTON_HEIGHT);
-                buttonHeight = 100;
+                buttonHeight = Math.Max(height - (int)(height * nonDisplayedLines / (double)ItemCount),
+                    MIN_BUTTON_HEIGHT);
 
                 scrollablePixels = height - buttonHeight;
-
-                linesPerScrolledPixel = scrollablePixels / (double)ItemCount;
             }
 
             buttonMinY = btnScrollUp.ClientRectangle.Bottom + buttonHeight / 2;
@@ -153,6 +171,9 @@ namespace Rampastring.XNAUI.XNAControls
             RefreshButtonY();
         }
 
+        /// <summary>
+        /// Scrolls the scrollbar when it's clicked on.
+        /// </summary>
         public override void OnLeftClick()
         {
             base.OnLeftClick();
@@ -160,7 +181,10 @@ namespace Rampastring.XNAUI.XNAControls
             Scroll();
         }
 
-
+        /// <summary>
+        /// Scrolls the scrollbar if the user presses the mouse left button
+        /// while moving the cursor over the scrollbar.
+        /// </summary>
         public override void OnMouseMove()
         {
             base.OnMouseMove();
@@ -168,6 +192,7 @@ namespace Rampastring.XNAUI.XNAControls
             if (Cursor.LeftPressed)
             {
                 Scroll();
+                isHeldDown = true;
             }
         }
 
@@ -191,24 +216,34 @@ namespace Rampastring.XNAUI.XNAControls
             {
                 RefreshButtonY();
                 ScrolledToBottom?.Invoke(this, EventArgs.Empty);
+                return;
             }
 
             double difference = buttonMaxY - buttonMinY;
 
             double location = point.Y - buttonMinY;
 
-            TopIndex = (int)(location / difference * DisplayedItemCount);
+            int nonDisplayedLines = ItemCount - DisplayedItemCount;
+
+            TopIndex = (int)(location / difference * nonDisplayedLines);
             RefreshButtonY();
 
             Scrolled?.Invoke(this, EventArgs.Empty);
         }
 
+        /// <summary>
+        /// Updates the top item index of the scroll bar,
+        /// and the vertical position of the scroll bar's thumb.
+        /// </summary>
         public void RefreshButtonY(int topIndex)
         {
             TopIndex = topIndex;
             RefreshButtonY();
         }
 
+        /// <summary>
+        /// Updates the vertical position of the scroll bar's thumb.
+        /// </summary>
         public void RefreshButtonY()
         {
             int nonDisplayedLines = ItemCount - DisplayedItemCount;
@@ -222,6 +257,29 @@ namespace Rampastring.XNAUI.XNAControls
             buttonY = WindowRectangle().Y + buttonMinY + (int)(((TopIndex / (double)nonDisplayedLines) * scrollablePixels) - buttonHeight / 2);
         }
 
+        /// <summary>
+        /// Updates the scroll bar's logic each frame.
+        /// Makes it possible to drag the scrollbar thumb even if the cursor
+        /// leaves the scroll bar's surface.
+        /// </summary>
+        /// <param name="gameTime">Provides a snapshot of timing values.</param>
+        public override void Update(GameTime gameTime)
+        {
+            if (isHeldDown)
+            {
+                if (!Cursor.LeftPressed)
+                    isHeldDown = false;
+                else
+                    Scroll();
+            }
+
+            base.Update(gameTime);
+        }
+
+        /// <summary>
+        /// Draws the scroll bar.
+        /// </summary>
+        /// <param name="gameTime">Provides a snapshot of timing values.</param>
         public override void Draw(GameTime gameTime)
         {
             var drawArea = WindowRectangle();

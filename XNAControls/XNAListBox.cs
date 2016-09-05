@@ -68,7 +68,7 @@ namespace Rampastring.XNAUI.XNAControls
                 {
                     topIndex = value;
                     TopIndexChanged?.Invoke(this, EventArgs.Empty);
-                    scrollBar.TopIndex = topIndex;
+                    scrollBar.RefreshButtonY(topIndex);
                 }
             }
         }
@@ -210,7 +210,7 @@ namespace Rampastring.XNAUI.XNAControls
 
             Items.Clear();
 
-            scrollBar.ItemCount = GetTotalLineCount();
+            scrollBar.ItemCount = 0;
             scrollBar.Refresh();
         }
 
@@ -253,22 +253,12 @@ namespace Rampastring.XNAUI.XNAControls
             AddItem(item);
         }
 
+        /// <summary>
+        /// Adds an item into the list box.
+        /// </summary>
+        /// <param name="listBoxItem">The item to add.</param>
         public void AddItem(XNAListBoxItem listBoxItem)
         {
-            //if (LastIndex == Items.Count - 1 && GetTotalLineCount() > GetNumberOfLinesOnList())
-            //{
-            //    int scrolledLineCount = 0;
-            //    while (true)
-            //    {
-            //        DXListBoxItem topItem = Items[TopIndex];
-            //        TopIndex++;
-            //        scrolledLineCount += topItem.TextLines.Count;
-
-            //        if (scrolledLineCount >= listBoxItem.TextLines.Count || TopIndex == Items.Count - 1)
-            //            break;
-            //    }
-            //}
-
             int width = ClientRectangle.Width - TextBorderDistance * 2;
             if (EnableScrollbar)
             {
@@ -277,6 +267,8 @@ namespace Rampastring.XNAUI.XNAControls
 
             if (listBoxItem.Texture != null)
                 width -= listBoxItem.Texture.Width + ITEM_TEXT_TEXTURE_MARGIN;
+
+            // Apply word wrap if needed
             List<string> textLines = Renderer.GetFixedTextLines(listBoxItem.Text, FontIndex, width);
             if (textLines.Count == 0)
                 textLines.Add(string.Empty);
@@ -298,11 +290,14 @@ namespace Rampastring.XNAUI.XNAControls
 
             Items.Add(listBoxItem);
 
-            scrollBar.ItemCount = GetTotalLineCount();
+            scrollBar.ItemCount = Items.Count;
             scrollBar.DisplayedItemCount = NumberOfLinesOnList;
             scrollBar.Refresh();
         }
 
+        /// <summary>
+        /// Returns the total amount of lines in all list box items combined.
+        /// </summary>
         private int GetTotalLineCount()
         {
             int lineCount = 0;
@@ -313,6 +308,9 @@ namespace Rampastring.XNAUI.XNAControls
             return lineCount;
         }
 
+        /// <summary>
+        /// Scrolls the list box so that the last item is visible.
+        /// </summary>
         public void ScrollToBottom()
         {
             int displayedLineCount = NumberOfLinesOnList;
@@ -328,25 +326,11 @@ namespace Rampastring.XNAUI.XNAControls
                 else
                     break;
             }
-
-            //// Calculate the number of lines we need to scroll
-            //int lastDisplayedItemIndex = LastIndex;
-
-            //int linesToScroll = 0;
-
-            //for (int i = lastDisplayedItemIndex + 1; i < Items.Count; i++)
-            //    linesToScroll += Items[i].TextLines.Count;
-
-            //// Now let's scroll by the necessary number of lines
-            //int scrolledLines = 0;
-
-            //while (scrolledLines < linesToScroll)
-            //{
-            //    scrolledLines += Items[TopIndex].TextLines.Count;
-            //    TopIndex++;
-            //}
         }
 
+        /// <summary>
+        /// Initializes the list box.
+        /// </summary>
         public override void Initialize()
         {
             base.Initialize();
@@ -361,6 +345,14 @@ namespace Rampastring.XNAUI.XNAControls
             scrollBar.Scrolled += ScrollBar_Scrolled;
             scrollBar.ScrolledToBottom += ScrollBar_ScrolledToBottom;
             AddChild(scrollBar);
+            scrollBar.Refresh();
+
+            Parent.ClientRectangleUpdated += Parent_ClientRectangleUpdated;
+        }
+
+        private void Parent_ClientRectangleUpdated(object sender, EventArgs e)
+        {
+            scrollBar.Refresh();
         }
 
         private void ScrollBar_ScrolledToBottom(object sender, EventArgs e)
@@ -374,6 +366,9 @@ namespace Rampastring.XNAUI.XNAControls
             TopIndex = scrollBar.TopIndex;
         }
 
+        /// <summary>
+        /// Allows copying items to the clipboard using Ctrl + C.
+        /// </summary>
         private void Keyboard_OnKeyPressed(object sender, KeyPressEventArgs e)
         {
             if (!IsActive || !Enabled || SelectedItem == null)
@@ -381,44 +376,6 @@ namespace Rampastring.XNAUI.XNAControls
 
             if (e.PressedKey == Keys.C && Keyboard.IsCtrlHeldDown())
                 System.Windows.Forms.Clipboard.SetText(SelectedItem.Text);
-        }
-
-        private void ScrollUp()
-        {
-            for (int i = SelectedIndex - 1; i > -1; i--)
-            {
-                if (Items[i].Selectable)
-                {
-                    SelectedIndex = i;
-                    if (TopIndex > i)
-                        TopIndex = i;
-
-                    scrollBar.RefreshButtonY(TopIndex);
-                    return;
-                }
-            }
-
-            scrollBar.RefreshButtonY(TopIndex);
-        }
-
-        private void ScrollDown()
-        {
-            int scrollLineCount = 1;
-            for (int i = SelectedIndex + 1; i < Items.Count; i++)
-            {
-                if (Items[i].Selectable)
-                {
-                    SelectedIndex = i;
-                    while (LastIndex < i)
-                        TopIndex++;
-
-                    scrollBar.RefreshButtonY(TopIndex);
-                    return;
-                }
-                scrollLineCount++;
-            }
-
-            scrollBar.RefreshButtonY(TopIndex);
         }
 
         public override void Update(GameTime gameTime)
@@ -478,6 +435,50 @@ namespace Rampastring.XNAUI.XNAControls
                 isScrollingQuickly = true;
                 timeSinceLastScroll = TimeSpan.Zero;
             }
+        }
+
+        /// <summary>
+        /// Handles scrolling by holding down the up arrow key.
+        /// </summary>
+        private void ScrollUp()
+        {
+            for (int i = SelectedIndex - 1; i > -1; i--)
+            {
+                if (Items[i].Selectable)
+                {
+                    SelectedIndex = i;
+                    if (TopIndex > i)
+                        TopIndex = i;
+
+                    scrollBar.RefreshButtonY(TopIndex);
+                    return;
+                }
+            }
+
+            scrollBar.RefreshButtonY(TopIndex);
+        }
+
+        /// <summary>
+        /// Handles scrolling by holding down the down arrow key.
+        /// </summary>
+        private void ScrollDown()
+        {
+            int scrollLineCount = 1;
+            for (int i = SelectedIndex + 1; i < Items.Count; i++)
+            {
+                if (Items[i].Selectable)
+                {
+                    SelectedIndex = i;
+                    while (LastIndex < i)
+                        TopIndex++;
+
+                    scrollBar.RefreshButtonY(TopIndex);
+                    return;
+                }
+                scrollLineCount++;
+            }
+
+            scrollBar.RefreshButtonY(TopIndex);
         }
 
         /// <summary>
@@ -564,11 +565,27 @@ namespace Rampastring.XNAUI.XNAControls
             HoveredIndex = -1;
         }
 
+        /// <summary>
+        /// Returns the index of the list box item that the cursor is
+        /// currently pointing at, or -1 if the cursor doesn't point at any item
+        /// of this list box.
+        /// </summary>
+        /// <param name="mouseLocation">The location of the cursor relative 
+        /// to this control.</param>
         private int GetItemIndexOnCursor(Point mouseLocation)
         {
             int height = 2;
 
-            Rectangle windowRectangle = WindowRectangle();
+            if (mouseLocation.X < 0)
+                return -1;
+
+            if (EnableScrollbar)
+            {
+                if (mouseLocation.X > ClientRectangle.Width - scrollBar.ScrollWidth)
+                    return -1;
+            }
+            else if (mouseLocation.X > ClientRectangle.Width)
+                return -1;
 
             for (int i = TopIndex; i < Items.Count; i++)
             {
@@ -590,6 +607,10 @@ namespace Rampastring.XNAUI.XNAControls
             return -1;
         }
 
+        /// <summary>
+        /// Draws the list box and its items.
+        /// </summary>
+        /// <param name="gameTime">Provides a snapshot of timing values.</param>
         public override void Draw(GameTime gameTime)
         {
             base.Draw(gameTime);
