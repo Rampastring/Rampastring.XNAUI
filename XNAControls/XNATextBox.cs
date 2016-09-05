@@ -252,8 +252,11 @@ namespace Rampastring.XNAUI.XNAControls
                     if (!Keyboard.IsCtrlHeldDown())
                         break;
 
-                    System.Windows.Forms.Clipboard.SetText(text);
-                    Text = string.Empty;
+                    if (!string.IsNullOrEmpty(text))
+                    {
+                        System.Windows.Forms.Clipboard.SetText(text);
+                        Text = string.Empty;
+                    }
 
                     break;
                 case Keys.V:

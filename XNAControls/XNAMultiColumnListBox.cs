@@ -217,6 +217,9 @@ namespace Rampastring.XNAUI.XNAControls
                 lb.ClientRectangle = new Rectangle(lb.ClientRectangle.X, lb.ClientRectangle.Y,
                     lb.ClientRectangle.Width - 2, lb.ClientRectangle.Height);
             }
+
+            for (int i = 0; i < listBoxes.Count - 1; i++)
+                listBoxes[i].EnableScrollbar = false;
         }
 
         private void ListBox_SelectedIndexChanged(object sender, EventArgs e)

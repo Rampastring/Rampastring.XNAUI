@@ -9,14 +9,17 @@ namespace Rampastring.XNAUI.XNAControls
 {
     public class XNAListBox : XNAPanel
     {
+        private const int ITEM_TEXT_TEXTURE_MARGIN = 2;
+        private const double SCROLL_REPEAT_TIME = 0.03;
+        private const double FAST_SCROLL_TRIGGER_TIME = 0.4;
+
         public XNAListBox(WindowManager windowManager) : base(windowManager)
         {
             FocusColor = UISettings.FocusColor;
             DefaultItemColor = UISettings.AltColor;
-        }
 
-        const double SCROLL_REPEAT_TIME = 0.03;
-        const double FAST_SCROLL_TRIGGER_TIME = 0.4;
+            scrollBar = new XNAScrollBar(WindowManager);
+        }
 
         public delegate void HoveredIndexChangedEventHandler(object sender, EventArgs e);
         public event HoveredIndexChangedEventHandler HoveredIndexChanged;
@@ -65,6 +68,7 @@ namespace Rampastring.XNAUI.XNAControls
                 {
                     topIndex = value;
                     TopIndexChanged?.Invoke(this, EventArgs.Empty);
+                    scrollBar.TopIndex = topIndex;
                 }
             }
         }
@@ -91,15 +95,9 @@ namespace Rampastring.XNAUI.XNAControls
             }
         }
 
-        #endregion
-
         float itemAlphaRate = 0.01f;
         public float ItemAlphaRate
         { get { return itemAlphaRate; } set { itemAlphaRate = value; } }
-
-        TimeSpan scrollKeyTime = TimeSpan.Zero;
-        TimeSpan timeSinceLastScroll = TimeSpan.Zero;
-        bool isScrollingQuickly = false;
 
         int selectedIndex = -1;
         public int SelectedIndex
@@ -156,6 +154,52 @@ namespace Rampastring.XNAUI.XNAControls
             get { return (ClientRectangle.Height - 4) / LineHeight; }
         }
 
+        private bool _enableScrollbar = true;
+
+        /// <summary>
+        /// Controls whether the integrated listbox scrollbar is used.
+        /// </summary>
+        public bool EnableScrollbar
+        {
+            get { return _enableScrollbar; }
+            set
+            {
+                _enableScrollbar = value;
+
+                scrollBar.Visible = _enableScrollbar;
+                scrollBar.Enabled = _enableScrollbar;
+            }
+        }
+
+        public override Rectangle ClientRectangle
+        {
+            get
+            {
+                return base.ClientRectangle;
+            }
+
+            set
+            {
+                base.ClientRectangle = value;
+
+                if (scrollBar != null)
+                {
+                    scrollBar.ClientRectangle = new Rectangle(ClientRectangle.Width - scrollBar.ScrollWidth - 1,
+                        1, scrollBar.ScrollWidth, ClientRectangle.Height - 2);
+                    scrollBar.DisplayedItemCount = NumberOfLinesOnList;
+                    scrollBar.Refresh();
+                }
+            }
+        }
+
+        #endregion
+
+        XNAScrollBar scrollBar;
+
+        TimeSpan scrollKeyTime = TimeSpan.Zero;
+        TimeSpan timeSinceLastScroll = TimeSpan.Zero;
+        bool isScrollingQuickly = false;
+
         public void Clear()
         {
             //foreach (DXListBoxItem item in Items)
@@ -165,6 +209,9 @@ namespace Rampastring.XNAUI.XNAControls
             //}
 
             Items.Clear();
+
+            scrollBar.ItemCount = GetTotalLineCount();
+            scrollBar.Refresh();
         }
 
         /// <summary>
@@ -223,8 +270,13 @@ namespace Rampastring.XNAUI.XNAControls
             //}
 
             int width = ClientRectangle.Width - TextBorderDistance * 2;
+            if (EnableScrollbar)
+            {
+                width -= scrollBar.ClientRectangle.Width;
+            }
+
             if (listBoxItem.Texture != null)
-                width -= listBoxItem.Texture.Width + 2;
+                width -= listBoxItem.Texture.Width + ITEM_TEXT_TEXTURE_MARGIN;
             List<string> textLines = Renderer.GetFixedTextLines(listBoxItem.Text, FontIndex, width);
             if (textLines.Count == 0)
                 textLines.Add(string.Empty);
@@ -245,9 +297,13 @@ namespace Rampastring.XNAUI.XNAControls
             }
 
             Items.Add(listBoxItem);
+
+            scrollBar.ItemCount = GetTotalLineCount();
+            scrollBar.DisplayedItemCount = NumberOfLinesOnList;
+            scrollBar.Refresh();
         }
 
-        int GetTotalLineCount()
+        private int GetTotalLineCount()
         {
             int lineCount = 0;
 
@@ -299,6 +355,23 @@ namespace Rampastring.XNAUI.XNAControls
                 BorderTexture = AssetLoader.CreateTexture(Color.White, 1, 1);
 
             Keyboard.OnKeyPressed += Keyboard_OnKeyPressed;
+
+            scrollBar.ClientRectangle = new Rectangle(ClientRectangle.Width - scrollBar.ScrollWidth - 1,
+                1, scrollBar.ScrollWidth, ClientRectangle.Height - 2);
+            scrollBar.Scrolled += ScrollBar_Scrolled;
+            scrollBar.ScrolledToBottom += ScrollBar_ScrolledToBottom;
+            AddChild(scrollBar);
+        }
+
+        private void ScrollBar_ScrolledToBottom(object sender, EventArgs e)
+        {
+            ScrollToBottom();
+            scrollBar.RefreshButtonY(TopIndex);
+        }
+
+        private void ScrollBar_Scrolled(object sender, EventArgs e)
+        {
+            TopIndex = scrollBar.TopIndex;
         }
 
         private void Keyboard_OnKeyPressed(object sender, KeyPressEventArgs e)
@@ -319,9 +392,13 @@ namespace Rampastring.XNAUI.XNAControls
                     SelectedIndex = i;
                     if (TopIndex > i)
                         TopIndex = i;
+
+                    scrollBar.RefreshButtonY(TopIndex);
                     return;
                 }
             }
+
+            scrollBar.RefreshButtonY(TopIndex);
         }
 
         private void ScrollDown()
@@ -334,10 +411,14 @@ namespace Rampastring.XNAUI.XNAControls
                     SelectedIndex = i;
                     while (LastIndex < i)
                         TopIndex++;
+
+                    scrollBar.RefreshButtonY(TopIndex);
                     return;
                 }
                 scrollLineCount++;
             }
+
+            scrollBar.RefreshButtonY(TopIndex);
         }
 
         public override void Update(GameTime gameTime)
@@ -415,6 +496,7 @@ namespace Rampastring.XNAUI.XNAControls
             if (TopIndex < 0)
             {
                 TopIndex = 0;
+                scrollBar.RefreshButtonY(TopIndex);
                 return;
             }
 
@@ -429,6 +511,8 @@ namespace Rampastring.XNAUI.XNAControls
 
                 TopIndex++;
             }
+
+            scrollBar.RefreshButtonY(TopIndex);
 
             base.OnMouseScrolled();
         }
@@ -525,8 +609,16 @@ namespace Rampastring.XNAUI.XNAControls
 
                 if (i == SelectedIndex)
                 {
+                    int drawnWidth;
+
+                    if (EnableScrollbar)
+                        drawnWidth = windowRectangle.Width - 2 - scrollBar.ScrollWidth;
+                    else
+                        drawnWidth = windowRectangle.Width - 2;
+
                     Renderer.DrawTexture(BorderTexture, 
-                        new Rectangle(windowRectangle.X + 1, windowRectangle.Y + height, windowRectangle.Width - 2, lbItem.TextLines.Count * LineHeight),
+                        new Rectangle(windowRectangle.X + 1, windowRectangle.Y + height,
+                        drawnWidth, lbItem.TextLines.Count * LineHeight),
                         GetColorWithAlpha(FocusColor));
                 }
 
