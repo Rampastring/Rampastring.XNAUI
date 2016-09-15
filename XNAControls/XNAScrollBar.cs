@@ -77,7 +77,7 @@ namespace Rampastring.XNAUI.XNAControls
             get { return btnScrollUp.IdleTexture.Width; }
         }
 
-        private int buttonHeight { get; set; }
+        private int thumbHeight { get; set; }
 
         private int scrollablePixels { get; set; }
 
@@ -154,19 +154,24 @@ namespace Rampastring.XNAUI.XNAControls
 
             if (nonDisplayedLines <= 0)
             {
-                buttonHeight = height;
+                thumbHeight = height;
                 scrollablePixels = 0;
+                btnScrollDown.Disable();
+                btnScrollUp.Disable();
             }
             else
             {
-                buttonHeight = Math.Max(height - (int)(height * nonDisplayedLines / (double)ItemCount),
+                thumbHeight = Math.Max(height - (int)(height * nonDisplayedLines / (double)ItemCount),
                     MIN_BUTTON_HEIGHT);
 
-                scrollablePixels = height - buttonHeight;
+                scrollablePixels = height - thumbHeight;
+
+                btnScrollDown.Enable();
+                btnScrollUp.Enable();
             }
 
-            buttonMinY = btnScrollUp.ClientRectangle.Bottom + buttonHeight / 2;
-            buttonMaxY = ClientRectangle.Height - btnScrollDown.ClientRectangle.Height - (buttonHeight / 2);
+            buttonMinY = btnScrollUp.ClientRectangle.Bottom + thumbHeight / 2;
+            buttonMaxY = ClientRectangle.Height - btnScrollDown.ClientRectangle.Height - (thumbHeight / 2);
 
             RefreshButtonY();
         }
@@ -254,7 +259,9 @@ namespace Rampastring.XNAUI.XNAControls
                 return;
             }
 
-            buttonY = WindowRectangle().Y + buttonMinY + (int)(((TopIndex / (double)nonDisplayedLines) * scrollablePixels) - buttonHeight / 2);
+            buttonY = WindowRectangle().Y + Math.Min(
+                buttonMinY + (int)(((TopIndex / (double)nonDisplayedLines) * scrollablePixels) - thumbHeight / 2),
+                ClientRectangle.Height - btnScrollDown.ClientRectangle.Height - thumbHeight);
         }
 
         /// <summary>
@@ -284,13 +291,16 @@ namespace Rampastring.XNAUI.XNAControls
         {
             var drawArea = WindowRectangle();
 
-            Renderer.DrawTexture(background, drawArea, Color.White);
+            if (scrollablePixels > 0)
+            {
+                Renderer.DrawTexture(background, drawArea, Color.White);
 
-            Renderer.DrawTexture(thumbTop, new Rectangle(drawArea.X, buttonY, ScrollWidth, thumbTop.Height), RemapColor);
-            Renderer.DrawTexture(thumbBottom, new Rectangle(drawArea.X,
-                buttonY + buttonHeight - thumbBottom.Height, ScrollWidth, thumbBottom.Height), Color.White);
-            Renderer.DrawTexture(thumbMiddle, new Rectangle(drawArea.X,
-                buttonY + thumbTop.Height, ScrollWidth, buttonHeight - thumbTop.Height - thumbBottom.Height), Color.White);
+                Renderer.DrawTexture(thumbTop, new Rectangle(drawArea.X, buttonY, ScrollWidth, thumbTop.Height), RemapColor);
+                Renderer.DrawTexture(thumbBottom, new Rectangle(drawArea.X,
+                    buttonY + thumbHeight - thumbBottom.Height, ScrollWidth, thumbBottom.Height), Color.White);
+                Renderer.DrawTexture(thumbMiddle, new Rectangle(drawArea.X,
+                    buttonY + thumbTop.Height, ScrollWidth, thumbHeight - thumbTop.Height - thumbBottom.Height), Color.White);
+            }
 
             base.Draw(gameTime);
         }

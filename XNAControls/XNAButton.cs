@@ -135,17 +135,21 @@ namespace Rampastring.XNAUI.XNAControls
             if (!AllowClick)
                 return;
 
-            animationMode = ButtonAnimationMode.HIGHLIGHT;
-            idleTextureAlpha = 0.5f;
-            hoverTextureAlpha = 0.75f;
-            textColor = TextColorHover;
-
 #if !WINDOWSGL
             if (HoverSoundEffect != null)
             {
                 AudioMaster.PlaySound(hoverSoundInstance);
             }
 #endif
+
+            if (HoverTexture != null)
+            {
+                animationMode = ButtonAnimationMode.HIGHLIGHT;
+                idleTextureAlpha = 0.5f;
+                hoverTextureAlpha = 0.75f;
+            }
+
+            textColor = TextColorHover;
         }
 
         public override void OnMouseLeave()
@@ -155,9 +159,13 @@ namespace Rampastring.XNAUI.XNAControls
             if (!AllowClick)
                 return;
 
-            animationMode = ButtonAnimationMode.RETURN;
-            idleTextureAlpha = 0.75f;
-            hoverTextureAlpha = 0.5f;
+            if (HoverTexture != null)
+            {
+                animationMode = ButtonAnimationMode.RETURN;
+                idleTextureAlpha = 0.75f;
+                hoverTextureAlpha = 0.5f;
+            }
+
             textColor = TextColorIdle;
         }
 

@@ -4,6 +4,7 @@ using Microsoft.Xna.Framework.Input;
 using Rampastring.XNAUI.Input;
 using System;
 using System.Collections.Generic;
+using Rampastring.Tools;
 
 namespace Rampastring.XNAUI.XNAControls
 {
@@ -200,6 +201,18 @@ namespace Rampastring.XNAUI.XNAControls
         TimeSpan timeSinceLastScroll = TimeSpan.Zero;
         bool isScrollingQuickly = false;
 
+        protected override void ParseAttributeFromINI(IniFile iniFile, string key, string value)
+        {
+            switch (key)
+            {
+                case "EnableScrollbar":
+                    EnableScrollbar = Conversions.BooleanFromString(value, true);
+                    return;
+            }
+
+            base.ParseAttributeFromINI(iniFile, key, value);
+        }
+
         public void Clear()
         {
             //foreach (DXListBoxItem item in Items)
@@ -284,7 +297,7 @@ namespace Rampastring.XNAUI.XNAControls
 
                 if (listBoxItem.IsHeader)
                 {
-                    listBoxItem.TextXPadding = (ClientRectangle.Width - (int)textSize.X) / 2;
+                    listBoxItem.TextXPadding = (width - (int)textSize.X) / 2;
                 }
             }
 
@@ -613,7 +626,7 @@ namespace Rampastring.XNAUI.XNAControls
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         public override void Draw(GameTime gameTime)
         {
-            base.Draw(gameTime);
+            DrawPanel();
 
             Rectangle windowRectangle = WindowRectangle();
 
@@ -632,10 +645,7 @@ namespace Rampastring.XNAUI.XNAControls
                 {
                     int drawnWidth;
 
-                    if (EnableScrollbar)
-                        drawnWidth = windowRectangle.Width - 2 - scrollBar.ScrollWidth;
-                    else
-                        drawnWidth = windowRectangle.Width - 2;
+                    drawnWidth = windowRectangle.Width - 2;
 
                     Renderer.DrawTexture(BorderTexture, 
                         new Rectangle(windowRectangle.X + 1, windowRectangle.Y + height,
@@ -670,6 +680,12 @@ namespace Rampastring.XNAUI.XNAControls
                 }
 
                 height += lbItem.TextLines.Count * LineHeight;
+            }
+
+            foreach (XNAControl child in Children)
+            {
+                if (child.Visible)
+                    child.Draw(gameTime);
             }
         }
     }

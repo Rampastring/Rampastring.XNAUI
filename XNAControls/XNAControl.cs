@@ -511,6 +511,14 @@ namespace Rampastring.XNAUI.XNAControls
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         public override void Draw(GameTime gameTime)
         {
+            DrawChildren(gameTime);
+        }
+
+        /// <summary>
+        /// Draws the control's child controls.
+        /// </summary>
+        protected void DrawChildren(GameTime gameTime)
+        {
             for (int i = 0; i < Children.Count; i++)
             {
                 if (Children[i].Visible)

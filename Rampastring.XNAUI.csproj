@@ -141,6 +141,7 @@
     <Compile Include="AssetLoader.cs" />
     <Compile Include="AudioMaster.cs" />
     <Compile Include="ToggleableSound.cs" />
+    <Compile Include="XNAControls\XNALinkLabel.cs" />
     <Compile Include="XNAControls\XNAListBoxItem.cs" />
     <Compile Include="XNAControls\XNAScrollBar.cs" />
     <Compile Include="XNAControls\XNASuggestionTextBox.cs" />

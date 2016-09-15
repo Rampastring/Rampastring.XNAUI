@@ -54,7 +54,14 @@ namespace Rampastring.XNAUI.XNAControls
 
         public override void Draw(GameTime gameTime)
         {
-            if (!String.IsNullOrEmpty(Text))
+            DrawLabel();
+
+            base.Draw(gameTime);
+        }
+
+        protected void DrawLabel()
+        {
+            if (!string.IsNullOrEmpty(Text))
                 Renderer.DrawStringWithShadow(Text, FontIndex, new Vector2(GetLocationX(), GetLocationY()), GetRemapColor());
         }
     }
