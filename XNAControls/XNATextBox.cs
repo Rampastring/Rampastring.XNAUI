@@ -464,7 +464,7 @@ namespace Rampastring.XNAUI.XNAControls
 
             Renderer.FillRectangle(displayRectangle, BackColor);
 
-            if (active && Enabled)
+            if (active && Enabled && WindowManager.HasFocus)
                 Renderer.DrawRectangle(displayRectangle, ActiveBorderColor);
             else
                 Renderer.DrawRectangle(displayRectangle, IdleBorderColor);
@@ -473,7 +473,8 @@ namespace Rampastring.XNAUI.XNAControls
                 FontIndex, new Vector2(displayRectangle.X + TEXT_HORIZONTAL_MARGIN, displayRectangle.Y + TEXT_VERTICAL_MARGIN),
                 TextColor);
 
-            if (active && Enabled && barTimer.TotalSeconds < BAR_ON_TIME)
+            if (active && Enabled && WindowManager.HasFocus &&
+                barTimer.TotalSeconds < BAR_ON_TIME)
             {
                 int barLocationX = TEXT_HORIZONTAL_MARGIN;
 
