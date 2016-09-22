@@ -168,7 +168,8 @@ namespace Rampastring.XNAUI.XNAControls
 
         #endregion
 
-        TimeSpan timeSinceLastLeftClick = TimeSpan.Zero;
+        private TimeSpan timeSinceLastLeftClick = TimeSpan.Zero;
+        private bool isPressedOn = false;
 
         /// <summary>
         /// Checks if the last parent of this control is active.
@@ -474,14 +475,20 @@ namespace Rampastring.XNAUI.XNAControls
                 if (Cursor.HasMoved)
                     OnMouseMove();
 
-                if (Cursor.LeftClicked)
-                {
-                    OnLeftClick();
-                }
+                if (Cursor.LeftPressedDown || Cursor.RightPressedDown)
+                    isPressedOn = true;
 
-                if (Cursor.RightClicked)
+                if (isPressedOn)
                 {
-                    OnRightClick();
+                    if (Cursor.LeftClicked)
+                    {
+                        OnLeftClick();
+                    }
+
+                    if (Cursor.RightClicked)
+                    {
+                        OnRightClick();
+                    }
                 }
 
                 if (Cursor.ScrollWheelValue != 0)
@@ -494,6 +501,10 @@ namespace Rampastring.XNAUI.XNAControls
                 OnMouseLeave();
 
                 CursorOnControl = false;
+            }
+            else if (isPressedOn && Cursor.LeftClicked)
+            {
+                isPressedOn = false;
             }
 
             for (int i = Children.Count - 1; i > -1; i--)

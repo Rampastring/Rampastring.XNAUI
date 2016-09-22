@@ -11,6 +11,7 @@ using Color = Microsoft.Xna.Framework.Color;
 using Rectangle = Microsoft.Xna.Framework.Rectangle;
 using System.IO;
 using Rampastring.XNAUI.Input;
+using System.Diagnostics;
 
 namespace Rampastring.XNAUI
 {
@@ -119,13 +120,19 @@ namespace Rampastring.XNAUI
 
         public void RestartGame()
         {
-            CloseGame();
+            Logger.Log("Restarting game.");
 
+#if !XNA
+            // MonoGame takes ages to unload assets compared to XNA; sometimes MonoGame
+            // can take over 8 seconds while XNA takes only 1 second
+            // This is a bit dirty, but at least it makes the MonoGame build exit quicker
+            GameClosing?.Invoke(this, EventArgs.Empty);
             Application.DoEvents();
-
-            //Process.Start(Application.ExecutablePath);
-            //Environment.Exit(0);
+            Process.Start(Application.ExecutablePath);
+            Environment.Exit(0);
+#else
             Application.Restart();
+#endif
         }
 
         public void Initialize(ContentManager content, string contentPath)

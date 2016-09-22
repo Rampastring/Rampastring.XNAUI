@@ -20,19 +20,36 @@ namespace Rampastring.XNAUI.Input
         public Point Location { get; set; }
         Point DrawnLocation { get; set; }
 
-        public bool HasMoved { get; set; }
-        public bool IsOnScreen { get; set; }
+        public bool HasMoved { get; private set; }
+        public bool IsOnScreen { get; private set; }
 
         public Texture2D[] Textures;
 
         public int TextureIndex { get; set; }
 
-        MouseState previousMouseState;
-        public bool LeftClicked { get; set; }
+        public bool LeftClicked { get; private set; }
 
-        public bool RightClicked { get; set; }
+        public bool RightClicked { get; private set; }
 
-        public bool LeftPressed { get; set; }
+        /// <summary>
+        /// Gets a value that indicates whether the left mouse button is held down
+        /// on the current frame.
+        /// </summary>
+        public bool LeftDown { get; private set; }
+
+        /// <summary>
+        /// Gets a value that indicates whether the left mouse button was pressed
+        /// down on this frame (meaning it's down on the current frame, but wasn't down
+        /// on the previous frame).
+        /// </summary>
+        public bool LeftPressedDown { get; private set; }
+
+        /// <summary>
+        /// Gets a value that indicates whether the right mouse button was pressed
+        /// down on this frame (meaning it's down on the current frame, but wasn't down
+        /// on the previous frame).
+        /// </summary>
+        public bool RightPressedDown { get; private set; }
 
         public bool HasFocus { get; set; }
 
@@ -43,6 +60,7 @@ namespace Rampastring.XNAUI.Input
         public Color RemapColor { get; set; }
 
         WindowManager windowManager;
+        MouseState previousMouseState;
 
         public override void Initialize()
         {
@@ -62,7 +80,7 @@ namespace Rampastring.XNAUI.Input
             {
                 LeftClicked = false;
                 RightClicked = false;
-                LeftPressed = false;
+                LeftDown = false;
                 return;
             }
 
@@ -81,13 +99,15 @@ namespace Rampastring.XNAUI.Input
 
             ScrollWheelValue = (ms.ScrollWheelValue - previousMouseState.ScrollWheelValue) / 40;
 
-            LeftPressed = ms.LeftButton == ButtonState.Pressed;
+            LeftDown = ms.LeftButton == ButtonState.Pressed;
+            LeftPressedDown = LeftDown && previousMouseState.LeftButton != ButtonState.Pressed;
 
-            LeftClicked = !LeftPressed && previousMouseState.LeftButton == ButtonState.Pressed;
+            LeftClicked = !LeftDown && previousMouseState.LeftButton == ButtonState.Pressed;
 
             if (LeftClicked)
                 LeftClickEvent?.Invoke(this, EventArgs.Empty);
 
+            RightPressedDown = ms.RightButton == ButtonState.Pressed && previousMouseState.RightButton != ButtonState.Pressed;
             RightClicked = ms.RightButton == ButtonState.Released && previousMouseState.RightButton == ButtonState.Pressed;
 
             previousMouseState = ms;

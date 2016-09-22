@@ -132,7 +132,7 @@ namespace Rampastring.XNAUI.XNAControls
         {
             base.OnMouseEnter();
 
-            if (!AllowClick)
+            if (!AllowClick || Cursor.LeftDown)
                 return;
 
 #if !WINDOWSGL

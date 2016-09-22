@@ -215,7 +215,7 @@ namespace Rampastring.XNAUI.XNAControls
         {
             base.Update(gameTime);
 
-            if (Cursor.LeftPressed)
+            if (Cursor.LeftPressedDown)
             {
                 if (IsActive)
                 {
@@ -273,9 +273,6 @@ namespace Rampastring.XNAUI.XNAControls
                 return;
             }
 
-            if (_clickSoundInstance != null)
-                AudioMaster.PlaySound(_clickSoundInstance);
-
             if (itemIndexOnCursor > -1)
             {
                 if (Items[itemIndexOnCursor].Selectable)
@@ -283,6 +280,9 @@ namespace Rampastring.XNAUI.XNAControls
                 else
                     return;
             }
+
+            if (_clickSoundInstance != null)
+                AudioMaster.PlaySound(_clickSoundInstance);
 
             IsDroppedDown = false;
             ClientRectangle = new Rectangle(ClientRectangle.X, ClientRectangle.Y,

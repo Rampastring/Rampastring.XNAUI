@@ -84,7 +84,7 @@ namespace Rampastring.XNAUI.XNAControls
         bool active = false;
 
         /// <summary>
-        /// Gets a bool that determines whether the text-box is currently activated.
+        /// Gets or sets a bool that determines whether the text-box is currently activated.
         /// </summary>
         public bool IsSelected
         {

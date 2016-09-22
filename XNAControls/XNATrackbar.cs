@@ -44,6 +44,8 @@ namespace Rampastring.XNAUI.XNAControls
 
         public Texture2D ButtonTexture {get; set; }
 
+        private bool isHeldDown = false;
+
         public override void Initialize()
         {
             base.Initialize();
@@ -73,17 +75,47 @@ namespace Rampastring.XNAUI.XNAControls
             base.ParseAttributeFromINI(iniFile, key, value);
         }
 
-        public override void OnLeftClick()
-        {
-
-        }
-
+        /// <summary>
+        /// Scrolls the scrollbar if the user presses the mouse left button
+        /// while moving the cursor over the scrollbar.
+        /// </summary>
         public override void OnMouseOnControl(MouseEventArgs e)
         {
-            if (!Cursor.LeftPressed)
-                return;
+            base.OnMouseOnControl(e);
 
-            int xOffset = e.RelativeLocation.X;
+            if (Cursor.LeftPressedDown)
+            {
+                isHeldDown = true;
+            }
+        }
+
+        public override void OnLeftClick()
+        {
+            isHeldDown = true;
+            Scroll();
+
+            base.OnLeftClick();
+        }
+
+        public override void Update(GameTime gameTime)
+        {
+            base.Update(gameTime);
+
+            if (isHeldDown)
+            {
+                if (!Cursor.LeftDown)
+                {
+                    isHeldDown = false;
+                    return;
+                }
+
+                Scroll();
+            }
+        }
+
+        private void Scroll()
+        {
+            int xOffset = GetCursorPoint().X;
 
             int tabCount = MaxValue - MinValue;
 

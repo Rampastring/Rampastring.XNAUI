@@ -194,7 +194,7 @@ namespace Rampastring.XNAUI.XNAControls
         {
             base.OnMouseMove();
 
-            if (Cursor.LeftPressed)
+            if (Cursor.LeftDown)
             {
                 Scroll();
                 isHeldDown = true;
@@ -274,7 +274,7 @@ namespace Rampastring.XNAUI.XNAControls
         {
             if (isHeldDown)
             {
-                if (!Cursor.LeftPressed)
+                if (!Cursor.LeftDown)
                     isHeldDown = false;
                 else
                     Scroll();
