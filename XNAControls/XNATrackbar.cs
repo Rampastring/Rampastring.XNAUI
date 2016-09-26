@@ -117,15 +117,15 @@ namespace Rampastring.XNAUI.XNAControls
         {
             int xOffset = GetCursorPoint().X;
 
-            int tabCount = MaxValue - MinValue;
+            int tabCount = MaxValue - MinValue + 1;
 
-            int pixelsPerTab = ClientRectangle.Width / tabCount;
+            double pixelsPerTab = (ClientRectangle.Width) / (double)tabCount;
 
             int currentTab = 0;
 
             for (int i = 0; i <= tabCount; i++)
             {
-                if (i * pixelsPerTab - (pixelsPerTab / 2) < xOffset)
+                if (i * pixelsPerTab < xOffset)
                 {
                     currentTab = i;
                 }
@@ -158,14 +158,14 @@ namespace Rampastring.XNAUI.XNAControls
 
             int tabCount = MaxValue - MinValue;
 
-            double pixelsPerTab = windowRectangle.Width / (double)tabCount;
+            double pixelsPerTab = (windowRectangle.Width - ButtonTexture.Width) / (double)tabCount;
 
-            double tabLocationX = tabIndex * pixelsPerTab - (ButtonTexture.Width / 2);
+            double tabLocationX = tabIndex * pixelsPerTab;
 
-            if (tabIndex == 0)
-                tabLocationX += ButtonTexture.Width / 2;
-            else if (tabIndex == tabCount)
-                tabLocationX -= ButtonTexture.Width / 2;
+            //if (tabIndex == 0)
+            //    tabLocationX += ButtonTexture.Width / 2;
+            //else if (tabIndex == tabCount)
+            //    tabLocationX -= ButtonTexture.Width / 2;
 
             Renderer.DrawTexture(ButtonTexture,
                 new Rectangle((int)(windowRectangle.X + tabLocationX), windowRectangle.Y, ButtonTexture.Width, windowRectangle.Height),
