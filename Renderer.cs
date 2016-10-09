@@ -55,8 +55,10 @@ namespace Rampastring.XNAUI
 
             for (int i = 0; i < str.Length; i++)
             {
-                if (!sf.Characters.Contains(str[i]))
-                    sb.Replace(str[i], '?');
+                char c = str[i];
+
+                if (c != '\r' && c != '\n' && !sf.Characters.Contains(c))
+                    sb.Replace(c, '?');
             }
 
             return sb.ToString();
