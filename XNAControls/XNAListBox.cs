@@ -46,6 +46,13 @@ namespace Rampastring.XNAUI.XNAControls
         public int FontIndex { get; set; }
 
         bool _allowMultiLineItems = true;
+
+        /// <summary>
+        /// If set to false, only the first line will be displayed from items
+        /// that are long enough to cover more than one line. Changing this
+        /// only affects new items in the list box; existing items are not
+        /// truncated!
+        /// </summary>
         public bool AllowMultiLineItems
         {
             get { return _allowMultiLineItems; }
@@ -170,6 +177,18 @@ namespace Rampastring.XNAUI.XNAControls
                 scrollBar.Visible = _enableScrollbar;
                 scrollBar.Enabled = _enableScrollbar;
             }
+        }
+
+        private bool _allowRightClickUnselect = true;
+
+        /// <summary>
+        /// Gets or sets a bool that determines whether the user is able to un-select
+        /// the currently selected listbox item by right-clicking on the list box.
+        /// </summary>
+        public bool AllowRightClickUnselect
+        {
+            get { return _allowRightClickUnselect; }
+            set { _allowRightClickUnselect = value; }
         }
 
         public override Rectangle ClientRectangle
@@ -547,7 +566,8 @@ namespace Rampastring.XNAUI.XNAControls
         /// </summary>
         public override void OnRightClick()
         {
-            SelectedIndex = -1;
+            if (AllowRightClickUnselect)
+                SelectedIndex = -1;
 
             base.OnRightClick();
         }

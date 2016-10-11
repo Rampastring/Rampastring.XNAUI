@@ -109,6 +109,26 @@ namespace Rampastring.XNAUI.XNAControls
             }
         }
 
+        private bool _allowRightClickUnselect = true;
+
+        /// <summary>
+        /// Gets or sets a bool that determines whether the user is able to un-select
+        /// the currently selected listbox item by right-clicking on the list box.
+        /// </summary>
+        public bool AllowRightClickUnselect
+        {
+            get { return _allowRightClickUnselect; }
+            set
+            {
+                _allowRightClickUnselect = value;
+
+                foreach (XNAListBox lb in listBoxes)
+                {
+                    lb.AllowRightClickUnselect = _allowRightClickUnselect;  
+                }
+            }
+        }
+
         public void AddColumn(string header, int width)
         {
             columns.Add(new ListBoxColumn(header, width));
@@ -142,6 +162,7 @@ namespace Rampastring.XNAUI.XNAControls
             listBox.TopIndexChanged += ListBox_TopIndexChanged;
             listBox.SelectedIndexChanged += ListBox_SelectedIndexChanged;
             listBox.AllowMultiLineItems = false;
+            listBox.AllowRightClickUnselect = this.AllowRightClickUnselect;
 
             listBoxes.Add(listBox);
             AddChild(listBox);
@@ -177,6 +198,7 @@ namespace Rampastring.XNAUI.XNAControls
 
                 XNAListBox listBox = new XNAListBox(WindowManager);
                 listBox.FontIndex = FontIndex;
+
                 if (DrawListBoxBorders)
                 {
                     listBox.ClientRectangle = new Rectangle(width - 1, headerPanel.ClientRectangle.Bottom - 1,
@@ -187,12 +209,14 @@ namespace Rampastring.XNAUI.XNAControls
                     listBox.ClientRectangle = new Rectangle(width, headerPanel.ClientRectangle.Bottom - 1,
                         column.Width + 2, this.ClientRectangle.Height - headerPanel.ClientRectangle.Bottom + 1);
                 }
+
                 listBox.DrawBorders = DrawListBoxBorders;
                 listBox.TopIndexChanged += ListBox_TopIndexChanged;
                 listBox.SelectedIndexChanged += ListBox_SelectedIndexChanged;
                 listBox.TextBorderDistance = 5;
                 listBox.LineHeight = _lineHeight;
                 listBox.AllowMultiLineItems = false;
+                listBox.AllowRightClickUnselect = this.AllowRightClickUnselect;
 
                 listBoxes.Add(listBox);
 
