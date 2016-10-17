@@ -41,6 +41,9 @@ namespace Rampastring.XNAUI.XNAControls
 
         bool handleSelectedIndexChanged = true;
 
+        /// <summary>
+        /// Gets or sets the index of the currently selected list box item.
+        /// </summary>
         public int SelectedIndex
         {
             get
@@ -58,6 +61,29 @@ namespace Rampastring.XNAUI.XNAControls
 
         }
 
+        /// <summary>
+        /// Gets or sets the index of the first visible item in the list box.
+        /// </summary>
+        public int TopIndex
+        {
+            get { return listBoxes[0].TopIndex; }
+            set
+            {
+                listBoxes[0].TopIndex = value;
+            }
+        }
+
+        /// <summary>
+        /// Gets the index of the last visible item in the list box.
+        /// </summary>
+        public int LastIndex
+        {
+            get { return listBoxes[0].LastIndex; }
+        }
+
+        /// <summary>
+        /// Gets the number of items on the list box.
+        /// </summary>
         public int ItemCount
         {
             get
