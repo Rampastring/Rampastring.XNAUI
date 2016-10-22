@@ -263,7 +263,7 @@ namespace Rampastring.XNAUI.XNAControls
                     if (!Keyboard.IsCtrlHeldDown())
                         break;
 
-                    Text = System.Windows.Forms.Clipboard.GetText();
+                    Text = Renderer.GetSafeString(System.Windows.Forms.Clipboard.GetText(), FontIndex);
 
                     goto case Keys.End;
                 case Keys.C:
