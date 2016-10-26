@@ -31,6 +31,8 @@ namespace Rampastring.XNAUI
 
         List<Callback> Callbacks = new List<Callback>();
 
+        private SoundPlayer SoundPlayer;
+
         private readonly object locker = new object();
 
         int resolutionWidth = 800;
@@ -142,6 +144,7 @@ namespace Rampastring.XNAUI
             Cursor = new Input.Cursor(this);
             Keyboard = new RKeyboard(Game);
             Renderer.Initialize(GraphicsDevice, content, contentPath);
+            SoundPlayer = new SoundPlayer(Game);
 
 #if XNA
             KeyboardEventInput.Initialize(Game.Window);
@@ -418,6 +421,8 @@ namespace Rampastring.XNAUI
                 Keyboard.Update(gameTime);
 
             Cursor.Update(gameTime);
+
+            SoundPlayer.Update(gameTime);
 
             for (int i = Controls.Count - 1; i > -1; i--)
             {
