@@ -140,6 +140,8 @@
   <ItemGroup>
     <Compile Include="AssetLoader.cs" />
     <Compile Include="AudioMaster.cs" />
+    <Compile Include="PrioritizedSound.cs" />
+    <Compile Include="SoundPlayer.cs" />
     <Compile Include="ToggleableSound.cs" />
     <Compile Include="XNAControls\XNALinkLabel.cs" />
     <Compile Include="XNAControls\XNAListBoxItem.cs" />
