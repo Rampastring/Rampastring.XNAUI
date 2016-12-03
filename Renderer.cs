@@ -64,6 +64,27 @@ namespace Rampastring.XNAUI
             return sb.ToString();
         }
 
+        /// <summary>
+        /// Returns a that has had its width limited to a specific number.
+        /// Characters that'd cross over the width have been cut.
+        /// </summary>
+        /// <param name="str">The string to limit.</param>
+        /// <param name="fontIndex">The index of the font to use.</param>
+        /// <param name="maxWidth">The maximum width of the string.</param>
+        /// <returns></returns>
+        public static string GetStringWithLimitedWidth(string str, int fontIndex, int maxWidth)
+        {
+            var sb = new StringBuilder(str);
+            var spriteFont = Fonts[fontIndex];
+
+            while (spriteFont.MeasureString(sb.ToString()).X > maxWidth)
+            {
+                sb.Remove(sb.Length - 1, 1);
+            }
+
+            return sb.ToString();
+        }
+
         public static TextParseReturnValue FixText(string text, int fontIndex, int width)
         {
             return TextParseReturnValue.FixText(Fonts[fontIndex], width, text);
