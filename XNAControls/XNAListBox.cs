@@ -189,7 +189,7 @@ namespace Rampastring.XNAUI.XNAControls
             set { _allowRightClickUnselect = value; }
         }
 
-        private bool _drawSelectionUnderScrollbar = true;
+        private bool _drawSelectionUnderScrollbar = false;
 
         /// <summary>
         /// Controls whether the highlighted background of the selected item should
