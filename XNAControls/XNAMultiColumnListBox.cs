@@ -1,4 +1,5 @@
 ﻿using Microsoft.Xna.Framework;
+using Rampastring.Tools;
 using System;
 using System.Collections.Generic;
 
@@ -153,6 +154,28 @@ namespace Rampastring.XNAUI.XNAControls
                     lb.AllowRightClickUnselect = _allowRightClickUnselect;  
                 }
             }
+        }
+
+        /// <summary>
+        /// Controls whether the highlighted background of the selected item should
+        /// be drawn under the scrollbar area.
+        /// </summary>
+        public bool DrawSelectionUnderScrollbar
+        {
+            get { return listBoxes[listBoxes.Count - 1].DrawSelectionUnderScrollbar; }
+            set { listBoxes[listBoxes.Count - 1].DrawSelectionUnderScrollbar = value; }
+        }
+
+        protected override void ParseAttributeFromINI(IniFile iniFile, string key, string value)
+        {
+            switch (key)
+            {
+                case "DrawSelectionUnderScrollbar":
+                    DrawSelectionUnderScrollbar = Conversions.BooleanFromString(value, true);
+                    return;
+            }
+
+            base.ParseAttributeFromINI(iniFile, key, value);
         }
 
         public void AddColumn(string header, int width)

@@ -143,6 +143,15 @@ namespace Rampastring.XNAUI.XNAControls
         }
 
         /// <summary>
+        /// Returns a bool that tells whether there's enough items in a list for 
+        /// the scrollbar to be drawn.
+        /// </summary>
+        public bool IsDrawn()
+        {
+            return scrollablePixels > 0;
+        }
+
+        /// <summary>
         /// Refreshes the scroll bar's thumb size.
         /// </summary>
         public void Refresh()

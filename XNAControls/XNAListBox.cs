@@ -35,8 +35,6 @@ namespace Rampastring.XNAUI.XNAControls
 
         public List<XNAListBoxItem> Items = new List<XNAListBoxItem>();
 
-        public Texture2D BorderTexture { get; set; }
-
         public Color FocusColor { get; set; }
 
         public Color DefaultItemColor { get; set; }
@@ -191,6 +189,18 @@ namespace Rampastring.XNAUI.XNAControls
             set { _allowRightClickUnselect = value; }
         }
 
+        private bool _drawSelectionUnderScrollbar = true;
+
+        /// <summary>
+        /// Controls whether the highlighted background of the selected item should
+        /// be drawn under the scrollbar area.
+        /// </summary>
+        public bool DrawSelectionUnderScrollbar
+        {
+            get { return _drawSelectionUnderScrollbar; }
+            set { _drawSelectionUnderScrollbar = value; }
+        }
+
         public override Rectangle ClientRectangle
         {
             get
@@ -226,6 +236,9 @@ namespace Rampastring.XNAUI.XNAControls
             {
                 case "EnableScrollbar":
                     EnableScrollbar = Conversions.BooleanFromString(value, true);
+                    return;
+                case "DrawSelectionUnderScrollbar":
+                    DrawSelectionUnderScrollbar = Conversions.BooleanFromString(value, true);
                     return;
             }
 
@@ -366,9 +379,6 @@ namespace Rampastring.XNAUI.XNAControls
         public override void Initialize()
         {
             base.Initialize();
-
-            if (BorderTexture == null)
-                BorderTexture = AssetLoader.CreateTexture(Color.White, 1, 1);
 
             Keyboard.OnKeyPressed += Keyboard_OnKeyPressed;
 
@@ -665,9 +675,16 @@ namespace Rampastring.XNAUI.XNAControls
                 {
                     int drawnWidth;
 
-                    drawnWidth = windowRectangle.Width - 2;
+                    if (DrawSelectionUnderScrollbar || !scrollBar.IsDrawn())
+                    {
+                        drawnWidth = windowRectangle.Width - 2;
+                    }
+                    else
+                    {
+                        drawnWidth = windowRectangle.Width - 2 - scrollBar.ClientRectangle.Width;
+                    }
 
-                    Renderer.DrawTexture(BorderTexture, 
+                    Renderer.FillRectangle(
                         new Rectangle(windowRectangle.X + 1, windowRectangle.Y + height,
                         drawnWidth, lbItem.TextLines.Count * LineHeight),
                         GetColorWithAlpha(FocusColor));
