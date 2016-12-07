@@ -675,7 +675,7 @@ namespace Rampastring.XNAUI.XNAControls
                 {
                     int drawnWidth;
 
-                    if (DrawSelectionUnderScrollbar || !scrollBar.IsDrawn())
+                    if (DrawSelectionUnderScrollbar || !scrollBar.IsDrawn() || !EnableScrollbar)
                     {
                         drawnWidth = windowRectangle.Width - 2;
                     }
