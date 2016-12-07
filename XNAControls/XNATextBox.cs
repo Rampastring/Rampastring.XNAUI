@@ -263,7 +263,7 @@ namespace Rampastring.XNAUI.XNAControls
                     if (!Keyboard.IsCtrlHeldDown())
                         break;
 
-                    Text = Renderer.GetSafeString(System.Windows.Forms.Clipboard.GetText(), FontIndex);
+                    Text = Text + Renderer.GetSafeString(System.Windows.Forms.Clipboard.GetText(), FontIndex);
 
                     goto case Keys.End;
                 case Keys.C:
@@ -316,7 +316,7 @@ namespace Rampastring.XNAUI.XNAControls
                     }
                 }
 
-                InputPosition = inputPosition;
+                InputPosition = Math.Max(0, inputPosition);
             }
             else
             {
