@@ -38,23 +38,16 @@ namespace Rampastring.XNAUI
         /// <returns>The texture if it was found and could be loaded, otherwise a dummy texture.</returns>
         public static Texture2D LoadTexture(string name)
         {
-            Texture2D cachedTexture = textureCache.Find(t => t.Name == name);
+            var cachedTexture = textureCache.Find(t => t.Name == name);
 
             if (cachedTexture != null)
                 return cachedTexture;
 
-            foreach (string searchPath in AssetSearchPaths)
+            var texture = LoadTextureInternal(name);
+            if (texture != null)
             {
-                if (File.Exists(searchPath + name))
-                {
-                    using (FileStream fs = File.OpenRead(searchPath + name))
-                    {
-                        Texture2D texture = Texture2D.FromStream(graphicsDevice, fs);
-                        textureCache.Add(texture);
-                        texture.Name = name;
-                        return texture;
-                    }
-                }
+                textureCache.Add(texture);
+                return texture;
             }
 
             using (MemoryStream ms = new MemoryStream())
@@ -62,6 +55,50 @@ namespace Rampastring.XNAUI
                 Properties.Resources.hotbutton.Save(ms, System.Drawing.Imaging.ImageFormat.Png);
                 return Texture2D.FromStream(graphicsDevice, ms);
             }
+        }
+
+        /// <summary>
+        /// Loads a texture with the specific name. Does not look at textures in 
+        /// the texture cache, and doesn't add loaded textures to the texture cache.
+        /// </summary>
+        /// <param name="name">The name of the texture.</param>
+        /// <returns>The texture if it was found and could be loaded, otherwise a dummy texture.</returns>
+        public static Texture2D LoadTextureUncached(string name)
+        {
+            var texture = LoadTextureInternal(name);
+            if (texture != null)
+                return texture;
+
+            using (MemoryStream ms = new MemoryStream())
+            {
+                Properties.Resources.hotbutton.Save(ms, System.Drawing.Imaging.ImageFormat.Png);
+                return Texture2D.FromStream(graphicsDevice, ms);
+            }
+        }
+
+        private static Texture2D LoadTextureInternal(string name)
+        {
+            try
+            {
+                foreach (string searchPath in AssetSearchPaths)
+                {
+                    if (File.Exists(searchPath + name))
+                    {
+                        using (FileStream fs = File.OpenRead(searchPath + name))
+                        {
+                            Texture2D texture = Texture2D.FromStream(graphicsDevice, fs);
+                            texture.Name = name;
+                            return texture;
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.Log("AssetLoader.LoadTextureInternal: loading texture " + name + " failed! Message: " + ex.Message);
+            }
+
+            return null;
         }
 
         /// <summary>
@@ -78,29 +115,6 @@ namespace Rampastring.XNAUI
             }
 
             return false;
-        }
-
-        public static Texture2D LoadTextureUncached(string name)
-        {
-            foreach (string searchPath in AssetSearchPaths)
-            {
-                if (File.Exists(searchPath + name))
-                {
-                    using (FileStream fs = File.OpenRead(searchPath + name))
-                    {
-                        Texture2D texture = Texture2D.FromStream(graphicsDevice, fs);
-                        textureCache.Add(texture);
-                        texture.Name = name;
-                        return texture;
-                    }
-                }
-            }
-
-            using (MemoryStream ms = new MemoryStream())
-            {
-                Properties.Resources.hotbutton.Save(ms, System.Drawing.Imaging.ImageFormat.Png);
-                return Texture2D.FromStream(graphicsDevice, ms);
-            }
         }
 
         /// <summary>
