@@ -140,11 +140,19 @@ namespace Rampastring.XNAUI
 
         public static Texture2D TextureFromImage(Image image)
         {
-            using (MemoryStream stream = new MemoryStream())
+            try
             {
-                image.Save(stream, System.Drawing.Imaging.ImageFormat.Png);
-                stream.Seek(0, SeekOrigin.Begin);
-                return Texture2D.FromStream(graphicsDevice, stream);
+                using (MemoryStream stream = new MemoryStream())
+                {
+                    image.Save(stream, System.Drawing.Imaging.ImageFormat.Png);
+                    stream.Seek(0, SeekOrigin.Begin);
+                    return Texture2D.FromStream(graphicsDevice, stream);
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.Log("AssetLoader.TextureFromImage: failed to create texture! Message: " + ex.Message);
+                return null;
             }
         }
 
