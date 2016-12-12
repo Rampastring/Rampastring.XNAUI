@@ -39,6 +39,8 @@ namespace Rampastring.XNAUI.XNAControls
 
         public event EventHandler ClientRectangleUpdated;
 
+        public event EventHandler SelectedChanged;
+
         #endregion
 
         WindowManager _windowManager;
@@ -115,6 +117,26 @@ namespace Rampastring.XNAUI.XNAControls
 
         public virtual string Text { get; set; }
 
+        bool _isSelected = false;
+
+        /// <summary>
+        /// Gets or sets a bool that determines whether the control is currently activated
+        /// (the last-clicked control).
+        /// </summary>
+        public bool IsSelected
+        {
+            get { return _isSelected; }
+            set
+            {
+                bool oldValue = _isSelected;
+
+                _isSelected = value;
+
+                if (_isSelected != oldValue)
+                    OnSelectedChanged();
+            }
+        }
+
         public object Tag { get; set; }
 
         public bool Killed { get; set; }
@@ -135,7 +157,7 @@ namespace Rampastring.XNAUI.XNAControls
         bool isActive = false;
 
         /// <summary>
-        /// Gets or sets a bool that determines whether this control is the current focus of input.
+        /// Gets or sets a bool that determines whether this control is the current focus of the mouse cursor.
         /// </summary>
         public bool IsActive
         { 
@@ -245,7 +267,9 @@ namespace Rampastring.XNAUI.XNAControls
 
         private readonly object locker = new object();
 
-        List<Callback> Callbacks = new List<Callback>();
+        private List<Callback> Callbacks = new List<Callback>();
+
+        private bool leftClickHandled = false;
 
         /// <summary>
         /// Schedules a delegate to be executed on the next game loop frame, 
@@ -422,6 +446,9 @@ namespace Rampastring.XNAUI.XNAControls
 
             timeSinceLastLeftClick += gameTime.ElapsedGameTime;
 
+            if (Cursor.LeftClicked && !leftClickHandled)
+                IsSelected = false;
+
             int callbackCount = Callbacks.Count;
 
             if (callbackCount > 0)
@@ -514,6 +541,8 @@ namespace Rampastring.XNAUI.XNAControls
                     Children[i].Update(gameTime);
                 }
             }
+
+            leftClickHandled = false;
         }
 
         /// <summary>
@@ -561,6 +590,13 @@ namespace Rampastring.XNAUI.XNAControls
         /// </summary>
         public virtual void OnLeftClick()
         {
+            leftClickHandled = true;
+
+            if (!IsSelected)
+            {
+                IsSelected = true;
+            }
+
             LeftClick?.Invoke(this, EventArgs.Empty);
 
             if (timeSinceLastLeftClick < TimeSpan.FromSeconds(DOUBLE_CLICK_TIME))
@@ -615,6 +651,15 @@ namespace Rampastring.XNAUI.XNAControls
         public virtual void OnMouseScrolled()
         {
             MouseScrolled?.Invoke(this, EventArgs.Empty);
+        }
+
+        /// <summary>
+        /// Called when the control's status as the selected (last-clicked)
+        /// control has been changed.
+        /// </summary>
+        public virtual void OnSelectedChanged()
+        {
+            SelectedChanged?.Invoke(this, EventArgs.Empty);
         }
     }
 }

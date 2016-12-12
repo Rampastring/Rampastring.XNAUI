@@ -5,6 +5,7 @@ using Rampastring.XNAUI.Input;
 using System;
 using System.Collections.Generic;
 using Rampastring.Tools;
+using System.Globalization;
 
 namespace Rampastring.XNAUI.XNAControls
 {
@@ -382,6 +383,12 @@ namespace Rampastring.XNAUI.XNAControls
 
             Keyboard.OnKeyPressed += Keyboard_OnKeyPressed;
 
+#if !XNA
+            Game.Window.TextInput += Window_TextInput;
+#else
+            KeyboardEventInput.CharEntered += KeyboardEventInput_CharEntered;
+#endif
+
             scrollBar.ClientRectangle = new Rectangle(ClientRectangle.Width - scrollBar.ScrollWidth - 1,
                 1, scrollBar.ScrollWidth, ClientRectangle.Height - 2);
             scrollBar.Scrolled += ScrollBar_Scrolled;
@@ -418,6 +425,50 @@ namespace Rampastring.XNAUI.XNAControls
 
             if (e.PressedKey == Keys.C && Keyboard.IsCtrlHeldDown())
                 System.Windows.Forms.Clipboard.SetText(SelectedItem.Text);
+        }
+
+#if XNA
+        private void KeyboardEventInput_CharEntered(object sender, KeyboardEventArgs e)
+        {
+            HandleCharInput(e.Character);
+        }
+#else
+        private void Window_TextInput(object sender, TextInputEventArgs e)
+        {
+            HandleCharInput(e.Character);
+        }
+#endif
+
+        /// <summary>
+        /// Allows the user to select items by selecting the list box and then
+        /// pressing the first letter of the item's text.
+        /// </summary>
+        /// <param name="character">The entered character.</param>
+        private void HandleCharInput(char character)
+        {
+            if (!IsSelected || !Enabled || !Parent.Enabled || !WindowManager.HasFocus)
+                return;
+
+            string charString = character.ToString();
+
+            for (int i = SelectedIndex + 1; i < Items.Count; i++)
+            {
+                var item = Items[i];
+
+                if (!item.Selectable)
+                    return;
+
+                if (item.TextLines.Count == 0)
+                {
+                    return;
+                }
+
+                if (item.TextLines[0].StartsWith(charString, true, CultureInfo.CurrentCulture))
+                {
+                    SelectedIndex = i;
+                    break;
+                }
+            }
         }
 
         public override void Update(GameTime gameTime)

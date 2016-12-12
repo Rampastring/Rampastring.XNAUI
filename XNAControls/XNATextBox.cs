@@ -27,7 +27,6 @@ namespace Rampastring.XNAUI.XNAControls
         }
 
         public event EventHandler EnterPressed;
-        public event EventHandler SelectedChanged;
         public event EventHandler InputReceived;
 
         public virtual Color TextColor { get; set; }
@@ -81,27 +80,8 @@ namespace Rampastring.XNAUI.XNAControls
             }
         }
 
-        bool active = false;
-
-        /// <summary>
-        /// Gets or sets a bool that determines whether the text-box is currently activated.
-        /// </summary>
-        public bool IsSelected
-        {
-            get { return active; }
-            set
-            {
-                bool oldValue = active;
-
-                active = value;
-
-                if (active != oldValue)
-                    OnSelectedChanged();
-            }
-        }
-
-        string text = string.Empty;
-        string savedText = string.Empty;
+        private string text = string.Empty;
+        private string savedText = string.Empty;
 
         /// <summary>
         /// The input character index inside the textbox text.
@@ -117,8 +97,6 @@ namespace Rampastring.XNAUI.XNAControls
         /// The end character index of the visible part of the text string.
         /// </summary>
         public int TextEndPosition { get; set; }
-
-        bool leftClickHandled = false;
 
         TimeSpan scrollKeyTime = TimeSpan.Zero;
         TimeSpan timeSinceLastScroll = TimeSpan.Zero;
@@ -150,7 +128,7 @@ namespace Rampastring.XNAUI.XNAControls
 
         private void HandleCharInput(char character)
         {
-            if (!active || !Enabled || !Parent.Enabled || !WindowManager.HasFocus)
+            if (!IsSelected || !Enabled || !Parent.Enabled || !WindowManager.HasFocus)
                 return;
 
             switch (character)
@@ -199,7 +177,7 @@ namespace Rampastring.XNAUI.XNAControls
 
         private void Keyboard_OnKeyPressed(object sender, KeyPressEventArgs e)
         {
-            if (!active || !Enabled || !Parent.Enabled || !WindowManager.HasFocus)
+            if (!IsSelected || !Enabled || !Parent.Enabled || !WindowManager.HasFocus)
                 return;
 
             switch (e.PressedKey)
@@ -320,11 +298,8 @@ namespace Rampastring.XNAUI.XNAControls
             }
             else
             {
-                IsSelected = true;
                 InputPosition = TextEndPosition;
             }
-
-            leftClickHandled = true;
 
             barTimer = TimeSpan.Zero;
 
@@ -334,9 +309,6 @@ namespace Rampastring.XNAUI.XNAControls
         public override void Update(GameTime gameTime)
         {
             base.Update(gameTime);
-
-            if (Cursor.LeftClicked && !leftClickHandled)
-                IsSelected = false;
 
             barTimer += gameTime.ElapsedGameTime;
 
@@ -360,8 +332,6 @@ namespace Rampastring.XNAUI.XNAControls
                     scrollKeyTime = TimeSpan.Zero;
                 }
             }
-
-            leftClickHandled = false;
         }
 
         void ScrollLeft()
@@ -464,7 +434,7 @@ namespace Rampastring.XNAUI.XNAControls
 
             Renderer.FillRectangle(displayRectangle, BackColor);
 
-            if (active && Enabled && WindowManager.HasFocus)
+            if (IsSelected && Enabled && WindowManager.HasFocus)
                 Renderer.DrawRectangle(displayRectangle, ActiveBorderColor);
             else
                 Renderer.DrawRectangle(displayRectangle, IdleBorderColor);
@@ -473,7 +443,7 @@ namespace Rampastring.XNAUI.XNAControls
                 FontIndex, new Vector2(displayRectangle.X + TEXT_HORIZONTAL_MARGIN, displayRectangle.Y + TEXT_VERTICAL_MARGIN),
                 TextColor);
 
-            if (active && Enabled && WindowManager.HasFocus &&
+            if (IsSelected && Enabled && WindowManager.HasFocus &&
                 barTimer.TotalSeconds < BAR_ON_TIME)
             {
                 int barLocationX = TEXT_HORIZONTAL_MARGIN;
@@ -486,11 +456,6 @@ namespace Rampastring.XNAUI.XNAControls
             }
 
             base.Draw(gameTime);
-        }
-
-        public virtual void OnSelectedChanged()
-        {
-            SelectedChanged?.Invoke(this, EventArgs.Empty);
         }
     }
 }
