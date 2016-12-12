@@ -148,16 +148,17 @@ namespace Rampastring.XNAUI.XNAControls
                     Renderer.DrawTexture(BackgroundTexture, windowRectangle, color);
                 }
             }
+        }
 
-            if (DrawBorders)
-            {
-                Renderer.DrawRectangle(windowRectangle, GetColorWithAlpha(BorderColor));
-            }
+        protected void DrawPanelBorders()
+        {
+            Renderer.DrawRectangle(WindowRectangle(), GetColorWithAlpha(BorderColor));
         }
 
         public override void Draw(GameTime gameTime)
         {
             DrawPanel();
+            DrawPanelBorders();
 
             base.Draw(gameTime);
         }

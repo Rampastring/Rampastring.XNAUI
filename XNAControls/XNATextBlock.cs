@@ -59,6 +59,8 @@ namespace Rampastring.XNAUI.XNAControls
                     new Vector2(windowRectangle.X + TextXMargin, windowRectangle.Y + TextYPosition), RemapColor);
             }
 
+            DrawPanelBorders();
+
             for (int i = 0; i < Children.Count; i++)
             {
                 if (Children[i].Visible)

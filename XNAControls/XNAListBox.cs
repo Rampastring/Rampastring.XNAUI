@@ -719,6 +719,8 @@ namespace Rampastring.XNAUI.XNAControls
                 height += lbItem.TextLines.Count * LineHeight;
             }
 
+            DrawPanelBorders();
+
             foreach (XNAControl child in Children)
             {
                 if (child.Visible)
