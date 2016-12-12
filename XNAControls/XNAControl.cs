@@ -325,7 +325,7 @@ namespace Rampastring.XNAUI.XNAControls
                     RemapColor = new Color(Int32.Parse(colors[0]), Int32.Parse(colors[1]), Int32.Parse(colors[2]), 255);
                     break;
                 case "Text":
-                    Text = value;
+                    Text = value.Replace("@", Environment.NewLine);
                     break;
                 case "Visible":
                     Visible = Conversions.BooleanFromString(value, true);
