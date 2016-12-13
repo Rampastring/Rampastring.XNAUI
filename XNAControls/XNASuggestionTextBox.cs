@@ -37,7 +37,7 @@ namespace Rampastring.XNAUI.XNAControls
             {
                 realTextColor = value;
 
-                if (IsSelected)
+                if (WindowManager.SelectedControl == this)
                     base.TextColor = realTextColor;
             }
         }
@@ -46,7 +46,7 @@ namespace Rampastring.XNAUI.XNAControls
         {
             base.OnSelectedChanged();
 
-            if (IsSelected)
+            if (WindowManager.SelectedControl == this)
             {
                 base.TextColor = realTextColor;
 

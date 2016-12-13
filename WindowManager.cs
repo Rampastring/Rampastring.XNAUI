@@ -71,6 +71,27 @@ namespace Rampastring.XNAUI
         public int SceneXPosition = 0;
         public int SceneYPosition = 0;
 
+        private XNAControl _selectedControl;
+
+        public XNAControl SelectedControl
+        {
+            get { return _selectedControl; }
+            set
+            {
+                XNAControl oldSelectedControl = _selectedControl;
+                _selectedControl = value;
+
+                if (oldSelectedControl != _selectedControl)
+                {
+                    if (_selectedControl != null)
+                        _selectedControl.OnSelectedChanged();
+
+                    if (oldSelectedControl != null)
+                        oldSelectedControl.OnSelectedChanged();
+                }
+            }
+        }
+
         GraphicsDeviceManager graphics;
 
         Form gameForm;

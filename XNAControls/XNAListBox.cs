@@ -225,11 +225,12 @@ namespace Rampastring.XNAUI.XNAControls
 
         #endregion
 
-        XNAScrollBar scrollBar;
+        private XNAScrollBar scrollBar;
 
-        TimeSpan scrollKeyTime = TimeSpan.Zero;
-        TimeSpan timeSinceLastScroll = TimeSpan.Zero;
-        bool isScrollingQuickly = false;
+        private TimeSpan scrollKeyTime = TimeSpan.Zero;
+        private TimeSpan timeSinceLastScroll = TimeSpan.Zero;
+        private bool isScrollingQuickly = false;
+        private bool selectedIndexChanged = false;
 
         protected override void ParseAttributeFromINI(IniFile iniFile, string key, string value)
         {
@@ -446,7 +447,7 @@ namespace Rampastring.XNAUI.XNAControls
         /// <param name="character">The entered character.</param>
         private void HandleCharInput(char character)
         {
-            if (!IsSelected || !Enabled || !Parent.Enabled || !WindowManager.HasFocus)
+            if (WindowManager.SelectedControl != this || !Enabled || !Parent.Enabled || !WindowManager.HasFocus)
                 return;
 
             string charString = character.ToString();
@@ -459,13 +460,17 @@ namespace Rampastring.XNAUI.XNAControls
                     return;
 
                 if (item.TextLines.Count == 0)
-                {
                     return;
-                }
 
                 if (item.TextLines[0].StartsWith(charString, true, CultureInfo.CurrentCulture))
                 {
                     SelectedIndex = i;
+
+                    int lastIndex = LastIndex;
+
+                    if (lastIndex < SelectedIndex)
+                        TopIndex += SelectedIndex - lastIndex;
+
                     break;
                 }
             }
@@ -638,15 +643,28 @@ namespace Rampastring.XNAUI.XNAControls
         /// </summary>
         public override void OnLeftClick()
         {
-            base.OnLeftClick();
-
             int itemIndex = GetItemIndexOnCursor(GetCursorPoint());
 
             if (itemIndex == -1)
                 return;
 
-            if (Items[itemIndex].Selectable)
+            selectedIndexChanged = false;
+
+            if (Items[itemIndex].Selectable && itemIndex != SelectedIndex)
+            {
+                selectedIndexChanged = true;
                 SelectedIndex = itemIndex;
+            }
+
+            base.OnLeftClick();
+        }
+
+        public override void OnDoubleLeftClick()
+        {
+            // We don't want to send a "double left click" message if the user
+            // is just quickly changing the selected index
+            if (!selectedIndexChanged)
+                base.OnDoubleLeftClick();
         }
 
         /// <summary>

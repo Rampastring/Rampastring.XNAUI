@@ -128,7 +128,7 @@ namespace Rampastring.XNAUI.XNAControls
 
         private void HandleCharInput(char character)
         {
-            if (!IsSelected || !Enabled || !Parent.Enabled || !WindowManager.HasFocus)
+            if (WindowManager.SelectedControl != this || !Enabled || !Parent.Enabled || !WindowManager.HasFocus)
                 return;
 
             switch (character)
@@ -177,7 +177,7 @@ namespace Rampastring.XNAUI.XNAControls
 
         private void Keyboard_OnKeyPressed(object sender, KeyPressEventArgs e)
         {
-            if (!IsSelected || !Enabled || !Parent.Enabled || !WindowManager.HasFocus)
+            if (WindowManager.SelectedControl != this || !Enabled || !Parent.Enabled || !WindowManager.HasFocus)
                 return;
 
             switch (e.PressedKey)
@@ -276,7 +276,7 @@ namespace Rampastring.XNAUI.XNAControls
 
         public override void OnLeftClick()
         {
-            if (IsSelected)
+            if (WindowManager.SelectedControl == this)
             {
                 int x = GetCursorPoint().X;
                 int inputPosition = TextEndPosition;
@@ -315,7 +315,7 @@ namespace Rampastring.XNAUI.XNAControls
             if (barTimer > TimeSpan.FromSeconds(BAR_ON_TIME + BAR_OFF_TIME))
                 barTimer -= TimeSpan.FromSeconds(BAR_ON_TIME + BAR_OFF_TIME);
 
-            if (IsSelected)
+            if (WindowManager.SelectedControl == this)
             {
                 if (Keyboard.IsKeyHeldDown(Keys.Left))
                     HandleScrollKeyDown(gameTime, ScrollLeft);
@@ -334,7 +334,7 @@ namespace Rampastring.XNAUI.XNAControls
             }
         }
 
-        void ScrollLeft()
+        private void ScrollLeft()
         {
             if (InputPosition == 0)
                 return;
@@ -349,7 +349,7 @@ namespace Rampastring.XNAUI.XNAControls
             }
         }
 
-        void ScrollRight()
+        private void ScrollRight()
         {
             if (InputPosition >= text.Length)
                 return;
@@ -367,7 +367,7 @@ namespace Rampastring.XNAUI.XNAControls
             }
         }
 
-        void DeleteCharacter()
+        private void DeleteCharacter()
         {
             if (text.Length > InputPosition)
             {
@@ -385,7 +385,7 @@ namespace Rampastring.XNAUI.XNAControls
             InputReceived?.Invoke(this, EventArgs.Empty);
         }
 
-        void Backspace()
+        private void Backspace()
         {
             if (text.Length > 0 && InputPosition > 0)
             {
@@ -401,7 +401,7 @@ namespace Rampastring.XNAUI.XNAControls
             InputReceived?.Invoke(this, EventArgs.Empty);
         }
 
-        void HandleScrollKeyDown(GameTime gameTime, Action action)
+        private void HandleScrollKeyDown(GameTime gameTime, Action action)
         {
             if (scrollKeyTime.Equals(TimeSpan.Zero))
                 action();
@@ -434,7 +434,7 @@ namespace Rampastring.XNAUI.XNAControls
 
             Renderer.FillRectangle(displayRectangle, BackColor);
 
-            if (IsSelected && Enabled && WindowManager.HasFocus)
+            if (WindowManager.SelectedControl == this && Enabled && WindowManager.HasFocus)
                 Renderer.DrawRectangle(displayRectangle, ActiveBorderColor);
             else
                 Renderer.DrawRectangle(displayRectangle, IdleBorderColor);
@@ -443,7 +443,7 @@ namespace Rampastring.XNAUI.XNAControls
                 FontIndex, new Vector2(displayRectangle.X + TEXT_HORIZONTAL_MARGIN, displayRectangle.Y + TEXT_VERTICAL_MARGIN),
                 TextColor);
 
-            if (IsSelected && Enabled && WindowManager.HasFocus &&
+            if (WindowManager.SelectedControl == this && Enabled && WindowManager.HasFocus &&
                 barTimer.TotalSeconds < BAR_ON_TIME)
             {
                 int barLocationX = TEXT_HORIZONTAL_MARGIN;

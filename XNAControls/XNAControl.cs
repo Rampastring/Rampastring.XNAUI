@@ -117,26 +117,6 @@ namespace Rampastring.XNAUI.XNAControls
 
         public virtual string Text { get; set; }
 
-        bool _isSelected = false;
-
-        /// <summary>
-        /// Gets or sets a bool that determines whether the control is currently activated
-        /// (the last-clicked control).
-        /// </summary>
-        public bool IsSelected
-        {
-            get { return _isSelected; }
-            set
-            {
-                bool oldValue = _isSelected;
-
-                _isSelected = value;
-
-                if (_isSelected != oldValue)
-                    OnSelectedChanged();
-            }
-        }
-
         public object Tag { get; set; }
 
         public bool Killed { get; set; }
@@ -268,8 +248,6 @@ namespace Rampastring.XNAUI.XNAControls
         private readonly object locker = new object();
 
         private List<Callback> Callbacks = new List<Callback>();
-
-        private bool leftClickHandled = false;
 
         /// <summary>
         /// Schedules a delegate to be executed on the next game loop frame, 
@@ -446,9 +424,6 @@ namespace Rampastring.XNAUI.XNAControls
 
             timeSinceLastLeftClick += gameTime.ElapsedGameTime;
 
-            if (Cursor.LeftClicked && !leftClickHandled)
-                IsSelected = false;
-
             int callbackCount = Callbacks.Count;
 
             if (callbackCount > 0)
@@ -468,25 +443,24 @@ namespace Rampastring.XNAUI.XNAControls
                 return;
             }
 
+            XNAControl activeChild = null;
+
             if (Cursor.IsOnScreen && IsActive && rectangle.Contains(Cursor.Location))
             {
                 if (!CursorOnControl)
                     OnMouseEnter();
-
-                bool activeChildFound = false;
 
                 for (int i = Children.Count - 1; i > -1; i--)
                 {
                     XNAControl child = Children[i];
 
                     if (child.Visible && (child.Focused || (child.InputEnabled && 
-                        child.WindowRectangle().Contains(Cursor.Location) && !activeChildFound)))
+                        child.WindowRectangle().Contains(Cursor.Location) && activeChild == null)))
                     {
                         Children[i].IsActive = true;
-                        activeChildFound = true;
+                        activeChild = Children[i];
+                        break;
                     }
-                    else
-                        Children[i].IsActive = false;
                 }
 
                 Cursor.TextureIndex = CursorTextureIndex;
@@ -505,7 +479,7 @@ namespace Rampastring.XNAUI.XNAControls
                 if (Cursor.LeftPressedDown || Cursor.RightPressedDown)
                     isPressedOn = true;
 
-                if (isPressedOn)
+                if (isPressedOn && activeChild == null)
                 {
                     if (Cursor.LeftClicked)
                     {
@@ -536,13 +510,16 @@ namespace Rampastring.XNAUI.XNAControls
 
             for (int i = Children.Count - 1; i > -1; i--)
             {
-                if (Children[i].Enabled)
+                var child = Children[i];
+
+                if (child != activeChild)
+                    child.IsActive = false;
+
+                if (child.Enabled)
                 {
-                    Children[i].Update(gameTime);
+                    child.Update(gameTime);
                 }
             }
-
-            leftClickHandled = false;
         }
 
         /// <summary>
@@ -590,12 +567,7 @@ namespace Rampastring.XNAUI.XNAControls
         /// </summary>
         public virtual void OnLeftClick()
         {
-            leftClickHandled = true;
-
-            if (!IsSelected)
-            {
-                IsSelected = true;
-            }
+            WindowManager.SelectedControl = this;
 
             LeftClick?.Invoke(this, EventArgs.Empty);
 
