@@ -158,7 +158,9 @@ namespace Rampastring.XNAUI.XNAControls
         public override void Draw(GameTime gameTime)
         {
             DrawPanel();
-            DrawPanelBorders();
+
+            if (DrawBorders)
+                DrawPanelBorders();
 
             base.Draw(gameTime);
         }

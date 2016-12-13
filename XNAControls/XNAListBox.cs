@@ -788,13 +788,10 @@ namespace Rampastring.XNAUI.XNAControls
                 height += lbItem.TextLines.Count * LineHeight;
             }
 
-            DrawPanelBorders();
+            if (DrawBorders)
+                DrawPanelBorders();
 
-            foreach (XNAControl child in Children)
-            {
-                if (child.Visible)
-                    child.Draw(gameTime);
-            }
+            DrawChildren(gameTime);
         }
     }
 }
