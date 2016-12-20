@@ -257,15 +257,17 @@ namespace Rampastring.XNAUI.XNAControls
         {
             base.Update(gameTime);
 
+            float alphaRate = AlphaRate * (float)(gameTime.ElapsedGameTime.TotalMilliseconds / 10.0);
+
             if (animationMode == ButtonAnimationMode.HIGHLIGHT)
             {
-                idleTextureAlpha -= AlphaRate;
+                idleTextureAlpha -= alphaRate;
                 if (idleTextureAlpha < 0.0f)
                 {
                     idleTextureAlpha = 0.0f;
                 }
 
-                hoverTextureAlpha += AlphaRate;
+                hoverTextureAlpha += alphaRate;
                 if (hoverTextureAlpha >= 1.0f)
                 {
                     hoverTextureAlpha = 1.0f;
@@ -273,13 +275,13 @@ namespace Rampastring.XNAUI.XNAControls
             }
             else
             {
-                hoverTextureAlpha -= AlphaRate;
+                hoverTextureAlpha -= alphaRate;
                 if (hoverTextureAlpha < 0.0f)
                 {
                     hoverTextureAlpha = 0.0f;
                 }
 
-                idleTextureAlpha += AlphaRate;
+                idleTextureAlpha += alphaRate;
                 if (idleTextureAlpha >= 1.0f)
                 {
                     idleTextureAlpha = 1.0f;

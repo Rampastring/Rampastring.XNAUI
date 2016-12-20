@@ -193,13 +193,15 @@ namespace Rampastring.XNAUI.XNAControls
 
         public override void Update(GameTime gameTime)
         {
+            double alphaRate = AlphaRate * (gameTime.ElapsedGameTime.TotalMilliseconds / 10.0);
+
             if (Checked)
             {
-                checkedAlpha = Math.Min(checkedAlpha + AlphaRate, 1.0);
+                checkedAlpha = Math.Min(checkedAlpha + alphaRate, 1.0);
             }
             else
             {
-                checkedAlpha = Math.Max(0.0, checkedAlpha - AlphaRate);
+                checkedAlpha = Math.Max(0.0, checkedAlpha - alphaRate);
             }
 
             base.Update(gameTime);
