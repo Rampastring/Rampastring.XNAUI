@@ -53,7 +53,7 @@ namespace Rampastring.XNAUI
         }
     }
 
-    public class PrioritizedSoundInstance : IDisposable
+    sealed class PrioritizedSoundInstance : IDisposable
     {
         public PrioritizedSoundInstance(SoundEffectInstance soundInstance, 
             double priority, double priorityDecayRate)

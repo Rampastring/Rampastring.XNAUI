@@ -171,7 +171,7 @@ namespace Rampastring.XNAUI
             KeyboardEventInput.Initialize(Game.Window);
 #endif
 
-            gameForm = (Form)Form.FromHandle(Game.Window.Handle);
+            gameForm = (Form)Control.FromHandle(Game.Window.Handle);
 
             if (gameForm != null)
             {
