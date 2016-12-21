@@ -102,8 +102,16 @@ namespace Rampastring.XNAUI
             renderResX = x;
             renderResY = y;
 
-            double xRatio = (resolutionWidth) / (double)x;
-            double yRatio = (resolutionHeight) / (double)y;
+            RecalculateScaling();
+        }
+
+        /// <summary>
+        /// Re-calculates the scaling of the rendered screen to fill the window.
+        /// </summary>
+        private void RecalculateScaling()
+        {
+            double xRatio = (resolutionWidth) / (double)renderResX;
+            double yRatio = (resolutionHeight) / (double)renderResY;
 
             double ratio;
 
@@ -116,14 +124,14 @@ namespace Rampastring.XNAUI
             {
                 ratio = yRatio;
                 textureHeight = resolutionHeight;
-                textureWidth = (int)(x * ratio);
+                textureWidth = (int)(renderResX * ratio);
                 texturePositionX = (int)(resolutionWidth - textureWidth) / 2;
             }
             else
             {
                 ratio = xRatio;
                 textureWidth = resolutionWidth;
-                textureHeight = (int)(y * ratio);
+                textureHeight = (int)(renderResY * ratio);
                 texturePositionY = (int)(resolutionHeight - textureHeight) / 2;
             }
 
@@ -393,6 +401,7 @@ namespace Rampastring.XNAUI
                     graphics.PreferredBackBufferHeight = iHeight;
                     graphics.IsFullScreen = bFullScreen;
                     graphics.ApplyChanges();
+                    RecalculateScaling();
                     return true;
                 }
             }
@@ -412,10 +421,12 @@ namespace Rampastring.XNAUI
                         graphics.PreferredBackBufferHeight = iHeight;
                         graphics.IsFullScreen = bFullScreen;
                         graphics.ApplyChanges();
+                        RecalculateScaling();
                         return true;
                     }
                 }
             }
+
             return false;
         }
 
