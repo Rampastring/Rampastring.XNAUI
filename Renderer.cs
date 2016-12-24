@@ -100,6 +100,11 @@ namespace Rampastring.XNAUI
             BeginDraw(SamplerState.LinearClamp);
         }
 
+        public static void BeginDraw(SpriteSortMode ssm, BlendState bs)
+        {
+            SpriteBatch.Begin(ssm, bs);
+        }
+
         public static void BeginDraw(SamplerState ss)
         {
             BlendState bs = new BlendState();

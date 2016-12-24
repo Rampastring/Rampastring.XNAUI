@@ -88,6 +88,19 @@ namespace Rampastring.XNAUI
                         {
                             Texture2D texture = Texture2D.FromStream(graphicsDevice, fs);
                             texture.Name = name;
+
+                            Color[] data = new Color[texture.Width * texture.Height];
+                            texture.GetData(data);
+
+                            for (int i = 0; i < data.Length; i++)
+                            {
+                                data[i].R = (byte)(data[i].R * data[i].A / 255);
+                                data[i].G = (byte)(data[i].G * data[i].A / 255);
+                                data[i].B = (byte)(data[i].B * data[i].A / 255);
+                            }
+
+                            texture.SetData(data);
+
                             return texture;
                         }
                     }
