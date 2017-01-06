@@ -495,14 +495,14 @@ namespace Rampastring.XNAUI
 
             Renderer.EndDraw();
 
+            GraphicsDevice.SetRenderTarget(null);
+
             if (Keyboard.PressedKeys.Contains(Microsoft.Xna.Framework.Input.Keys.F12))
             {
                 FileStream fs = File.Create(Environment.CurrentDirectory + "\\image.png");
                 renderTarget.SaveAsPng(fs, renderTarget.Width, renderTarget.Height);
                 fs.Close();
             }
-
-            GraphicsDevice.SetRenderTarget(null);
 
             GraphicsDevice.Clear(Color.Black);
 
