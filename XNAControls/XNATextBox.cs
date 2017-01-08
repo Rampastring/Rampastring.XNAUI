@@ -11,12 +11,12 @@ namespace Rampastring.XNAUI.XNAControls
     /// </summary>
     public class XNATextBox : XNAControl
     {
-        const int TEXT_HORIZONTAL_MARGIN = 3;
-        const int TEXT_VERTICAL_MARGIN = 2;
-        const double SCROLL_REPEAT_TIME = 0.03;
-        const double FAST_SCROLL_TRIGGER_TIME = 0.4;
-        const double BAR_ON_TIME = 0.5;
-        const double BAR_OFF_TIME = 0.5;
+        protected const int TEXT_HORIZONTAL_MARGIN = 3;
+        protected const int TEXT_VERTICAL_MARGIN = 2;
+        protected const double SCROLL_REPEAT_TIME = 0.03;
+        protected const double FAST_SCROLL_TRIGGER_TIME = 0.4;
+        protected const double BAR_ON_TIME = 0.5;
+        protected const double BAR_OFF_TIME = 0.5;
 
         public XNATextBox(WindowManager windowManager) : base(windowManager)
         {
@@ -39,9 +39,7 @@ namespace Rampastring.XNAUI.XNAControls
 
         public int FontIndex { get; set; }
 
-        int _maximumTextLength = int.MaxValue;
-
-        TimeSpan barTimer = TimeSpan.Zero;
+        private int _maximumTextLength = int.MaxValue;
 
         public int MaximumTextLength
         {
@@ -98,9 +96,11 @@ namespace Rampastring.XNAUI.XNAControls
         /// </summary>
         public int TextEndPosition { get; set; }
 
-        TimeSpan scrollKeyTime = TimeSpan.Zero;
-        TimeSpan timeSinceLastScroll = TimeSpan.Zero;
-        bool isScrollingQuickly = false;
+        protected TimeSpan barTimer = TimeSpan.Zero;
+
+        private TimeSpan scrollKeyTime = TimeSpan.Zero;
+        private TimeSpan timeSinceLastScroll = TimeSpan.Zero;
+        private bool isScrollingQuickly = false;
 
         public override void Initialize()
         {
@@ -448,7 +448,7 @@ namespace Rampastring.XNAUI.XNAControls
             {
                 int barLocationX = TEXT_HORIZONTAL_MARGIN;
 
-                string inputText = text.Substring(TextStartPosition, InputPosition - TextStartPosition);
+                string inputText = Text.Substring(TextStartPosition, InputPosition - TextStartPosition);
                 barLocationX += (int)Renderer.GetTextDimensions(inputText, FontIndex).X;
 
                 Renderer.DrawRectangle(new Rectangle(displayRectangle.X + barLocationX,
