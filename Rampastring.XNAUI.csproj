@@ -164,6 +164,7 @@
     <Compile Include="XNAControls\XNAPanel.cs" />
     <Compile Include="XNAControls\XNAProgressBar.cs" />
     <Compile Include="XNAControls\XNATabControl.cs" />
+    <Compile Include="XNAControls\XNATimerControl.cs" />
     <Compile Include="XNAControls\XNATrackbar.cs" />
     <Compile Include="XNAControls\MouseEventArgs.cs" />
     <Compile Include="Input\KeyboardEventArgs.cs" />
