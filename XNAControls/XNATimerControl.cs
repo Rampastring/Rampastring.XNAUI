@@ -87,6 +87,24 @@ namespace Rampastring.XNAUI.XNAControls
             currentInterval -= timeSpan;
         }
 
+        /// <summary>
+        /// Sets the time until the next TimeElapsed event.
+        /// </summary>
+        /// <param name="timeSpan">The time.</param>
+        public void SetTime(TimeSpan timeSpan)
+        {
+            currentInterval = timeSpan;
+        }
+
+        /// <summary>
+        /// Returns the current time until the next TimeElapsed event.
+        /// </summary>
+        /// <returns>The time until the next TimeElapsed event.</returns>
+        public TimeSpan GetTime()
+        {
+            return currentInterval;
+        }
+
         public override void Draw(GameTime gameTime)
         {
             // Do nothing

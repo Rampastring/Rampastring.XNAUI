@@ -36,7 +36,11 @@ namespace Rampastring.XNAUI.XNAControls
 
         Texture2D BorderTexture { get; set; }
 
-        public float AlphaRate = 0.01f;
+        /// <summary>
+        /// The panel's transparency changing rate per 100 milliseconds.
+        /// If the panel is transparent, it'll become non-transparent at this rate.
+        /// </summary>
+        public float AlphaRate = 0.1f;
 
         public override void Initialize()
         {
@@ -92,7 +96,7 @@ namespace Rampastring.XNAUI.XNAControls
 
         public override void Update(GameTime gameTime)
         {
-            Alpha += AlphaRate;
+            Alpha += AlphaRate * (float)(gameTime.ElapsedGameTime.TotalMilliseconds / 100.0);
 
             base.Update(gameTime);
         }
