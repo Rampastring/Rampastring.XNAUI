@@ -16,6 +16,17 @@ namespace Rampastring.XNAUI.XNAControls
 
         public int FontIndex { get; set; }
 
+        /// <summary>
+        /// Determines the point that the text is placed around
+        /// depending on TextAnchor.
+        /// </summary>
+        public Vector2 AnchorPoint { get; set; }
+
+        /// <summary>
+        /// Determines the position of the label's text relative to AnchorPoint.
+        /// </summary>
+        public LabelTextAnchorInfo TextAnchor { get; set; }
+
         public override string Text
         {
             get
@@ -27,10 +38,27 @@ namespace Rampastring.XNAUI.XNAControls
             {
                 base.Text = value;
 
-                if (!String.IsNullOrEmpty(base.Text))
+                if (!string.IsNullOrEmpty(base.Text))
                 {
                     Vector2 textSize = Renderer.GetTextDimensions(Text, FontIndex);
-                    ClientRectangle = new Rectangle(ClientRectangle.X, ClientRectangle.Y, (int)textSize.X, (int)textSize.Y);
+
+                    switch (TextAnchor)
+                    {
+                        case LabelTextAnchorInfo.CENTER:
+                            ClientRectangle = new Rectangle((int)(AnchorPoint.X - textSize.X / 2),
+                                (int)(AnchorPoint.Y - textSize.Y / 2), (int)textSize.X, (int)textSize.Y);
+                            break;
+                        case LabelTextAnchorInfo.RIGHT:
+                            ClientRectangle = new Rectangle((int)AnchorPoint.X, (int)AnchorPoint.Y, (int)textSize.X, (int)textSize.Y);
+                            break;
+                        case LabelTextAnchorInfo.LEFT:
+                            ClientRectangle = new Rectangle((int)(AnchorPoint.X - textSize.X),
+                                (int)AnchorPoint.Y, (int)textSize.X, (int)textSize.Y);
+                            break;
+                        case LabelTextAnchorInfo.NONE:
+                            ClientRectangle = new Rectangle(ClientRectangle.X, ClientRectangle.Y, (int)textSize.X, (int)textSize.Y);
+                            break;
+                    }
                 }
             }
         }
@@ -46,6 +74,24 @@ namespace Rampastring.XNAUI.XNAControls
             {
                 case "FontIndex":
                     FontIndex = Conversions.IntFromString(value, 0);
+                    return;
+                case "AnchorPoint":
+                    string[] point = value.Split(',');
+
+                    if (point.Length == 2)
+                    {
+                        AnchorPoint = new Vector2(Conversions.FloatFromString(point[0], 0f),
+                            Conversions.FloatFromString(point[1], 0f));
+                    }
+
+                    return;
+                case "TextAnchor":
+                    LabelTextAnchorInfo info;
+                    bool success = Enum.TryParse(value, out info);
+
+                    if (success)
+                        TextAnchor = info;
+
                     return;
             }
 
@@ -64,5 +110,16 @@ namespace Rampastring.XNAUI.XNAControls
             if (!string.IsNullOrEmpty(Text))
                 Renderer.DrawStringWithShadow(Text, FontIndex, new Vector2(GetLocationX(), GetLocationY()), GetRemapColor());
         }
+    }
+
+    /// <summary>
+    /// An enum for determining which part of a text is anchored to a specific point.
+    /// </summary>
+    public enum LabelTextAnchorInfo
+    {
+        NONE,
+        LEFT,
+        CENTER,
+        RIGHT
     }
 }
