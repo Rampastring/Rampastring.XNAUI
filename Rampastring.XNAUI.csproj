@@ -45,6 +45,7 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <DocumentationFile>bin\Windows\Release\Rampastring.XNAUI.XML</DocumentationFile>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|WindowsGL' ">
     <DebugSymbols>true</DebugSymbols>
@@ -62,6 +63,7 @@
     <DefineConstants>TRACE;WINDOWSGL LINUX</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <DocumentationFile>bin\WindowsGL\Release\Rampastring.XNAUI.XML</DocumentationFile>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|XNAFramework' ">
     <DebugSymbols>true</DebugSymbols>
@@ -79,6 +81,7 @@
     <DefineConstants>TRACE;XNA</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <DocumentationFile>bin\XNAFramework\Release\Rampastring.XNAUI.XML</DocumentationFile>
   </PropertyGroup>
   <Choose>
     <When Condition="'$(Platform)' != 'XNAFramework'">
