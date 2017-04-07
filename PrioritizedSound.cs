@@ -13,21 +13,49 @@ namespace Rampastring.XNAUI
     /// </summary>
     public class PrioritizedSound
     {
+        /// <summary>
+        /// Creates a new prioritized sound. Loads the specified sound asset.
+        /// </summary>
+        /// <param name="assetName">The asset name of the sound file to load.</param>
         public PrioritizedSound(string assetName)
         {
             soundEffect = AssetLoader.LoadSound(assetName);
         }
 
-        private bool _enabled = true;
+        /// <summary>
+        /// Creates a new prioritized sound. Loads the specified sound asset.
+        /// </summary>
+        /// <param name="assetName">The asset name of the sound file to load.</param>
+        /// <param name="priority">The priority of this sound</param>
+        /// <param name="priorityDecayRate">The priority decay rate of this sound.</param>
+        /// <param name="repeatPrevention">If set above zero, will prevent the sound from being played again
+        /// for the specified number of seconds after it has been played.</param>
+        public PrioritizedSound(string assetName, double priority, double priorityDecayRate, float repeatPrevention) : this(assetName)
+        {
+            Priority = priority;
+            PriorityDecayRate = priorityDecayRate;
+            RepeatPrevention = repeatPrevention;
+        }
 
         private SoundEffect soundEffect;
+        private DateTime lastPlayTime;
 
+        private bool _enabled = true;
+
+        /// <summary>
+        /// Gets or sets a bool that determines whether this sound is enabled.
+        /// </summary>
         public bool Enabled
         {
             get { return _enabled; }
             set { _enabled = value; }
         }
 
+        /// <summary>
+        /// The priority of this sound.
+        /// While this sound is playing, sounds with less priority than this sound's
+        /// priority will not be played.
+        /// </summary>
         public double Priority { get; set; }
 
         /// <summary>
@@ -36,10 +64,29 @@ namespace Rampastring.XNAUI
         /// </summary>
         public double PriorityDecayRate { get; set; }
 
+        /// <summary>
+        /// If set above zero, will prevent the sound from being played again
+        /// for the specified number of seconds after it has been played.
+        /// </summary>
+        public float RepeatPrevention { get; set; }
+
+        /// <summary>
+        /// Plays this sound if it's enabled.
+        /// </summary>
         public void Play()
         {
             if (!Enabled || soundEffect == null)
                 return;
+
+            if (RepeatPrevention > 0f)
+            {
+                var dtn = DateTime.Now;
+
+                if ((dtn - lastPlayTime).TotalSeconds < RepeatPrevention)
+                    return;
+
+                lastPlayTime = dtn;
+            }
 
             SoundPlayer.Play(this);
         }
@@ -70,11 +117,11 @@ namespace Rampastring.XNAUI
         public double PriorityDecayRate { get; private set; }
 
         /// <summary>
-        /// Updates the priority of the sound. Returns true if the sound effect has
-        /// stopped playing, otherwise false.
+        /// Updates the priority of the sound. Returns true if the sound effect is
+        /// still playing, otherwise false.
         /// </summary>
         /// <param name="gameTime">Tells how much time has passed since the previous frame.</param>
-        /// <returns>True if the sound effect has stopped playing, otherwise false.</returns>
+        /// <returns>True if the sound effect is still playing, otherwise false.</returns>
         public bool Update(GameTime gameTime)
         {
             Priority = Priority - PriorityDecayRate * gameTime.ElapsedGameTime.TotalSeconds;
