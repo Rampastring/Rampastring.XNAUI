@@ -24,14 +24,13 @@ namespace Rampastring.XNAUI
 
         public event EventHandler GameClosing;
 
-        public Input.Cursor Cursor;
-        public RKeyboard Keyboard;
+        public Input.Cursor Cursor { get; private set; }
+        public RKeyboard Keyboard { get; private set; }
+        public SoundPlayer SoundPlayer { get; private set; }
 
         List<XNAControl> Controls = new List<XNAControl>();
 
         List<Callback> Callbacks = new List<Callback>();
-
-        private SoundPlayer SoundPlayer;
 
         private readonly object locker = new object();
 

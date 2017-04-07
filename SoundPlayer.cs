@@ -61,6 +61,10 @@ namespace Rampastring.XNAUI
             }
 
             var soundInstance = sound.CreateSoundInstance();
+
+            if (soundInstance == null)
+                return;
+
             soundInstance.Volume = volume;
 
             var prioritizedSoundInstance = new PrioritizedSoundInstance(
