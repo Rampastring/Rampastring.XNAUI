@@ -52,8 +52,6 @@ namespace Rampastring.XNAUI.Input
         /// </summary>
         public bool RightPressedDown { get; private set; }
 
-        public bool HasFocus { get; set; }
-
         public bool Disabled { get; set; }
 
         public int ScrollWheelValue { get; set; }
@@ -102,7 +100,7 @@ namespace Rampastring.XNAUI.Input
             DrawnLocation = new Point(ms.X, ms.Y);
 #endif
 
-            if (!HasFocus || Disabled)
+            if (!windowManager.HasFocus || Disabled)
             {
                 LeftClicked = false;
                 RightClicked = false;
@@ -113,8 +111,8 @@ namespace Rampastring.XNAUI.Input
             Point location = DrawnLocation;
 
             IsOnScreen = !(location.X < 0 || location.Y < 0 ||
-                location.X > windowManager.ResolutionWidth ||
-                location.Y > windowManager.ResolutionHeight);
+                location.X > windowManager.WindowWidth ||
+                location.Y > windowManager.WindowHeight);
 
             location = new Point(location.X - windowManager.SceneXPosition, location.Y - windowManager.SceneYPosition);
             location = new Point((int)(location.X / windowManager.ScaleRatio), (int)(location.Y / windowManager.ScaleRatio));

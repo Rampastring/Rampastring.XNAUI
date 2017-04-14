@@ -15,17 +15,39 @@ using System.Diagnostics;
 
 namespace Rampastring.XNAUI
 {
+    /// <summary>
+    /// Manages the game window and all of the game's controls.
+    /// </summary>
     public class WindowManager : DrawableGameComponent
     {
+        /// <summary>
+        /// Creates a new WindowManager.
+        /// </summary>
+        /// <param name="game">The game.</param>
+        /// <param name="graphics">The game's GraphicsDeviceManager.</param>
         public WindowManager(Game game, GraphicsDeviceManager graphics) : base(game)
         {
             this.graphics = graphics;
         }
 
+        /// <summary>
+        /// Raised when the game window is closing.
+        /// </summary>
         public event EventHandler GameClosing;
 
+        /// <summary>
+        /// The input cursor.
+        /// </summary>
         public Input.Cursor Cursor { get; private set; }
+
+        /// <summary>
+        /// The keyboard.
+        /// </summary>
         public RKeyboard Keyboard { get; private set; }
+
+        /// <summary>
+        /// The SoundPlayer that is responsible for handling audio.
+        /// </summary>
         public SoundPlayer SoundPlayer { get; private set; }
 
         List<XNAControl> Controls = new List<XNAControl>();
@@ -34,32 +56,49 @@ namespace Rampastring.XNAUI
 
         private readonly object locker = new object();
 
-        int resolutionWidth = 800;
-        int resolutionHeight = 600;
-        public int ResolutionWidth
+        int windowWidth = 800;
+        int windowHeight = 600;
+
+        /// <summary>
+        /// Returns the width of the game window.
+        /// </summary>
+        public int WindowWidth
         {
-            get { return resolutionWidth; }
+            get { return windowWidth; }
         }
 
-        public int ResolutionHeight
+        /// <summary>
+        /// Returns the height of the game window.
+        /// </summary>
+        public int WindowHeight
         {
-            get { return resolutionHeight; }
+            get { return windowHeight; }
         }
 
         int renderResX = 800;
         int renderResY = 600;
 
+        /// <summary>
+        /// Returns the width of the back buffer.
+        /// </summary>
         public int RenderResolutionX
         {
             get { return renderResX; }
         }
 
+        /// <summary>
+        /// Returns the height of the back buffer.
+        /// </summary>
         public int RenderResolutionY
         {
             get { return renderResY; }
         }
 
         bool _hasFocus = true;
+
+        /// <summary>
+        /// Gets a boolean that determines whether the game window currently has input focus.
+        /// </summary>
         public bool HasFocus
         {
             get { return _hasFocus; }
@@ -72,6 +111,10 @@ namespace Rampastring.XNAUI
 
         private XNAControl _selectedControl;
 
+        /// <summary>
+        /// Gets or sets the control that is currently selected.
+        /// Usually used for controls that need input focus, like text boxes.
+        /// </summary>
         public XNAControl SelectedControl
         {
             get { return _selectedControl; }
@@ -91,11 +134,18 @@ namespace Rampastring.XNAUI
             }
         }
 
-        GraphicsDeviceManager graphics;
+        private GraphicsDeviceManager graphics;
 
-        Form gameForm;
-        RenderTarget2D renderTarget;
+        private Form gameForm;
+        private RenderTarget2D renderTarget;
+        private bool closingPrevented = false;
 
+        /// <summary>
+        /// Sets the rendering (back buffer) resolution of the game.
+        /// Does not affect the size of the actual game window.
+        /// </summary>
+        /// <param name="x">The width of the back buffer.</param>
+        /// <param name="y">The height of the back buffer.</param>
         public void SetRenderResolution(int x, int y)
         {
             renderResX = x;
@@ -109,8 +159,8 @@ namespace Rampastring.XNAUI
         /// </summary>
         private void RecalculateScaling()
         {
-            double xRatio = (resolutionWidth) / (double)renderResX;
-            double yRatio = (resolutionHeight) / (double)renderResY;
+            double xRatio = (windowWidth) / (double)renderResX;
+            double yRatio = (windowHeight) / (double)renderResY;
 
             double ratio;
 
@@ -122,16 +172,16 @@ namespace Rampastring.XNAUI
             if (xRatio > yRatio)
             {
                 ratio = yRatio;
-                textureHeight = resolutionHeight;
+                textureHeight = windowHeight;
                 textureWidth = (int)(renderResX * ratio);
-                texturePositionX = (int)(resolutionWidth - textureWidth) / 2;
+                texturePositionX = (int)(windowWidth - textureWidth) / 2;
             }
             else
             {
                 ratio = xRatio;
-                textureWidth = resolutionWidth;
+                textureWidth = windowWidth;
                 textureHeight = (int)(renderResY * ratio);
-                texturePositionY = (int)(resolutionHeight - textureHeight) / 2;
+                texturePositionY = (int)(windowHeight - textureHeight) / 2;
             }
 
             ScaleRatio = ratio;
@@ -142,12 +192,18 @@ namespace Rampastring.XNAUI
                 DepthFormat.None, 0, RenderTargetUsage.PreserveContents);
         }
 
+        /// <summary>
+        /// Closes the game.
+        /// </summary>
         public void CloseGame()
         {
             GameClosing?.Invoke(this, EventArgs.Empty);
             Game.Exit();
         }
 
+        /// <summary>
+        /// Restarts the game.
+        /// </summary>
         public void RestartGame()
         {
             Logger.Log("Restarting game.");
@@ -165,6 +221,11 @@ namespace Rampastring.XNAUI
 #endif
         }
 
+        /// <summary>
+        /// Initializes the WindowManager.
+        /// </summary>
+        /// <param name="content">The game content manager.</param>
+        /// <param name="contentPath">The path where the ContentManager should load files from (including SpriteFont files).</param>
         public void Initialize(ContentManager content, string contentPath)
         {
             base.Initialize();
@@ -234,22 +295,39 @@ namespace Rampastring.XNAUI
             Controls.Insert(0, control);
         }
 
+        /// <summary>
+        /// Centers a control on the game window.
+        /// </summary>
+        /// <param name="control">The control to center.</param>
         public void CenterControlOnScreen(XNAControl control)
         {
             control.ClientRectangle = new Rectangle((RenderResolutionX - control.ClientRectangle.Width) / 2,
                 (RenderResolutionY - control.ClientRectangle.Height) / 2, control.ClientRectangle.Width, control.ClientRectangle.Height);
         }
 
+        /// <summary>
+        /// Centers the game window on the screen.
+        /// </summary>
         public void CenterOnScreen()
         {
+            int x = (Screen.PrimaryScreen.Bounds.Width - Game.Window.ClientBounds.Width) / 2;
+            int y = (Screen.PrimaryScreen.Bounds.Height - Game.Window.ClientBounds.Height) / 2;
+
+#if XNA
             if (gameForm == null)
                 return;
 
-            gameForm.DesktopLocation = new System.Drawing.Point(
-                (Screen.PrimaryScreen.Bounds.Width - gameForm.Size.Width) / 2,
-                (Screen.PrimaryScreen.Bounds.Height - gameForm.Size.Height) / 2);
+            gameForm.DesktopLocation = new System.Drawing.Point(x, y);
+#else
+            Game.Window.Position = new Microsoft.Xna.Framework.Point(x, y);
+#endif
         }
 
+        /// <summary>
+        /// Enables or disables borderless windowed mode.
+        /// </summary>
+        /// <param name="value">A boolean that determines whether borderless 
+        /// windowed mode should be enabled.</param>
         public void SetBorderlessMode(bool value)
         {
 
@@ -295,6 +373,9 @@ namespace Rampastring.XNAUI
             gameForm.Show();
         }
 
+        /// <summary>
+        /// Flashes the game window on the taskbar (Windows only).
+        /// </summary>
         public void FlashWindow()
         {
             if (gameForm == null)
@@ -303,22 +384,23 @@ namespace Rampastring.XNAUI
             WindowFlasher.FlashWindowEx(gameForm);
         }
 
+        /// <summary>
+        /// Sets the icon of the game window to an icon that exists on a specific
+        /// file path.
+        /// </summary>
+        /// <param name="path">The path to the icon file.</param>
         public void SetIcon(string path)
         {
             if (gameForm == null)
                 return;
-
+            
             gameForm.Icon = Icon.ExtractAssociatedIcon(path);
         }
 
-        public void SetWindowTitle(string title)
-        {
-            if (gameForm == null)
-                return;
-
-            gameForm.Text = title;
-        }
-
+        /// <summary>
+        /// Returns the IntPtr handle of the game window on Windows.
+        /// On other platforms, returns IntPtr.Zero.
+        /// </summary>
         public IntPtr GetWindowHandle()
         {
             if (gameForm == null)
@@ -339,12 +421,17 @@ namespace Rampastring.XNAUI
             gameForm.ControlBox = value;
         }
 
+        /// <summary>
+        /// Prevents the user from closing the game form by Alt-F4.
+        /// </summary>
         public void PreventClosing()
         {
             if (gameForm == null)
                 return;
 
-            gameForm.FormClosing += GameForm_FormClosing;
+            if (!closingPrevented)
+                gameForm.FormClosing += GameForm_FormClosing;
+            closingPrevented = true;
         }
 
         private void GameForm_FormClosing(object sender, FormClosingEventArgs e)
@@ -352,12 +439,16 @@ namespace Rampastring.XNAUI
             e.Cancel = true;
         }
 
+        /// <summary>
+        /// Allows the user to close the game form by Alt-F4.
+        /// </summary>
         public void AllowClosing()
         {
             if (gameForm == null)
                 return;
 
             gameForm.FormClosing -= GameForm_FormClosing;
+            closingPrevented = false;
         }
 
         public void RemoveControl(XNAControl control)
@@ -365,6 +456,10 @@ namespace Rampastring.XNAUI
             Controls.Remove(control);
         }
 
+        /// <summary>
+        /// Enables or disables VSync.
+        /// </summary>
+        /// <param name="value">A boolean that determines whether VSync should be enabled or disabled.</param>
         public void SetVSync(bool value)
         {
             graphics.SynchronizeWithVerticalRetrace = value;
@@ -387,8 +482,8 @@ namespace Rampastring.XNAUI
         public bool InitGraphicsMode(int iWidth, int iHeight, bool bFullScreen)
         {
             Logger.Log("InitGraphicsMode: " + iWidth + "x" + iHeight);
-            resolutionWidth = iWidth;
-            resolutionHeight = iHeight;
+            windowWidth = iWidth;
+            windowHeight = iHeight;
             // If we aren't using a full screen mode, the height and width of the window can
             // be set to anything equal to or smaller than the actual screen size.
             if (bFullScreen == false)
@@ -429,14 +524,14 @@ namespace Rampastring.XNAUI
             return false;
         }
 
+        /// <summary>
+        /// Updates the WindowManager. Do not call manually; MonoGame will call 
+        /// this automatically on every game frame.
+        /// </summary>
+        /// <param name="gameTime">Provides a snapshot of timing values.</param>
         public override void Update(GameTime gameTime)
         {
-#if WINDOWSGL
-            _hasFocus = true;
-#else
-            _hasFocus = gameForm == null || (System.Windows.Forms.Form.ActiveForm != null);
-#endif
-            Cursor.HasFocus = _hasFocus;
+            _hasFocus = Game.IsActive;
 
             lock (locker)
             {
@@ -478,6 +573,11 @@ namespace Rampastring.XNAUI
             base.Update(gameTime);
         }
 
+        /// <summary>
+        /// Draws all the visible controls in the WindowManager.
+        /// Do not call manually; MonoGame calls this automatically.
+        /// </summary>
+        /// <param name="gameTime">Provides a snapshot of timing values.</param>
         public override void Draw(GameTime gameTime)
         {
             GraphicsDevice.SetRenderTarget(renderTarget);
@@ -507,13 +607,8 @@ namespace Rampastring.XNAUI
 
             Renderer.BeginDraw();
 
-            //Renderer.DrawTexture(renderTarget, Vector2.Zero, 0.02f, Vector2.Zero, new Vector2(1f, 1f), Color.White);
-
             Renderer.DrawTexture(renderTarget, new Rectangle(SceneXPosition, SceneYPosition,
-                resolutionWidth - (SceneXPosition * 2), resolutionHeight - (SceneYPosition * 2)), Color.White);
-
-            //if (!String.IsNullOrEmpty(activeControlText))
-            //    Renderer.DrawStringWithShadow(activeControlText, 0, Vector2.Zero, Color.White);
+                windowWidth - (SceneXPosition * 2), windowHeight - (SceneYPosition * 2)), Color.White);
 
             if (Cursor.Visible)
                 Cursor.Draw(gameTime);
