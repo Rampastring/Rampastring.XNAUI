@@ -531,7 +531,7 @@ namespace Rampastring.XNAUI
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         public override void Update(GameTime gameTime)
         {
-            _hasFocus = Game.IsActive;
+            _hasFocus = gameForm == null ? Game.IsActive : (Form.ActiveForm != null);
 
             lock (locker)
             {
