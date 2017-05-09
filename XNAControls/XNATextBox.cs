@@ -18,6 +18,10 @@ namespace Rampastring.XNAUI.XNAControls
         protected const double BAR_ON_TIME = 0.5;
         protected const double BAR_OFF_TIME = 0.5;
 
+        /// <summary>
+        /// Creates a new XNATextBox.
+        /// </summary>
+        /// <param name="windowManager">The WindowManager that will be associated with this control.</param>
         public XNATextBox(WindowManager windowManager) : base(windowManager)
         {
             IdleBorderColor = UISettings.PanelBorderColor;
@@ -26,27 +30,59 @@ namespace Rampastring.XNAUI.XNAControls
             BackColor = UISettings.BackgroundColor;
         }
 
+        /// <summary>
+        /// Raised when the user presses the Enter key while this text box is the
+        /// selected control.
+        /// </summary>
         public event EventHandler EnterPressed;
+
+        /// <summary>
+        /// Raised when the text box receives input that changes its text.
+        /// </summary>
         public event EventHandler InputReceived;
+
+        /// <summary>
+        /// Raised whenever the text of the text box is changed, by the user or
+        /// programmatically.
+        /// </summary>
+        public event EventHandler TextChanged;
 
         public virtual Color TextColor { get; set; }
 
+        /// <summary>
+        /// The color of the text box border when the text box is inactive.
+        /// </summary>
         public Color IdleBorderColor { get; set; }
 
+        /// <summary>
+        /// The color of the text box border when the text box is selected.
+        /// </summary>
         public Color ActiveBorderColor { get; set; }
 
+        /// <summary>
+        /// The color of the text box background.
+        /// </summary>
         public Color BackColor { get; set; }
 
+        /// <summary>
+        /// The index of the spritefont that this textbox uses.
+        /// </summary>
         public int FontIndex { get; set; }
 
         private int _maximumTextLength = int.MaxValue;
 
+        /// <summary>
+        /// The maximum length of the text of this text box, in characters.
+        /// </summary>
         public int MaximumTextLength
         {
             get { return _maximumTextLength; }
             set { _maximumTextLength = value; }
         }
 
+        /// <summary>
+        /// The text on the text box.
+        /// </summary>
         public override string Text
         {
             get
@@ -75,6 +111,8 @@ namespace Rampastring.XNAUI.XNAControls
                         break;
                     }
                 }
+
+                TextChanged?.Invoke(this, EventArgs.Empty);
             }
         }
 
@@ -102,6 +140,9 @@ namespace Rampastring.XNAUI.XNAControls
         private TimeSpan timeSinceLastScroll = TimeSpan.Zero;
         private bool isScrollingQuickly = false;
 
+        /// <summary>
+        /// Initializes the text box.
+        /// </summary>
         public override void Initialize()
         {
             base.Initialize();
@@ -234,6 +275,7 @@ namespace Rampastring.XNAUI.XNAControls
                     {
                         System.Windows.Forms.Clipboard.SetText(text);
                         Text = string.Empty;
+                        InputReceived?.Invoke(this, EventArgs.Empty);
                     }
 
                     break;
@@ -242,6 +284,7 @@ namespace Rampastring.XNAUI.XNAControls
                         break;
 
                     Text = Text + Renderer.GetSafeString(System.Windows.Forms.Clipboard.GetText(), FontIndex);
+                    InputReceived?.Invoke(this, EventArgs.Empty);
 
                     goto case Keys.End;
                 case Keys.C:
@@ -257,9 +300,8 @@ namespace Rampastring.XNAUI.XNAControls
                     break;
                 case Keys.Escape:
                     InputPosition = 0;
-                    text = string.Empty;
-                    TextStartPosition = 0;
-                    TextEndPosition = 0;
+                    Text = string.Empty;
+                    InputReceived?.Invoke(this, EventArgs.Empty);
                     break;
             }
         }
