@@ -115,7 +115,7 @@ namespace Rampastring.XNAUI
             //bs.AlphaDestinationBlend = Blend.DestinationAlpha;
             //bs.ColorDestinationBlend = Blend.DestinationAlpha;
 
-            SpriteBatch.Begin(SpriteSortMode.Deferred, BlendState.NonPremultiplied);
+            SpriteBatch.Begin(SpriteSortMode.Deferred, BlendState.NonPremultiplied, ss, DepthStencilState.Default, RasterizerState.CullNone);
 #else
             bs.AlphaDestinationBlend = Blend.One;
             bs.ColorDestinationBlend = Blend.InverseSourceAlpha;

@@ -1,5 +1,6 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Media;
+using Rampastring.Tools;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -27,7 +28,16 @@ namespace Rampastring.XNAUI
         public void SetVolume(float volume)
         {
             Volume = volume;
-            MediaPlayer.Volume = volume;
+
+            try
+            {
+                MediaPlayer.Volume = volume;
+                AudioMaster.SetVolume(volume);
+            }
+            catch (Exception ex)
+            {
+                Logger.Log("SoundPlayer exception when setting volume: " + ex.Message);
+            }
         }
 
         /// <summary>

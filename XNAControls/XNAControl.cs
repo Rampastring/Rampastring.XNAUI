@@ -128,6 +128,11 @@ namespace Rampastring.XNAUI.XNAControls
         public bool Focused { get; set; }
 
         bool _inputEnabled = true;
+        
+        /// <summary>
+        /// Determines whether this control is able to handle input.
+        /// If set to false, input management will ignore this control.
+        /// </summary>
         public bool InputEnabled
         {
             get { return _inputEnabled; }
