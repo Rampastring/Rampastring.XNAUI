@@ -9,12 +9,19 @@ using System.Globalization;
 
 namespace Rampastring.XNAUI.XNAControls
 {
+    /// <summary>
+    /// A list box.
+    /// </summary>
     public class XNAListBox : XNAPanel
     {
         private const int ITEM_TEXT_TEXTURE_MARGIN = 2;
         private const double SCROLL_REPEAT_TIME = 0.03;
         private const double FAST_SCROLL_TRIGGER_TIME = 0.4;
 
+        /// <summary>
+        /// Creates a new list box instance.
+        /// </summary>
+        /// <param name="windowManager"></param>
         public XNAListBox(WindowManager windowManager) : base(windowManager)
         {
             FocusColor = UISettings.FocusColor;
@@ -397,7 +404,10 @@ namespace Rampastring.XNAUI.XNAControls
             AddChild(scrollBar);
             scrollBar.Refresh();
 
-            Parent.ClientRectangleUpdated += Parent_ClientRectangleUpdated;
+            ParentChanged += Parent_ClientRectangleUpdated;
+
+            if (Parent != null)
+                Parent.ClientRectangleUpdated += Parent_ClientRectangleUpdated;
         }
 
         private void Parent_ClientRectangleUpdated(object sender, EventArgs e)

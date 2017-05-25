@@ -41,6 +41,8 @@ namespace Rampastring.XNAUI.XNAControls
 
         public event EventHandler SelectedChanged;
 
+        public event EventHandler ParentChanged;
+
         #endregion
 
         WindowManager _windowManager;
@@ -54,7 +56,18 @@ namespace Rampastring.XNAUI.XNAControls
         }
 
         #region Public members
-        public XNAControl Parent { get; set; }
+
+        private XNAControl parent;
+
+        public XNAControl Parent
+        {
+            get { return parent; }
+            set
+            {
+                parent = value;
+                ParentChanged?.Invoke(this, EventArgs.Empty);
+            }
+        }
 
         public Cursor Cursor;
         public RKeyboard Keyboard;
