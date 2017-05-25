@@ -320,7 +320,19 @@ namespace Rampastring.XNAUI.XNAControls
             }
 
             if (listBoxItem.Texture != null)
-                width -= listBoxItem.Texture.Width + ITEM_TEXT_TEXTURE_MARGIN;
+            {
+                int textureHeight = listBoxItem.Texture.Height;
+                int textureWidth = listBoxItem.Texture.Width;
+
+                if (listBoxItem.Texture.Height > LineHeight)
+                {
+                    double scaleRatio = textureHeight / (double)LineHeight;
+                    textureHeight = LineHeight;
+                    textureWidth = (int)(textureWidth / scaleRatio);
+                }
+
+                width -= textureWidth + ITEM_TEXT_TEXTURE_MARGIN;
+            }
 
             // Apply word wrap if needed
             List<string> textLines = Renderer.GetFixedTextLines(listBoxItem.Text, FontIndex, width);
@@ -772,18 +784,23 @@ namespace Rampastring.XNAUI.XNAControls
                 if (lbItem.Texture != null)
                 {
                     int textureHeight = lbItem.Texture.Height;
+                    int textureWidth = lbItem.Texture.Width;
                     int textureYPosition = 0;
 
                     if (lbItem.Texture.Height > LineHeight)
+                    {
+                        double scaleRatio = textureHeight / (double)LineHeight;
                         textureHeight = LineHeight;
+                        textureWidth = (int)(textureWidth / scaleRatio);
+                    }
                     else
                         textureYPosition = (LineHeight - textureHeight) / 2;
 
                     Renderer.DrawTexture(lbItem.Texture,
                         new Rectangle(windowRectangle.X + x, windowRectangle.Y + height + textureYPosition, 
-                        lbItem.Texture.Width, textureHeight), Color.White);
+                        textureWidth, textureHeight), Color.White);
 
-                    x += lbItem.Texture.Width + 2;
+                    x += textureWidth + 2;
                 }
 
                 x += lbItem.TextXPadding;
