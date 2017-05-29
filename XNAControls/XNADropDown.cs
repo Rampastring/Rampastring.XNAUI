@@ -404,8 +404,8 @@ namespace Rampastring.XNAUI.XNAControls
                         else
                             textColor = DisabledItemColor;
 
-                        
-                        Renderer.DrawStringWithShadow(item.Text, FontIndex, new Vector2(wr.X + textX, y + 1), textColor);
+                        if (item.Text != null)
+                            Renderer.DrawStringWithShadow(item.Text, FontIndex, new Vector2(wr.X + textX, y + 1), textColor);
                     }
                 }
                 else

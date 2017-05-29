@@ -15,17 +15,34 @@ namespace Rampastring.XNAUI.XNAControls
         public int Index { get; set; }
     }
 
+    /// <summary>
+    /// A context menu.
+    /// </summary>
     public class XNAContextMenu : XNAControl
     {
+        /// <summary>
+        /// Creates a new context menu.
+        /// </summary>
+        /// <param name="windowManager">The WindowManager associated with this context menu.</param>
         public XNAContextMenu(WindowManager windowManager) : base(windowManager)
         {
+            Height = 2;
             BorderColor = UISettings.PanelBorderColor;
             FocusColor = UISettings.FocusColor;
             BackColor = UISettings.BackgroundColor;
             DisabledItemColor = Color.Gray;
         }
 
+        /// <summary>
+        /// A delegate for handling context menu option selections.
+        /// </summary>
+        /// <param name="sender">The sender of the event.</param>
+        /// <param name="e">EventArgs.</param>
         public delegate void OptionSelectedEventHandler(object sender, ContextMenuOptionEventArgs e);
+
+        /// <summary>
+        /// Raised when the user has selected an option from the context menu.
+        /// </summary>
         public event OptionSelectedEventHandler OptionSelected;
 
         int _itemHeight = 17;
