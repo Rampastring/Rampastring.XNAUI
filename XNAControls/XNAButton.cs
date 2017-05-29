@@ -184,6 +184,8 @@ namespace Rampastring.XNAUI.XNAControls
 
         public override void Initialize()
         {
+            base.Initialize();
+
             if (IdleTexture != null)
             {
                 ClientRectangle = new Rectangle(ClientRectangle.X, ClientRectangle.Y,
