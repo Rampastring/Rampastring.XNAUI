@@ -13,6 +13,10 @@ namespace Rampastring.XNAUI.XNAControls
     {
         const double DOUBLE_CLICK_TIME = 1.0;
 
+        /// <summary>
+        /// Creates a new control instance.
+        /// </summary>
+        /// <param name="windowManager">The WindowManager associated with this control.</param>
         public XNAControl(WindowManager windowManager) : base(windowManager.Game)
         {
             _windowManager = windowManager;
@@ -59,6 +63,9 @@ namespace Rampastring.XNAUI.XNAControls
 
         private XNAControl parent;
 
+        /// <summary>
+        /// Gets or sets the parent of this control.
+        /// </summary>
         public XNAControl Parent
         {
             get { return parent; }
@@ -72,10 +79,17 @@ namespace Rampastring.XNAUI.XNAControls
         public Cursor Cursor;
         public RKeyboard Keyboard;
 
+        /// <summary>
+        /// A list of the control's children. Don't add children to this list directly;
+        /// call the AddChild method instead.
+        /// </summary>
         public List<XNAControl> Children = new List<XNAControl>();
 
+        /// <summary>
+        /// Gets or sets the name of this control. The name is only an identifier
+        /// and does not affect functionality.
+        /// </summary>
         public string Name { get; set; }
-
 
         private Rectangle _clientRectangle;
 
@@ -94,6 +108,42 @@ namespace Rampastring.XNAUI.XNAControls
 
                 ClientRectangleUpdated?.Invoke(this, EventArgs.Empty);
             }
+        }
+
+        /// <summary>
+        /// Shortcut for accessing and changing ClientRectangle.X.
+        /// </summary>
+        public int X
+        {
+            get { return ClientRectangle.X; }
+            set { ClientRectangle = new Rectangle(value, ClientRectangle.Y, ClientRectangle.Width, ClientRectangle.Height); }
+        }
+
+        /// <summary>
+        /// Shortcut for accessing and changing ClientRectangle.Y.
+        /// </summary>
+        public int Y
+        {
+            get { return ClientRectangle.Y; }
+            set { ClientRectangle = new Rectangle(ClientRectangle.X, value, ClientRectangle.Width, ClientRectangle.Height); }
+        }
+
+        /// <summary>
+        /// Shortcut for accessing and changing ClientRectangle.Width.
+        /// </summary>
+        public int Width
+        {
+            get { return ClientRectangle.Width; }
+            set { ClientRectangle = new Rectangle(ClientRectangle.X, ClientRectangle.Y, value, ClientRectangle.Height); }
+        }
+
+        /// <summary>
+        /// Shortcut for accessing and changing ClientRectangle.Height.
+        /// </summary>
+        public int Height
+        {
+            get { return ClientRectangle.Height; }
+            set { ClientRectangle = new Rectangle(ClientRectangle.X, ClientRectangle.Y, ClientRectangle.Width, value); }
         }
 
         Color remapColor = Color.White;

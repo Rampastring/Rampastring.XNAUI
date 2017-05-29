@@ -109,8 +109,6 @@ namespace Rampastring.XNAUI
         {
             BlendState bs = new BlendState();
 
-
-
 #if XNA
             //bs.AlphaDestinationBlend = Blend.DestinationAlpha;
             //bs.ColorDestinationBlend = Blend.DestinationAlpha;
