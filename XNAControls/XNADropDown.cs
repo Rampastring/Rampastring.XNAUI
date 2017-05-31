@@ -363,7 +363,8 @@ namespace Rampastring.XNAUI.XNAControls
                     textX += item.Texture.Width + 1;
                 }
 
-                Renderer.DrawStringWithShadow(item.Text, FontIndex, new Vector2(wr.X + textX, wr.Y + 2), item.TextColor);
+                if (item.Text != null)
+                    Renderer.DrawStringWithShadow(item.Text, FontIndex, new Vector2(wr.X + textX, wr.Y + 2), item.TextColor);
             }
 
             if (AllowDropDown)
