@@ -8,22 +8,36 @@ using System.Collections.Generic;
 namespace Rampastring.XNAUI.XNAControls
 {
     /// <summary>
-    /// A drop-down.
+    /// A drop-down control.
     /// </summary>
     public class XNADropDown : XNAControl
     {
+        /// <summary>
+        /// Creates a new drop-down control.
+        /// </summary>
+        /// <param name="windowManager">The WindowManager associated with this control.</param>
         public XNADropDown(WindowManager windowManager) : base(windowManager)
         {
             BorderColor = UISettings.PanelBorderColor;
             FocusColor = UISettings.FocusColor;
             BackColor = UISettings.BackgroundColor;
             DisabledItemColor = Color.Gray;
+            Height = ItemHeight + 2;
         }
 
         public delegate void SelectedIndexChangedEventHandler(object sender, EventArgs e);
         public event SelectedIndexChangedEventHandler SelectedIndexChanged;
 
+        /// <summary>
+        /// Raised when the user re-selects an already selected drop-down item.
+        /// </summary>
+        public event EventHandler IndexReselected;
+
         int _itemHeight = 17;
+
+        /// <summary>
+        /// The height of drop-down items.
+        /// </summary>
         public int ItemHeight
         {
             get { return _itemHeight; }
@@ -71,8 +85,10 @@ namespace Rampastring.XNAUI.XNAControls
 
                 _selectedIndex = value;
 
-                if (value != oldSelectedIndex && SelectedIndexChanged != null)
-                    SelectedIndexChanged(this, EventArgs.Empty);
+                if (value != oldSelectedIndex)
+                    SelectedIndexChanged?.Invoke(this, EventArgs.Empty);
+                else
+                    IndexReselected?.Invoke(this, EventArgs.Empty);
             }
         }
 

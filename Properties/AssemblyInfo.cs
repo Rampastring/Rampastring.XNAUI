@@ -9,7 +9,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Rampastring")]
 [assembly: AssemblyProduct("Rampastring.XNAUI")]
-[assembly: AssemblyCopyright("Copyright © Rami 'Rampastring' Pasanen 2016")]
+[assembly: AssemblyCopyright("Copyright © Rami 'Rampastring' Pasanen 2016-2017")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 

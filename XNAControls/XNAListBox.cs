@@ -800,7 +800,7 @@ namespace Rampastring.XNAUI.XNAControls
                         new Rectangle(windowRectangle.X + x, windowRectangle.Y + height + textureYPosition, 
                         textureWidth, textureHeight), Color.White);
 
-                    x += textureWidth + 2;
+                    x += textureWidth + ITEM_TEXT_TEXTURE_MARGIN;
                 }
 
                 x += lbItem.TextXPadding;
