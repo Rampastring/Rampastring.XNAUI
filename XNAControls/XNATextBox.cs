@@ -194,6 +194,9 @@ namespace Rampastring.XNAUI.XNAControls
                     if (Renderer.GetSafeString(character.ToString(), FontIndex) != character.ToString())
                         break;
 
+                    if (!AllowCharacterInput(character))
+                        break;
+
                     text = text.Insert(InputPosition, character.ToString());
                     InputPosition++;
 
@@ -214,6 +217,16 @@ namespace Rampastring.XNAUI.XNAControls
             barTimer = TimeSpan.Zero;
 
             InputReceived?.Invoke(this, EventArgs.Empty);
+        }
+
+        /// <summary>
+        /// Determines if the user is allowed to type a specific character into the textbox.
+        /// </summary>
+        /// <param name="character">The character.</param>
+        protected virtual bool AllowCharacterInput(char character)
+        {
+            // Allow all characters by default
+            return true;
         }
 
         private void Keyboard_OnKeyPressed(object sender, KeyPressEventArgs e)
