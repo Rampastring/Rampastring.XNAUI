@@ -113,7 +113,18 @@ namespace Rampastring.XNAUI.XNAControls
         public int TextXPosition { get; set; }
         public int TextYPosition { get; set; }
 
-        public Color TextColorIdle { get; set; }
+        private Color _textColorIdle;
+
+        public Color TextColorIdle
+        {
+            get { return _textColorIdle; }
+            set
+            {
+                _textColorIdle = value;
+                if (!IsActive)
+                    textColor = _textColorIdle;
+            }
+        }
 
         public Color TextColorHover { get; set; }
 
