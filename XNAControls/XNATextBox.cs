@@ -3,6 +3,7 @@ using Microsoft.Xna.Framework.Input;
 using Rampastring.XNAUI.Input;
 using System;
 using System.Text;
+using System.Text.RegularExpressions;
 
 namespace Rampastring.XNAUI.XNAControls
 {
@@ -296,7 +297,10 @@ namespace Rampastring.XNAUI.XNAControls
                     if (!Keyboard.IsCtrlHeldDown())
                         break;
 
-                    Text = Text + Renderer.GetSafeString(System.Windows.Forms.Clipboard.GetText(), FontIndex);
+                    // Replace newlines with spaces
+                    // https://stackoverflow.com/questions/238002/replace-line-breaks-in-a-string-c-sharp
+                    string textToAdd = Regex.Replace(System.Windows.Forms.Clipboard.GetText(), @"\r\n?|\n", " ");
+                    Text = Text + Renderer.GetSafeString(textToAdd, FontIndex);
                     InputReceived?.Invoke(this, EventArgs.Empty);
 
                     goto case Keys.End;
