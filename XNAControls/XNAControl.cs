@@ -146,6 +146,22 @@ namespace Rampastring.XNAUI.XNAControls
             set { ClientRectangle = new Rectangle(ClientRectangle.X, ClientRectangle.Y, ClientRectangle.Width, value); }
         }
 
+        /// <summary>
+        /// Shortcut for accessing ClientRectangle.Bottom.
+        /// </summary>
+        public int Bottom
+        {
+            get { return ClientRectangle.Bottom; }
+        }
+
+        /// <summary>
+        /// Shortcut for accessing ClientRectangle.Right.
+        /// </summary>
+        public int Right
+        {
+            get { return ClientRectangle.Right; }
+        }
+
         Color remapColor = Color.White;
         public Color RemapColor
         {
