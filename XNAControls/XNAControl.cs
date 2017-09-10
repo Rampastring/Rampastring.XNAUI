@@ -321,6 +321,23 @@ namespace Rampastring.XNAUI.XNAControls
         }
 
         /// <summary>
+        /// Centers the control horizontally on the middle of its parent's client rectangle.
+        /// </summary>
+        public void CenterOnParentHorizontally()
+        {
+            if (Parent == null)
+            {
+                // TODO WindowManager.CenterControlOnScreenHorizontally();
+                return;
+            }
+
+            Rectangle parentRectangle = Parent.ClientRectangle;
+
+            ClientRectangle = new Rectangle((Parent.Width - Width) / 2,
+                Y, Width, Height);
+        }
+
+        /// <summary>
         /// Gets the cursor's location relative to this control's location.
         /// </summary>
         /// <returns>A point that represents the cursor's location relative to this control's location.</returns>
