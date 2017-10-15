@@ -32,6 +32,7 @@ namespace Rampastring.XNAUI
             return volume;
         }
 
+        [Obsolete("AudioMaster is deprecated, please look into SoundPlayer and PrioritizedSound instead.")]
         public static void PlaySound(SoundEffectInstance seInstance)
         {
             if (DisableSounds)

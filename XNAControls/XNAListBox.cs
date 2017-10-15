@@ -427,6 +427,14 @@ namespace Rampastring.XNAUI.XNAControls
             scrollBar.Refresh();
         }
 
+        /// <summary>
+        /// Returns the width of the list box's scroll bar.
+        /// </summary>
+        public int GetScrollBarWidth()
+        {
+            return scrollBar.Width;
+        }
+
         private void ScrollBar_ScrolledToBottom(object sender, EventArgs e)
         {
             ScrollToBottom();
