@@ -11,14 +11,25 @@ namespace Rampastring.XNAUI.XNAControls
     /// </summary>
     public class XNATimerControl : XNAControl
     {
+        /// <summary>
+        /// Raised after the time specified in Interval has passed.
+        /// </summary>
         public event EventHandler TimeElapsed;
 
+        /// <summary>
+        /// Creates a new timer.
+        /// </summary>
+        /// <param name="windowManager">The WindowManager associated with this control.</param>
         public XNATimerControl(WindowManager windowManager) : base(windowManager)
         {
             Visible = false;
         }
 
         private TimeSpan _interval;
+
+        /// <summary>
+        /// The interval after which the TimeElapsed event is raised.
+        /// </summary>
         public TimeSpan Interval
         {
             get { return _interval; }
@@ -34,6 +45,10 @@ namespace Rampastring.XNAUI.XNAControls
         private TimeSpan currentInterval;
         private bool timerEnabled;
 
+        /// <summary>
+        /// Updates the timer.
+        /// </summary>
+        /// <param name="gameTime">Provides a snapshot of timing values.</param>
         public override void Update(GameTime gameTime)
         {
             base.Update(gameTime);
@@ -49,6 +64,8 @@ namespace Rampastring.XNAUI.XNAControls
 
                 if (AutoReset)
                     currentInterval = Interval;
+                else
+                    timerEnabled = false;
             }
         }
 
@@ -105,6 +122,9 @@ namespace Rampastring.XNAUI.XNAControls
             return currentInterval;
         }
 
+        /// <summary>
+        /// A dummy draw function. Doesn't actually do anything.
+        /// </summary>
         public override void Draw(GameTime gameTime)
         {
             // Do nothing
