@@ -143,6 +143,7 @@
   <ItemGroup>
     <Compile Include="AssetLoader.cs" />
     <Compile Include="AudioMaster.cs" />
+    <Compile Include="GUICreator.cs" />
     <Compile Include="NativeMethods.cs" />
     <Compile Include="PrioritizedSound.cs" />
     <Compile Include="SoundPlayer.cs" />

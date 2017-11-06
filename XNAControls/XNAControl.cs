@@ -417,40 +417,40 @@ namespace Rampastring.XNAUI.XNAControls
                     string[] size = value.Split(',');
                     ClientRectangle = new Rectangle(ClientRectangle.X, ClientRectangle.Y,
                         Int32.Parse(size[0]), Int32.Parse(size[1]));
-                    break;
+                    return;
                 case "Location":
                     string[] location = value.Split(',');
                     ClientRectangle = new Rectangle(Int32.Parse(location[0]), Int32.Parse(location[1]),
                         ClientRectangle.Width, ClientRectangle.Height);
-                    break;
+                    return;
                 case "RemapColor":
                     string[] colors = value.Split(',');
                     RemapColor = new Color(Int32.Parse(colors[0]), Int32.Parse(colors[1]), Int32.Parse(colors[2]), 255);
-                    break;
+                    return;
                 case "Text":
                     Text = value.Replace("@", Environment.NewLine);
-                    break;
+                    return;
                 case "Visible":
                     Visible = Conversions.BooleanFromString(value, true);
                     Enabled = Visible;
-                    break;
+                    return;
                 case "Enabled":
                     Enabled = Conversions.BooleanFromString(value, true);
-                    break;
+                    return;
                 case "DistanceFromRightBorder":
                     if (Parent != null)
                     {
                         ClientRectangle = new Rectangle(Parent.ClientRectangle.Width - ClientRectangle.Width - Conversions.IntFromString(value, 0),
                             ClientRectangle.Y, ClientRectangle.Width, ClientRectangle.Height);
                     }
-                    break;
+                    return;
                 case "DistanceFromBottomBorder":
                     if (Parent != null)
                     {
                         ClientRectangle = new Rectangle(ClientRectangle.X, Parent.ClientRectangle.Height - ClientRectangle.Height - Conversions.IntFromString(value, 0),
                             ClientRectangle.Width, ClientRectangle.Height);
                     }
-                    break;
+                    return;
                 case "FillWidth":
                     if (Parent != null)
                     {
@@ -463,7 +463,7 @@ namespace Rampastring.XNAUI.XNAControls
                             WindowManager.RenderResolutionX - ClientRectangle.X - Conversions.IntFromString(value, 0),
                             ClientRectangle.Height);
                     }
-                    break;
+                    return;
                 case "FillHeight":
                     if (Parent != null)
                     {
@@ -476,7 +476,7 @@ namespace Rampastring.XNAUI.XNAControls
                             ClientRectangle.Width,
                             WindowManager.RenderResolutionY - ClientRectangle.Y - Conversions.IntFromString(value, 0));
                     }
-                    break;
+                    return;
             }
         }
 
