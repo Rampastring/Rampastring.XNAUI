@@ -65,6 +65,18 @@ namespace Rampastring.XNAUI.XNAControls
             set { _allowMultiLineItems = value; }
         }
 
+        private bool _allowKeyboardInput = true;
+
+        /// <summary>
+        /// If set to true, the user is able to scroll the listbox items
+        /// by using keyboard keys.
+        /// </summary>
+        public bool AllowKeyboardInput
+        {
+            get { return _allowKeyboardInput; }
+            set { _allowKeyboardInput = false; }
+        }
+
         int _itemBorderDistance = 3;
         public int TextBorderDistance
         {
@@ -477,7 +489,7 @@ namespace Rampastring.XNAUI.XNAControls
         /// <param name="character">The entered character.</param>
         private void HandleCharInput(char character)
         {
-            if (WindowManager.SelectedControl != this || !Enabled || !Parent.Enabled || !WindowManager.HasFocus)
+            if (WindowManager.SelectedControl != this || !Enabled || !Parent.Enabled || !WindowManager.HasFocus || !AllowKeyboardInput)
                 return;
 
             string charString = character.ToString();
@@ -514,7 +526,7 @@ namespace Rampastring.XNAUI.XNAControls
                     lbItem.Alpha += ItemAlphaRate;
             }
 
-            if (IsActive)
+            if (IsActive && AllowKeyboardInput)
             {
                 if (Keyboard.IsKeyHeldDown(Keys.Up))
                 {
