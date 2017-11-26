@@ -74,7 +74,7 @@ namespace Rampastring.XNAUI.XNAControls
         public bool AllowKeyboardInput
         {
             get { return _allowKeyboardInput; }
-            set { _allowKeyboardInput = false; }
+            set { _allowKeyboardInput = value; }
         }
 
         int _itemBorderDistance = 3;
