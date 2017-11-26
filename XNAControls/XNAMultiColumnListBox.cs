@@ -62,15 +62,19 @@ namespace Rampastring.XNAUI.XNAControls
 
         }
 
+        private bool _allowKeyboardInput = false;
+
         /// <summary>
         /// If set to true, the user is able to scroll the listbox items
         /// by using keyboard keys.
         /// </summary>
         public bool AllowKeyboardInput
         {
-            get { return listBoxes[0].AllowKeyboardInput; }
+            get { return _allowKeyboardInput; }
             set
             {
+                _allowKeyboardInput = value;
+
                 foreach (XNAListBox lb in listBoxes)
                     lb.AllowKeyboardInput = value;
             }
@@ -225,7 +229,7 @@ namespace Rampastring.XNAUI.XNAControls
             listBox.TopIndexChanged += ListBox_TopIndexChanged;
             listBox.SelectedIndexChanged += ListBox_SelectedIndexChanged;
             listBox.AllowMultiLineItems = false;
-            listBox.AllowKeyboardInput = false;
+            listBox.AllowKeyboardInput = this.AllowKeyboardInput;
             listBox.AllowRightClickUnselect = this.AllowRightClickUnselect;
 
             listBoxes.Add(listBox);
@@ -280,7 +284,7 @@ namespace Rampastring.XNAUI.XNAControls
                 listBox.TextBorderDistance = 5;
                 listBox.LineHeight = _lineHeight;
                 listBox.AllowMultiLineItems = false;
-                listBox.AllowKeyboardInput = false;
+                listBox.AllowKeyboardInput = this.AllowKeyboardInput;
                 listBox.AllowRightClickUnselect = this.AllowRightClickUnselect;
 
                 listBoxes.Add(listBox);
