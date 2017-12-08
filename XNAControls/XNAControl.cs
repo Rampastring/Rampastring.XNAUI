@@ -3,6 +3,8 @@ using System;
 using System.Collections.Generic;
 using Rampastring.Tools;
 using Rampastring.XNAUI.Input;
+using System.Collections.ObjectModel;
+using System.Linq;
 
 namespace Rampastring.XNAUI.XNAControls
 {
@@ -19,9 +21,7 @@ namespace Rampastring.XNAUI.XNAControls
         /// <param name="windowManager">The WindowManager associated with this control.</param>
         public XNAControl(WindowManager windowManager) : base(windowManager.Game)
         {
-            _windowManager = windowManager;
-            Cursor = windowManager.Cursor;
-            Keyboard = windowManager.Keyboard;
+            _windowManager = windowManager ?? throw new ArgumentNullException("windowManager");
         }
 
         #region Events
@@ -76,14 +76,42 @@ namespace Rampastring.XNAUI.XNAControls
             }
         }
 
-        public Cursor Cursor;
-        public RKeyboard Keyboard;
+        /// <summary>
+        /// Holds a reference to the cursor.
+        /// </summary>
+        protected Cursor Cursor
+        {
+            get { return WindowManager.Cursor; }
+        }
+
+        /// <summary>
+        /// Holds a reference to the keyboard.
+        /// </summary>
+        protected RKeyboard Keyboard
+        {
+            get { return WindowManager.Keyboard; }
+        }
 
         /// <summary>
         /// A list of the control's children. Don't add children to this list directly;
         /// call the AddChild method instead.
         /// </summary>
-        public List<XNAControl> Children = new List<XNAControl>();
+        private List<XNAControl> _children = new List<XNAControl>();
+
+        private List<XNAControl> updateList = new List<XNAControl>();
+        private List<XNAControl> drawList = new List<XNAControl>();
+
+        private List<XNAControl> childAddQueue = new List<XNAControl>();
+        private List<XNAControl> childRemoveQueue = new List<XNAControl>();
+
+        /// <summary>
+        /// A read-only list of the control's children. 
+        /// Call the AddChild method to add children to the control.
+        /// </summary>
+        public ReadOnlyCollection<XNAControl> Children
+        {
+            get { return new ReadOnlyCollection<XNAControl>(_children); }
+        }
 
         /// <summary>
         /// Gets or sets the name of this control. The name is only an identifier
@@ -257,6 +285,8 @@ namespace Rampastring.XNAUI.XNAControls
         private TimeSpan timeSinceLastLeftClick = TimeSpan.Zero;
         private bool isPressedOn = false;
 
+        private bool isIteratingChildren = false;
+
         /// <summary>
         /// Checks if the last parent of this control is active.
         /// </summary>
@@ -287,6 +317,9 @@ namespace Rampastring.XNAUI.XNAControls
             return new Rectangle(GetLocationX(), GetLocationY(), ClientRectangle.Width, ClientRectangle.Height);
         }
 
+        /// <summary>
+        /// Returns the control's absolute X coordinate within the game window.
+        /// </summary>
         public int GetLocationX()
         {
             if (Parent != null)
@@ -295,6 +328,9 @@ namespace Rampastring.XNAUI.XNAControls
             return ClientRectangle.X;
         }
 
+        /// <summary>
+        /// Returns the control's absolute Y coordinate within the game window.
+        /// </summary>
         public int GetLocationY()
         {
             if (Parent != null)
@@ -362,25 +398,66 @@ namespace Rampastring.XNAUI.XNAControls
                 Callbacks.Add(new Callback(d, args));
         }
 
+        #region Child control management
+
         /// <summary>
-        /// Adds a child control to the control.
+        /// Adds a child to the control.
+        /// In case the control is currently being updated, schedules the child
+        /// to be added at the end of the current frame.
         /// </summary>
         /// <param name="child">The child control.</param>
         public virtual void AddChild(XNAControl child)
         {
-            child.Parent = this;
-            child.Initialize();
-            Children.Add(child);
+            if (child == null)
+                throw new ArgumentNullException("child");
+
+            if (isIteratingChildren)
+                childAddQueue.Add(child);
+            else
+                AddChildImmediate(child);
         }
 
         /// <summary>
         /// Adds a child control to the control without calling the child's Initialize method.
+        /// In case the control is currently being updated, schedules the child
+        /// to be added at the end of the current frame.
         /// </summary>
         /// <param name="child">The child control.</param>
         public void AddChildWithoutInitialize(XNAControl child)
         {
-            child.Parent = this;
-            Children.Add(child);
+            if (child == null)
+                throw new ArgumentNullException("child");
+
+            if (isIteratingChildren)
+            {
+                throw new NotImplementedException("AddChildWithoutInitialize cannot currently be called" +
+                    " while the control is iterating through its children.");
+            }
+            else
+                AddChildImmediateWithoutInitialize(child);
+        }
+
+        /// <summary>
+        /// Immediately adds a child control to the control.
+        /// </summary>
+        /// <param name="child">The child control.</param>
+        private void AddChildImmediate(XNAControl child)
+        {
+            InitChild(child);
+            child.Initialize();
+            _children.Add(child);
+            ReorderControls();
+        }
+
+        /// <summary>
+        /// Immediately adds a child control to the control without calling the child's Initialize method.
+        /// </summary>
+        /// <param name="child">The child control.</param>
+        private void AddChildImmediateWithoutInitialize(XNAControl child)
+        {
+            InitChild(child);
+            _children.Add(child);
+            ReorderControls();
         }
 
         /// <summary>
@@ -388,12 +465,68 @@ namespace Rampastring.XNAUI.XNAControls
         /// the "first child" of this control.
         /// </summary>
         /// <param name="child">The child control.</param>
-        public void AddChildToFirstIndex(XNAControl child)
+        private void AddChildToFirstIndexImmediate(XNAControl child)
+        {
+            InitChild(child);
+            child.Initialize();
+            _children.Insert(0, child);
+            ReorderControls();
+        }
+
+        private void InitChild(XNAControl child)
         {
             child.Parent = this;
-            child.Initialize();
-            Children.Insert(0, child);
+            child.UpdateOrderChanged += Child_UpdateOrderChanged;
+            child.DrawOrderChanged += Child_DrawOrderChanged;
         }
+
+        private void Child_DrawOrderChanged(object sender, EventArgs e)
+        {
+            drawList = _children.OrderBy(c => c.DrawOrder).ToList();
+        }
+
+        private void Child_UpdateOrderChanged(object sender, EventArgs e)
+        {
+            updateList = _children.OrderBy(c => c.UpdateOrder).Reverse().ToList();
+        }
+
+        /// <summary>
+        /// Removes a child from the control.
+        /// </summary>
+        /// <param name="child">The child control to remove.</param>
+        public void RemoveChild(XNAControl child)
+        {
+            if (isIteratingChildren)
+                childRemoveQueue.Add(child);
+            else
+                RemoveChildImmediate(child);
+        }
+
+        /// <summary>
+        /// Immediately removes a child from the control.
+        /// </summary>
+        /// <param name="child">The child control to remove.</param>
+        private void RemoveChildImmediate(XNAControl child)
+        {
+            if (_children.Remove(child))
+            {
+                child.UpdateOrderChanged -= Child_UpdateOrderChanged;
+                child.DrawOrderChanged -= Child_DrawOrderChanged;
+                ReorderControls();
+            }
+        }
+
+        private void ReorderControls()
+        {
+            // Controls that are updated first should be drawn last
+            // (on top of the other controls).
+            // It's weird for the updateorder and draworder to behave differently,
+            // but at this point we don't have a choice because of backwards compatibility.
+            updateList = _children.OrderBy(c => c.UpdateOrder).Reverse().ToList();
+            drawList = _children.OrderBy(c => c.DrawOrder).ToList();
+        }
+
+        #endregion
 
         public virtual void GetAttributes(IniFile iniFile)
         {
@@ -413,6 +546,12 @@ namespace Rampastring.XNAUI.XNAControls
         {
             switch (key)
             {
+                case "DrawOrder":
+                    DrawOrder = Int32.Parse(value);
+                    return;
+                case "UpdateOrder":
+                    UpdateOrder = Int32.Parse(value);
+                    return;
                 case "Size":
                     string[] size = value.Split(',');
                     ClientRectangle = new Rectangle(ClientRectangle.X, ClientRectangle.Y,
@@ -551,18 +690,24 @@ namespace Rampastring.XNAUI.XNAControls
                 if (!CursorOnControl)
                     OnMouseEnter();
 
-                for (int i = Children.Count - 1; i > -1; i--)
+                isIteratingChildren = true;
+
+                var activeChildEnumerator = updateList.GetEnumerator();
+
+                while (activeChildEnumerator.MoveNext())
                 {
-                    XNAControl child = Children[i];
+                    XNAControl child = activeChildEnumerator.Current;
 
                     if (child.Visible && (child.Focused || (child.InputEnabled && 
                         child.WindowRectangle().Contains(Cursor.Location) && activeChild == null)))
                     {
-                        Children[i].IsActive = true;
-                        activeChild = Children[i];
+                        child.IsActive = true;
+                        activeChild = child;
                         break;
                     }
                 }
+
+                isIteratingChildren = false;
 
                 Cursor.TextureIndex = CursorTextureIndex;
 
@@ -609,9 +754,13 @@ namespace Rampastring.XNAUI.XNAControls
                 isPressedOn = false;
             }
 
-            for (int i = Children.Count - 1; i > -1; i--)
+            isIteratingChildren = true;
+
+            var enumerator = updateList.GetEnumerator();
+
+            while (enumerator.MoveNext())
             {
-                var child = Children[i];
+                var child = enumerator.Current;
 
                 if (child != activeChild)
                     child.IsActive = false;
@@ -621,6 +770,18 @@ namespace Rampastring.XNAUI.XNAControls
                     child.Update(gameTime);
                 }
             }
+
+            isIteratingChildren = false;
+
+            foreach (var child in childAddQueue)
+                AddChildImmediate(child);
+
+            childAddQueue.Clear();
+
+            foreach (var child in childRemoveQueue)
+                RemoveChildImmediate(child);
+
+            childRemoveQueue.Clear();
         }
 
         /// <summary>
@@ -637,12 +798,12 @@ namespace Rampastring.XNAUI.XNAControls
         /// </summary>
         protected void DrawChildren(GameTime gameTime)
         {
-            for (int i = 0; i < Children.Count; i++)
+            var enumerator = drawList.GetEnumerator();
+
+            while (enumerator.MoveNext())
             {
-                if (Children[i].Visible)
-                {
-                    Children[i].Draw(gameTime);
-                }
+                if (enumerator.Current.Visible)
+                    enumerator.Current.Draw(gameTime);
             }
         }
 
