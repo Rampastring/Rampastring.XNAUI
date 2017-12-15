@@ -150,6 +150,7 @@
     <Compile Include="ToggleableSound.cs" />
     <Compile Include="XNAControls\XNALinkLabel.cs" />
     <Compile Include="XNAControls\XNAListBoxItem.cs" />
+    <Compile Include="XNAControls\XNAPasswordBox.cs" />
     <Compile Include="XNAControls\XNAScrollBar.cs" />
     <Compile Include="XNAControls\XNASuggestionTextBox.cs" />
     <Compile Include="XNAControls\XNATextBlock.cs" />
