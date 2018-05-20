@@ -145,9 +145,8 @@
     <Compile Include="AudioMaster.cs" />
     <Compile Include="GUICreator.cs" />
     <Compile Include="NativeMethods.cs" />
-    <Compile Include="PrioritizedSound.cs" />
+    <Compile Include="EnhancedSoundEffect.cs" />
     <Compile Include="SoundPlayer.cs" />
-    <Compile Include="ToggleableSound.cs" />
     <Compile Include="XNAControls\XNALinkLabel.cs" />
     <Compile Include="XNAControls\XNAListBoxItem.cs" />
     <Compile Include="XNAControls\XNAPasswordBox.cs" />
@@ -193,7 +192,7 @@
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
-    <None Include="Resources\hotbutton.png" />
+    <Folder Include="Resources\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

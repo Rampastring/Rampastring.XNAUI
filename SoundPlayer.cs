@@ -44,7 +44,7 @@ namespace Rampastring.XNAUI
         /// Plays a sound.
         /// </summary>
         /// <param name="sound">The sound to play.</param>
-        public static void Play(PrioritizedSound sound)
+        public static void Play(EnhancedSoundEffect sound)
         {
             if (soundList == null)
                 return;
@@ -59,14 +59,14 @@ namespace Rampastring.XNAUI
         /// </summary>
         /// <param name="volume">The volume that the sound will be played at.</param>
         /// <param name="sound">The sound to play.</param>
-        public static void PlayWithVolume(float volume, PrioritizedSound sound)
+        public static void PlayWithVolume(float volume, EnhancedSoundEffect sound)
         {
 #if !LINUX
             Play(volume, sound);
 #endif
         }
 
-        private static void Play(float volume, PrioritizedSound sound)
+        private static void Play(float volume, EnhancedSoundEffect sound)
         {
             foreach (var psi in soundList)
             {

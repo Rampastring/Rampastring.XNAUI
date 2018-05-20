@@ -11,13 +11,13 @@ namespace Rampastring.XNAUI
     /// A toggleable sound effect that can also have a defined priority
     /// and a decay rate for the priority.
     /// </summary>
-    public class PrioritizedSound
+    public class EnhancedSoundEffect
     {
         /// <summary>
         /// Creates a new prioritized sound. Loads the specified sound asset.
         /// </summary>
         /// <param name="assetName">The asset name of the sound file to load.</param>
-        public PrioritizedSound(string assetName)
+        public EnhancedSoundEffect(string assetName)
         {
             soundEffect = AssetLoader.LoadSound(assetName);
         }
@@ -30,7 +30,7 @@ namespace Rampastring.XNAUI
         /// <param name="priorityDecayRate">The priority decay rate of this sound.</param>
         /// <param name="repeatPrevention">If set above zero, will prevent the sound from being played again
         /// for the specified number of seconds after it has been played.</param>
-        public PrioritizedSound(string assetName, double priority, double priorityDecayRate, float repeatPrevention) : this(assetName)
+        public EnhancedSoundEffect(string assetName, double priority, double priorityDecayRate, float repeatPrevention) : this(assetName)
         {
             Priority = priority;
             PriorityDecayRate = priorityDecayRate;
@@ -40,16 +40,10 @@ namespace Rampastring.XNAUI
         private SoundEffect soundEffect;
         private DateTime lastPlayTime;
 
-        private bool _enabled = true;
-
         /// <summary>
         /// Gets or sets a bool that determines whether this sound is enabled.
         /// </summary>
-        public bool Enabled
-        {
-            get { return _enabled; }
-            set { _enabled = value; }
-        }
+        public bool Enabled { get; set; } = true;
 
         /// <summary>
         /// The priority of this sound.
