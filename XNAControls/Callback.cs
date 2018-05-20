@@ -20,7 +20,7 @@ namespace Rampastring.XNAUI.XNAControls
 
         public void Invoke()
         {
-            Logger.Log("Executing callback " + d.Method.Name);
+            //Logger.Log("Executing callback " + d.Method.Name);
             d.DynamicInvoke(arguments);
         }
     }
