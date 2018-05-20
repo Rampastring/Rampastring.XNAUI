@@ -50,11 +50,7 @@ namespace Rampastring.XNAUI
                 return texture;
             }
 
-            using (MemoryStream ms = new MemoryStream())
-            {
-                Properties.Resources.hotbutton.Save(ms, System.Drawing.Imaging.ImageFormat.Png);
-                return Texture2D.FromStream(graphicsDevice, ms);
-            }
+            return CreateDummyTexture();
         }
 
         /// <summary>
@@ -69,11 +65,7 @@ namespace Rampastring.XNAUI
             if (texture != null)
                 return texture;
 
-            using (MemoryStream ms = new MemoryStream())
-            {
-                Properties.Resources.hotbutton.Save(ms, System.Drawing.Imaging.ImageFormat.Png);
-                return Texture2D.FromStream(graphicsDevice, ms);
-            }
+            return CreateDummyTexture();
         }
 
         private static Texture2D LoadTextureInternal(string name)
@@ -89,17 +81,17 @@ namespace Rampastring.XNAUI
                             Texture2D texture = Texture2D.FromStream(graphicsDevice, fs);
                             texture.Name = name;
 
-                            Color[] data = new Color[texture.Width * texture.Height];
-                            texture.GetData(data);
+                            //Color[] data = new Color[texture.Width * texture.Height];
+                            //texture.GetData(data);
 
-                            for (int i = 0; i < data.Length; i++)
-                            {
-                                data[i].R = (byte)(data[i].R * data[i].A / 255);
-                                data[i].G = (byte)(data[i].G * data[i].A / 255);
-                                data[i].B = (byte)(data[i].B * data[i].A / 255);
-                            }
+                            //for (int i = 0; i < data.Length; i++)
+                            //{
+                            //    data[i].R = (byte)(data[i].R * data[i].A / 255);
+                            //    data[i].G = (byte)(data[i].G * data[i].A / 255);
+                            //    data[i].B = (byte)(data[i].B * data[i].A / 255);
+                            //}
 
-                            texture.SetData(data);
+                            //texture.SetData(data);
 
                             return texture;
                         }
@@ -112,6 +104,14 @@ namespace Rampastring.XNAUI
             }
 
             return null;
+        }
+
+        /// <summary>
+        /// Creates and returns a 100x100 pink square.
+        /// </summary>
+        private static Texture2D CreateDummyTexture()
+        {
+            return CreateTexture(new Color(255, 54, 244), 100, 100);
         }
 
         /// <summary>
@@ -236,7 +236,7 @@ namespace Rampastring.XNAUI
             {
                 string[] colorArray = colorString.Split(',');
                 Color color = new Color(Convert.ToByte(colorArray[0]), 
-                    Convert.ToByte(colorArray[1]), 
+                    Convert.ToByte(colorArray[1]),
                     Convert.ToByte(colorArray[2]),
                     Convert.ToByte(colorArray[3]));
                 return color;
