@@ -146,6 +146,8 @@
     <Compile Include="GUICreator.cs" />
     <Compile Include="NativeMethods.cs" />
     <Compile Include="EnhancedSoundEffect.cs" />
+    <Compile Include="PlatformSpecific\IGameWindowManager.cs" />
+    <Compile Include="PlatformSpecific\WindowsGameWindowManager.cs" />
     <Compile Include="SoundPlayer.cs" />
     <Compile Include="XNAControls\XNALinkLabel.cs" />
     <Compile Include="XNAControls\XNAListBoxItem.cs" />
