@@ -28,6 +28,9 @@ namespace Rampastring.XNAUI.XNAControls
 
         public event EventHandler MouseEnter;
 
+        public event EventHandler MouseLeftDown;
+        public event EventHandler MouseRightDown;
+
         public event EventHandler MouseLeave;
 
         public event EventHandler MouseMove;
@@ -283,7 +286,8 @@ namespace Rampastring.XNAUI.XNAControls
         #endregion
 
         private TimeSpan timeSinceLastLeftClick = TimeSpan.Zero;
-        private bool isPressedOn = false;
+        private bool isLeftPressedOn = false;
+        private bool isRightPressedOn = false;
 
         private bool isIteratingChildren = false;
 
@@ -688,7 +692,10 @@ namespace Rampastring.XNAUI.XNAControls
             if (Cursor.IsOnScreen && IsActive && rectangle.Contains(Cursor.Location))
             {
                 if (!CursorOnControl)
+                {
+                    CursorOnControl = true;
                     OnMouseEnter();
+                }
 
                 isIteratingChildren = true;
 
@@ -711,8 +718,6 @@ namespace Rampastring.XNAUI.XNAControls
 
                 Cursor.TextureIndex = CursorTextureIndex;
 
-                CursorOnControl = true;
-
                 MouseEventArgs mouseEventArgs = new MouseEventArgs(
                     new Point(Cursor.Location.X - rectangle.Location.X,
                     Cursor.Location.Y - rectangle.Location.Y));
@@ -722,19 +727,30 @@ namespace Rampastring.XNAUI.XNAControls
                 if (Cursor.HasMoved)
                     OnMouseMove();
 
-                if (Cursor.LeftPressedDown || Cursor.RightPressedDown)
-                    isPressedOn = true;
-
-                if (isPressedOn && activeChild == null)
+                if (!isLeftPressedOn && Cursor.LeftPressedDown)
                 {
-                    if (Cursor.LeftClicked)
+                    isLeftPressedOn = true;
+                    OnMouseLeftDown();
+                }
+
+                if (!isRightPressedOn && Cursor.RightPressedDown)
+                {
+                    isRightPressedOn = true;
+                    OnMouseRightDown();
+                }
+
+                if (activeChild == null)
+                {
+                    if (isLeftPressedOn && Cursor.LeftClicked)
                     {
                         OnLeftClick();
+                        isLeftPressedOn = false;
                     }
 
-                    if (Cursor.RightClicked)
+                    if (isRightPressedOn && Cursor.RightClicked)
                     {
                         OnRightClick();
+                        isRightPressedOn = false;
                     }
                 }
 
@@ -748,10 +764,15 @@ namespace Rampastring.XNAUI.XNAControls
                 OnMouseLeave();
 
                 CursorOnControl = false;
+                isRightPressedOn = false;
             }
-            else if (isPressedOn && Cursor.LeftClicked)
+            else
             {
-                isPressedOn = false;
+                if (isLeftPressedOn && Cursor.LeftClicked)
+                    isLeftPressedOn = false;
+
+                if (isRightPressedOn && Cursor.RightClicked)
+                    isRightPressedOn = false;
             }
 
             isIteratingChildren = true;
@@ -821,6 +842,24 @@ namespace Rampastring.XNAUI.XNAControls
         public virtual void OnMouseLeave()
         {
             MouseLeave?.Invoke(this, EventArgs.Empty);
+        }
+
+        /// <summary>
+        /// Called once when the left mouse button is pressed down while the cursor
+        /// is on the control.
+        /// </summary>
+        public virtual void OnMouseLeftDown()
+        {
+            MouseLeftDown?.Invoke(this, EventArgs.Empty);
+        }
+
+        /// <summary>
+        /// Called once when the right mouse button is pressed down while the cursor
+        /// is on the control.
+        /// </summary>
+        public virtual void OnMouseRightDown()
+        {
+            MouseRightDown?.Invoke(this, EventArgs.Empty);
         }
 
         /// <summary>

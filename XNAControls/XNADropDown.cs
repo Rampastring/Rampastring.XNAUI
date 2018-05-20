@@ -231,45 +231,47 @@ namespace Rampastring.XNAUI.XNAControls
         {
             base.Update(gameTime);
 
-            if (Cursor.LeftPressedDown)
+            if (IsDroppedDown)
             {
-                if (IsActive)
+                if (!IsActive && Cursor.LeftPressedDown)
                 {
-                    if (!AllowDropDown)
-                        return;
-
-                    if (IsDroppedDown)
-                        return;
-
-                    if (_clickSoundInstance != null)
-                        AudioMaster.PlaySound(_clickSoundInstance);
-
-                    Rectangle wr = WindowRectangle();
-
-                    clickedAfterOpen = false;
-                    IsDroppedDown = true;
+                    IsDroppedDown = false;
                     ClientRectangle = new Rectangle(ClientRectangle.X, ClientRectangle.Y,
-                        ClientRectangle.Width, dropDownTexture.Height + 1 + ItemHeight * Items.Count);
-                    hoveredIndex = -1;
+                        ClientRectangle.Width, dropDownTexture.Height);
                     return;
                 }
+
+                // Update hovered index
+
+                int itemIndexOnCursor = GetItemIndexOnCursor();
+
+                if (itemIndexOnCursor > -1 && Items[itemIndexOnCursor].Selectable)
+                    hoveredIndex = itemIndexOnCursor;
                 else
-                {
-                    if (IsDroppedDown)
-                    {
-                        OnLeftClick();
-                    }
-                }
+                    hoveredIndex = -1;
             }
+        }
 
-            // Update hovered index
+        public override void OnMouseLeftDown()
+        {
+            base.OnMouseLeftDown();
 
-            int itemIndexOnCursor = GetItemIndexOnCursor();
+            if (!AllowDropDown)
+                return;
 
-            if (itemIndexOnCursor > -1 && Items[itemIndexOnCursor].Selectable)
-                hoveredIndex = itemIndexOnCursor;
-            else
-                hoveredIndex = -1;
+            if (IsDroppedDown)
+                return;
+
+            if (_clickSoundInstance != null)
+                AudioMaster.PlaySound(_clickSoundInstance);
+
+            Rectangle wr = WindowRectangle();
+
+            clickedAfterOpen = false;
+            IsDroppedDown = true;
+            ClientRectangle = new Rectangle(ClientRectangle.X, ClientRectangle.Y,
+                ClientRectangle.Width, dropDownTexture.Height + 1 + ItemHeight * Items.Count);
+            hoveredIndex = -1;
         }
 
         public override void OnLeftClick()
