@@ -49,7 +49,7 @@ namespace Rampastring.XNAUI.XNAControls
         /// <summary>
         /// Gets or sets the dropped-down status of the drop-down control.
         /// </summary>
-        public bool IsDroppedDown { get; set; }
+        public bool IsDroppedDown { get; private set; }
 
         bool _allowDropDown = true;
 
@@ -235,10 +235,7 @@ namespace Rampastring.XNAUI.XNAControls
             {
                 if (!IsActive && Cursor.LeftPressedDown)
                 {
-                    IsDroppedDown = false;
-                    ClientRectangle = new Rectangle(ClientRectangle.X, ClientRectangle.Y,
-                        ClientRectangle.Width, dropDownTexture.Height);
-                    Attach();
+                    CloseDropDown();
                     return;
                 }
 
@@ -304,9 +301,15 @@ namespace Rampastring.XNAUI.XNAControls
             if (_clickSoundInstance != null)
                 AudioMaster.PlaySound(_clickSoundInstance);
 
+            CloseDropDown();
+        }
+
+        private void CloseDropDown()
+        {
             IsDroppedDown = false;
             ClientRectangle = new Rectangle(ClientRectangle.X, ClientRectangle.Y,
                 ClientRectangle.Width, dropDownTexture.Height);
+            Attach();
         }
 
         public override void OnMouseScrolled()
