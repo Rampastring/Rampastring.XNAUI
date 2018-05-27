@@ -10,9 +10,41 @@ namespace Rampastring.XNAUI.XNAControls
     /// </summary>
     public class XNAMultiColumnListBox : XNAPanel
     {
+        /// <summary>
+        /// Creates a new multi-column list box.
+        /// </summary>
+        /// <param name="windowManager">The WindowManager.</param>
         public XNAMultiColumnListBox(WindowManager windowManager) : base(windowManager)
         {
+            ClientRectangleUpdated += XNAMultiColumnListBox_ClientRectangleUpdated;
+        }
 
+        /// <summary>
+        /// Adjusts the positions and sizes of the columns
+        /// when the size of the list box is changed.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void XNAMultiColumnListBox_ClientRectangleUpdated(object sender, EventArgs e)
+        {
+            if (listBoxes.Count == 0)
+                return;
+
+            // Adjust size of columns
+
+            foreach (XNAListBox lb in listBoxes)
+            {
+                lb.Height = Height - lb.Y;
+            }
+
+            XNAListBox lastListBox = listBoxes[listBoxes.Count - 1];
+            XNAPanel lastHeader = headers[headers.Count - 1];
+
+            int lastColumnWidth = Width -
+                listBoxes[listBoxes.Count - 1].X;
+
+            lastListBox.Width = lastColumnWidth;
+            lastHeader.Width = lastColumnWidth;
         }
 
         public delegate void SelectedIndexChangedEventHandler(object sender, EventArgs e);
@@ -111,46 +143,6 @@ namespace Rampastring.XNAUI.XNAControls
                     return 0;
 
                 return listBoxes[0].Items.Count;
-            }
-        }
-
-        public override Rectangle ClientRectangle
-        {
-            get
-            {
-                return base.ClientRectangle;
-            }
-
-            set
-            {
-                base.ClientRectangle = value;
-
-                if (listBoxes.Count == 0)
-                    return;
-
-                // Adjust size of columns
-
-                foreach (XNAListBox lb in listBoxes)
-                {
-                    lb.ClientRectangle = new Rectangle(lb.ClientRectangle.X,
-                        lb.ClientRectangle.Y,
-                        lb.ClientRectangle.Width, 
-                        base.ClientRectangle.Height - lb.ClientRectangle.Y);
-                }
-
-                XNAListBox lastListBox = listBoxes[listBoxes.Count - 1];
-                XNAPanel lastHeader = headers[headers.Count - 1];
-
-                int lastColumnWidth = base.ClientRectangle.Width -
-                    listBoxes[listBoxes.Count - 1].ClientRectangle.X;
-
-                lastListBox.ClientRectangle = new Rectangle(lastListBox.ClientRectangle.X,
-                    lastListBox.ClientRectangle.Y,
-                    lastColumnWidth, lastListBox.ClientRectangle.Height);
-
-                lastHeader.ClientRectangle = new Rectangle(lastHeader.ClientRectangle.X,
-                    lastHeader.ClientRectangle.Y,
-                    lastColumnWidth, lastHeader.ClientRectangle.Height);
             }
         }
 

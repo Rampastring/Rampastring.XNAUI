@@ -21,48 +21,86 @@ namespace Rampastring.XNAUI.XNAControls
         /// <param name="windowManager">The WindowManager associated with this control.</param>
         public XNAControl(WindowManager windowManager) : base(windowManager.Game)
         {
-            _windowManager = windowManager ?? throw new ArgumentNullException("windowManager");
+            WindowManager = windowManager ?? throw new ArgumentNullException("windowManager");
         }
+
+        /// <summary>
+        /// Gets the window manager associated with this control.
+        /// </summary>
+        public WindowManager WindowManager { get; private set; }
 
         #region Events
 
+        /// <summary>
+        /// Raised when the mouse cursor enters the control's area.
+        /// </summary>
         public event EventHandler MouseEnter;
 
+        /// <summary>
+        /// Raised once when the left mouse button is pressed down while the
+        /// cursor is inside the control's area.
+        /// </summary>
         public event EventHandler MouseLeftDown;
+
+        /// <summary>
+        /// Raised once when the right mouse button is pressed down while the
+        /// cursor is inside the control's area.
+        /// </summary>
         public event EventHandler MouseRightDown;
 
+        /// <summary>
+        /// Raised when the mouse cursor leaves the control's area.
+        /// </summary>
         public event EventHandler MouseLeave;
 
+        /// <summary>
+        /// Raised when the mouse cusor moves while inside the control's area.
+        /// </summary>
         public event EventHandler MouseMove;
 
         public delegate void MouseOnControlEventHandler(object sender, MouseEventArgs e);
         public event MouseOnControlEventHandler MouseOnControl;
 
+        /// <summary>
+        /// Raised when the scroll wheel is used while the cursor is inside
+        /// the control.
+        /// </summary>
         public event EventHandler MouseScrolled;
 
+        /// <summary>
+        /// Raised when the left mouse button is clicked (pressed and released)
+        /// while the cursor is inside the control's area.
+        /// </summary>
         public event EventHandler LeftClick;
+
+        /// <summary>
+        /// Raised when the left mouse button is clicked twice in a short
+        /// time-frame while the cursor is inside the control's area.
+        /// </summary>
         public event EventHandler DoubleLeftClick;
+
+        /// <summary>
+        /// Raised when the right mouse button is clicked (pressed and released)
+        /// while the cursor is inside the control's area.
+        /// </summary>
         public event EventHandler RightClick;
 
+        /// <summary>
+        /// Raised when the control's client rectangle is changed.
+        /// </summary>
         public event EventHandler ClientRectangleUpdated;
 
+        /// <summary>
+        /// Raised when the control is selected or un-selected.
+        /// </summary>
         public event EventHandler SelectedChanged;
 
+        /// <summary>
+        /// Raised when the control's parent is changed.
+        /// </summary>
         public event EventHandler ParentChanged;
 
         #endregion
-
-        WindowManager _windowManager;
-
-        /// <summary>
-        /// Gets the window manager associated with this control.
-        /// </summary>
-        public WindowManager WindowManager
-        {
-            get { return _windowManager; }
-        }
-
-        #region Public members
 
         private XNAControl parent;
 
@@ -116,65 +154,81 @@ namespace Rampastring.XNAUI.XNAControls
             get { return new ReadOnlyCollection<XNAControl>(_children); }
         }
 
-        /// <summary>
-        /// Gets or sets the name of this control. The name is only an identifier
-        /// and does not affect functionality.
-        /// </summary>
-        public string Name { get; set; }
 
-        private Rectangle _clientRectangle;
+        #region Location and size
+
+        private int _x, _y, _width, _height;
 
         /// <summary>
         /// The display rectangle of the control inside its parent.
         /// </summary>
-        public virtual Rectangle ClientRectangle
+        public Rectangle ClientRectangle
         {
             get
             {
-                return _clientRectangle;
+                return new Rectangle(_x, _y, _width, _height);
             }
             set
             {
-                _clientRectangle = value;
+                _x = value.X;
+                _y = value.Y;
+                _width = value.Width;
+                _height = value.Height;
 
                 ClientRectangleUpdated?.Invoke(this, EventArgs.Empty);
             }
         }
 
         /// <summary>
-        /// Shortcut for accessing and changing ClientRectangle.X.
+        /// The X-coordinate of the control relative to its parent's location.
         /// </summary>
         public int X
         {
-            get { return ClientRectangle.X; }
-            set { ClientRectangle = new Rectangle(value, ClientRectangle.Y, ClientRectangle.Width, ClientRectangle.Height); }
+            get { return _x; }
+            set
+            {
+                _x = value;
+                ClientRectangleUpdated?.Invoke(this, EventArgs.Empty);
+            }
         }
 
         /// <summary>
-        /// Shortcut for accessing and changing ClientRectangle.Y.
+        /// The Y-coordinate of the control relative to its parent's location.
         /// </summary>
         public int Y
         {
-            get { return ClientRectangle.Y; }
-            set { ClientRectangle = new Rectangle(ClientRectangle.X, value, ClientRectangle.Width, ClientRectangle.Height); }
+            get { return _y; }
+            set
+            {
+                _y = value;
+                ClientRectangleUpdated?.Invoke(this, EventArgs.Empty);
+            }
         }
 
         /// <summary>
-        /// Shortcut for accessing and changing ClientRectangle.Width.
+        /// The width of the control.
         /// </summary>
         public int Width
         {
-            get { return ClientRectangle.Width; }
-            set { ClientRectangle = new Rectangle(ClientRectangle.X, ClientRectangle.Y, value, ClientRectangle.Height); }
+            get { return _width; }
+            set
+            {
+                _width = value;
+                ClientRectangleUpdated?.Invoke(this, EventArgs.Empty);
+            }
         }
 
         /// <summary>
-        /// Shortcut for accessing and changing ClientRectangle.Height.
+        /// The height of the control.
         /// </summary>
         public int Height
         {
-            get { return ClientRectangle.Height; }
-            set { ClientRectangle = new Rectangle(ClientRectangle.X, ClientRectangle.Y, ClientRectangle.Width, value); }
+            get { return _height; }
+            set
+            {
+                _height = value;
+                ClientRectangleUpdated?.Invoke(this, EventArgs.Empty);
+            }
         }
 
         /// <summary>
@@ -192,6 +246,16 @@ namespace Rampastring.XNAUI.XNAControls
         {
             get { return ClientRectangle.Right; }
         }
+
+        #endregion
+
+        #region Public members
+
+        /// <summary>
+        /// Gets or sets the name of this control. The name is only an identifier
+        /// and does not affect functionality.
+        /// </summary>
+        public string Name { get; set; }
 
         Color remapColor = Color.White;
         public Color RemapColor
@@ -677,6 +741,8 @@ namespace Rampastring.XNAUI.XNAControls
                     for (int i = 0; i < callbackCount; i++)
                         Callbacks[i].Invoke();
 
+                    // Do not clear the list; another thread could theoretically add an
+                    // item after we get the callback count, but before we lock
                     Callbacks.RemoveRange(0, callbackCount);
                 }
             }

@@ -28,7 +28,7 @@ namespace Rampastring.XNAUI.PlatformSpecific
         private Form gameForm;
         private Game game;
 
-        bool closingPrevented = false;
+        private bool closingPrevented = false;
 
         public event EventHandler GameWindowClosing;
 

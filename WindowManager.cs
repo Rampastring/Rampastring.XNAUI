@@ -250,10 +250,26 @@ namespace Rampastring.XNAUI
         {
             if (Controls.Contains(control))
             {
-                throw new Exception("WindowManager.AddAndInitializeControl: Control " + control.Name + " already exists!");
+                throw new InvalidOperationException("WindowManager.AddAndInitializeControl: Control " + control.Name + " already exists!");
             }
             
             control.Initialize();
+            Controls.Add(control);
+        }
+
+        /// <summary>
+        /// Adds a control to the WindowManager, on the last place
+        /// in the list of controls. Does not call the control's
+        /// Initialize() method.
+        /// </summary>
+        /// <param name="control">The control to add.</param>
+        public void AddControl(XNAControl control)
+        {
+            if (Controls.Contains(control))
+            {
+                throw new InvalidOperationException("WindowManager.AddControl: Control " + control.Name + " already exists!");
+            }
+
             Controls.Add(control);
         }
 
@@ -380,6 +396,10 @@ namespace Rampastring.XNAUI
             gameWindowManager.AllowClosing();
         }
 
+        /// <summary>
+        /// Removes a control from the window manager.
+        /// </summary>
+        /// <param name="control">The control to remove.</param>
         public void RemoveControl(XNAControl control)
         {
             Controls.Remove(control);

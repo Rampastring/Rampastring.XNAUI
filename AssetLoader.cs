@@ -11,18 +11,36 @@ using Microsoft.Xna.Framework.Media;
 
 namespace Rampastring.XNAUI
 {
+    /// <summary>
+    /// A static class that provides easy-to-use methods
+    /// for loading and generating assets such as textures and sounds.
+    /// </summary>
     public static class AssetLoader
     {
-        static GraphicsDevice graphicsDevice;
-        static ContentManager contentManager;
-
+        /// <summary>
+        /// A list of filesystem paths that assets are attempted to load from.
+        /// </summary>
         public static List<string> AssetSearchPaths;
 
-        static List<Texture2D> textureCache;
-        static List<SoundEffect> soundCache;
+        private static GraphicsDevice graphicsDevice;
+        private static ContentManager contentManager;
 
+        private static List<Texture2D> textureCache;
+        private static List<SoundEffect> soundCache;
+
+        private static bool _initialized = false;
+
+        /// <summary>
+        /// Initializes the AssetLoader.
+        /// </summary>
+        /// <param name="gd">The graphics device.</param>
+        /// <param name="content">The game content manager.</param>
         public static void Initialize(GraphicsDevice gd, ContentManager content)
         {
+            if (_initialized)
+                throw new InvalidOperationException("AssetLoader is already initialized.");
+            _initialized = true;
+
             graphicsDevice = gd;
             AssetSearchPaths = new List<string>();
             textureCache = new List<Texture2D>();
@@ -117,7 +135,7 @@ namespace Rampastring.XNAUI
         /// <summary>
         /// Checks if a specified asset file exists.
         /// </summary>
-        /// <param name="name"></param>
+        /// <param name="name">The name of the asset file.</param>
         /// <returns></returns>
         public static bool AssetExists(string name)
         {
@@ -151,6 +169,12 @@ namespace Rampastring.XNAUI
             return texture;
         }
 
+        /// <summary>
+        /// Creates a texture from a <see cref="System.Drawing.Image"/>.
+        /// Returns null if creating the texture fails.
+        /// </summary>
+        /// <param name="image">The image.</param>
+        /// <returns>The created texture, or null if creating the texture fails.</returns>
         public static Texture2D TextureFromImage(Image image)
         {
             try
@@ -169,6 +193,11 @@ namespace Rampastring.XNAUI
             }
         }
 
+        /// <summary>
+        /// Loads a sound effect with the given name.
+        /// </summary>
+        /// <param name="name">The name of the sound effect.</param>
+        /// <returns>The loaded sound effect, or null if the sound effect isn't found.</returns>
         public static SoundEffect LoadSound(string name)
         {
             SoundEffect cachedSound = soundCache.Find(se => se.Name == name);
@@ -195,6 +224,11 @@ namespace Rampastring.XNAUI
             return null;
         }
 
+        /// <summary>
+        /// Loads a <see cref="Song"/> with the specified name.
+        /// </summary>
+        /// <param name="name">The name of the song.</param>
+        /// <returns>The loaded song, or null if loading the song fails.</returns>
         public static Song LoadSong(string name)
         {
             try

@@ -85,7 +85,7 @@ namespace Rampastring.XNAUI
             SoundPlayer.Play(this);
         }
 
-        public SoundEffectInstance CreateSoundInstance()
+        internal SoundEffectInstance CreateSoundInstance()
         {
             if (soundEffect == null)
                 return null;

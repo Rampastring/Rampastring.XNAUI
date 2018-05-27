@@ -130,7 +130,7 @@ namespace Rampastring.XNAUI.XNAControls
         public void ClearItems()
         {
             Items.Clear();
-            ClientRectangle = new Rectangle(ClientRectangle.X, ClientRectangle.Y, ClientRectangle.Width, 2);
+            Height = 2;
         }
 
         public override void Update(GameTime gameTime)

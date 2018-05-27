@@ -28,6 +28,18 @@ namespace Rampastring.XNAUI.XNAControls
             DefaultItemColor = UISettings.AltColor;
 
             scrollBar = new XNAScrollBar(WindowManager);
+            ClientRectangleUpdated += XNAListBox_ClientRectangleUpdated;
+        }
+
+        private void XNAListBox_ClientRectangleUpdated(object sender, EventArgs e)
+        {
+            if (scrollBar != null)
+            {
+                scrollBar.ClientRectangle = new Rectangle(ClientRectangle.Width - scrollBar.ScrollWidth - 1,
+                    1, scrollBar.ScrollWidth, ClientRectangle.Height - 2);
+                scrollBar.DisplayedItemCount = NumberOfLinesOnList;
+                scrollBar.Refresh();
+            }
         }
 
         public delegate void HoveredIndexChangedEventHandler(object sender, EventArgs e);
@@ -219,27 +231,6 @@ namespace Rampastring.XNAUI.XNAControls
         {
             get { return _drawSelectionUnderScrollbar; }
             set { _drawSelectionUnderScrollbar = value; }
-        }
-
-        public override Rectangle ClientRectangle
-        {
-            get
-            {
-                return base.ClientRectangle;
-            }
-
-            set
-            {
-                base.ClientRectangle = value;
-
-                if (scrollBar != null)
-                {
-                    scrollBar.ClientRectangle = new Rectangle(ClientRectangle.Width - scrollBar.ScrollWidth - 1,
-                        1, scrollBar.ScrollWidth, ClientRectangle.Height - 2);
-                    scrollBar.DisplayedItemCount = NumberOfLinesOnList;
-                    scrollBar.Refresh();
-                }
-            }
         }
 
         #endregion

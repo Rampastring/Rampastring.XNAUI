@@ -29,6 +29,16 @@ namespace Rampastring.XNAUI.XNAControls
             btnScrollDown.ClientRectangle = new Rectangle(0, ClientRectangle.Height - scrollDownTexture.Height,
                 scrollDownTexture.Width, scrollDownTexture.Height);
             btnScrollDown.IdleTexture = scrollDownTexture;
+
+            ClientRectangleUpdated += XNAScrollBar_ClientRectangleUpdated;
+        }
+
+        private void XNAScrollBar_ClientRectangleUpdated(object sender, EventArgs e)
+        {
+            btnScrollDown.ClientRectangle = new Rectangle(0,
+                ClientRectangle.Height - btnScrollDown.ClientRectangle.Height,
+                btnScrollDown.ClientRectangle.Width, btnScrollDown.ClientRectangle.Height);
+            Refresh();
         }
 
         public event EventHandler Scrolled;
@@ -51,23 +61,6 @@ namespace Rampastring.XNAUI.XNAControls
         /// top index of the parent changes.
         /// </summary>
         public int TopIndex { get; set; }
-
-        public override Rectangle ClientRectangle
-        {
-            get
-            {
-                return base.ClientRectangle;
-            }
-
-            set
-            {
-                base.ClientRectangle = value;
-                btnScrollDown.ClientRectangle = new Rectangle(0, 
-                    ClientRectangle.Height - btnScrollDown.ClientRectangle.Height,
-                    btnScrollDown.ClientRectangle.Width, btnScrollDown.ClientRectangle.Height);
-                Refresh();
-            }
-        }
 
         /// <summary>
         /// Returns the width of the scroll bar.
