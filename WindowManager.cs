@@ -294,8 +294,8 @@ namespace Rampastring.XNAUI
         /// <param name="control">The control to center.</param>
         public void CenterControlOnScreen(XNAControl control)
         {
-            control.ClientRectangle = new Rectangle((RenderResolutionX - control.ClientRectangle.Width) / 2,
-                (RenderResolutionY - control.ClientRectangle.Height) / 2, control.ClientRectangle.Width, control.ClientRectangle.Height);
+            control.ClientRectangle = new Rectangle((RenderResolutionX - control.Width) / 2,
+                (RenderResolutionY - control.Height) / 2, control.Width, control.Height);
         }
 
         /// <summary>
@@ -313,15 +313,7 @@ namespace Rampastring.XNAUI
         /// windowed mode should be enabled.</param>
         public void SetBorderlessMode(bool value)
         {
-
-#if !XNA
-            Game.Window.IsBorderless = value;
-#else
-            if (value)
-                gameForm.FormBorderStyle = FormBorderStyle.None;
-            else
-                gameForm.FormBorderStyle = FormBorderStyle.FixedSingle;
-#endif
+            gameWindowManager.SetBorderlessMode(value);
         }
 
         public void MinimizeWindow()
