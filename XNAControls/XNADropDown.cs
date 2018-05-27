@@ -238,6 +238,7 @@ namespace Rampastring.XNAUI.XNAControls
                     IsDroppedDown = false;
                     ClientRectangle = new Rectangle(ClientRectangle.X, ClientRectangle.Y,
                         ClientRectangle.Width, dropDownTexture.Height);
+                    Attach();
                     return;
                 }
 
@@ -271,6 +272,7 @@ namespace Rampastring.XNAUI.XNAControls
             IsDroppedDown = true;
             ClientRectangle = new Rectangle(ClientRectangle.X, ClientRectangle.Y,
                 ClientRectangle.Width, dropDownTexture.Height + 1 + ItemHeight * Items.Count);
+            Detach();
             hoveredIndex = -1;
         }
 

@@ -118,6 +118,14 @@ namespace Rampastring.XNAUI.XNAControls
         }
 
         /// <summary>
+        /// Set if the control is detached from its parent.
+        /// A detached control's mouse input is handled independently
+        /// from its parent, ie. it can grow beyond its parent's area
+        /// rectangle and still handle input correctly.
+        /// </summary>
+        public bool Detached { get; private set; } = false;
+
+        /// <summary>
         /// Holds a reference to the cursor.
         /// </summary>
         protected Cursor Cursor
@@ -322,7 +330,7 @@ namespace Rampastring.XNAUI.XNAControls
         { 
             get
             {
-                if (Parent != null)
+                if (Parent != null && !Detached)
                     return Parent.IsActive && isActive;
 
                 return isActive;
@@ -382,7 +390,7 @@ namespace Rampastring.XNAUI.XNAControls
         /// <returns>The client rectangle of the control inside the game window.</returns>
         public Rectangle WindowRectangle()
         {
-            return new Rectangle(GetLocationX(), GetLocationY(), ClientRectangle.Width, ClientRectangle.Height);
+            return new Rectangle(GetLocationX(), GetLocationY(), Width, Height);
         }
 
         /// <summary>
@@ -391,9 +399,9 @@ namespace Rampastring.XNAUI.XNAControls
         public int GetLocationX()
         {
             if (Parent != null)
-                return ClientRectangle.X + Parent.GetLocationX();
+                return X + Parent.GetLocationX();
 
-            return ClientRectangle.X;
+            return X;
         }
 
         /// <summary>
@@ -402,9 +410,9 @@ namespace Rampastring.XNAUI.XNAControls
         public int GetLocationY()
         {
             if (Parent != null)
-                return ClientRectangle.Y + Parent.GetLocationY();
+                return Y + Parent.GetLocationY();
 
-            return ClientRectangle.Y;
+            return Y;
         }
 
         /// <summary>
@@ -439,6 +447,28 @@ namespace Rampastring.XNAUI.XNAControls
 
             ClientRectangle = new Rectangle((Parent.Width - Width) / 2,
                 Y, Width, Height);
+        }
+
+        /// <summary>
+        /// Detaches the control from its parent.
+        /// See <see cref="Detached"/>.
+        /// </summary>
+        public void Detach()
+        {
+            if (Detached)
+                throw new InvalidOperationException("The control is already detached!");
+
+            Detached = true;
+            WindowManager.AddControl(this);
+        }
+
+        /// <summary>
+        /// Attaches the control to its parent.
+        /// </summary>
+        public void Attach()
+        {
+            Detached = false;
+            WindowManager.RemoveControl(this);
         }
 
         /// <summary>
@@ -771,7 +801,7 @@ namespace Rampastring.XNAUI.XNAControls
                 {
                     XNAControl child = activeChildEnumerator.Current;
 
-                    if (child.Visible && (child.Focused || (child.InputEnabled && 
+                    if (child.Visible && !child.Detached && (child.Focused || (child.InputEnabled && 
                         child.WindowRectangle().Contains(Cursor.Location) && activeChild == null)))
                     {
                         child.IsActive = true;
@@ -849,7 +879,7 @@ namespace Rampastring.XNAUI.XNAControls
             {
                 var child = enumerator.Current;
 
-                if (child != activeChild)
+                if (child != activeChild && !child.Detached)
                     child.IsActive = false;
 
                 if (child.Enabled)
@@ -889,8 +919,10 @@ namespace Rampastring.XNAUI.XNAControls
 
             while (enumerator.MoveNext())
             {
-                if (enumerator.Current.Visible)
-                    enumerator.Current.Draw(gameTime);
+                var current = enumerator.Current;
+
+                if (current.Visible && !current.Detached)
+                    current.Draw(gameTime);
             }
         }
 

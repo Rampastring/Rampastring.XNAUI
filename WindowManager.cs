@@ -518,7 +518,7 @@ namespace Rampastring.XNAUI
 
                 if (HasFocus && control.Enabled && 
                     (activeControl == null &&
-                    control.ClientRectangle.Contains(Cursor.Location)
+                    control.WindowRectangle().Contains(Cursor.Location)
                     ||
                     control.Focused))
                 {
@@ -550,8 +550,10 @@ namespace Rampastring.XNAUI
 
             for (int i = 0; i < Controls.Count; i++)
             {
-                if (Controls[i].Visible)
-                    Controls[i].Draw(gameTime);
+                var control = Controls[i];
+
+                if (control.Visible)
+                    control.Draw(gameTime);
             }
 
             Renderer.EndDraw();
