@@ -64,9 +64,7 @@ namespace Rampastring.XNAUI.XNAControls
                 _allowDropDown = value;
                 if (!_allowDropDown && IsDroppedDown)
                 {
-                    IsDroppedDown = false;
-                    ClientRectangle = new Rectangle(ClientRectangle.X, ClientRectangle.Y,
-                        ClientRectangle.Width, dropDownTexture.Height);
+                    CloseDropDown();
                 }
             }
         }
