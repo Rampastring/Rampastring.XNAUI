@@ -23,7 +23,7 @@ namespace Rampastring.XNAUI
 
         private static List<PrioritizedSoundInstance> soundList;
 
-        public static float Volume { get; private set; }
+        public static float Volume { get; private set; } = 1.0f;
 
         public void SetVolume(float volume)
         {
