@@ -23,7 +23,16 @@ namespace Rampastring.XNAUI
         }
 
         /// <summary>
-        /// Creates a new prioritized sound. Loads the specified sound asset.
+        /// Creates a new enhanced sound. Uses the given sound assert.
+        /// </summary>
+        /// <param name="soundEffect">The sound effect.</param>
+        public EnhancedSoundEffect(SoundEffect soundEffect)
+        {
+            this.soundEffect = soundEffect;
+        }
+
+        /// <summary>
+        /// Creates a new enhanced sound. Loads the specified sound asset.
         /// </summary>
         /// <param name="assetName">The asset name of the sound file to load.</param>
         /// <param name="priority">The priority of this sound</param>
