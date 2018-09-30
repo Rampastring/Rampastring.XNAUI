@@ -86,26 +86,9 @@ namespace Rampastring.XNAUI.XNAControls
             set
             {
                 _text = value;
-                if (adaptiveText)
+                if (AdaptiveText)
                 {
-                    Vector2 textSize = Renderer.GetTextDimensions(_text, FontIndex);
-                    if (textSize.X < ClientRectangle.Width)
-                    {
-                        TextXPosition = (int)((ClientRectangle.Width - textSize.X) / 2);
-                    }
-                    else if (textSize.X > ClientRectangle.Width)
-                    {
-                        TextXPosition = (int)((textSize.X - ClientRectangle.Width) / -2);
-                    }
-
-                    if (textSize.Y < ClientRectangle.Height)
-                    {
-                        TextYPosition = (int)((ClientRectangle.Height - textSize.Y) / 2);
-                    }
-                    else if (textSize.Y > ClientRectangle.Height)
-                    {
-                        TextYPosition = Convert.ToInt32((textSize.Y - ClientRectangle.Height) / -2);
-                    }
+                    CalculateTextPosition();
                 }
             }
         }
@@ -131,13 +114,7 @@ namespace Rampastring.XNAUI.XNAControls
         public Color TextColorDisabled { get; set; }
 
         Color textColor = Color.White;
-
-        bool adaptiveText = true;
-        public bool AdaptiveText
-        {
-            get { return adaptiveText; }
-            set { adaptiveText = value; }
-        }
+        public bool AdaptiveText { get; set; } = true;
 
         public override void OnMouseEnter()
         {
@@ -197,13 +174,46 @@ namespace Rampastring.XNAUI.XNAControls
         {
             base.Initialize();
 
-            if (IdleTexture != null)
+            if (IdleTexture != null && Width == 0 && Height == 0)
             {
-                ClientRectangle = new Rectangle(ClientRectangle.X, ClientRectangle.Y,
+                ClientRectangle = new Rectangle(X, Y,
                     IdleTexture.Width, IdleTexture.Height);
             }
 
             textColor = TextColorIdle;
+        }
+
+        protected override void OnClientRectangleUpdated()
+        {
+            if (AdaptiveText)
+            {
+                CalculateTextPosition();
+            }
+            
+            base.OnClientRectangleUpdated();
+        }
+
+        private void CalculateTextPosition()
+        {
+            Vector2 textSize = Renderer.GetTextDimensions(_text, FontIndex);
+
+            if (textSize.X < Width)
+            {
+                TextXPosition = (int)((Width - textSize.X) / 2);
+            }
+            else if (textSize.X > Width)
+            {
+                TextXPosition = (int)((textSize.X - Width) / -2);
+            }
+
+            if (textSize.Y < Height)
+            {
+                TextYPosition = (int)((Height - textSize.Y) / 2);
+            }
+            else if (textSize.Y > Height)
+            {
+                TextYPosition = Convert.ToInt32((textSize.Y - Height) / -2);
+            }
         }
 
         protected override void ParseAttributeFromINI(IniFile iniFile, string key, string value)
@@ -231,15 +241,15 @@ namespace Rampastring.XNAUI.XNAControls
                     return;
                 case "FontIndex":
                     FontIndex = Conversions.IntFromString(value, 0);
-                    if (adaptiveText)
-                        Text = _text;
+                    if (AdaptiveText)
+                        CalculateTextPosition();
                     return;
                 case "IdleTexture":
                     IdleTexture = AssetLoader.LoadTexture(iniFile.GetStringValue(Name, "IdleTexture", String.Empty));
-                    ClientRectangle = new Rectangle(ClientRectangle.X, ClientRectangle.Y,
+                    ClientRectangle = new Rectangle(X, Y,
                         IdleTexture.Width, IdleTexture.Height);
-                    if (adaptiveText)
-                        Text = _text;
+                    if (AdaptiveText)
+                        CalculateTextPosition();
                     return;
                 case "HoverTexture":
                     HoverTexture = AssetLoader.LoadTexture(iniFile.GetStringValue(Name, "HoverTexture", String.Empty));
