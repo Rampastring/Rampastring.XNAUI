@@ -15,6 +15,10 @@ namespace Rampastring.XNAUI.XNAControls
     {
         private const int MIN_BUTTON_HEIGHT = 10;
 
+        /// <summary>
+        /// Creates a new scroll bar.
+        /// </summary>
+        /// <param name="windowManager">The game window manager.</param>
         public XNAScrollBar(WindowManager windowManager) : base(windowManager)
         {
             var scrollUpTexture = AssetLoader.LoadTexture("sbUpArrow.png");
@@ -26,7 +30,7 @@ namespace Rampastring.XNAUI.XNAControls
             var scrollDownTexture = AssetLoader.LoadTexture("sbDownArrow.png");
 
             btnScrollDown = new XNAButton(WindowManager);
-            btnScrollDown.ClientRectangle = new Rectangle(0, ClientRectangle.Height - scrollDownTexture.Height,
+            btnScrollDown.ClientRectangle = new Rectangle(0, Height - scrollDownTexture.Height,
                 scrollDownTexture.Width, scrollDownTexture.Height);
             btnScrollDown.IdleTexture = scrollDownTexture;
 
@@ -36,12 +40,19 @@ namespace Rampastring.XNAUI.XNAControls
         private void XNAScrollBar_ClientRectangleUpdated(object sender, EventArgs e)
         {
             btnScrollDown.ClientRectangle = new Rectangle(0,
-                ClientRectangle.Height - btnScrollDown.ClientRectangle.Height,
-                btnScrollDown.ClientRectangle.Width, btnScrollDown.ClientRectangle.Height);
+                Height - btnScrollDown.Height,
+                btnScrollDown.Width, btnScrollDown.Height);
             Refresh();
         }
 
+        /// <summary>
+        /// Raised when the scroll bar is scrolled. 
+        /// </summary>
         public event EventHandler Scrolled;
+
+        /// <summary>
+        /// Raised when the scroll bar is scrolled and it reaches its lowest value.
+        /// </summary>
         public event EventHandler ScrolledToBottom;
 
         /// <summary>
@@ -149,8 +160,8 @@ namespace Rampastring.XNAUI.XNAControls
         /// </summary>
         public void Refresh()
         {
-            int height = ClientRectangle.Height - 
-                btnScrollUp.ClientRectangle.Height - btnScrollDown.ClientRectangle.Height;
+            int height = Height - 
+                btnScrollUp.Height - btnScrollDown.Height;
 
             int nonDisplayedLines = ItemCount - DisplayedItemCount;
 
@@ -172,8 +183,8 @@ namespace Rampastring.XNAUI.XNAControls
                 btnScrollUp.Enable();
             }
 
-            buttonMinY = btnScrollUp.ClientRectangle.Bottom + thumbHeight / 2;
-            buttonMaxY = ClientRectangle.Height - btnScrollDown.ClientRectangle.Height - (thumbHeight / 2);
+            buttonMinY = btnScrollUp.Bottom + thumbHeight / 2;
+            buttonMaxY = Height - btnScrollDown.Height - (thumbHeight / 2);
 
             RefreshButtonY();
         }
@@ -207,8 +218,8 @@ namespace Rampastring.XNAUI.XNAControls
         {
             var point = GetCursorPoint();
 
-            if (point.Y < btnScrollUp.ClientRectangle.Height
-                || point.Y > btnScrollDown.ClientRectangle.Y)
+            if (point.Y < btnScrollUp.Height
+                || point.Y > btnScrollDown.Y)
                 return;
 
             if (point.Y <= buttonMinY)
@@ -263,7 +274,7 @@ namespace Rampastring.XNAUI.XNAControls
 
             buttonY = WindowRectangle().Y + Math.Min(
                 buttonMinY + (int)(((TopIndex / (double)nonDisplayedLines) * scrollablePixels) - thumbHeight / 2),
-                ClientRectangle.Height - btnScrollDown.ClientRectangle.Height - thumbHeight);
+                Height - btnScrollDown.Height - thumbHeight);
         }
 
         /// <summary>

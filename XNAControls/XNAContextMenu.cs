@@ -77,8 +77,7 @@ namespace Rampastring.XNAUI.XNAControls
         public void AddItem(XNADropDownItem item)
         {
             Items.Add(item);
-            ClientRectangle = new Rectangle(ClientRectangle.X, ClientRectangle.Y,
-                ClientRectangle.Width, ClientRectangle.Height + ItemHeight);
+            ClientRectangle = new Rectangle(X, Y, Width, Height + ItemHeight);
         }
 
         /// <summary>
@@ -187,8 +186,8 @@ namespace Rampastring.XNAUI.XNAControls
 
             Rectangle displayRectangle = WindowRectangle();
 
-            if (p.X < 0 || p.X > ClientRectangle.Width ||
-                p.Y > ClientRectangle.Height ||
+            if (p.X < 0 || p.X > Width ||
+                p.Y > Height ||
                 p.Y < 0)
             {
                 return -1;

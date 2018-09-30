@@ -83,7 +83,7 @@ namespace Rampastring.XNAUI.XNAControls
                 Renderer.DrawRectangle(rect, GetColorWithAlpha(BorderColor));
             }
 
-            int filledWidth = (int)((_shownValue / (double)Maximum) * (ClientRectangle.Width - BorderWidth * 2));
+            int filledWidth = (int)((_shownValue / (double)Maximum) * (Width - BorderWidth * 2));
 
             Rectangle filledRect = new Rectangle(wrect.X + BorderWidth, wrect.Y + BorderWidth, 
                 filledWidth, wrect.Height - BorderWidth * 2);

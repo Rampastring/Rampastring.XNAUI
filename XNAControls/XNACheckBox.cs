@@ -154,13 +154,13 @@ namespace Rampastring.XNAUI.XNAControls
 
                 textLocationY = (CheckedTexture.Height - (int)textDimensions.Y) / 2 - 1;
 
-                ClientRectangle = new Rectangle(ClientRectangle.X, ClientRectangle.Y,
+                ClientRectangle = new Rectangle(X, Y,
                     (int)textDimensions.X + TEXT_PADDING_DEFAULT + CheckedTexture.Width,
                     Math.Max((int)textDimensions.Y, CheckedTexture.Height));
             }
             else
             {
-                ClientRectangle = new Rectangle(ClientRectangle.X, ClientRectangle.Y, 
+                ClientRectangle = new Rectangle(X, Y, 
                     CheckedTexture.Width, CheckedTexture.Height);
             }
         }

@@ -330,7 +330,7 @@ namespace Rampastring.XNAUI.XNAControls
 
             return Renderer.GetTextDimensions(
                         text.Substring(TextStartPosition, TextEndPosition - TextStartPosition),
-                        FontIndex).X < ClientRectangle.Width - TEXT_HORIZONTAL_MARGIN * 2;
+                        FontIndex).X < Width - TEXT_HORIZONTAL_MARGIN * 2;
         }
 
         public override void OnLeftClick()

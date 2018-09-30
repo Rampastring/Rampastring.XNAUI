@@ -207,15 +207,15 @@ namespace Rampastring.XNAUI.XNAControls
             int width = 0;
 
             foreach (XNAPanel headerPanel in headers)
-                width += headerPanel.ClientRectangle.Width;
+                width += headerPanel.Width;
 
-            header.ClientRectangle = new Rectangle(width, 0, header.ClientRectangle.Width, header.ClientRectangle.Height);
+            header.ClientRectangle = new Rectangle(width, 0, header.Width, header.Height);
 
             headers.Add(header);
             AddChild(header);
 
-            listBox.ClientRectangle = new Rectangle(width, header.ClientRectangle.Bottom - 1,
-                header.ClientRectangle.Width, this.ClientRectangle.Height - header.ClientRectangle.Bottom + 1);
+            listBox.ClientRectangle = new Rectangle(width, header.Bottom - 1,
+                header.Width, this.Height - header.Bottom + 1);
             listBox.DrawBorders = DrawListBoxBorders;
             listBox.LineHeight = _lineHeight;
             listBox.TopIndexChanged += ListBox_TopIndexChanged;
@@ -250,9 +250,9 @@ namespace Rampastring.XNAUI.XNAControls
                 headerPanel.AddChild(header);
 
                 if (DrawListBoxBorders)
-                    headerPanel.ClientRectangle = new Rectangle(width - 1, 0, column.Width + 1, header.ClientRectangle.Height + 3);
+                    headerPanel.ClientRectangle = new Rectangle(width - 1, 0, column.Width + 1, header.Height + 3);
                 else
-                    headerPanel.ClientRectangle = new Rectangle(width, 0, column.Width, header.ClientRectangle.Height + 3);
+                    headerPanel.ClientRectangle = new Rectangle(width, 0, column.Width, header.Height + 3);
 
                 headers.Add(headerPanel);
 
@@ -261,13 +261,13 @@ namespace Rampastring.XNAUI.XNAControls
 
                 if (DrawListBoxBorders)
                 {
-                    listBox.ClientRectangle = new Rectangle(width - 1, headerPanel.ClientRectangle.Bottom - 1,
-                        column.Width + 1, this.ClientRectangle.Height - headerPanel.ClientRectangle.Bottom + 1);
+                    listBox.ClientRectangle = new Rectangle(width - 1, headerPanel.Bottom - 1,
+                        column.Width + 1, this.Height - headerPanel.Bottom + 1);
                 }
                 else
                 {
-                    listBox.ClientRectangle = new Rectangle(width, headerPanel.ClientRectangle.Bottom - 1,
-                        column.Width + 2, this.ClientRectangle.Height - headerPanel.ClientRectangle.Bottom + 1);
+                    listBox.ClientRectangle = new Rectangle(width, headerPanel.Bottom - 1,
+                        column.Width + 2, this.Height - headerPanel.Bottom + 1);
                 }
 
                 listBox.DrawBorders = DrawListBoxBorders;
@@ -290,17 +290,17 @@ namespace Rampastring.XNAUI.XNAControls
 
             if (DrawListBoxBorders)
             {
-                lb.ClientRectangle = new Rectangle(lb.ClientRectangle.X, lb.ClientRectangle.Y,
-                    lb.ClientRectangle.Width - 1, lb.ClientRectangle.Height);
+                lb.ClientRectangle = new Rectangle(lb.X, lb.Y,
+                    lb.Width - 1, lb.Height);
                 XNAPanel headerPanel = headers[headers.Count - 1];
-                headerPanel.ClientRectangle = new Rectangle(headerPanel.ClientRectangle.X,
-                    headerPanel.ClientRectangle.Y, headerPanel.ClientRectangle.Width - 1,
-                    headerPanel.ClientRectangle.Height);
+                headerPanel.ClientRectangle = new Rectangle(headerPanel.X,
+                    headerPanel.Y, headerPanel.Width - 1,
+                    headerPanel.Height);
             }
             else
             {
-                lb.ClientRectangle = new Rectangle(lb.ClientRectangle.X, lb.ClientRectangle.Y,
-                    lb.ClientRectangle.Width - 2, lb.ClientRectangle.Height);
+                lb.ClientRectangle = new Rectangle(lb.X, lb.Y,
+                    lb.Width - 2, lb.Height);
             }
 
             for (int i = 0; i < listBoxes.Count - 1; i++)

@@ -56,7 +56,7 @@ namespace Rampastring.XNAUI.XNAControls
                                 (int)AnchorPoint.Y, (int)textSize.X, (int)textSize.Y);
                             break;
                         case LabelTextAnchorInfo.NONE:
-                            ClientRectangle = new Rectangle(ClientRectangle.X, ClientRectangle.Y, (int)textSize.X, (int)textSize.Y);
+                            ClientRectangle = new Rectangle(X, Y, (int)textSize.X, (int)textSize.Y);
                             break;
                     }
                 }

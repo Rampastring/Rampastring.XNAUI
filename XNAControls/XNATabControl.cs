@@ -95,9 +95,8 @@ namespace Rampastring.XNAUI.XNAControls
             tab.TextXPosition = (defaultTexture.Width - (int)textSize.X) / 2;
             tab.TextYPosition = (defaultTexture.Height - (int)textSize.Y) / 2;
 
-            ClientRectangle = new Rectangle(ClientRectangle.X, ClientRectangle.Y,
-                ClientRectangle.Width + defaultTexture.Width,
-                defaultTexture.Height);
+            Width += defaultTexture.Width;
+            Height = defaultTexture.Height;
         }
 
         public override void OnLeftClick()

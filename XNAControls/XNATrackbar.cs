@@ -119,7 +119,7 @@ namespace Rampastring.XNAUI.XNAControls
 
             int tabCount = MaxValue - MinValue + 1;
 
-            double pixelsPerTab = (ClientRectangle.Width) / (double)tabCount;
+            double pixelsPerTab = Width / (double)tabCount;
 
             int currentTab = 0;
 

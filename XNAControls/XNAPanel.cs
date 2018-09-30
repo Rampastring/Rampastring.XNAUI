@@ -81,12 +81,12 @@ namespace Rampastring.XNAUI.XNAControls
                     int top = Int32.Parse(parts[1]);
                     int right = Int32.Parse(parts[2]);
                     int bottom = Int32.Parse(parts[3]);
-                    ClientRectangle = new Rectangle(ClientRectangle.X - left, ClientRectangle.Y - top,
-                        ClientRectangle.Width + left + right, ClientRectangle.Height + top + bottom);
+                    ClientRectangle = new Rectangle(X - left, Y - top,
+                        Width + left + right, Height + top + bottom);
                     foreach (XNAControl child in Children)
                     {
-                        child.ClientRectangle = new Rectangle(child.ClientRectangle.X + left,
-                            child.ClientRectangle.Y + top, child.ClientRectangle.Width, child.ClientRectangle.Height);
+                        child.ClientRectangle = new Rectangle(child.X + left,
+                            child.Y + top, child.Width, child.Height);
                     }
                     return;
             }

@@ -35,8 +35,8 @@ namespace Rampastring.XNAUI.XNAControls
         {
             if (scrollBar != null)
             {
-                scrollBar.ClientRectangle = new Rectangle(ClientRectangle.Width - scrollBar.ScrollWidth - 1,
-                    1, scrollBar.ScrollWidth, ClientRectangle.Height - 2);
+                scrollBar.ClientRectangle = new Rectangle(Width - scrollBar.ScrollWidth - 1,
+                    1, scrollBar.ScrollWidth, Height - 2);
                 scrollBar.DisplayedItemCount = NumberOfLinesOnList;
                 scrollBar.Refresh();
             }
@@ -125,7 +125,7 @@ namespace Rampastring.XNAUI.XNAControls
 
                     height += lbItem.TextLines.Count * LineHeight;
 
-                    if (height > ClientRectangle.Height)
+                    if (height > Height)
                         return i - 1;
                 }
 
@@ -316,10 +316,10 @@ namespace Rampastring.XNAUI.XNAControls
         /// <param name="listBoxItem">The item to add.</param>
         public void AddItem(XNAListBoxItem listBoxItem)
         {
-            int width = ClientRectangle.Width - TextBorderDistance * 2;
+            int width = Width - TextBorderDistance * 2;
             if (EnableScrollbar)
             {
-                width -= scrollBar.ClientRectangle.Width;
+                width -= scrollBar.Width;
             }
 
             if (listBoxItem.Texture != null)
@@ -412,8 +412,8 @@ namespace Rampastring.XNAUI.XNAControls
             KeyboardEventInput.CharEntered += KeyboardEventInput_CharEntered;
 #endif
 
-            scrollBar.ClientRectangle = new Rectangle(ClientRectangle.Width - scrollBar.ScrollWidth - 1,
-                1, scrollBar.ScrollWidth, ClientRectangle.Height - 2);
+            scrollBar.ClientRectangle = new Rectangle(Width - scrollBar.ScrollWidth - 1,
+                1, scrollBar.ScrollWidth, Height - 2);
             scrollBar.Scrolled += ScrollBar_Scrolled;
             scrollBar.ScrolledToBottom += ScrollBar_ScrolledToBottom;
             AddChild(scrollBar);
@@ -726,10 +726,10 @@ namespace Rampastring.XNAUI.XNAControls
 
             if (EnableScrollbar)
             {
-                if (mouseLocation.X > ClientRectangle.Width - scrollBar.ScrollWidth)
+                if (mouseLocation.X > Width - scrollBar.ScrollWidth)
                     return -1;
             }
-            else if (mouseLocation.X > ClientRectangle.Width)
+            else if (mouseLocation.X > Width)
                 return -1;
 
             for (int i = TopIndex; i < Items.Count; i++)
@@ -738,7 +738,7 @@ namespace Rampastring.XNAUI.XNAControls
 
                 height += lbItem.TextLines.Count * LineHeight;
 
-                if (height > ClientRectangle.Height)
+                if (height > Height)
                 {
                     return -1;
                 }
@@ -768,7 +768,7 @@ namespace Rampastring.XNAUI.XNAControls
             { 
                 XNAListBoxItem lbItem = Items[i];
 
-                if (height + lbItem.TextLines.Count * LineHeight > ClientRectangle.Height)
+                if (height + lbItem.TextLines.Count * LineHeight > Height)
                     break;
 
                 int x = TextBorderDistance;
@@ -783,7 +783,7 @@ namespace Rampastring.XNAUI.XNAControls
                     }
                     else
                     {
-                        drawnWidth = windowRectangle.Width - 2 - scrollBar.ClientRectangle.Width;
+                        drawnWidth = windowRectangle.Width - 2 - scrollBar.Width;
                     }
 
                     Renderer.FillRectangle(

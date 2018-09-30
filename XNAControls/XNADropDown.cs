@@ -188,7 +188,7 @@ namespace Rampastring.XNAUI.XNAControls
             dropDownTexture = AssetLoader.LoadTexture("comboBoxArrow.png");
             dropDownOpenTexture = AssetLoader.LoadTexture("openedComboBoxArrow.png");
 
-            ClientRectangle = new Rectangle(ClientRectangle.X, ClientRectangle.Y, ClientRectangle.Width, dropDownTexture.Height);
+            Height = dropDownTexture.Height;
 
             if (ClickSoundEffect != null)
                 _clickSoundInstance = ClickSoundEffect.CreateInstance();
@@ -265,8 +265,7 @@ namespace Rampastring.XNAUI.XNAControls
 
             clickedAfterOpen = false;
             IsDroppedDown = true;
-            ClientRectangle = new Rectangle(ClientRectangle.X, ClientRectangle.Y,
-                ClientRectangle.Width, dropDownTexture.Height + 1 + ItemHeight * Items.Count);
+            Height = dropDownTexture.Height + 1 + ItemHeight * Items.Count;
             Detach();
             hoveredIndex = -1;
         }
@@ -305,8 +304,7 @@ namespace Rampastring.XNAUI.XNAControls
         private void CloseDropDown()
         {
             IsDroppedDown = false;
-            ClientRectangle = new Rectangle(ClientRectangle.X, ClientRectangle.Y,
-                ClientRectangle.Width, dropDownTexture.Height);
+            Height = dropDownTexture.Height;
             Attach();
         }
 

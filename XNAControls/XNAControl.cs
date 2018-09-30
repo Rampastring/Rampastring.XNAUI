@@ -434,10 +434,8 @@ namespace Rampastring.XNAUI.XNAControls
                 return;
             }
 
-            Rectangle parentRectangle = Parent.ClientRectangle;
-
-            ClientRectangle = new Rectangle((parentRectangle.Width - ClientRectangle.Width) / 2,
-                (parentRectangle.Height - ClientRectangle.Height) / 2, ClientRectangle.Width, ClientRectangle.Height);
+            ClientRectangle = new Rectangle((Parent.Width - Width) / 2,
+                (Parent.Height - Height) / 2, Width, Height);
         }
 
         /// <summary>
@@ -451,10 +449,18 @@ namespace Rampastring.XNAUI.XNAControls
                 return;
             }
 
-            Rectangle parentRectangle = Parent.ClientRectangle;
-
             ClientRectangle = new Rectangle((Parent.Width - Width) / 2,
                 Y, Width, Height);
+        }
+
+        /// <summary>
+        /// Centers the control vertically in proportion to another control.
+        /// Assumes that this control and the other control share the same parent control.
+        /// </summary>
+        /// <param name="control">The other control.</param>
+        public void CenterOnControlVertically(XNAControl control)
+        {
+            Y = control.Y - (Height - control.Height) / 2;
         }
 
         /// <summary>
@@ -660,17 +666,17 @@ namespace Rampastring.XNAUI.XNAControls
                     return;
                 case "Size":
                     string[] size = value.Split(',');
-                    ClientRectangle = new Rectangle(ClientRectangle.X, ClientRectangle.Y,
-                        Int32.Parse(size[0]), Int32.Parse(size[1]));
+                    ClientRectangle = new Rectangle(X, Y,
+                        int.Parse(size[0]), int.Parse(size[1]));
                     return;
                 case "Location":
                     string[] location = value.Split(',');
-                    ClientRectangle = new Rectangle(Int32.Parse(location[0]), Int32.Parse(location[1]),
-                        ClientRectangle.Width, ClientRectangle.Height);
+                    ClientRectangle = new Rectangle(int.Parse(location[0]), int.Parse(location[1]),
+                        Width, Height);
                     return;
                 case "RemapColor":
                     string[] colors = value.Split(',');
-                    RemapColor = new Color(Int32.Parse(colors[0]), Int32.Parse(colors[1]), Int32.Parse(colors[2]), 255);
+                    RemapColor = AssetLoader.GetColorFromString(value);
                     return;
                 case "Text":
                     Text = value.Replace("@", Environment.NewLine);
@@ -685,41 +691,40 @@ namespace Rampastring.XNAUI.XNAControls
                 case "DistanceFromRightBorder":
                     if (Parent != null)
                     {
-                        ClientRectangle = new Rectangle(Parent.ClientRectangle.Width - ClientRectangle.Width - Conversions.IntFromString(value, 0),
-                            ClientRectangle.Y, ClientRectangle.Width, ClientRectangle.Height);
+                        ClientRectangle = new Rectangle(Parent.Width - Width - Conversions.IntFromString(value, 0), Y, 
+                            Width, Height);
                     }
                     return;
                 case "DistanceFromBottomBorder":
                     if (Parent != null)
                     {
-                        ClientRectangle = new Rectangle(ClientRectangle.X, Parent.ClientRectangle.Height - ClientRectangle.Height - Conversions.IntFromString(value, 0),
-                            ClientRectangle.Width, ClientRectangle.Height);
+                        ClientRectangle = new Rectangle(X, Parent.Height - Height - Conversions.IntFromString(value, 0),
+                            Width, Height);
                     }
                     return;
                 case "FillWidth":
                     if (Parent != null)
                     {
-                        ClientRectangle = new Rectangle(ClientRectangle.X, ClientRectangle.Y,
-                            Parent.ClientRectangle.Width - ClientRectangle.X - Conversions.IntFromString(value, 0), ClientRectangle.Height);
+                        ClientRectangle = new Rectangle(X, Y,
+                            Parent.Width - X - Conversions.IntFromString(value, 0), Height);
                     }
                     else
                     {
-                        ClientRectangle = new Rectangle(ClientRectangle.X, ClientRectangle.Y,
-                            WindowManager.RenderResolutionX - ClientRectangle.X - Conversions.IntFromString(value, 0),
-                            ClientRectangle.Height);
+                        ClientRectangle = new Rectangle(X, Y,
+                            WindowManager.RenderResolutionX - X - Conversions.IntFromString(value, 0),
+                            Height);
                     }
                     return;
                 case "FillHeight":
                     if (Parent != null)
                     {
-                        ClientRectangle = new Rectangle(ClientRectangle.X, ClientRectangle.Y,
-                            ClientRectangle.Width, Parent.ClientRectangle.Height - ClientRectangle.Y - Conversions.IntFromString(value, 0));
+                        ClientRectangle = new Rectangle(X, Y,
+                            Width, Parent.Height - Y - Conversions.IntFromString(value, 0));
                     }
                     else
                     {
-                        ClientRectangle = new Rectangle(ClientRectangle.X, ClientRectangle.Y,
-                            ClientRectangle.Width,
-                            WindowManager.RenderResolutionY - ClientRectangle.Y - Conversions.IntFromString(value, 0));
+                        ClientRectangle = new Rectangle(X, Y,
+                            Width, WindowManager.RenderResolutionY - Y - Conversions.IntFromString(value, 0));
                     }
                     return;
             }

@@ -25,7 +25,7 @@ namespace Rampastring.XNAUI.XNAControls
 
             set
             {
-                base.Text = Renderer.FixText(value, FontIndex, ClientRectangle.Width - TextXMargin * 2).Text;
+                base.Text = Renderer.FixText(value, FontIndex, Width - TextXMargin * 2).Text;
             }
         }
 
