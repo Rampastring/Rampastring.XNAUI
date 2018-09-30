@@ -183,8 +183,16 @@ namespace Rampastring.XNAUI.XNAControls
                 _width = value.Width;
                 _height = value.Height;
 
-                ClientRectangleUpdated?.Invoke(this, EventArgs.Empty);
+                OnClientRectangleUpdated();
             }
+        }
+
+        /// <summary>
+        /// Called when the control's client rectangle is changed.
+        /// </summary>
+        protected virtual void OnClientRectangleUpdated()
+        {
+            ClientRectangleUpdated?.Invoke(this, EventArgs.Empty);
         }
 
         /// <summary>
@@ -196,7 +204,7 @@ namespace Rampastring.XNAUI.XNAControls
             set
             {
                 _x = value;
-                ClientRectangleUpdated?.Invoke(this, EventArgs.Empty);
+                OnClientRectangleUpdated();
             }
         }
 
@@ -209,7 +217,7 @@ namespace Rampastring.XNAUI.XNAControls
             set
             {
                 _y = value;
-                ClientRectangleUpdated?.Invoke(this, EventArgs.Empty);
+                OnClientRectangleUpdated();
             }
         }
 
@@ -222,7 +230,7 @@ namespace Rampastring.XNAUI.XNAControls
             set
             {
                 _width = value;
-                ClientRectangleUpdated?.Invoke(this, EventArgs.Empty);
+                OnClientRectangleUpdated();
             }
         }
 
@@ -235,7 +243,7 @@ namespace Rampastring.XNAUI.XNAControls
             set
             {
                 _height = value;
-                ClientRectangleUpdated?.Invoke(this, EventArgs.Empty);
+                OnClientRectangleUpdated();
             }
         }
 
