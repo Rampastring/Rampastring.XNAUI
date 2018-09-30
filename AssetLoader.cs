@@ -257,7 +257,26 @@ namespace Rampastring.XNAUI
             }
             catch
             {
-                throw new Exception("AssetLoader.GetColorFromString: Failed to convert " + colorString + " to a valid color!");
+                throw new FormatException("AssetLoader.GetColorFromString: Failed to convert " + colorString + " to a valid color!");
+            }
+        }
+
+        /// <summary>
+        /// Creates a color based on a color string in the form "R,G,B". All values must be between 0 and 255.
+        /// Returns a given default color if parsing the given string fails.
+        /// </summary>
+        /// <param name="colorString">The color string.</param>
+        /// <param name="defaultColor">The default color to return if parsing the string fails.</param>
+        /// <returns>A XNA Color struct.</returns>
+        public static Color GetColorFromString(string colorString, Color defaultColor)
+        {
+            try
+            {
+                return GetColorFromString(colorString);
+            }
+            catch
+            {
+                return defaultColor;
             }
         }
 
