@@ -77,24 +77,17 @@ namespace Rampastring.XNAUI.XNAControls
             set { _allowMultiLineItems = value; }
         }
 
-        private bool _allowKeyboardInput = true;
-
         /// <summary>
         /// If set to true, the user is able to scroll the listbox items
         /// by using keyboard keys.
         /// </summary>
-        public bool AllowKeyboardInput
-        {
-            get { return _allowKeyboardInput; }
-            set { _allowKeyboardInput = value; }
-        }
+        public bool AllowKeyboardInput { get; set; } = true;
 
-        int _itemBorderDistance = 3;
-        public int TextBorderDistance
-        {
-            get { return _itemBorderDistance; }
-            set { _itemBorderDistance = value; }
-        }
+        /// <summary>
+        /// Gets or sets the distance between the text of a list box item
+        /// and the list box border in pixels.
+        /// </summary>
+        public int TextBorderDistance { get; set; } = 3;
 
         int topIndex = 0;
         public int TopIndex
@@ -674,7 +667,7 @@ namespace Rampastring.XNAUI.XNAControls
         /// <summary>
         /// Selects an item when the user left-clicks on this control.
         /// </summary>
-        public override void OnLeftClick()
+        public override void OnMouseLeftDown()
         {
             int itemIndex = GetItemIndexOnCursor(GetCursorPoint());
 
