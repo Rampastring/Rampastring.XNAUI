@@ -508,7 +508,7 @@ namespace Rampastring.XNAUI
             {
                 XNAControl control = Controls[i];
 
-                if (HasFocus && control.Enabled && 
+                if (HasFocus && control.InputEnabled && control.Enabled && 
                     (activeControl == null &&
                     control.WindowRectangle().Contains(Cursor.Location)
                     ||
