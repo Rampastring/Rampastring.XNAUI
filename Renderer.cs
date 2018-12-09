@@ -164,12 +164,12 @@ namespace Rampastring.XNAUI
             SpriteBatch.DrawString(Fonts[fontIndex], text, location, color);
         }
 
-        public static void DrawRectangle(Rectangle rect, Color color)
+        public static void DrawRectangle(Rectangle rect, Color color, int thickness = 1)
         {
-            SpriteBatch.Draw(whitePixelTexture, new Rectangle(rect.X, rect.Y, rect.Width, 1), color);
-            SpriteBatch.Draw(whitePixelTexture, new Rectangle(rect.X, rect.Y + 1, 1, rect.Height - 1), color);
-            SpriteBatch.Draw(whitePixelTexture, new Rectangle(rect.X + rect.Width - 1, rect.Y, 1, rect.Height), color);
-            SpriteBatch.Draw(whitePixelTexture, new Rectangle(rect.X, rect.Y + rect.Height - 1, rect.Width, 1), color);
+            SpriteBatch.Draw(whitePixelTexture, new Rectangle(rect.X, rect.Y, rect.Width, thickness), color);
+            SpriteBatch.Draw(whitePixelTexture, new Rectangle(rect.X, rect.Y + thickness, thickness, rect.Height - thickness), color);
+            SpriteBatch.Draw(whitePixelTexture, new Rectangle(rect.X + rect.Width - thickness, rect.Y, thickness, rect.Height), color);
+            SpriteBatch.Draw(whitePixelTexture, new Rectangle(rect.X, rect.Y + rect.Height - thickness, rect.Width, thickness), color);
         }
 
         public static void FillRectangle(Rectangle rect, Color color)
@@ -183,6 +183,14 @@ namespace Rampastring.XNAUI
                 throw new Exception("Invalid font index: " + fontIndex);
 
             return Fonts[fontIndex].MeasureString(text);
+        }
+
+        public static void DrawLine(Vector2 start, Vector2 end, int thickness, Color color)
+        {
+            Vector2 line = end - start;
+            SpriteBatch.Draw(whitePixelTexture,
+                new Rectangle((int)start.X, (int)start.Y, (int)line.Length(), thickness),
+                null, color, (float)Math.Atan2(line.Y, line.X), new Vector2(0, 0), SpriteEffects.None, 0f);
         }
 
         public static void EndDraw()
