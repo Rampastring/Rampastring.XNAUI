@@ -185,7 +185,7 @@ namespace Rampastring.XNAUI
             return Fonts[fontIndex].MeasureString(text);
         }
 
-        public static void DrawLine(Vector2 start, Vector2 end, int thickness, Color color)
+        public static void DrawLine(Vector2 start, Vector2 end, Color color, int thickness = 1)
         {
             Vector2 line = end - start;
             SpriteBatch.Draw(whitePixelTexture,
