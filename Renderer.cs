@@ -160,7 +160,12 @@ namespace Rampastring.XNAUI
             if (fontIndex >= Fonts.Count)
                 throw new Exception("Invalid font index: " + fontIndex);
 
+#if XNA
             SpriteBatch.DrawString(Fonts[fontIndex], text, new Vector2(location.X + 1f, location.Y + 1f), new Color(0, 0, 0, color.A));
+#else
+            SpriteBatch.DrawString(Fonts[fontIndex], text,
+                new Vector2(location.X + 1f, location.Y + 1f), new Color((byte)0, (byte)0, (byte)0, color.A));
+#endif
             SpriteBatch.DrawString(Fonts[fontIndex], text, location, color);
         }
 

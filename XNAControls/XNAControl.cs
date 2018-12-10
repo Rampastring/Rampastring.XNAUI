@@ -117,6 +117,21 @@ namespace Rampastring.XNAUI.XNAControls
             }
         }
 
+        public XNAControl GetRootParent()
+        {
+            if (Parent == null)
+                return null;
+
+            XNAControl rootParent = Parent;
+
+            while (rootParent.Parent != null)
+            {
+                rootParent = rootParent.Parent;
+            }
+
+            return rootParent;
+        }
+
         /// <summary>
         /// Set if the control is detached from its parent.
         /// A detached control's mouse input is handled independently

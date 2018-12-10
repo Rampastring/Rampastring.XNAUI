@@ -19,9 +19,14 @@ namespace Rampastring.XNAUI
 
         public static Color BackgroundColor { get; set; }
 
-        public static Color PanelBorderColor { get; set; }
-
         public static Color FocusColor { get; set; }
+        public static Color HoverColor { get; set; }
+
+        public static Color WindowBackgroundColor { get; set; }
+
+        public static Color PanelBackgroundColor { get; set; }
+
+        public static Color PanelBorderColor { get; set; }
 
         public static Color WindowBorderColor { get; set; }
 
