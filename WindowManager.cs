@@ -118,6 +118,7 @@ namespace Rampastring.XNAUI
 
         private IGameWindowManager gameWindowManager;
         private RenderTarget2D renderTarget;
+        private RenderTarget2D doubledRenderTarget;
         private bool closingPrevented = false;
 
         /// <summary>
@@ -168,8 +169,26 @@ namespace Rampastring.XNAUI
             SceneXPosition = texturePositionX;
             SceneYPosition = texturePositionY;
 
+            if (renderTarget != null && !renderTarget.IsDisposed)
+                renderTarget.Dispose();
+
+            if (doubledRenderTarget != null && !doubledRenderTarget.IsDisposed)
+                doubledRenderTarget.Dispose();
+
             renderTarget = new RenderTarget2D(GraphicsDevice, RenderResolutionX, RenderResolutionY, false, SurfaceFormat.Color,
                 DepthFormat.None, 0, RenderTargetUsage.PreserveContents);
+
+            if (ScaleRatio > 1.5)
+            {
+                // Enable sharper scaling method
+                doubledRenderTarget = new RenderTarget2D(GraphicsDevice, 
+                    RenderResolutionX * 2, RenderResolutionY * 2, false, SurfaceFormat.Color,
+                    DepthFormat.None, 0, RenderTargetUsage.PreserveContents);
+            }
+            else
+            {
+                doubledRenderTarget = null;
+            }
         }
 
         /// <summary>
@@ -550,6 +569,17 @@ namespace Rampastring.XNAUI
 
             Renderer.EndDraw();
 
+            if (doubledRenderTarget != null)
+            {
+                GraphicsDevice.SetRenderTarget(doubledRenderTarget);
+                GraphicsDevice.Clear(Color.Black);
+                Renderer.BeginDraw(SamplerState.PointWrap);
+                Renderer.DrawTexture(renderTarget, new Rectangle(0, 0,
+                    RenderResolutionX * 2, RenderResolutionY * 2), Color.White);
+                Renderer.DrawStringWithShadow("Using doubled render target", 1, Vector2.Zero, Color.Red);
+                Renderer.EndDraw();
+            }
+
             GraphicsDevice.SetRenderTarget(null);
 
             //if (Keyboard.PressedKeys.Contains(Microsoft.Xna.Framework.Input.Keys.F12))
@@ -561,9 +591,11 @@ namespace Rampastring.XNAUI
 
             GraphicsDevice.Clear(Color.Black);
 
-            Renderer.BeginDraw();
+            Renderer.BeginDraw(SamplerState.LinearWrap);
 
-            Renderer.DrawTexture(renderTarget, new Rectangle(SceneXPosition, SceneYPosition,
+            RenderTarget2D renderTargetToDraw = doubledRenderTarget != null ? doubledRenderTarget : renderTarget;
+
+            Renderer.DrawTexture(renderTargetToDraw, new Rectangle(SceneXPosition, SceneYPosition,
                 WindowWidth - (SceneXPosition * 2), WindowHeight - (SceneYPosition * 2)), Color.White);
 
             if (Cursor.Visible)
