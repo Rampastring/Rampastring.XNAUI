@@ -94,11 +94,7 @@ namespace Rampastring.XNAUI.Input
         {
             MouseState ms = Mouse.GetState();
 
-#if WINDOWSGL
-            DrawnLocation = new Point(ms.X, ms.Y) - Game.Window.ClientBounds.Location;
-#else
             DrawnLocation = new Point(ms.X, ms.Y);
-#endif
 
             if (!windowManager.HasFocus || Disabled)
             {
