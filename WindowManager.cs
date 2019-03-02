@@ -502,6 +502,11 @@ namespace Rampastring.XNAUI
         }
 
         /// <summary>
+        /// Returns whether the game is running in fullscreen mode.
+        /// </summary>
+        public bool IsFullscreen => graphics.IsFullScreen;
+
+        /// <summary>
         /// Updates the WindowManager. Do not call manually; MonoGame will call 
         /// this automatically on every game frame.
         /// </summary>
@@ -600,7 +605,7 @@ namespace Rampastring.XNAUI
             GraphicsDevice.Clear(Color.Black);
 
             Renderer.CurrentSettings = new SpriteBatchSettings(SpriteSortMode.Deferred,
-                    BlendState.NonPremultiplied, SamplerState.LinearWrap);
+                    BlendState.NonPremultiplied, SamplerState.LinearClamp);
             Renderer.BeginDraw();
 
             RenderTarget2D renderTargetToDraw = doubledRenderTarget != null ? doubledRenderTarget : renderTarget;
