@@ -46,6 +46,7 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <DocumentationFile>bin\Windows\Release\Rampastring.XNAUI.XML</DocumentationFile>
+    <NoWarn>1591</NoWarn>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|WindowsGL' ">
     <DebugSymbols>true</DebugSymbols>
@@ -73,7 +74,7 @@
     <DefineConstants>TRACE;DEBUG;XNA</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-	<TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|XNAFramework' ">
     <DebugType>pdbonly</DebugType>
@@ -83,7 +84,7 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <DocumentationFile>bin\XNAFramework\Release\Rampastring.XNAUI.XML</DocumentationFile>
-	<TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
   </PropertyGroup>
   <Choose>
     <When Condition="'$(Platform)' != 'XNAFramework'">
@@ -144,13 +145,15 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AssetLoader.cs" />
-    <Compile Include="AudioMaster.cs" />
     <Compile Include="GUICreator.cs" />
     <Compile Include="NativeMethods.cs" />
     <Compile Include="EnhancedSoundEffect.cs" />
     <Compile Include="PlatformSpecific\IGameWindowManager.cs" />
     <Compile Include="PlatformSpecific\WindowsGameWindowManager.cs" />
+    <Compile Include="RenderTargetStack.cs" />
+    <Compile Include="RMath.cs" />
     <Compile Include="SoundPlayer.cs" />
+    <Compile Include="XNAControls\ControlDrawMode.cs" />
     <Compile Include="XNAControls\XNALinkLabel.cs" />
     <Compile Include="XNAControls\XNAListBoxItem.cs" />
     <Compile Include="XNAControls\XNAPasswordBox.cs" />

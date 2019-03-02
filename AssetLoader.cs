@@ -244,16 +244,24 @@ namespace Rampastring.XNAUI
         }
 
         /// <summary>
-        /// Creates a color based on a color string in the form "R,G,B". All values must be between 0 and 255.
+        /// Creates a color based on a color string in the form "R,G,B" or "R,G,B,A". All values must be between 0 and 255.
         /// </summary>
-        /// <param name="colorString">The color string in the form "R,G,B". All values must be between 0 and 255.</param>
+        /// <param name="colorString">The color string in the form "R,G,B,A". All values must be between 0 and 255.</param>
         /// <returns>A XNA Color struct based on the given string.</returns>
         public static Color GetColorFromString(string colorString)
         {
             try
             {
                 string[] colorArray = colorString.Split(',');
-                Color color = new Color(Convert.ToByte(colorArray[0]), Convert.ToByte(colorArray[1]), Convert.ToByte(colorArray[2]));
+
+                int alpha = 255;
+                if (colorArray.Length == 4)
+                {
+                    alpha = Convert.ToByte(colorArray[3]);
+                }
+
+                Color color = new Color(Convert.ToByte(colorArray[0]),
+                    Convert.ToByte(colorArray[1]), Convert.ToByte(colorArray[2]), alpha);
                 return color;
             }
             catch

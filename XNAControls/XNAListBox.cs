@@ -24,9 +24,6 @@ namespace Rampastring.XNAUI.XNAControls
         /// <param name="windowManager"></param>
         public XNAListBox(WindowManager windowManager) : base(windowManager)
         {
-            FocusColor = UISettings.FocusColor;
-            DefaultItemColor = UISettings.AltColor;
-
             scrollBar = new XNAScrollBar(WindowManager);
             ClientRectangleUpdated += XNAListBox_ClientRectangleUpdated;
         }
@@ -55,9 +52,33 @@ namespace Rampastring.XNAUI.XNAControls
 
         public List<XNAListBoxItem> Items = new List<XNAListBoxItem>();
 
-        public Color FocusColor { get; set; }
+        private Color? _focusColor;
 
-        public Color DefaultItemColor { get; set; }
+        public Color FocusColor
+        {
+            get
+            {
+                if (_focusColor.HasValue)
+                    return _focusColor.Value;
+
+                return UISettings.ActiveSettings.FocusColor;
+            }
+            set { _focusColor = value; }
+        }
+
+        private Color? _defaultItemColor;
+
+        public Color DefaultItemColor
+        {
+            get
+            {
+                if (_defaultItemColor.HasValue)
+                    return _defaultItemColor.Value;
+
+                return UISettings.ActiveSettings.AltColor;
+            }
+            set { _defaultItemColor = value; }
+        }
 
         public int LineHeight = 15;
 
@@ -110,7 +131,7 @@ namespace Rampastring.XNAUI.XNAControls
             {
                 int height = 2;
 
-                Rectangle windowRectangle = WindowRectangle();
+                Rectangle windowRectangle = RenderRectangle();
 
                 for (int i = TopIndex; i < Items.Count; i++)
                 {
@@ -753,8 +774,6 @@ namespace Rampastring.XNAUI.XNAControls
         {
             DrawPanel();
 
-            Rectangle windowRectangle = WindowRectangle();
-
             int height = 2;
 
             for (int i = TopIndex; i < Items.Count; i++)
@@ -772,17 +791,16 @@ namespace Rampastring.XNAUI.XNAControls
 
                     if (DrawSelectionUnderScrollbar || !scrollBar.IsDrawn() || !EnableScrollbar)
                     {
-                        drawnWidth = windowRectangle.Width - 2;
+                        drawnWidth = Width - 2;
                     }
                     else
                     {
-                        drawnWidth = windowRectangle.Width - 2 - scrollBar.Width;
+                        drawnWidth = Width - 2 - scrollBar.Width;
                     }
 
-                    Renderer.FillRectangle(
-                        new Rectangle(windowRectangle.X + 1, windowRectangle.Y + height,
-                        drawnWidth, lbItem.TextLines.Count * LineHeight),
-                        GetColorWithAlpha(FocusColor));
+                    FillRectangle(new Rectangle(1, height, drawnWidth,
+                        lbItem.TextLines.Count * LineHeight),
+                        FocusColor);
                 }
 
                 if (lbItem.Texture != null)
@@ -800,8 +818,8 @@ namespace Rampastring.XNAUI.XNAControls
                     else
                         textureYPosition = (LineHeight - textureHeight) / 2;
 
-                    Renderer.DrawTexture(lbItem.Texture,
-                        new Rectangle(windowRectangle.X + x, windowRectangle.Y + height + textureYPosition, 
+                    DrawTexture(lbItem.Texture,
+                        new Rectangle(x, height + textureYPosition, 
                         textureWidth, textureHeight), Color.White);
 
                     x += textureWidth + ITEM_TEXT_TEXTURE_MARGIN;
@@ -811,8 +829,8 @@ namespace Rampastring.XNAUI.XNAControls
 
                 for (int j = 0; j < lbItem.TextLines.Count; j++)
                 {
-                    Renderer.DrawStringWithShadow(lbItem.TextLines[j], FontIndex, 
-                        new Vector2(windowRectangle.X + x, windowRectangle.Y + height + j * LineHeight + lbItem.TextYPadding),
+                    DrawStringWithShadow(lbItem.TextLines[j], FontIndex, 
+                        new Vector2(x, height + j * LineHeight + lbItem.TextYPadding),
                         lbItem.TextColor);
                 }
 

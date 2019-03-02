@@ -178,6 +178,8 @@ namespace Rampastring.XNAUI
             renderTarget = new RenderTarget2D(GraphicsDevice, RenderResolutionX, RenderResolutionY, false, SurfaceFormat.Color,
                 DepthFormat.None, 0, RenderTargetUsage.PreserveContents);
 
+            RenderTargetStack.Initialize(renderTarget, GraphicsDevice);
+
             if (ScaleRatio > 1.5)
             {
                 // Enable sharper scaling method
@@ -231,6 +233,7 @@ namespace Rampastring.XNAUI
             base.Initialize();
 
             Cursor = new Input.Cursor(this);
+            Cursor.Initialize();
             Keyboard = new RKeyboard(Game);
             Renderer.Initialize(GraphicsDevice, content, contentPath);
             SoundPlayer = new SoundPlayer(Game);
@@ -238,6 +241,7 @@ namespace Rampastring.XNAUI
             gameWindowManager = new WindowsGameWindowManager(Game);
             gameWindowManager.GameWindowClosing += GameWindowManager_GameWindowClosing;
 
+            UISettings.ActiveSettings = new UISettings();
 #if XNA
             KeyboardEventInput.Initialize(Game.Window);
 #endif
@@ -529,7 +533,7 @@ namespace Rampastring.XNAUI
 
                 if (HasFocus && control.InputEnabled && control.Enabled && 
                     (activeControl == null &&
-                    control.WindowRectangle().Contains(Cursor.Location)
+                    control.RenderRectangle().Contains(Cursor.Location)
                     ||
                     control.Focused))
                 {
@@ -557,6 +561,9 @@ namespace Rampastring.XNAUI
 
             GraphicsDevice.Clear(Color.Black);
 
+            Renderer.ClearStack();
+            Renderer.CurrentSettings = new SpriteBatchSettings(
+                SpriteSortMode.Deferred, BlendState.NonPremultiplied, null);
             Renderer.BeginDraw();
 
             for (int i = 0; i < Controls.Count; i++)
@@ -564,7 +571,7 @@ namespace Rampastring.XNAUI
                 var control = Controls[i];
 
                 if (control.Visible)
-                    control.Draw(gameTime);
+                    control.DrawInternal(gameTime);
             }
 
             Renderer.EndDraw();
@@ -573,10 +580,11 @@ namespace Rampastring.XNAUI
             {
                 GraphicsDevice.SetRenderTarget(doubledRenderTarget);
                 GraphicsDevice.Clear(Color.Black);
-                Renderer.BeginDraw(SamplerState.PointWrap);
+                Renderer.CurrentSettings = new SpriteBatchSettings(SpriteSortMode.Deferred,
+                    BlendState.NonPremultiplied, SamplerState.PointWrap);
+                Renderer.BeginDraw();
                 Renderer.DrawTexture(renderTarget, new Rectangle(0, 0,
                     RenderResolutionX * 2, RenderResolutionY * 2), Color.White);
-                Renderer.DrawStringWithShadow("Using doubled render target", 1, Vector2.Zero, Color.Red);
                 Renderer.EndDraw();
             }
 
@@ -591,7 +599,9 @@ namespace Rampastring.XNAUI
 
             GraphicsDevice.Clear(Color.Black);
 
-            Renderer.BeginDraw(SamplerState.LinearWrap);
+            Renderer.CurrentSettings = new SpriteBatchSettings(SpriteSortMode.Deferred,
+                    BlendState.NonPremultiplied, SamplerState.LinearWrap);
+            Renderer.BeginDraw();
 
             RenderTarget2D renderTargetToDraw = doubledRenderTarget != null ? doubledRenderTarget : renderTarget;
 

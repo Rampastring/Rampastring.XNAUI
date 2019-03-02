@@ -13,25 +13,46 @@ namespace Rampastring.XNAUI.XNAControls
     /// </summary>
     public class XNALinkLabel : XNALabel
     {
+        /// <summary>
+        /// Creates a new link label.
+        /// </summary>
+        /// <param name="windowManager">The window manager.</param>
         public XNALinkLabel(WindowManager windowManager) : base(windowManager)
         {
-            IdleColor = UISettings.TextColor;
-            HoverColor = UISettings.AltColor;
         }
 
-        public Color IdleColor { get; set; }
-        public Color HoverColor { get; set; }
+        private Color? _idleColor;
 
-        private bool _drawUnderline = true;
+        /// <summary>
+        /// The color of the label when it's not hovered on.
+        /// </summary>
+        public Color IdleColor
+        {
+            get
+            {
+                return _idleColor ?? UISettings.ActiveSettings.TextColor;
+            }
+            set { _idleColor = value; if (!IsActive) RemapColor = value; }
+        }
+
+        private Color? _hoverColor;
+
+        /// <summary>
+        /// The color of the label when it's hovered on.
+        /// </summary>
+        public Color HoverColor
+        {
+            get
+            {
+                return _hoverColor ?? UISettings.ActiveSettings.AltColor;
+            }
+            set { _hoverColor = value; if (IsActive) RemapColor = value; }
+        }
 
         /// <summary>
         /// Determines whether the label's text is drawn as underlined.
         /// </summary>
-        public bool DrawUnderline
-        {
-            get { return _drawUnderline; }
-            set { _drawUnderline = value; }
-        }
+        public bool DrawUnderline { get; set; } = true;
 
         protected override void ParseAttributeFromINI(IniFile iniFile, string key, string value)
         {
@@ -42,6 +63,9 @@ namespace Rampastring.XNAUI.XNAControls
                     return;
                 case "HoverColor":
                     HoverColor = AssetLoader.GetColorFromString(value);
+                    return;
+                case "DrawUnderline":
+                    DrawUnderline = Conversions.BooleanFromString(value, DrawUnderline);
                     return;
             }
 
@@ -73,7 +97,7 @@ namespace Rampastring.XNAUI.XNAControls
         {
             DrawLabel();
 
-            var displayRectangle = WindowRectangle();
+            var displayRectangle = RenderRectangle();
 
             if (Enabled && DrawUnderline)
             {

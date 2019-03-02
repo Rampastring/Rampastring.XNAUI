@@ -7,38 +7,44 @@ namespace Rampastring.XNAUI.XNAControls
     {
         public XNAProgressBar(WindowManager windowManager) : base(windowManager)
         {
-            BorderColor = UISettings.PanelBorderColor;
-            FilledColor = UISettings.AltColor;
-            UnfilledColor = new Color(FilledColor.R / 3, FilledColor.G / 3, FilledColor.B / 3, FilledColor.A);
         }
 
-        int _borderWidth = 1;
-        public int BorderWidth
+        public int BorderWidth { get; set; } = 1;
+
+        private Color? _borderColor;
+
+        public Color BorderColor
         {
-            get { return _borderWidth; }
-            set { _borderWidth = value; }
+            get => _borderColor ?? UISettings.ActiveSettings.PanelBorderColor;
+            set => _borderColor = value;
         }
 
-        public Color BorderColor { get; set; }
+        private Color? _filledColor;
 
-        public Color FilledColor { get; set; }
+        public Color FilledColor
+        {
+            get => _filledColor ?? UISettings.ActiveSettings.AltColor;
+            set => _filledColor = value;
+        }
 
-        public Color UnfilledColor { get; set; }
+        private Color? _unfilledColor;
+
+        public Color UnfilledColor
+        {
+            get => _unfilledColor ?? new Color(FilledColor.R / 3, FilledColor.G / 3, FilledColor.B / 3, FilledColor.A);
+            set => _unfilledColor = value;
+        }
 
         public int Maximum { get; set; }
 
-        public bool SmoothBackwardsTransition { get; set; }
+        public bool SmoothBackwardTransition { get; set; }
 
         public bool SmoothForwardTransition { get; set; }
 
-        int _smoothTransitionRate = 1;
-        public int SmoothTransitionRate
-        {
-            get { return _smoothTransitionRate; }
-            set { _smoothTransitionRate = value; }
-        }
+        public int SmoothTransitionRate { get; set; } = 1;
 
-        int _value = 0;
+        private int _value = 0;
+
         public int Value
         {
             get { return _value; }
@@ -51,7 +57,7 @@ namespace Rampastring.XNAUI.XNAControls
             }
         }
 
-        int _shownValue = 0;
+        private int _shownValue = 0;
 
         public override void Update(GameTime gameTime)
         {
@@ -64,7 +70,7 @@ namespace Rampastring.XNAUI.XNAControls
             }
             else if (_shownValue > _value)
             {
-                if (SmoothBackwardsTransition)
+                if (SmoothBackwardTransition)
                     _shownValue = Math.Max(0, _shownValue - SmoothTransitionRate);
                 else
                     _shownValue = _value;
@@ -73,7 +79,7 @@ namespace Rampastring.XNAUI.XNAControls
 
         public override void Draw(GameTime gameTime)
         {
-            Rectangle wrect = WindowRectangle();
+            Rectangle wrect = RenderRectangle();
 
             for (int i = 0; i < BorderWidth; i++)
             {

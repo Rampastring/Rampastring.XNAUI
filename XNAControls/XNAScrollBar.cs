@@ -268,11 +268,11 @@ namespace Rampastring.XNAUI.XNAControls
 
             if (nonDisplayedLines <= 0)
             {
-                buttonY = btnScrollUp.WindowRectangle().Bottom;
+                buttonY = btnScrollUp.RenderRectangle().Bottom;
                 return;
             }
 
-            buttonY = WindowRectangle().Y + Math.Min(
+            buttonY = RenderRectangle().Y + Math.Min(
                 buttonMinY + (int)(((TopIndex / (double)nonDisplayedLines) * scrollablePixels) - thumbHeight / 2),
                 Height - btnScrollDown.Height - thumbHeight);
         }
@@ -302,7 +302,7 @@ namespace Rampastring.XNAUI.XNAControls
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         public override void Draw(GameTime gameTime)
         {
-            var drawArea = WindowRectangle();
+            var drawArea = RenderRectangle();
 
             if (scrollablePixels > 0)
             {

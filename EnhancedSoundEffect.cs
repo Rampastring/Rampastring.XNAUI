@@ -11,7 +11,7 @@ namespace Rampastring.XNAUI
     /// A toggleable sound effect that can also have a defined priority
     /// and a decay rate for the priority.
     /// </summary>
-    public class EnhancedSoundEffect
+    public class EnhancedSoundEffect : IDisposable
     {
         /// <summary>
         /// Creates a new prioritized sound. Loads the specified sound asset.
@@ -100,6 +100,14 @@ namespace Rampastring.XNAUI
                 return null;
 
             return soundEffect.CreateInstance();
+        }
+
+        /// <summary>
+        /// Disposes the sound effect.
+        /// </summary>
+        public void Dispose()
+        {
+            soundEffect?.Dispose();
         }
     }
 

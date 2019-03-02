@@ -9,14 +9,20 @@ namespace Rampastring.XNAUI.XNAControls
     {
         public XNASuggestionTextBox(WindowManager windowManager) : base(windowManager)
         {
-            SuggestedTextColor = UISettings.SubtleTextColor;
         }
 
         public string Suggestion { get; set; }
 
-        public Color SuggestedTextColor { get; set; }
+        private Color? _suggestedTextColor;
 
-        Color realTextColor;
+        public Color SuggestedTextColor
+        {
+            get => _suggestedTextColor ?? UISettings.ActiveSettings.SubtleTextColor;
+            set => _suggestedTextColor = value;
+        }
+
+
+        private Color realTextColor;
 
         public override void Initialize()
         {

@@ -135,6 +135,9 @@ namespace Rampastring.XNAUI.Input
 
         public override void Draw(GameTime gameTime)
         {
+            if (Textures == null)
+                return;
+
             Texture2D texture = Textures[TextureIndex];
 
             Renderer.DrawTexture(texture,

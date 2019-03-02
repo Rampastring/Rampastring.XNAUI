@@ -3,43 +3,46 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace Rampastring.XNAUI
 {
-    public static class UISettings
+    /// <summary>
+    /// A class that contains UI-related settings, like default UI colors.
+    /// </summary>
+    public class UISettings
     {
-        public static Color TextColor { get; set; }
+        /// <summary>
+        /// The currently active UI settings.
+        /// </summary>
+        public static UISettings ActiveSettings { get; set; }
 
-        public static Color SubtleTextColor { get; set; }
+        public Color TextColor { get; set; } = new Color(196, 196, 196);
 
-        public static Color AltColor { get; set; }
+        public Color SubtleTextColor { get; set; } = Color.Gray;
 
-        public static Color ButtonColor { get; set; }
+        public Color AltColor { get; set; } = Color.White;
 
-        public static Color DisabledButtonColor { get; set; }
+        public Color ButtonTextColor { get; set; } = new Color(196, 196, 196);
 
-        public static Color ButtonHoverColor { get; set; }
+        public Color DisabledItemColor { get; set; } = Color.Gray;
 
-        public static Color BackgroundColor { get; set; }
+        public Color ButtonHoverColor { get; set; } = Color.White;
 
-        public static Color FocusColor { get; set; }
-        public static Color HoverColor { get; set; }
+        public Color BackgroundColor { get; set; } = Color.Black;
 
-        public static Color WindowBackgroundColor { get; set; }
+        public Color FocusColor { get; set; } = new Color(64, 64, 64);
 
-        public static Color PanelBackgroundColor { get; set; }
+        public Color PanelBackgroundColor { get; set; } = new Color(32, 32, 32);
 
-        public static Color PanelBorderColor { get; set; }
+        public Color PanelBorderColor { get; set; } = new Color(196, 196, 196);
 
-        public static Color WindowBorderColor { get; set; }
+        public Texture2D CheckBoxCheckedTexture { get; set; }
 
-        public static Texture2D CheckBoxCheckedTexture { get; set; }
+        public Texture2D CheckBoxClearTexture { get; set; }
 
-        public static Texture2D CheckBoxClearTexture { get; set; }
+        public Texture2D CheckBoxDisabledCheckedTexture { get; set; }
 
-        public static Texture2D CheckBoxDisabledCheckedTexture { get; set; }
+        public Texture2D CheckBoxDisabledClearTexture { get; set; }
 
-        public static Texture2D CheckBoxDisabledClearTexture { get; set; }
+        public float DefaultAlphaRate = 0.005f;
 
-        public static float DefaultAlphaRate = 0.005f;
-
-        public static float CheckBoxAlphaRate = 0.05f;
+        public float CheckBoxAlphaRate = 0.05f;
     }
 }

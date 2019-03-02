@@ -14,54 +14,16 @@ namespace Rampastring.XNAUI.XNAControls
     {
         public XNAButton(WindowManager windowManager) : base(windowManager) 
         {
-            AlphaRate = UISettings.DefaultAlphaRate;
-            TextColorIdle = UISettings.ButtonColor;
-            TextColorHover = UISettings.ButtonHoverColor;
-            TextColorDisabled = UISettings.DisabledButtonColor;
+            AlphaRate = UISettings.ActiveSettings.DefaultAlphaRate;
         }
 
         public Texture2D IdleTexture { get; set; }
 
         public Texture2D HoverTexture { get; set; }
 
-        SoundEffect _hoverSoundEffect;
-        public SoundEffect HoverSoundEffect
-        {
-            get { return _hoverSoundEffect; }
-            set
-            {
-                if (hoverSoundInstance != null)
-                    hoverSoundInstance.Dispose();
+        public EnhancedSoundEffect HoverSoundEffect { get; set; }
 
-                if (value != null)
-                    hoverSoundInstance = value.CreateInstance();
-                else
-                    hoverSoundInstance = null;
-
-                _hoverSoundEffect = value;
-            }
-        }
-
-        SoundEffectInstance hoverSoundInstance;
-
-        SoundEffect _clickSoundEffect;
-        public SoundEffect ClickSoundEffect
-        {
-            get { return _clickSoundEffect; }
-            set
-            {
-                if (clickSoundInstance != null)
-                    clickSoundInstance.Dispose();
-
-                if (value != null)
-                    clickSoundInstance = value.CreateInstance();
-                else
-                    clickSoundInstance = null;
-
-                _clickSoundEffect = value;
-            }
-        }
-        SoundEffectInstance clickSoundInstance { get; set; }
+        public EnhancedSoundEffect ClickSoundEffect { get; set; }
 
         public float AlphaRate { get; set; }
         float idleTextureAlpha = 1.0f;
@@ -71,13 +33,7 @@ namespace Rampastring.XNAUI.XNAControls
         public Keys HotKey { get; set; }
 
         public int FontIndex { get; set; }
-
-        bool _allowClick = true;
-        public bool AllowClick
-        {
-            get { return _allowClick; }
-            set { _allowClick = value; }
-        }
+        public bool AllowClick { get; set; } = true;
 
         string _text = String.Empty;
         public override string Text
@@ -96,24 +52,50 @@ namespace Rampastring.XNAUI.XNAControls
         public int TextXPosition { get; set; }
         public int TextYPosition { get; set; }
 
-        private Color _textColorIdle;
+        private Color? _textColorIdle;
 
         public Color TextColorIdle
         {
-            get { return _textColorIdle; }
+            get
+            {
+                return _textColorIdle ?? UISettings.ActiveSettings.ButtonTextColor;
+            }
             set
             {
                 _textColorIdle = value;
+
                 if (!IsActive)
-                    textColor = _textColorIdle;
+                    textColor = value;
             }
         }
 
-        public Color TextColorHover { get; set; }
+        private Color? _textColorHover;
 
-        public Color TextColorDisabled { get; set; }
+        public Color TextColorHover
+        {
+            get
+            {
+                return _textColorHover ?? UISettings.ActiveSettings.ButtonHoverColor;
+            }
+            set { _textColorHover = value; }
+        }
 
+        private Color? _textColorDisabled;
+
+        public Color TextColorDisabled
+        {
+            get
+            {
+                return _textColorDisabled ?? UISettings.ActiveSettings.DisabledItemColor;
+            }
+            set { _textColorDisabled = value; }
+        }
+
+        /// <summary>
+        /// The current color of the button's text.
+        /// </summary>
         Color textColor = Color.White;
+
         public bool AdaptiveText { get; set; } = true;
 
         public override void OnMouseEnter()
@@ -123,12 +105,7 @@ namespace Rampastring.XNAUI.XNAControls
             if (!AllowClick || Cursor.LeftDown)
                 return;
 
-#if !WINDOWSGL
-            if (HoverSoundEffect != null)
-            {
-                AudioMaster.PlaySound(hoverSoundInstance);
-            }
-#endif
+            HoverSoundEffect?.Play();
 
             if (HoverTexture != null)
             {
@@ -162,10 +139,7 @@ namespace Rampastring.XNAUI.XNAControls
             if (!AllowClick)
                 return;
 
-#if !WINDOWSGL
-            if (ClickSoundEffect != null)
-                clickSoundInstance.Play();
-#endif
+            ClickSoundEffect?.Play();
 
             base.OnLeftClick();
         }
@@ -228,10 +202,10 @@ namespace Rampastring.XNAUI.XNAControls
                     TextColorHover = AssetLoader.GetColorFromString(value);
                     return;
                 case "HoverSoundEffect":
-                    HoverSoundEffect = AssetLoader.LoadSound(value);
+                    HoverSoundEffect = new EnhancedSoundEffect(value);
                     return;
                 case "ClickSoundEffect":
-                    ClickSoundEffect = AssetLoader.LoadSound(value);
+                    ClickSoundEffect = new EnhancedSoundEffect(value);
                     return;
                 case "AdaptiveText":
                     AdaptiveText = Conversions.BooleanFromString(value, true);
@@ -317,25 +291,23 @@ namespace Rampastring.XNAUI.XNAControls
 
         public override void Draw(GameTime gameTime)
         {
-            Rectangle windowRectangle = WindowRectangle();
-
             if (IdleTexture != null)
             {
                 if (idleTextureAlpha > 0f)
-                    Renderer.DrawTexture(IdleTexture, windowRectangle, 
+                    DrawTexture(IdleTexture, Point.Zero, 
                         new Color(RemapColor.R, RemapColor.G, RemapColor.B, (int)(idleTextureAlpha * Alpha * 255)));
 
                 if (HoverTexture != null && hoverTextureAlpha > 0f)
-                    Renderer.DrawTexture(HoverTexture, windowRectangle, 
+                    DrawTexture(HoverTexture, Point.Zero, 
                         new Color(RemapColor.R, RemapColor.G, RemapColor.B, (int)(hoverTextureAlpha * Alpha * 255)));
             }
 
-            Vector2 textPosition = new Vector2(windowRectangle.X + TextXPosition, windowRectangle.Y + TextYPosition);
+            Vector2 textPosition = new Vector2(TextXPosition, TextYPosition);
 
             if (!Enabled || !AllowClick)
-                Renderer.DrawStringWithShadow(_text, FontIndex, textPosition, TextColorDisabled);
+                DrawStringWithShadow(_text, FontIndex, textPosition, TextColorDisabled);
             else
-                Renderer.DrawStringWithShadow(_text, FontIndex, textPosition, GetColorWithAlpha(textColor));
+                DrawStringWithShadow(_text, FontIndex, textPosition, GetColorWithAlpha(textColor));
 
             base.Draw(gameTime);
         }

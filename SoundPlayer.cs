@@ -32,7 +32,6 @@ namespace Rampastring.XNAUI
             try
             {
                 MediaPlayer.Volume = volume;
-                AudioMaster.SetVolume(volume);
             }
             catch (Exception ex)
             {

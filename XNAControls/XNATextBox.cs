@@ -20,15 +20,11 @@ namespace Rampastring.XNAUI.XNAControls
         protected const double BAR_OFF_TIME = 0.5;
 
         /// <summary>
-        /// Creates a new XNATextBox.
+        /// Creates a new text box.
         /// </summary>
         /// <param name="windowManager">The WindowManager that will be associated with this control.</param>
         public XNATextBox(WindowManager windowManager) : base(windowManager)
         {
-            IdleBorderColor = UISettings.PanelBorderColor;
-            ActiveBorderColor = UISettings.AltColor;
-            TextColor = UISettings.AltColor;
-            BackColor = UISettings.BackgroundColor;
         }
 
         /// <summary>
@@ -48,38 +44,71 @@ namespace Rampastring.XNAUI.XNAControls
         /// </summary>
         public event EventHandler TextChanged;
 
-        public virtual Color TextColor { get; set; }
+        private Color? _textColor;
+
+        /// <summary>
+        /// The color of the text in the text box.
+        /// </summary>
+        public virtual Color TextColor
+        {
+            get
+            {
+                return _textColor ?? UISettings.ActiveSettings.AltColor;
+            }
+            set { _textColor = value; }
+        }
+
+        private Color? _idleBorderColor;
 
         /// <summary>
         /// The color of the text box border when the text box is inactive.
         /// </summary>
-        public Color IdleBorderColor { get; set; }
+        public virtual Color IdleBorderColor
+        {
+            get
+            {
+                return _idleBorderColor ?? UISettings.ActiveSettings.PanelBorderColor;
+            }
+            set { _idleBorderColor = value; }
+        }
+
+        private Color? _activeBorderColor;
 
         /// <summary>
         /// The color of the text box border when the text box is selected.
         /// </summary>
-        public Color ActiveBorderColor { get; set; }
+        public Color ActiveBorderColor
+        {
+            get
+            {
+                return _activeBorderColor ?? UISettings.ActiveSettings.AltColor;
+            }
+            set { _activeBorderColor = value; }
+        }
+
+        private Color? _backColor;
 
         /// <summary>
         /// The color of the text box background.
         /// </summary>
-        public Color BackColor { get; set; }
+        public Color BackColor
+        {
+            get
+            {
+                return _backColor ?? UISettings.ActiveSettings.BackgroundColor;
+            }
+            set { _backColor = value; }
+        }
 
         /// <summary>
         /// The index of the spritefont that this textbox uses.
         /// </summary>
         public int FontIndex { get; set; }
 
-        private int _maximumTextLength = int.MaxValue;
-
         /// <summary>
         /// The maximum length of the text of this text box, in characters.
         /// </summary>
-        public int MaximumTextLength
-        {
-            get { return _maximumTextLength; }
-            set { _maximumTextLength = value; }
-        }
+        public int MaximumTextLength { get; set; } = int.MaxValue;
 
         /// <summary>
         /// The text on the text box.
@@ -489,17 +518,15 @@ namespace Rampastring.XNAUI.XNAControls
 
         public override void Draw(GameTime gameTime)
         {
-            Rectangle displayRectangle = WindowRectangle();
-
-            Renderer.FillRectangle(displayRectangle, BackColor);
+            FillControlArea(BackColor);
 
             if (WindowManager.SelectedControl == this && Enabled && WindowManager.HasFocus)
-                Renderer.DrawRectangle(displayRectangle, ActiveBorderColor);
+                DrawRectangle(new Rectangle(0, 0, Width, Height), ActiveBorderColor);
             else
-                Renderer.DrawRectangle(displayRectangle, IdleBorderColor);
+                DrawRectangle(new Rectangle(0, 0, Width, Height), IdleBorderColor);
 
-            Renderer.DrawStringWithShadow(Text.Substring(TextStartPosition, TextEndPosition - TextStartPosition),
-                FontIndex, new Vector2(displayRectangle.X + TEXT_HORIZONTAL_MARGIN, displayRectangle.Y + TEXT_VERTICAL_MARGIN),
+            DrawStringWithShadow(Text.Substring(TextStartPosition, TextEndPosition - TextStartPosition),
+                FontIndex, new Vector2(TEXT_HORIZONTAL_MARGIN, TEXT_VERTICAL_MARGIN),
                 TextColor);
 
             if (WindowManager.SelectedControl == this && Enabled && WindowManager.HasFocus &&
@@ -510,8 +537,7 @@ namespace Rampastring.XNAUI.XNAControls
                 string inputText = Text.Substring(TextStartPosition, InputPosition - TextStartPosition);
                 barLocationX += (int)Renderer.GetTextDimensions(inputText, FontIndex).X;
 
-                Renderer.DrawRectangle(new Rectangle(displayRectangle.X + barLocationX,
-                    displayRectangle.Y + 2, 1, displayRectangle.Height - 4), Color.White);
+                FillRectangle(new Rectangle(barLocationX, 2, 1, Height - 4), Color.White);
             }
 
             base.Draw(gameTime);

@@ -39,8 +39,7 @@ namespace Rampastring.XNAUI.XNAControls
             }
         }
 
-        public SoundEffect SoundEffectOnClick { get; set; }
-        SoundEffectInstance clickEffectInstance;
+        public EnhancedSoundEffect ClickSound { get; set; }
 
         public Texture2D ButtonTexture {get; set; }
 
@@ -52,9 +51,6 @@ namespace Rampastring.XNAUI.XNAControls
 
             if (ButtonTexture == null)
                 ButtonTexture = AssetLoader.LoadTexture("trackbarButton.png");
-
-            if (SoundEffectOnClick != null)
-                clickEffectInstance = SoundEffectOnClick.CreateInstance();
         }
 
         protected override void ParseAttributeFromINI(IniFile iniFile, string key, string value)
@@ -69,6 +65,9 @@ namespace Rampastring.XNAUI.XNAControls
                     return;
                 case "Value":
                     Value = iniFile.GetIntValue(Name, "Value", 0);
+                    return;
+                case "ClickSound":
+                    ClickSound = new EnhancedSoundEffect(value);
                     return;
             }
 
@@ -134,7 +133,7 @@ namespace Rampastring.XNAUI.XNAControls
                     int newValue = currentTab + MinValue;
 
                     if (Value != newValue)
-                        clickEffectInstance?.Play();
+                        ClickSound?.Play();
 
                     Value = newValue;
 
@@ -143,7 +142,7 @@ namespace Rampastring.XNAUI.XNAControls
             }
 
             if (Value != MaxValue)
-                clickEffectInstance?.Play();
+                ClickSound?.Play();
 
             Value = MaxValue;
         }
@@ -152,13 +151,11 @@ namespace Rampastring.XNAUI.XNAControls
         {
             base.Draw(gameTime);
 
-            Rectangle windowRectangle = WindowRectangle();
-
             int tabIndex = Value - MinValue;
 
             int tabCount = MaxValue - MinValue;
 
-            double pixelsPerTab = (windowRectangle.Width - ButtonTexture.Width) / (double)tabCount;
+            double pixelsPerTab = (Width - ButtonTexture.Width) / (double)tabCount;
 
             double tabLocationX = tabIndex * pixelsPerTab;
 
@@ -167,8 +164,8 @@ namespace Rampastring.XNAUI.XNAControls
             //else if (tabIndex == tabCount)
             //    tabLocationX -= ButtonTexture.Width / 2;
 
-            Renderer.DrawTexture(ButtonTexture,
-                new Rectangle((int)(windowRectangle.X + tabLocationX), windowRectangle.Y, ButtonTexture.Width, windowRectangle.Height),
+            DrawTexture(ButtonTexture,
+                new Rectangle((int)(tabLocationX), 0, ButtonTexture.Width, Height),
                 GetColorWithAlpha(Color.White));
         }
     }

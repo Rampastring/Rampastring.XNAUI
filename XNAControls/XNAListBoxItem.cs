@@ -11,7 +11,6 @@ namespace Rampastring.XNAUI.XNAControls
         public XNAListBoxItem(string text)
         {
             Text = text;
-            TextColor = UISettings.AltColor;
         }
 
         public XNAListBoxItem(string text, Color textColor)
@@ -20,9 +19,27 @@ namespace Rampastring.XNAUI.XNAControls
             TextColor = textColor;
         }
 
-        public Color TextColor { get; set; }
+        private Color? _textColor;
 
-        public Color BackgroundColor { get; set; }
+        public Color TextColor
+        {
+            get
+            {
+                return _textColor ?? UISettings.ActiveSettings.AltColor;
+            }
+            set { _textColor = value; }
+        }
+
+        private Color? _backgroundColor;
+
+        public Color BackgroundColor
+        {
+            get
+            {
+                return _backgroundColor ?? UISettings.ActiveSettings.BackgroundColor;
+            }
+            set { _backgroundColor = value; }
+        }
 
         public Texture2D Texture { get; set; }
 

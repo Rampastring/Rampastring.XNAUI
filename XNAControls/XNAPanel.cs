@@ -9,21 +9,27 @@ namespace Rampastring.XNAUI.XNAControls
     {
         public XNAPanel(WindowManager windowManager) : base(windowManager)
         {
-            BorderColor = UISettings.PanelBorderColor;
         }
 
-        public PanelBackgroundImageDrawMode DrawMode = PanelBackgroundImageDrawMode.TILED;
+        public PanelBackgroundImageDrawMode PanelBackgroundDrawMode = PanelBackgroundImageDrawMode.STRETCHED;
 
         public virtual Texture2D BackgroundTexture { get; set; }
 
-        public Color BorderColor { get; set; }
+        private Color? _borderColor;
 
-        bool _drawBorders = true;
-        public bool DrawBorders
+        public Color BorderColor
         {
-            get { return _drawBorders; }
-            set { _drawBorders = value; }
+            get
+            {
+                if (_borderColor.HasValue)
+                    return _borderColor.Value;
+
+                return UISettings.ActiveSettings.PanelBorderColor;
+            }
+            set { _borderColor = value; }
         }
+
+        public bool DrawBorders { get; set; } = true;
 
         /// <summary>
         /// If this is set, the XNAPanel will render itself on a separate render target.
@@ -40,7 +46,7 @@ namespace Rampastring.XNAUI.XNAControls
         /// The panel's transparency changing rate per 100 milliseconds.
         /// If the panel is transparent, it'll become non-transparent at this rate.
         /// </summary>
-        public float AlphaRate = 0.1f;
+        public float AlphaRate = 0.0f;
 
         public override void Initialize()
         {
@@ -62,9 +68,9 @@ namespace Rampastring.XNAUI.XNAControls
                     return;
                 case "DrawMode":
                     if (value == "Tiled")
-                        DrawMode = PanelBackgroundImageDrawMode.TILED;
+                        PanelBackgroundDrawMode = PanelBackgroundImageDrawMode.TILED;
                     else
-                        DrawMode = PanelBackgroundImageDrawMode.STRETCHED;
+                        PanelBackgroundDrawMode = PanelBackgroundImageDrawMode.STRETCHED;
                     return;
                 case "AlphaRate":
                     AlphaRate = Conversions.FloatFromString(value, 0.01f);
@@ -103,60 +109,58 @@ namespace Rampastring.XNAUI.XNAControls
 
         protected void DrawPanel()
         {
-            Color color = GetRemapColor();
-
-            Rectangle windowRectangle = WindowRectangle();
+            Color color = RemapColor;
 
             if (BackgroundTexture != null)
             {
-                if (DrawMode == PanelBackgroundImageDrawMode.TILED)
+                if (PanelBackgroundDrawMode == PanelBackgroundImageDrawMode.TILED)
                 {
-                    for (int x = 0; x < windowRectangle.Width; x += BackgroundTexture.Width)
+                    for (int x = 0; x < Width; x += BackgroundTexture.Width)
                     {
-                        for (int y = 0; y < windowRectangle.Height; y += BackgroundTexture.Height)
+                        for (int y = 0; y < Height; y += BackgroundTexture.Height)
                         {
-                            if (x + BackgroundTexture.Width < windowRectangle.Width)
+                            if (x + BackgroundTexture.Width < Width)
                             {
-                                if (y + BackgroundTexture.Height < windowRectangle.Height)
+                                if (y + BackgroundTexture.Height < Height)
                                 {
-                                    Renderer.DrawTexture(BackgroundTexture, new Rectangle(windowRectangle.X + x, windowRectangle.Y + y,
+                                    Renderer.DrawTexture(BackgroundTexture, new Rectangle(X + x, Y + y,
                                         BackgroundTexture.Width, BackgroundTexture.Height), color);
                                 }
                                 else
                                 {
                                     Renderer.DrawTexture(BackgroundTexture,
-                                        new Rectangle(0, 0, BackgroundTexture.Width, windowRectangle.Height - y),
-                                        new Rectangle(windowRectangle.X + x, windowRectangle.Y + y,
-                                        BackgroundTexture.Width, windowRectangle.Height - y), color);
+                                        new Rectangle(0, 0, BackgroundTexture.Width, Height - y),
+                                        new Rectangle(X + x, Y + y,
+                                        BackgroundTexture.Width, Height - y), color);
                                 }
                             }
-                            else if (y + BackgroundTexture.Height < windowRectangle.Height)
+                            else if (y + BackgroundTexture.Height < Height)
                             {
                                 Renderer.DrawTexture(BackgroundTexture,
-                                    new Rectangle(0, 0, windowRectangle.Width - x, BackgroundTexture.Height),
-                                    new Rectangle(windowRectangle.X + x, windowRectangle.Y + y,
-                                    windowRectangle.Width - x, BackgroundTexture.Height), color);
+                                    new Rectangle(0, 0, Width - x, BackgroundTexture.Height),
+                                    new Rectangle(X + x, Y + y,
+                                    Width - x, BackgroundTexture.Height), color);
                             }
                             else
                             {
                                 Renderer.DrawTexture(BackgroundTexture,
-                                    new Rectangle(0, 0, windowRectangle.Width - x, windowRectangle.Height - y),
-                                    new Rectangle(windowRectangle.X + x, windowRectangle.Y + y,
-                                    windowRectangle.Width - x, windowRectangle.Height - y), color);
+                                    new Rectangle(0, 0, Width - x, Height - y),
+                                    new Rectangle(X + x, Y + y,
+                                    Width - x, Height - y), color);
                             }
                         }
                     }
                 }
                 else
                 {
-                    Renderer.DrawTexture(BackgroundTexture, windowRectangle, color);
+                    DrawTexture(BackgroundTexture, new Rectangle(0, 0, Width, Height), color);
                 }
             }
         }
 
         protected void DrawPanelBorders()
         {
-            Renderer.DrawRectangle(WindowRectangle(), GetColorWithAlpha(BorderColor));
+            Renderer.DrawRectangle(RenderRectangle(), GetColorWithAlpha(BorderColor));
         }
 
         public override void Draw(GameTime gameTime)

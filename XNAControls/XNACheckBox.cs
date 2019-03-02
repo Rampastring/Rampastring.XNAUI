@@ -11,13 +11,15 @@ namespace Rampastring.XNAUI.XNAControls
     /// </summary>
     public class XNACheckBox : XNAControl
     {
-        const int TEXT_PADDING_DEFAULT = 5;
+        private const int TEXT_PADDING_DEFAULT = 5;
 
+        /// <summary>
+        /// Creates a new check box.
+        /// </summary>
+        /// <param name="windowManager">The window manager.</param>
         public XNACheckBox(WindowManager windowManager) : base(windowManager)
         {
-            RemapColor = UISettings.TextColor;
-            HighlightColor = UISettings.AltColor;
-            AlphaRate = UISettings.CheckBoxAlphaRate * 2.0;
+            AlphaRate = UISettings.ActiveSettings.CheckBoxAlphaRate * 2.0;
         }
 
         public event EventHandler CheckedChanged;
@@ -28,9 +30,21 @@ namespace Rampastring.XNAUI.XNAControls
         public Texture2D DisabledCheckedTexture { get; set; }
         public Texture2D DisabledClearTexture { get; set; }
 
-        public SoundEffect CheckSoundEffect { get; set; }
+        /// <summary>
+        /// The sound effect that is played when the check box is clicked on.
+        /// </summary>
+        public EnhancedSoundEffect CheckSoundEffect { get; set; }
+
+        /// <summary>
+        /// The sound effect that is played when the cursor enters the check box's area.
+        /// </summary>
+        public EnhancedSoundEffect HoverSoundEffect { get; set; }
 
         bool _checked = false;
+
+        /// <summary>
+        /// Determines whether the check box is currently checked.
+        /// </summary>
         public bool Checked
         {
             get { return _checked; }
@@ -44,27 +58,57 @@ namespace Rampastring.XNAUI.XNAControls
             }
         }
 
-        bool _allowChecking = true;
-        public bool AllowChecking
-        {
-            get { return _allowChecking; }
-            set { _allowChecking = value; }
-        }
+        /// <summary>
+        /// Determines whether the user can (un)check the box by clicking on it.
+        /// </summary>
+        public bool AllowChecking { get; set; } = true;
 
+        /// <summary>
+        /// The index of the text font.
+        /// </summary>
         public int FontIndex { get; set; }
 
-        int _textPadding = TEXT_PADDING_DEFAULT;
+        /// <summary>
+        /// The space, in pixels, between the check box and its text.
+        /// </summary>
+        public int TextPadding { get; set; } = TEXT_PADDING_DEFAULT;
 
-        public int TextPadding
+        private Color? _idleColor;
+
+        /// <summary>
+        /// The color of the check box's text when it's not hovered on.
+        /// </summary>
+        public Color IdleColor
         {
-            get { return _textPadding; }
-            set { _textPadding = value; }
+            get
+            {
+                return _idleColor ?? UISettings.ActiveSettings.TextColor;
+            }
+            set { _idleColor = value; }
         }
 
-        public Color HighlightColor { get; set; }
+        private Color? _highlightColor;
+
+        /// <summary>
+        /// The color of the check box's text when it's hovered on.
+        /// </summary>
+        public Color HighlightColor
+        {
+            get
+            {
+                return _highlightColor ?? UISettings.ActiveSettings.AltColor;
+            }
+            set
+            {
+                _highlightColor = value;
+            }
+        }
 
         public double AlphaRate { get; set; }
 
+        /// <summary>
+        /// Gets or sets the text of the check box.
+        /// </summary>
         public override string Text
         {
             get
@@ -82,37 +126,29 @@ namespace Rampastring.XNAUI.XNAControls
         int textLocationX;
         int textLocationY;
 
-        Color _textColor;
-
         double checkedAlpha = 0.0;
 
-        SoundEffectInstance checkSoundEffectInstance;
 
         public override void Initialize()
         {
             if (CheckedTexture == null)
-                CheckedTexture = UISettings.CheckBoxCheckedTexture;
+                CheckedTexture = UISettings.ActiveSettings.CheckBoxCheckedTexture;
 
             if (ClearTexture == null)
-                ClearTexture = UISettings.CheckBoxClearTexture;
+                ClearTexture = UISettings.ActiveSettings.CheckBoxClearTexture;
 
             if (DisabledCheckedTexture == null)
-                DisabledCheckedTexture = UISettings.CheckBoxDisabledCheckedTexture;
+                DisabledCheckedTexture = UISettings.ActiveSettings.CheckBoxDisabledCheckedTexture;
 
             if (DisabledClearTexture == null)
-                DisabledClearTexture = UISettings.CheckBoxDisabledClearTexture;
+                DisabledClearTexture = UISettings.ActiveSettings.CheckBoxDisabledClearTexture;
 
             SetTextPositionAndSize();
-
-            _textColor = RemapColor;
 
             if (Checked)
             {
                 checkedAlpha = 1.0;
             }
-
-            if (CheckSoundEffect != null)
-                checkSoundEffectInstance = CheckSoundEffect.CreateInstance();
 
             base.Initialize();
         }
@@ -165,32 +201,33 @@ namespace Rampastring.XNAUI.XNAControls
             }
         }
 
+        public override void OnMouseEnter()
+        {
+            if (AllowChecking)
+            {
+                HoverSoundEffect?.Play();
+            }
+
+            base.OnMouseEnter();
+        }
+
+        /// <summary>
+        /// Handles left mouse button clicks on the check box.
+        /// </summary>
         public override void OnLeftClick()
         {
             if (AllowChecking)
             {
                 Checked = !Checked;
-                if (checkSoundEffectInstance != null)
-                    AudioMaster.PlaySound(checkSoundEffectInstance);
+                CheckSoundEffect?.Play();
             }
 
             base.OnLeftClick();
         }
 
-        public override void OnMouseEnter()
-        {
-            _textColor = HighlightColor;
-
-            base.OnMouseEnter();
-        }
-
-        public override void OnMouseLeave()
-        {
-            _textColor = RemapColor;
-
-            base.OnMouseLeave();
-        }
-
+        /// <summary>
+        /// Updates the check box's alpha each frame.
+        /// </summary>
         public override void Update(GameTime gameTime)
         {
             double alphaRate = AlphaRate * (gameTime.ElapsedGameTime.TotalMilliseconds / 10.0);
@@ -207,6 +244,9 @@ namespace Rampastring.XNAUI.XNAControls
             base.Update(gameTime);
         }
 
+        /// <summary>
+        /// Draws the check box.
+        /// </summary>
         public override void Draw(GameTime gameTime)
         {
             Texture2D clearTexture;
@@ -223,10 +263,8 @@ namespace Rampastring.XNAUI.XNAControls
                 checkedTexture = DisabledCheckedTexture;
             }
 
-            Rectangle displayRectangle = WindowRectangle();
-
-            int checkBoxYPosition = displayRectangle.Y;
-            int textYPosition = displayRectangle.Y + textLocationY;
+            int checkBoxYPosition = 0;
+            int textYPosition = textLocationY;
 
             if (textLocationY < 0)
             {
@@ -235,19 +273,19 @@ namespace Rampastring.XNAUI.XNAControls
                 // rectangle and the check-box in the middle of the text.
                 // This is necessary for input to work properly.
                 checkBoxYPosition -= textLocationY;
-                textYPosition = displayRectangle.Y;
+                textYPosition = 0;
             }
 
-            if (!String.IsNullOrEmpty(Text))
+            if (!string.IsNullOrEmpty(Text))
             {
-                Color textColor = _textColor;
-                if (AllowChecking)
-                    textColor = _textColor;
-                else
+                Color textColor;
+                if (!AllowChecking)
                     textColor = Color.Gray;
+                else
+                    textColor = IsActive ? HighlightColor : IdleColor;
 
-                Renderer.DrawStringWithShadow(Text, FontIndex,
-                    new Vector2(displayRectangle.X + checkedTexture.Width + TextPadding, textYPosition),
+                DrawStringWithShadow(Text, FontIndex,
+                    new Vector2(checkedTexture.Width + TextPadding, textYPosition),
                     textColor);
             }
 
@@ -255,25 +293,25 @@ namespace Rampastring.XNAUI.XNAControls
             // if-else routine, but oh well
             if (checkedAlpha == 0.0)
             {
-                Renderer.DrawTexture(clearTexture,
-                    new Rectangle(displayRectangle.X, checkBoxYPosition,
+                DrawTexture(clearTexture,
+                    new Rectangle(0, checkBoxYPosition,
                     clearTexture.Width, clearTexture.Height), Color.White);
             }
             else if (checkedAlpha == 1.0)
             {
                 Renderer.DrawTexture(checkedTexture,
-                    new Rectangle(displayRectangle.X, checkBoxYPosition,
+                    new Rectangle(0, checkBoxYPosition,
                     clearTexture.Width, clearTexture.Height), 
                     new Color(255, 255, 255, (int)(checkedAlpha * 255)));
             }
             else
             {
                 Renderer.DrawTexture(clearTexture,
-                    new Rectangle(displayRectangle.X, checkBoxYPosition,
+                    new Rectangle(0, checkBoxYPosition,
                     clearTexture.Width, clearTexture.Height), Color.White);
 
                 Renderer.DrawTexture(checkedTexture,
-                    new Rectangle(displayRectangle.X, checkBoxYPosition,
+                    new Rectangle(0, checkBoxYPosition,
                     clearTexture.Width, clearTexture.Height),
                     new Color(255, 255, 255, (int)(checkedAlpha * 255)));
             }

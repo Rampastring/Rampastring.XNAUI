@@ -1,6 +1,7 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Graphics;
+using Rampastring.Tools;
 using System;
 using System.Collections.Generic;
 
@@ -13,7 +14,6 @@ namespace Rampastring.XNAUI.XNAControls
     {
         public XNATabControl(WindowManager windowManager) : base(windowManager)
         {
-            TextColor = UISettings.AltColor;
         }
 
         public delegate void SelectedIndexChangedEventHandler(object sender, EventArgs e);
@@ -38,19 +38,27 @@ namespace Rampastring.XNAUI.XNAControls
 
         public bool DisposeTexturesOnTabRemove { get; set; }
 
-        public Color TextColor { get; set; }
+        private Color? _textColor;
+
+        public Color TextColor
+        {
+            get
+            {
+                if (_textColor.HasValue)
+                    return _textColor.Value;
+
+                return UISettings.ActiveSettings.AltColor;
+            }
+            set { _textColor = value; }
+        }
 
         List<Tab> Tabs = new List<Tab>();
 
-        public SoundEffect SoundOnClick { get; set; }
-        SoundEffectInstance _soundInstance;
+        public EnhancedSoundEffect ClickSound { get; set; }
 
         public override void Initialize()
         {
             base.Initialize();
-
-            if (SoundOnClick != null)
-                _soundInstance = SoundOnClick.CreateInstance();
         }
 
         public void MakeSelectable(int index)
@@ -99,6 +107,18 @@ namespace Rampastring.XNAUI.XNAControls
             Height = defaultTexture.Height;
         }
 
+        protected override void ParseAttributeFromINI(IniFile iniFile, string key, string value)
+        {
+            if (key.StartsWith("RemoveTabIndex"))
+            {
+                int index = int.Parse(key.Substring(14));
+                if (Conversions.BooleanFromString(value, false))
+                    RemoveTab(index);
+            }
+
+            base.ParseAttributeFromINI(iniFile, key, value);
+        }
+
         public override void OnLeftClick()
         {
             base.OnLeftClick();
@@ -115,15 +135,7 @@ namespace Rampastring.XNAUI.XNAControls
                 {
                     if (tab.Selectable)
                     {
-                        if (_soundInstance != null)
-                        {
-                            if (_soundInstance.State == SoundState.Playing)
-                            {
-                                _soundInstance.Stop();
-                            }
-
-                            AudioMaster.PlaySound(_soundInstance);
-                        }
+                        ClickSound?.Play();
 
                         SelectedTab = i;
                     }
@@ -139,22 +151,16 @@ namespace Rampastring.XNAUI.XNAControls
         {
             int x = 0;
 
-            Rectangle windowRectangle = WindowRectangle();
-
             for (int i = 0; i < Tabs.Count; i++)
             {
                 Tab tab = Tabs[i];
 
-                Texture2D texture = tab.DefaultTexture;
+                Texture2D texture = i == SelectedTab ? tab.PressedTexture : tab.DefaultTexture;
 
-                if (i == SelectedTab)
-                    texture = tab.PressedTexture;
+                DrawTexture(texture, new Point(x, 0), RemapColor);
 
-                Renderer.DrawTexture(texture, new Rectangle(windowRectangle.X + x, windowRectangle.Y,
-                    tab.DefaultTexture.Width, tab.DefaultTexture.Height), RemapColor);
-
-                Renderer.DrawStringWithShadow(tab.Text, FontIndex,
-                    new Vector2(windowRectangle.X + x + tab.TextXPosition, windowRectangle.Y + tab.TextYPosition),
+                DrawStringWithShadow(tab.Text, FontIndex,
+                    new Vector2(x + tab.TextXPosition, tab.TextYPosition),
                     TextColor);
 
                 x += tab.DefaultTexture.Width;

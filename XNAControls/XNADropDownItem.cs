@@ -8,7 +8,7 @@ namespace Rampastring.XNAUI.XNAControls
     /// </summary>
     public class XNADropDownItem
     {
-        public Color TextColor { get; set; }
+        public Color? TextColor { get; set; }
 
         public Texture2D Texture { get; set; }
 

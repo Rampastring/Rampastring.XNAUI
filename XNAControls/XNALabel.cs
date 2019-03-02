@@ -11,7 +11,17 @@ namespace Rampastring.XNAUI.XNAControls
     {
         public XNALabel(WindowManager windowManager) : base(windowManager)
         {
-            RemapColor = UISettings.TextColor;
+        }
+
+        private Color? _textColor;
+
+        public Color TextColor
+        {
+            get
+            {
+                return _textColor ?? UISettings.ActiveSettings.TextColor;
+            }
+            set { _textColor = value; }
         }
 
         public int FontIndex { get; set; }
@@ -72,6 +82,11 @@ namespace Rampastring.XNAUI.XNAControls
         {
             switch (key)
             {
+                case "RemapColor":
+                case "TextColor":
+                    string[] colors = value.Split(',');
+                    TextColor = AssetLoader.GetColorFromString(value);
+                    return;
                 case "FontIndex":
                     FontIndex = Conversions.IntFromString(value, 0);
                     return;
@@ -108,7 +123,7 @@ namespace Rampastring.XNAUI.XNAControls
         protected void DrawLabel()
         {
             if (!string.IsNullOrEmpty(Text))
-                Renderer.DrawStringWithShadow(Text, FontIndex, new Vector2(GetLocationX(), GetLocationY()), GetRemapColor());
+                DrawStringWithShadow(Text, FontIndex, Vector2.Zero, TextColor);
         }
     }
 

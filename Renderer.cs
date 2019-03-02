@@ -8,18 +8,39 @@ using System.Text;
 
 namespace Rampastring.XNAUI
 {
+    public struct SpriteBatchSettings
+    {
+        public SpriteBatchSettings(SpriteSortMode ssm, BlendState bs, SamplerState ss)
+        {
+            SpriteSortMode = ssm;
+            BlendState = bs;
+            SamplerState = ss;
+        }
+
+        public SpriteSortMode SpriteSortMode { get; }
+        public SamplerState SamplerState { get; }
+        public BlendState BlendState { get; }
+    }
+
+    /// <summary>
+    /// Provides static methods for drawing.
+    /// </summary>
     public static class Renderer
     {
-        static SpriteBatch SpriteBatch;
+        private static SpriteBatch spriteBatch;
 
-        static List<SpriteFont> Fonts;
+        private static List<SpriteFont> fonts;
 
-        static Texture2D whitePixelTexture;
+        private static Texture2D whitePixelTexture;
+
+        private static readonly LinkedList<SpriteBatchSettings> settingStack = new LinkedList<SpriteBatchSettings>();
+
+        internal static SpriteBatchSettings CurrentSettings;
 
         public static void Initialize(GraphicsDevice gd, ContentManager content, string contentPath)
         {
-            SpriteBatch = new SpriteBatch(gd);
-            Fonts = new List<SpriteFont>();
+            spriteBatch = new SpriteBatch(gd);
+            fonts = new List<SpriteFont>();
 
             content.RootDirectory = contentPath;
 
@@ -30,7 +51,7 @@ namespace Rampastring.XNAUI
 
                 if (File.Exists(contentPath + sfName + ".xnb"))
                 {
-                    Fonts.Add(content.Load<SpriteFont>(sfName));
+                    fonts.Add(content.Load<SpriteFont>(sfName));
                     i++;
                     continue;
                 }
@@ -49,7 +70,7 @@ namespace Rampastring.XNAUI
         /// <param name="fontIndex">The index of the font.</param>
         public static string GetSafeString(string str, int fontIndex)
         {
-            SpriteFont sf = Fonts[fontIndex];
+            SpriteFont sf = fonts[fontIndex];
 
             StringBuilder sb = new StringBuilder(str);
 
@@ -75,7 +96,7 @@ namespace Rampastring.XNAUI
         public static string GetStringWithLimitedWidth(string str, int fontIndex, int maxWidth)
         {
             var sb = new StringBuilder(str);
-            var spriteFont = Fonts[fontIndex];
+            var spriteFont = fonts[fontIndex];
 
             while (spriteFont.MeasureString(sb.ToString()).X > maxWidth)
             {
@@ -87,120 +108,183 @@ namespace Rampastring.XNAUI
 
         public static TextParseReturnValue FixText(string text, int fontIndex, int width)
         {
-            return TextParseReturnValue.FixText(Fonts[fontIndex], width, text);
+            return TextParseReturnValue.FixText(fonts[fontIndex], width, text);
         }
 
         public static List<string> GetFixedTextLines(string text, int fontIndex, int width)
         {
-            return TextParseReturnValue.GetFixedTextLines(Fonts[fontIndex], width, text);
+            return TextParseReturnValue.GetFixedTextLines(fonts[fontIndex], width, text);
         }
 
+        /// <summary>
+        /// Pushes new settings into the renderer's internal stack and applies them.
+        /// A call to <see cref="PushSettings(SpriteBatchSettings)"/> should always
+        /// be followed by <see cref="PopSettings"/> once drawing with the new settings is done.
+        /// </summary>
+        /// <param name="settings">The sprite batch settings.</param>
+        public static void PushSettings(SpriteBatchSettings settings)
+        {
+            EndDraw();
+            PushSettingsInternal();
+            CurrentSettings = settings;
+            BeginDrawInternal(CurrentSettings);
+        }
+
+        /// <summary>
+        /// Pops previous settings from the renderer's internal stack and applies them.
+        /// </summary>
+        public static void PopSettings()
+        {
+            EndDraw();
+            PopSettingsInternal();
+            BeginDrawInternal(CurrentSettings);
+        }
+
+        /// <summary>
+        /// Changes current rendering settings. This can be called between 
+        /// <see cref="PushSettings(SpriteBatchSettings)"/> and <see cref="PopSettings"/>
+        /// when you want to draw something with new settings, but there's no reason 
+        /// to save those settings.
+        /// </summary>
+        /// <param name="settings">The sprite batch settings.</param>
+        public static void ChangeSettings(SpriteBatchSettings settings)
+        {
+            EndDraw();
+            CurrentSettings = settings;
+            BeginDrawInternal(CurrentSettings);
+        }
+
+        /// <summary>
+        /// Prepares the renderer for drawing a batch of sprites.
+        /// </summary>
         public static void BeginDraw()
         {
-            BeginDraw(SamplerState.LinearClamp);
+            BeginDrawInternal(CurrentSettings);
         }
 
-        public static void BeginDraw(SpriteSortMode ssm, BlendState bs)
+        /// <summary>
+        /// Draws the currently queued batch of sprites.
+        /// </summary>
+        public static void EndDraw()
         {
-            SpriteBatch.Begin(ssm, bs);
+            spriteBatch.End();
         }
 
-        public static void BeginDraw(SamplerState ss)
-        {
-            BlendState bs = new BlendState();
+        //BlendState blendState = new BlendState();
+        //blendState.AlphaDestinationBlend = Blend.One;
+        //blendState.ColorDestinationBlend = Blend.InverseSourceAlpha;
+        //blendState.AlphaSourceBlend = Blend.SourceAlpha;
+        //blendState.ColorSourceBlend = Blend.SourceAlpha;
 
+        internal static void BeginDrawInternal(SpriteBatchSettings settings) =>
+            BeginDrawInternal(settings.SpriteSortMode, settings.BlendState, settings.SamplerState);
+
+        internal static void BeginDrawInternal(SpriteSortMode ssm, BlendState bs, SamplerState ss)
+        {
 #if XNA
-            //bs.AlphaDestinationBlend = Blend.DestinationAlpha;
-            //bs.ColorDestinationBlend = Blend.DestinationAlpha;
-
-            SpriteBatch.Begin(SpriteSortMode.Deferred, BlendState.NonPremultiplied, ss, DepthStencilState.Default, RasterizerState.CullNone);
+            SpriteBatch.Begin(ssm, bs, ss, DepthStencilState.Default, RasterizerState.CullNone);
 #else
-            bs.AlphaDestinationBlend = Blend.One;
-            bs.ColorDestinationBlend = Blend.InverseSourceAlpha;
-            bs.AlphaSourceBlend = Blend.SourceAlpha;
-            bs.ColorSourceBlend = Blend.SourceAlpha;
-
-            SpriteBatch.Begin(SpriteSortMode.Deferred, bs, ss, 
+            spriteBatch.Begin(ssm, bs, ss,
                 DepthStencilState.None, RasterizerState.CullCounterClockwise);
 #endif
-
-
         }
+
+        internal static void PushSettingsInternal()
+        {
+            settingStack.AddFirst(CurrentSettings);
+        }
+
+        internal static void PopSettingsInternal()
+        {
+            CurrentSettings = settingStack.First.Value;
+            settingStack.RemoveFirst();
+        }
+
+        internal static void ClearStack()
+        {
+            settingStack.Clear();
+        }
+
+        #region Rendering code
 
         public static void DrawTexture(Texture2D texture, Rectangle rectangle, Color color)
         {
-            SpriteBatch.Draw(texture, rectangle, color);
+            spriteBatch.Draw(texture, rectangle, color);
         }
 
         public static void DrawTexture(Texture2D texture, Rectangle sourceRectangle, Rectangle destinationRectangle, Color color)
         {
-            SpriteBatch.Draw(texture, destinationRectangle, sourceRectangle, color);
+            spriteBatch.Draw(texture, destinationRectangle, sourceRectangle, color);
         }
 
 
         public static void DrawTexture(Texture2D texture, Vector2 location, float rotation, Vector2 origin, Vector2 scale, Color color)
         {
 #if !XNA
-            SpriteBatch.Draw(texture, location, null, null, origin, rotation, scale, color, SpriteEffects.None, 0f);
+            spriteBatch.Draw(texture, location, null, null, origin, rotation, scale, color, SpriteEffects.None, 0f);
 #else
             SpriteBatch.Draw(texture, location, null, color, rotation, origin, scale, SpriteEffects.None, 0f);
 #endif
         }
 
-        public static void DrawString(string text, int fontIndex, float scale, Vector2 location, Color color)
+        public static void DrawString(string text, int fontIndex, Vector2 location, Color color, float scale = 1.0f)
         {
-            if (fontIndex >= Fonts.Count)
+            if (fontIndex >= fonts.Count)
                 throw new Exception("Invalid font index: " + fontIndex);
 
-            SpriteBatch.DrawString(Fonts[fontIndex], text, location, color, 0f, Vector2.Zero, scale, SpriteEffects.None, 0f);
+            spriteBatch.DrawString(fonts[fontIndex], text, location, color, 0f, Vector2.Zero, scale, SpriteEffects.None, 0f);
         }
 
-        public static void DrawStringWithShadow(string text, int fontIndex, Vector2 location, Color color)
+        public static void DrawStringWithShadow(string text, int fontIndex, Vector2 location, Color color, float scale = 1.0f)
         {
-            if (fontIndex >= Fonts.Count)
+            if (fontIndex >= fonts.Count)
                 throw new Exception("Invalid font index: " + fontIndex);
 
 #if XNA
             SpriteBatch.DrawString(Fonts[fontIndex], text, new Vector2(location.X + 1f, location.Y + 1f), new Color(0, 0, 0, color.A));
 #else
-            SpriteBatch.DrawString(Fonts[fontIndex], text,
-                new Vector2(location.X + 1f, location.Y + 1f), new Color((byte)0, (byte)0, (byte)0, color.A));
+            spriteBatch.DrawString(fonts[fontIndex], text,
+                new Vector2(location.X + 1f, location.Y + 1f), new Color((byte)0, (byte)0, (byte)0, color.A),
+                0f, Vector2.Zero, scale, SpriteEffects.None, 0f);
 #endif
-            SpriteBatch.DrawString(Fonts[fontIndex], text, location, color);
+            spriteBatch.DrawString(fonts[fontIndex], text, location, color, 0f, Vector2.Zero, scale, SpriteEffects.None, 0f);
         }
 
         public static void DrawRectangle(Rectangle rect, Color color, int thickness = 1)
         {
-            SpriteBatch.Draw(whitePixelTexture, new Rectangle(rect.X, rect.Y, rect.Width, thickness), color);
-            SpriteBatch.Draw(whitePixelTexture, new Rectangle(rect.X, rect.Y + thickness, thickness, rect.Height - thickness), color);
-            SpriteBatch.Draw(whitePixelTexture, new Rectangle(rect.X + rect.Width - thickness, rect.Y, thickness, rect.Height), color);
-            SpriteBatch.Draw(whitePixelTexture, new Rectangle(rect.X, rect.Y + rect.Height - thickness, rect.Width, thickness), color);
+            spriteBatch.Draw(whitePixelTexture, new Rectangle(rect.X, rect.Y, rect.Width, thickness), color);
+            spriteBatch.Draw(whitePixelTexture, new Rectangle(rect.X, rect.Y + thickness, thickness, rect.Height - thickness), color);
+            spriteBatch.Draw(whitePixelTexture, new Rectangle(rect.X + rect.Width - thickness, rect.Y, thickness, rect.Height), color);
+            spriteBatch.Draw(whitePixelTexture, new Rectangle(rect.X, rect.Y + rect.Height - thickness, rect.Width, thickness), color);
         }
 
         public static void FillRectangle(Rectangle rect, Color color)
         {
-            SpriteBatch.Draw(whitePixelTexture, rect, color);
+            spriteBatch.Draw(whitePixelTexture, rect, color);
         }
 
         public static Vector2 GetTextDimensions(string text, int fontIndex)
         {
-            if (fontIndex >= Fonts.Count)
+            if (fontIndex >= fonts.Count)
                 throw new Exception("Invalid font index: " + fontIndex);
 
-            return Fonts[fontIndex].MeasureString(text);
+            return fonts[fontIndex].MeasureString(text);
         }
 
         public static void DrawLine(Vector2 start, Vector2 end, Color color, int thickness = 1)
         {
             Vector2 line = end - start;
-            SpriteBatch.Draw(whitePixelTexture,
+            if (thickness > 1)
+            {
+                Vector2 offset = RMath.VectorFromLengthAndAngle(thickness / 2, RMath.AngleFromVector(line) - (float)Math.PI / 2.0f);
+                end += offset;
+                start += offset;
+            }
+            spriteBatch.Draw(whitePixelTexture,
                 new Rectangle((int)start.X, (int)start.Y, (int)line.Length(), thickness),
                 null, color, (float)Math.Atan2(line.Y, line.X), new Vector2(0, 0), SpriteEffects.None, 0f);
         }
 
-        public static void EndDraw()
-        {
-            SpriteBatch.End();
-        }
+        #endregion
     }
 }

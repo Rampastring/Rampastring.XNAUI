@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Microsoft.Xna.Framework;
+using Rampastring.Tools;
 
 namespace Rampastring.XNAUI.XNAControls
 {
@@ -13,7 +14,6 @@ namespace Rampastring.XNAUI.XNAControls
     {
         public XNATextBlock(WindowManager windowManager) : base(windowManager)
         {
-            RemapColor = UISettings.TextColor;
         }
 
         public override string Text
@@ -29,22 +29,36 @@ namespace Rampastring.XNAUI.XNAControls
             }
         }
 
-        public int FontIndex { get; set; }
+        private Color? _textColor;
 
-        private int _textXMargin = 3;
-
-        public int TextXMargin
+        public Color TextColor
         {
-            get { return _textXMargin; }
-            set { _textXMargin = value; }
+            get
+            {
+                if (_textColor.HasValue)
+                    return _textColor.Value;
+
+                return UISettings.ActiveSettings.TextColor;
+            }
+            set { _textColor = value; }
         }
 
-        private int _textYPosition = 3;
+        public int FontIndex { get; set; }
 
-        public int TextYPosition
+        public int TextXMargin { get; set; } = 3;
+
+        public int TextYPosition { get; set; } = 3;
+
+        protected override void ParseAttributeFromINI(IniFile iniFile, string key, string value)
         {
-            get { return _textYPosition; }
-            set { _textYPosition = value; }
+            switch (key)
+            {
+                case "TextColor":
+                    TextColor = AssetLoader.GetColorFromString(value);
+                    return;
+            }
+
+            base.ParseAttributeFromINI(iniFile, key, value);
         }
 
         public override void Draw(GameTime gameTime)
@@ -53,10 +67,10 @@ namespace Rampastring.XNAUI.XNAControls
 
             if (!string.IsNullOrEmpty(Text))
             {
-                var windowRectangle = WindowRectangle();
+                var windowRectangle = RenderRectangle();
 
-                Renderer.DrawStringWithShadow(Text, FontIndex,
-                    new Vector2(windowRectangle.X + TextXMargin, windowRectangle.Y + TextYPosition), RemapColor);
+                DrawStringWithShadow(Text, FontIndex,
+                    new Vector2(TextXMargin, TextYPosition), TextColor);
             }
 
             if (DrawBorders)
