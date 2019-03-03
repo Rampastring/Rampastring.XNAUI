@@ -208,12 +208,23 @@ namespace Rampastring.XNAUI.XNAControls
         /// </summary>
         protected virtual void OnClientRectangleUpdated()
         {
-            if (initialized && DrawMode == ControlDrawMode.UNIQUE_RENDER_TARGET)
+            if (!IsChangingSize && initialized && DrawMode == ControlDrawMode.UNIQUE_RENDER_TARGET)
             {
                 CreateRenderTarget();
             }
 
             ClientRectangleUpdated?.Invoke(this, EventArgs.Empty);
+        }
+
+        private void CheckForRenderAreaChange()
+        {
+            if (DrawMode != ControlDrawMode.UNIQUE_RENDER_TARGET)
+                return;
+
+            if (renderTarget == null || renderTarget.Width != Width || renderTarget.Height != Height)
+            {
+                CreateRenderTarget();
+            }
         }
 
         /// <summary>
@@ -387,6 +398,25 @@ namespace Rampastring.XNAUI.XNAControls
                 drawMode = value;
             }
         }
+
+        private bool _isChangingSize = false;
+
+        /// <summary>
+        /// If set to true and the control has 
+        /// <see cref="DrawMode"/> == <see cref="ControlDrawMode.UNIQUE_RENDER_TARGET"/>,
+        /// the control won't try to update its render target when its size is changed.
+        /// </summary>
+        public bool IsChangingSize
+        {
+            get => _isChangingSize;
+            set
+            {
+                _isChangingSize = value;
+                if (!_isChangingSize)
+                    CheckForRenderAreaChange();
+            }
+        }
+
 
         #endregion
 
@@ -705,6 +735,8 @@ namespace Rampastring.XNAUI.XNAControls
 
         public virtual void GetAttributes(IniFile iniFile)
         {
+            IsChangingSize = true;
+
             foreach (XNAControl child in Children)
                 child.GetAttributes(iniFile);
 
@@ -715,6 +747,8 @@ namespace Rampastring.XNAUI.XNAControls
 
             foreach (string key in keys)
                 ParseAttributeFromINI(iniFile, key, iniFile.GetStringValue(Name, key, String.Empty));
+
+            IsChangingSize = false;
         }
 
         protected virtual void ParseAttributeFromINI(IniFile iniFile, string key, string value)
@@ -1051,7 +1085,7 @@ namespace Rampastring.XNAUI.XNAControls
         /// relative to the control.</param>
         /// <param name="color">The remap color.</param>
         public void DrawTexture(Texture2D texture, Point point, Color color) =>
-            DrawTexture(texture, new Rectangle(drawPoint.X + point.X, drawPoint.Y + point.Y, texture.Width, texture.Height), color);
+            Renderer.DrawTexture(texture, new Rectangle(drawPoint.X + point.X, drawPoint.Y + point.Y, texture.Width, texture.Height), color);
 
         /// <summary>
         /// Draws a texture relative to the control's location
