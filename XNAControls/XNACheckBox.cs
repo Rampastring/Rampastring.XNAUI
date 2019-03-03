@@ -299,18 +299,18 @@ namespace Rampastring.XNAUI.XNAControls
             }
             else if (checkedAlpha == 1.0)
             {
-                Renderer.DrawTexture(checkedTexture,
+                DrawTexture(checkedTexture,
                     new Rectangle(0, checkBoxYPosition,
                     clearTexture.Width, clearTexture.Height), 
                     new Color(255, 255, 255, (int)(checkedAlpha * 255)));
             }
             else
             {
-                Renderer.DrawTexture(clearTexture,
+                DrawTexture(clearTexture,
                     new Rectangle(0, checkBoxYPosition,
                     clearTexture.Width, clearTexture.Height), Color.White);
 
-                Renderer.DrawTexture(checkedTexture,
+                DrawTexture(checkedTexture,
                     new Rectangle(0, checkBoxYPosition,
                     clearTexture.Width, clearTexture.Height),
                     new Color(255, 255, 255, (int)(checkedAlpha * 255)));
