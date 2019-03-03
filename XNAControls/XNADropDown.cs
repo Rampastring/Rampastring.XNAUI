@@ -464,7 +464,7 @@ namespace Rampastring.XNAUI.XNAControls
 
             FillRectangle(new Rectangle(dropDownRect.X + 1, dropDownRect.Y + 1,
                 dropDownRect.Width - 2, dropDownRect.Height - 2), BackColor);
-            DrawRectangle(new Rectangle(0, 0, Width, DropDownTexture.Height), BorderColor);
+            DrawRectangle(dropDownRect, BorderColor);
 
             if (SelectedIndex > -1 && SelectedIndex < Items.Count)
             {
@@ -483,8 +483,7 @@ namespace Rampastring.XNAUI.XNAControls
                 {
                     DrawStringWithShadow(item.Text, FontIndex, 
                         new Vector2(textX, dropDownRect.Y + 2), GetItemTextColor(item));
-                }
-                    
+                }  
             }
 
             if (AllowDropDown)
@@ -513,7 +512,7 @@ namespace Rampastring.XNAUI.XNAControls
                     }
                 }
                 else
-                    Renderer.DrawTexture(DropDownTexture, ddRectangle, RemapColor);
+                    DrawTexture(DropDownTexture, ddRectangle, RemapColor);
             }
 
             base.Draw(gameTime);
@@ -531,15 +530,15 @@ namespace Rampastring.XNAUI.XNAControls
 
             if (hoveredIndex == index)
             {
-                Renderer.FillRectangle(new Rectangle(1, y, Width - 2, ItemHeight), FocusColor);
+                FillRectangle(new Rectangle(1, y, Width - 2, ItemHeight), FocusColor);
             }
             else
-                Renderer.FillRectangle(new Rectangle(1, y, Width - 2, ItemHeight), BackColor);
+                FillRectangle(new Rectangle(1, y, Width - 2, ItemHeight), BackColor);
 
             int textX = 2;
             if (item.Texture != null)
             {
-                Renderer.DrawTexture(item.Texture, new Rectangle(1, y + 1, item.Texture.Width, item.Texture.Height), Color.White);
+                DrawTexture(item.Texture, new Rectangle(1, y + 1, item.Texture.Width, item.Texture.Height), Color.White);
                 textX += item.Texture.Width + 1;
             }
 
@@ -551,7 +550,7 @@ namespace Rampastring.XNAUI.XNAControls
                 textColor = DisabledItemColor;
 
             if (item.Text != null)
-                Renderer.DrawStringWithShadow(item.Text, FontIndex, new Vector2(textX, y + 1), textColor);
+                DrawStringWithShadow(item.Text, FontIndex, new Vector2(textX, y + 1), textColor);
         }
     }
 }
