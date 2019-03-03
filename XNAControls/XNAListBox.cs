@@ -24,6 +24,7 @@ namespace Rampastring.XNAUI.XNAControls
         /// <param name="windowManager"></param>
         public XNAListBox(WindowManager windowManager) : base(windowManager)
         {
+            DrawMode = ControlDrawMode.UNIQUE_RENDER_TARGET;
             scrollBar = new XNAScrollBar(WindowManager);
             ClientRectangleUpdated += XNAListBox_ClientRectangleUpdated;
         }
