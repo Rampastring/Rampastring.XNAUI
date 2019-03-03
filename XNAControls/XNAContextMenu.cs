@@ -187,32 +187,16 @@ namespace Rampastring.XNAUI.XNAControls
             AddItem(item);
         }
 
-        /// <summary>
-        /// Generates and adds an item with the specified text and texture
-        /// into the context menu.
-        /// </summary>
-        /// <param name="text">The text of the item.</param>
-        /// <param name="texture">The item's texture.</param>
-        public void AddItem(string text, Texture2D texture)
+        public void AddItem(string text, Action selectAction, Func<bool> selectableChecker = null, Func<bool> visibilityChecker = null, Texture2D texture = null)
         {
-            var item = new XNAContextMenuItem();
-            item.Text = text;
-            item.Texture = texture;
-
-            AddItem(item);
-        }
-
-        /// <summary>
-        /// Generates and adds an item with the specified text
-        /// and text color into the context menu.
-        /// </summary>
-        /// <param name="text">The text of the item.</param>
-        /// <param name="color">The color of the item's text.</param>
-        public void AddItem(string text, Color color)
-        {
-            var item = new XNAContextMenuItem();
-            item.Text = text;
-            item.TextColor = color;
+            var item = new XNAContextMenuItem()
+            {
+                Text = text,
+                SelectAction = selectAction,
+                SelectableChecker = selectableChecker,
+                VisibilityChecker = visibilityChecker,
+                Texture = texture
+            };
 
             AddItem(item);
         }
