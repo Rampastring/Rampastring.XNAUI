@@ -16,6 +16,7 @@ namespace Rampastring.XNAUI.XNAControls
         /// <param name="windowManager">The WindowManager.</param>
         public XNAMultiColumnListBox(WindowManager windowManager) : base(windowManager)
         {
+            DrawMode = ControlDrawMode.UNIQUE_RENDER_TARGET;
             ClientRectangleUpdated += XNAMultiColumnListBox_ClientRectangleUpdated;
         }
 
@@ -214,6 +215,7 @@ namespace Rampastring.XNAUI.XNAControls
             headers.Add(header);
             AddChild(header);
 
+            listBox.Name = Name + "_lb" + listBoxes.Count;
             listBox.ClientRectangle = new Rectangle(width, header.Bottom - 1,
                 header.Width, this.Height - header.Bottom + 1);
             listBox.DrawBorders = DrawListBoxBorders;
@@ -223,6 +225,7 @@ namespace Rampastring.XNAUI.XNAControls
             listBox.AllowMultiLineItems = false;
             listBox.AllowKeyboardInput = this.AllowKeyboardInput;
             listBox.AllowRightClickUnselect = this.AllowRightClickUnselect;
+            listBox.DrawMode = ControlDrawMode.NORMAL;
 
             listBoxes.Add(listBox);
             AddChild(listBox);
@@ -270,6 +273,7 @@ namespace Rampastring.XNAUI.XNAControls
                         column.Width + 2, this.Height - headerPanel.Bottom + 1);
                 }
 
+                listBox.Name = Name + "_lb" + listBoxes.Count;
                 listBox.DrawBorders = DrawListBoxBorders;
                 listBox.TopIndexChanged += ListBox_TopIndexChanged;
                 listBox.SelectedIndexChanged += ListBox_SelectedIndexChanged;
@@ -278,6 +282,7 @@ namespace Rampastring.XNAUI.XNAControls
                 listBox.AllowMultiLineItems = false;
                 listBox.AllowKeyboardInput = this.AllowKeyboardInput;
                 listBox.AllowRightClickUnselect = this.AllowRightClickUnselect;
+                listBox.DrawMode = ControlDrawMode.NORMAL;
 
                 listBoxes.Add(listBox);
 

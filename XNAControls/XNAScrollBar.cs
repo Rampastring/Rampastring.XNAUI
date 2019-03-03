@@ -272,7 +272,7 @@ namespace Rampastring.XNAUI.XNAControls
                 return;
             }
 
-            buttonY = RenderRectangle().Y + Math.Min(
+            buttonY = Math.Min(
                 buttonMinY + (int)(((TopIndex / (double)nonDisplayedLines) * scrollablePixels) - thumbHeight / 2),
                 Height - btnScrollDown.Height - thumbHeight);
         }
@@ -302,16 +302,14 @@ namespace Rampastring.XNAUI.XNAControls
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         public override void Draw(GameTime gameTime)
         {
-            var drawArea = RenderRectangle();
-
             if (scrollablePixels > 0)
             {
-                Renderer.DrawTexture(background, drawArea, Color.White);
+                DrawTexture(background, new Rectangle(0, 0, Width, Height), Color.White);
 
-                Renderer.DrawTexture(thumbTop, new Rectangle(drawArea.X, buttonY, ScrollWidth, thumbTop.Height), RemapColor);
-                Renderer.DrawTexture(thumbBottom, new Rectangle(drawArea.X,
+                DrawTexture(thumbTop, new Rectangle(0, buttonY, ScrollWidth, thumbTop.Height), RemapColor);
+                DrawTexture(thumbBottom, new Rectangle(0,
                     buttonY + thumbHeight - thumbBottom.Height, ScrollWidth, thumbBottom.Height), Color.White);
-                Renderer.DrawTexture(thumbMiddle, new Rectangle(drawArea.X,
+                DrawTexture(thumbMiddle, new Rectangle(0,
                     buttonY + thumbTop.Height, ScrollWidth, thumbHeight - thumbTop.Height - thumbBottom.Height), Color.White);
             }
 

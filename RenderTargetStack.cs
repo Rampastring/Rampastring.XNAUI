@@ -31,6 +31,9 @@ namespace Rampastring.XNAUI
             RenderContext context = new RenderContext(renderTarget, currentContext);
             currentContext = context;
             graphicsDevice.SetRenderTarget(renderTarget);
+            Renderer.PushSettingsInternal();
+            Renderer.CurrentSettings = new SpriteBatchSettings(SpriteSortMode.Deferred,
+                BlendState.AlphaBlend, null);
             Renderer.BeginDraw();
         }
 
@@ -46,6 +49,7 @@ namespace Rampastring.XNAUI
             }
 
             Renderer.EndDraw();
+            Renderer.PopSettingsInternal();
             graphicsDevice.SetRenderTarget(currentContext.RenderTarget);
             Renderer.BeginDraw();
         }

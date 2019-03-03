@@ -115,40 +115,19 @@ namespace Rampastring.XNAUI.XNAControls
             {
                 if (PanelBackgroundDrawMode == PanelBackgroundImageDrawMode.TILED)
                 {
-                    for (int x = 0; x < Width; x += BackgroundTexture.Width)
+                    if (Renderer.CurrentSettings.SamplerState != SamplerState.LinearWrap &&
+                        Renderer.CurrentSettings.SamplerState != SamplerState.PointWrap)
                     {
-                        for (int y = 0; y < Height; y += BackgroundTexture.Height)
-                        {
-                            if (x + BackgroundTexture.Width < Width)
-                            {
-                                if (y + BackgroundTexture.Height < Height)
-                                {
-                                    Renderer.DrawTexture(BackgroundTexture, new Rectangle(X + x, Y + y,
-                                        BackgroundTexture.Width, BackgroundTexture.Height), color);
-                                }
-                                else
-                                {
-                                    Renderer.DrawTexture(BackgroundTexture,
-                                        new Rectangle(0, 0, BackgroundTexture.Width, Height - y),
-                                        new Rectangle(X + x, Y + y,
-                                        BackgroundTexture.Width, Height - y), color);
-                                }
-                            }
-                            else if (y + BackgroundTexture.Height < Height)
-                            {
-                                Renderer.DrawTexture(BackgroundTexture,
-                                    new Rectangle(0, 0, Width - x, BackgroundTexture.Height),
-                                    new Rectangle(X + x, Y + y,
-                                    Width - x, BackgroundTexture.Height), color);
-                            }
-                            else
-                            {
-                                Renderer.DrawTexture(BackgroundTexture,
-                                    new Rectangle(0, 0, Width - x, Height - y),
-                                    new Rectangle(X + x, Y + y,
-                                    Width - x, Height - y), color);
-                            }
-                        }
+                        Renderer.PushSettings(new SpriteBatchSettings(Renderer.CurrentSettings.SpriteSortMode,
+                            Renderer.CurrentSettings.BlendState, SamplerState.LinearWrap));
+
+                        DrawTexture(BackgroundTexture, new Rectangle(0, 0, Width, Height), color);
+
+                        Renderer.PopSettings();
+                    }
+                    else
+                    {
+                        DrawTexture(BackgroundTexture, new Rectangle(0, 0, Width, Height), color);
                     }
                 }
                 else
@@ -160,7 +139,7 @@ namespace Rampastring.XNAUI.XNAControls
 
         protected void DrawPanelBorders()
         {
-            Renderer.DrawRectangle(RenderRectangle(), GetColorWithAlpha(BorderColor));
+            DrawRectangle(new Rectangle(0, 0, Width, Height), BorderColor);
         }
 
         public override void Draw(GameTime gameTime)

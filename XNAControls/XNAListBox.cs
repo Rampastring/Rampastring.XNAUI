@@ -25,18 +25,18 @@ namespace Rampastring.XNAUI.XNAControls
         public XNAListBox(WindowManager windowManager) : base(windowManager)
         {
             DrawMode = ControlDrawMode.UNIQUE_RENDER_TARGET;
-            scrollBar = new XNAScrollBar(WindowManager);
+            ScrollBar = new XNAScrollBar(WindowManager);
             ClientRectangleUpdated += XNAListBox_ClientRectangleUpdated;
         }
 
         private void XNAListBox_ClientRectangleUpdated(object sender, EventArgs e)
         {
-            if (scrollBar != null)
+            if (ScrollBar != null)
             {
-                scrollBar.ClientRectangle = new Rectangle(Width - scrollBar.ScrollWidth - 1,
-                    1, scrollBar.ScrollWidth, Height - 2);
-                scrollBar.DisplayedItemCount = NumberOfLinesOnList;
-                scrollBar.Refresh();
+                ScrollBar.ClientRectangle = new Rectangle(Width - ScrollBar.ScrollWidth - 1,
+                    1, ScrollBar.ScrollWidth, Height - 2);
+                ScrollBar.DisplayedItemCount = NumberOfLinesOnList;
+                ScrollBar.Refresh();
             }
         }
 
@@ -121,7 +121,7 @@ namespace Rampastring.XNAUI.XNAControls
                 {
                     topIndex = value;
                     TopIndexChanged?.Invoke(this, EventArgs.Empty);
-                    scrollBar.RefreshButtonY(topIndex);
+                    ScrollBar.RefreshButtonY(topIndex);
                 }
             }
         }
@@ -219,8 +219,8 @@ namespace Rampastring.XNAUI.XNAControls
             {
                 _enableScrollbar = value;
 
-                scrollBar.Visible = _enableScrollbar;
-                scrollBar.Enabled = _enableScrollbar;
+                ScrollBar.Visible = _enableScrollbar;
+                ScrollBar.Enabled = _enableScrollbar;
             }
         }
 
@@ -250,7 +250,7 @@ namespace Rampastring.XNAUI.XNAControls
 
         #endregion
 
-        private XNAScrollBar scrollBar;
+        protected XNAScrollBar ScrollBar;
 
         private TimeSpan scrollKeyTime = TimeSpan.Zero;
         private TimeSpan timeSinceLastScroll = TimeSpan.Zero;
@@ -282,8 +282,8 @@ namespace Rampastring.XNAUI.XNAControls
 
             Items.Clear();
 
-            scrollBar.ItemCount = 0;
-            scrollBar.Refresh();
+            ScrollBar.ItemCount = 0;
+            ScrollBar.Refresh();
         }
 
         /// <summary>
@@ -334,7 +334,7 @@ namespace Rampastring.XNAUI.XNAControls
             int width = Width - TextBorderDistance * 2;
             if (EnableScrollbar)
             {
-                width -= scrollBar.Width;
+                width -= ScrollBar.Width;
             }
 
             if (listBoxItem.Texture != null)
@@ -374,9 +374,9 @@ namespace Rampastring.XNAUI.XNAControls
 
             Items.Add(listBoxItem);
 
-            scrollBar.ItemCount = Items.Count;
-            scrollBar.DisplayedItemCount = NumberOfLinesOnList;
-            scrollBar.Refresh();
+            ScrollBar.ItemCount = Items.Count;
+            ScrollBar.DisplayedItemCount = NumberOfLinesOnList;
+            ScrollBar.Refresh();
         }
 
         /// <summary>
@@ -427,12 +427,12 @@ namespace Rampastring.XNAUI.XNAControls
             KeyboardEventInput.CharEntered += KeyboardEventInput_CharEntered;
 #endif
 
-            scrollBar.ClientRectangle = new Rectangle(Width - scrollBar.ScrollWidth - 1,
-                1, scrollBar.ScrollWidth, Height - 2);
-            scrollBar.Scrolled += ScrollBar_Scrolled;
-            scrollBar.ScrolledToBottom += ScrollBar_ScrolledToBottom;
-            AddChild(scrollBar);
-            scrollBar.Refresh();
+            ScrollBar.ClientRectangle = new Rectangle(Width - ScrollBar.ScrollWidth - 1,
+                1, ScrollBar.ScrollWidth, Height - 2);
+            ScrollBar.Scrolled += ScrollBar_Scrolled;
+            ScrollBar.ScrolledToBottom += ScrollBar_ScrolledToBottom;
+            AddChild(ScrollBar);
+            ScrollBar.Refresh();
 
             ParentChanged += Parent_ClientRectangleUpdated;
 
@@ -442,7 +442,7 @@ namespace Rampastring.XNAUI.XNAControls
 
         private void Parent_ClientRectangleUpdated(object sender, EventArgs e)
         {
-            scrollBar.Refresh();
+            ScrollBar.Refresh();
         }
 
         /// <summary>
@@ -450,18 +450,18 @@ namespace Rampastring.XNAUI.XNAControls
         /// </summary>
         public int GetScrollBarWidth()
         {
-            return scrollBar.Width;
+            return ScrollBar.Width;
         }
 
         private void ScrollBar_ScrolledToBottom(object sender, EventArgs e)
         {
             ScrollToBottom();
-            scrollBar.RefreshButtonY(TopIndex);
+            ScrollBar.RefreshButtonY(TopIndex);
         }
 
         private void ScrollBar_Scrolled(object sender, EventArgs e)
         {
-            TopIndex = scrollBar.TopIndex;
+            TopIndex = ScrollBar.TopIndex;
         }
 
         /// <summary>
@@ -596,12 +596,12 @@ namespace Rampastring.XNAUI.XNAControls
                     if (TopIndex > i)
                         TopIndex = i;
 
-                    scrollBar.RefreshButtonY(TopIndex);
+                    ScrollBar.RefreshButtonY(TopIndex);
                     return;
                 }
             }
 
-            scrollBar.RefreshButtonY(TopIndex);
+            ScrollBar.RefreshButtonY(TopIndex);
         }
 
         /// <summary>
@@ -618,13 +618,13 @@ namespace Rampastring.XNAUI.XNAControls
                     while (LastIndex < i)
                         TopIndex++;
 
-                    scrollBar.RefreshButtonY(TopIndex);
+                    ScrollBar.RefreshButtonY(TopIndex);
                     return;
                 }
                 scrollLineCount++;
             }
 
-            scrollBar.RefreshButtonY(TopIndex);
+            ScrollBar.RefreshButtonY(TopIndex);
         }
 
         /// <summary>
@@ -643,7 +643,7 @@ namespace Rampastring.XNAUI.XNAControls
             if (TopIndex < 0)
             {
                 TopIndex = 0;
-                scrollBar.RefreshButtonY(TopIndex);
+                ScrollBar.RefreshButtonY(TopIndex);
                 return;
             }
 
@@ -659,7 +659,7 @@ namespace Rampastring.XNAUI.XNAControls
                 TopIndex++;
             }
 
-            scrollBar.RefreshButtonY(TopIndex);
+            ScrollBar.RefreshButtonY(TopIndex);
 
             base.OnMouseScrolled();
         }
@@ -741,7 +741,7 @@ namespace Rampastring.XNAUI.XNAControls
 
             if (EnableScrollbar)
             {
-                if (mouseLocation.X > Width - scrollBar.ScrollWidth)
+                if (mouseLocation.X > Width - ScrollBar.ScrollWidth)
                     return -1;
             }
             else if (mouseLocation.X > Width)
@@ -790,13 +790,13 @@ namespace Rampastring.XNAUI.XNAControls
                 {
                     int drawnWidth;
 
-                    if (DrawSelectionUnderScrollbar || !scrollBar.IsDrawn() || !EnableScrollbar)
+                    if (DrawSelectionUnderScrollbar || !ScrollBar.IsDrawn() || !EnableScrollbar)
                     {
                         drawnWidth = Width - 2;
                     }
                     else
                     {
-                        drawnWidth = Width - 2 - scrollBar.Width;
+                        drawnWidth = Width - 2 - ScrollBar.Width;
                     }
 
                     FillRectangle(new Rectangle(1, height, drawnWidth,
