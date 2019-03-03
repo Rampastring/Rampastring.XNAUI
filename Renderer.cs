@@ -227,6 +227,47 @@ namespace Rampastring.XNAUI
 #endif
         }
 
+        public static void DrawCircle(Vector2 position, float radius, Color color, int precision = 8, int thickness = 1)
+        {
+            float angle = 0f;
+            float increase = (float)Math.PI * 2f / precision;
+
+            Vector2 point = position + RMath.VectorFromLengthAndAngle(radius, angle);
+
+            for (int i = 0; i <= precision; i++)
+            {
+                Vector2 nextPoint = position + RMath.VectorFromLengthAndAngle(radius, angle);
+                DrawLine(point, nextPoint, color, thickness);
+                point = nextPoint;
+                angle += increase;
+            }
+        }
+
+        /// <summary>
+        /// Draws a circle where the circle's perimeter is dotted with a texture.
+        /// </summary>
+        /// <param name="position">The center point of the circle.</param>
+        /// <param name="radius">The radius of the circle.</param>
+        /// <param name="texture">The texture to dot the circle's perimiter with.</param>
+        /// <param name="color">The remap color of the texture.</param>
+        /// <param name="precision">How many times the texture is drawn on the perimiter.</param>
+        /// <param name="scale">The scale of the drawn texture compared to the size of the texture itself.</param>
+        public static void DrawCircleWithTexture(Vector2 position, float radius,
+            Texture2D texture, Color color, int precision = 8, float scale = 1f)
+        {
+            float angle = 0f;
+            float increase = (float)Math.PI * 2f / precision;
+
+            Vector2 point = position + RMath.VectorFromLengthAndAngle(radius, angle);
+
+            for (int i = 0; i <= precision; i++)
+            {
+                DrawTexture(texture, point, 0f, new Vector2(texture.Width / 2f, texture.Height / 2f), new Vector2(scale, scale), color);
+                point = position + RMath.VectorFromLengthAndAngle(radius, angle);
+                angle += increase;
+            }
+        }
+
         public static void DrawString(string text, int fontIndex, Vector2 location, Color color, float scale = 1.0f)
         {
             if (fontIndex >= fonts.Count)
