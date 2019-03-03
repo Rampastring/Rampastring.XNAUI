@@ -241,7 +241,8 @@ namespace Rampastring.XNAUI
             gameWindowManager = new WindowsGameWindowManager(Game);
             gameWindowManager.GameWindowClosing += GameWindowManager_GameWindowClosing;
 
-            UISettings.ActiveSettings = new UISettings();
+            if (UISettings.ActiveSettings == null)
+                UISettings.ActiveSettings = new UISettings();
 #if XNA
             KeyboardEventInput.Initialize(Game.Window);
 #endif
