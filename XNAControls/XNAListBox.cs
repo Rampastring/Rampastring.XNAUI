@@ -14,6 +14,7 @@ namespace Rampastring.XNAUI.XNAControls
     /// </summary>
     public class XNAListBox : XNAPanel
     {
+        private const int MARGIN = 2;
         private const int ITEM_TEXT_TEXTURE_MARGIN = 2;
         private const double SCROLL_REPEAT_TIME = 0.03;
         private const double FAST_SCROLL_TRIGGER_TIME = 0.4;
@@ -35,7 +36,7 @@ namespace Rampastring.XNAUI.XNAControls
             {
                 ScrollBar.ClientRectangle = new Rectangle(Width - ScrollBar.ScrollWidth - 1,
                     1, ScrollBar.ScrollWidth, Height - 2);
-                ScrollBar.DisplayedItemCount = NumberOfLinesOnList;
+                ScrollBar.DisplayedPixelCount = Height - MARGIN * 2;
                 ScrollBar.Refresh();
             }
         }
@@ -85,19 +86,13 @@ namespace Rampastring.XNAUI.XNAControls
 
         public int FontIndex { get; set; }
 
-        bool _allowMultiLineItems = true;
-
         /// <summary>
         /// If set to false, only the first line will be displayed from items
         /// that are long enough to cover more than one line. Changing this
         /// only affects new items in the list box; existing items are not
         /// truncated!
         /// </summary>
-        public bool AllowMultiLineItems
-        {
-            get { return _allowMultiLineItems; }
-            set { _allowMultiLineItems = value; }
-        }
+        public bool AllowMultiLineItems { get; set; } = true;
 
         /// <summary>
         /// If set to true, the user is able to scroll the listbox items
@@ -111,18 +106,43 @@ namespace Rampastring.XNAUI.XNAControls
         /// </summary>
         public int TextBorderDistance { get; set; } = 3;
 
-        int topIndex = 0;
-        public int TopIndex
+        private int _viewTop;
+
+        public int ViewTop
         {
-            get { return topIndex; }
+            get => _viewTop;
             set
             {
-                if (value != topIndex)
+                if (value != _viewTop)
                 {
-                    topIndex = value;
+                    _viewTop = value;
                     TopIndexChanged?.Invoke(this, EventArgs.Empty);
-                    ScrollBar.RefreshButtonY(topIndex);
+                    ScrollBar.RefreshButtonY(_viewTop);
                 }
+            }
+        }
+
+        public int TopIndex
+        {
+            get
+            {
+                int h = 0;
+                for (int i = 0; i < Items.Count; i++)
+                {
+                    h += Items[i].TextLines.Count * LineHeight;
+                    if (h > ViewTop)
+                        return i;
+                }
+                return 0;
+            }
+            set
+            {
+                int h = 0;
+                for (int i = 0; i < value; i++)
+                {
+                    h += Items[i].TextLines.Count * LineHeight;
+                }
+                ViewTop = h;
             }
         }
 
@@ -130,7 +150,7 @@ namespace Rampastring.XNAUI.XNAControls
         {
             get
             {
-                int height = 2;
+                int height = 2 - ViewTop % LineHeight;
 
                 Rectangle windowRectangle = RenderRectangle();
 
@@ -282,7 +302,7 @@ namespace Rampastring.XNAUI.XNAControls
 
             Items.Clear();
 
-            ScrollBar.ItemCount = 0;
+            ScrollBar.Height = 0;
             ScrollBar.Refresh();
         }
 
@@ -374,8 +394,10 @@ namespace Rampastring.XNAUI.XNAControls
 
             Items.Add(listBoxItem);
 
-            ScrollBar.ItemCount = Items.Count;
-            ScrollBar.DisplayedItemCount = NumberOfLinesOnList;
+            int length = 0;
+            Items.ForEach(i => length += i.TextLines.Count * LineHeight);
+            ScrollBar.Length = length;
+            ScrollBar.DisplayedPixelCount = Height - MARGIN * 2;
             ScrollBar.Refresh();
         }
 
@@ -393,7 +415,7 @@ namespace Rampastring.XNAUI.XNAControls
         }
 
         /// <summary>
-        /// Scrolls the list box so that the last item is visible.
+        /// Scrolls the list box so that the last item is entirely visible.
         /// </summary>
         public void ScrollToBottom()
         {
@@ -461,7 +483,7 @@ namespace Rampastring.XNAUI.XNAControls
 
         private void ScrollBar_Scrolled(object sender, EventArgs e)
         {
-            TopIndex = ScrollBar.TopIndex;
+            ViewTop = ScrollBar.ViewTop;
         }
 
         /// <summary>
@@ -638,7 +660,7 @@ namespace Rampastring.XNAUI.XNAControls
                 return;
             }
 
-            TopIndex -= Cursor.ScrollWheelValue;
+            ViewTop -= Cursor.ScrollWheelValue * ScrollBar.ScrollStep;
 
             if (TopIndex < 0)
             {
@@ -780,6 +802,8 @@ namespace Rampastring.XNAUI.XNAControls
             for (int i = TopIndex; i < Items.Count; i++)
             { 
                 XNAListBoxItem lbItem = Items[i];
+
+                height -= ViewTop % LineHeight;
 
                 if (height + lbItem.TextLines.Count * LineHeight > Height)
                     break;

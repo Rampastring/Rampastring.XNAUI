@@ -222,15 +222,27 @@ namespace Rampastring.XNAUI.XNAControls
                     height += itemHeight;
                     item.TextY = (itemHeight - Renderer.GetTextDimensions(item.Text, GetItemFontIndex(item)).Y) / 2;
                 }
-                    
-
+                
                 if (item.SelectableChecker != null)
                     item.Selectable = item.SelectableChecker();
             }
 
+            //if (Right > Parent.Width)
+            //{
+            //    X = cursorPoint.X - Width;
+            //}
+
+            //if (Bottom > Parent.Height)
+            //{
+            //    Y = cursorPoint.Y - Height;
+            //}
+
             Height = height;
 
             Enable();
+
+            if (!Detached)
+                Detach();
         }
 
         public void ClearItems()
@@ -273,12 +285,15 @@ namespace Rampastring.XNAUI.XNAControls
                 if (Items[itemIndexOnCursor].Selectable)
                 {
                     Items[itemIndexOnCursor].SelectAction?.Invoke();
+                    if (Detached)
+                        Attach();
                     Disable();
                 }
 
                 return;
             }
 
+            Attach();
             Disable();
         }
 

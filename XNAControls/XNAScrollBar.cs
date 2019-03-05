@@ -56,22 +56,27 @@ namespace Rampastring.XNAUI.XNAControls
         public event EventHandler ScrolledToBottom;
 
         /// <summary>
-        /// The number of items in the scrollable parent control.
+        /// The length of the scrollable area.
         /// </summary>
-        public int ItemCount { get; set; }
+        public int Length { get; set; }
 
         /// <summary>
-        /// The number of items that the scrollable parent control
+        /// The number of pixels that the scrollable parent control
         /// is able to display at once.
         /// </summary>
-        public int DisplayedItemCount { get; set; }
+        public int DisplayedPixelCount { get; set; }
 
         /// <summary>
-        /// The index of the first displayed item of the scrollable parent control's items.
+        /// The scroll bar's current position.
         /// The parent of the scroll-bar has to keep the scrollbar up-to-date when the 
-        /// top index of the parent changes.
+        /// view of the parent changes.
         /// </summary>
-        public int TopIndex { get; set; }
+        public int ViewTop { get; set; }
+
+        /// <summary>
+        /// How many pixels to scroll at once.
+        /// </summary>
+        public int ScrollStep { get; set; } = 10;
 
         /// <summary>
         /// Returns the width of the scroll bar.
@@ -123,8 +128,12 @@ namespace Rampastring.XNAUI.XNAControls
         /// </summary>
         private void BtnScrollUp_LeftClick(object sender, EventArgs e)
         {
-            if (TopIndex > 0)
-                TopIndex--;
+            if (ViewTop > 0)
+            {
+                ViewTop -= ScrollStep;
+                if (ViewTop < 0)
+                    ViewTop = 0;
+            }
 
             RefreshButtonY();
 
@@ -136,10 +145,10 @@ namespace Rampastring.XNAUI.XNAControls
         /// </summary>
         private void BtnScrollDown_LeftClick(object sender, EventArgs e)
         {
-            int nonDisplayedLines = ItemCount - DisplayedItemCount;
+            int nonDisplayedLines = Length - DisplayedPixelCount;
 
-            if (TopIndex < nonDisplayedLines)
-                TopIndex++;
+            if (ViewTop < nonDisplayedLines)
+                ViewTop = Math.Min(ViewTop + ScrollStep, nonDisplayedLines);
 
             RefreshButtonY();
 
@@ -163,7 +172,7 @@ namespace Rampastring.XNAUI.XNAControls
             int height = Height - 
                 btnScrollUp.Height - btnScrollDown.Height;
 
-            int nonDisplayedLines = ItemCount - DisplayedItemCount;
+            int nonDisplayedLines = Length - DisplayedPixelCount;
 
             if (nonDisplayedLines <= 0)
             {
@@ -174,7 +183,7 @@ namespace Rampastring.XNAUI.XNAControls
             }
             else
             {
-                thumbHeight = Math.Max(height - (int)(height * nonDisplayedLines / (double)ItemCount),
+                thumbHeight = Math.Max(height - (int)(height * nonDisplayedLines / (double)Length),
                     MIN_BUTTON_HEIGHT);
 
                 scrollablePixels = height - thumbHeight;
@@ -224,7 +233,7 @@ namespace Rampastring.XNAUI.XNAControls
 
             if (point.Y <= buttonMinY)
             {
-                TopIndex = 0;
+                ViewTop = 0;
                 RefreshButtonY();
                 Scrolled?.Invoke(this, EventArgs.Empty);
                 return;
@@ -232,6 +241,7 @@ namespace Rampastring.XNAUI.XNAControls
 
             if (point.Y >= buttonMaxY)
             {
+                ViewTop = Length - DisplayedPixelCount;
                 RefreshButtonY();
                 ScrolledToBottom?.Invoke(this, EventArgs.Empty);
                 return;
@@ -241,9 +251,9 @@ namespace Rampastring.XNAUI.XNAControls
 
             double location = point.Y - buttonMinY;
 
-            int nonDisplayedLines = ItemCount - DisplayedItemCount;
+            int nonDisplayedLines = Length - DisplayedPixelCount;
 
-            TopIndex = (int)(location / difference * nonDisplayedLines);
+            ViewTop = (int)(location / difference * nonDisplayedLines);
             RefreshButtonY();
 
             Scrolled?.Invoke(this, EventArgs.Empty);
@@ -253,9 +263,9 @@ namespace Rampastring.XNAUI.XNAControls
         /// Updates the top item index of the scroll bar,
         /// and the vertical position of the scroll bar's thumb.
         /// </summary>
-        public void RefreshButtonY(int topIndex)
+        public void RefreshButtonY(int viewTop)
         {
-            TopIndex = topIndex;
+            ViewTop = viewTop;
             RefreshButtonY();
         }
 
@@ -264,7 +274,7 @@ namespace Rampastring.XNAUI.XNAControls
         /// </summary>
         public void RefreshButtonY()
         {
-            int nonDisplayedLines = ItemCount - DisplayedItemCount;
+            int nonDisplayedLines = Length - DisplayedPixelCount;
 
             if (nonDisplayedLines <= 0)
             {
@@ -273,7 +283,7 @@ namespace Rampastring.XNAUI.XNAControls
             }
 
             buttonY = Math.Min(
-                buttonMinY + (int)(((TopIndex / (double)nonDisplayedLines) * scrollablePixels) - thumbHeight / 2),
+                buttonMinY + (int)(((ViewTop / (double)nonDisplayedLines) * scrollablePixels) - thumbHeight / 2),
                 Height - btnScrollDown.Height - thumbHeight);
         }
 

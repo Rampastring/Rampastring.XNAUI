@@ -729,9 +729,14 @@ namespace Rampastring.XNAUI.XNAControls
             if (renderTarget != null && !renderTarget.IsDisposed)
                 renderTarget.Dispose();
 
-            renderTarget = new RenderTarget2D(GraphicsDevice, Width, Height, false,
+            renderTarget = new RenderTarget2D(GraphicsDevice,
+                GetRenderTargetWidth(), GetRenderTargetHeight(), false,
                 SurfaceFormat.Color, DepthFormat.None, 0, RenderTargetUsage.PreserveContents);
         }
+
+        protected virtual int GetRenderTargetWidth() => Width;
+
+        protected virtual int GetRenderTargetHeight() => Height;
 
         public virtual void GetAttributes(IniFile iniFile)
         {
@@ -916,6 +921,7 @@ namespace Rampastring.XNAUI.XNAControls
                     {
                         child.IsActive = true;
                         activeChild = child;
+                        WindowManager.activeControlName = child.Name;
                         break;
                     }
                 }
@@ -1026,7 +1032,8 @@ namespace Rampastring.XNAUI.XNAControls
                 Draw(gameTime);
                 RenderTargetStack.PopRenderTarget();
                 Rectangle rect = RenderRectangle();
-                Renderer.DrawTexture(renderTarget, rect, GetColorWithAlpha(Color.White));
+                Renderer.DrawTexture(renderTarget, new Rectangle(rect.X, rect.Y, 
+                    renderTarget.Width, renderTarget.Height), GetColorWithAlpha(Color.White));
             }
             else
             {
