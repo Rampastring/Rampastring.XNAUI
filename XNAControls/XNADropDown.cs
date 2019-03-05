@@ -235,8 +235,6 @@ namespace Rampastring.XNAUI.XNAControls
             DropDownOpenTexture = AssetLoader.LoadTexture("openedComboBoxArrow.png");
 
             Height = DropDownTexture.Height;
-
-            ClickSoundEffect?.Play();
         }
 
         protected override void ParseAttributeFromINI(IniFile iniFile, string key, string value)
