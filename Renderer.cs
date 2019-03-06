@@ -111,9 +111,9 @@ namespace Rampastring.XNAUI
             return TextParseReturnValue.FixText(fonts[fontIndex], width, text);
         }
 
-        public static List<string> GetFixedTextLines(string text, int fontIndex, int width)
+        public static List<string> GetFixedTextLines(string text, int fontIndex, int width, bool splitWords = true)
         {
-            return TextParseReturnValue.GetFixedTextLines(fonts[fontIndex], width, text);
+            return TextParseReturnValue.GetFixedTextLines(fonts[fontIndex], width, text, splitWords);
         }
 
         /// <summary>

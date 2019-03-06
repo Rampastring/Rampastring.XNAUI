@@ -33,7 +33,7 @@ namespace Rampastring.XNAUI
             return returnValue;
         }
 
-        public static List<string> GetFixedTextLines(SpriteFont spriteFont, int width, string text)
+        public static List<string> GetFixedTextLines(SpriteFont spriteFont, int width, string text, bool splitWords = true)
         {
             if (string.IsNullOrEmpty(text))
                 return new List<string>();
@@ -52,7 +52,7 @@ namespace Rampastring.XNAUI
                     }
 
                     // Split individual words that are longer than the allowed width
-                    if (spriteFont.MeasureString(word).X > width)
+                    if (splitWords && spriteFont.MeasureString(word).X > width)
                     {
                         StringBuilder sb = new StringBuilder();
 

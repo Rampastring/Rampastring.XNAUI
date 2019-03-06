@@ -162,7 +162,7 @@ namespace Rampastring.XNAUI.XNAControls
                     line = renderedTextLines[renderedTextLines.Count - 1];
                     int remainingWidth = (Width - Padding * 2) - line.Width;
 
-                    List<string> textLines = Renderer.GetFixedTextLines(remainingText, textPart.FontIndex, remainingWidth);
+                    List<string> textLines = Renderer.GetFixedTextLines(remainingText, textPart.FontIndex, remainingWidth, false);
                     if (Renderer.GetTextDimensions(textLines[0], textPart.FontIndex).X < remainingWidth)
                     {
                         line.AddPart(new XNATextPart(textLines[0], textPart.FontIndex, textPart.Scale, textPart.Color, textPart.Underlined));
@@ -171,7 +171,7 @@ namespace Rampastring.XNAUI.XNAControls
 
                     remainingText = remainingText.TrimStart(' ');
 
-                    if (textLines.Count > 1 && remainingText != "")
+                    if (textLines.Count > 1 || remainingText != "")
                         renderedTextLines.Add(new XNATextLine(new List<XNATextPart>()));
                     else
                         break;
