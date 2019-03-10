@@ -471,6 +471,17 @@ namespace Rampastring.XNAUI.XNAControls
         }
 
         /// <summary>
+        /// Gets the control's client area within the agme window.
+        /// Use for input handling; for rendering, use <see cref="RenderRectangle"/> instead.
+        /// </summary>
+        /// <returns></returns>
+        public Rectangle GetWindowRectangle()
+        {
+            Point p = GetWindowPoint();
+            return new Rectangle(p.X, p.Y, Width, Height);
+        }
+
+        /// <summary>
         /// Returns the draw area of the control relative to the used render target.
         /// </summary>
         public Rectangle RenderRectangle()
@@ -873,7 +884,7 @@ namespace Rampastring.XNAUI.XNAControls
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         public override void Update(GameTime gameTime)
         {
-            Rectangle rectangle = RenderRectangle();
+            Rectangle rectangle = GetWindowRectangle();
 
             timeSinceLastLeftClick += gameTime.ElapsedGameTime;
 
@@ -917,7 +928,7 @@ namespace Rampastring.XNAUI.XNAControls
                     XNAControl child = activeChildEnumerator.Current;
 
                     if (child.Visible && !child.Detached && (child.Focused || (child.InputEnabled && 
-                        child.RenderRectangle().Contains(Cursor.Location) && activeChild == null)))
+                        child.GetWindowRectangle().Contains(Cursor.Location) && activeChild == null)))
                     {
                         child.IsActive = true;
                         activeChild = child;

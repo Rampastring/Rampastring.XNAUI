@@ -312,17 +312,17 @@ namespace Rampastring.XNAUI.XNAControls
         /// <param name="text">The text of the item.</param>
         public void AddItem(string text)
         {
-            AddItem(text, DefaultItemColor, true);
+            AddItem(text, null, true);
         }
 
         public void AddItem(string text, bool selectable)
         {
-            AddItem(text, DefaultItemColor, selectable);
+            AddItem(text, null, selectable);
         }
 
         public void AddItem(string text, Texture2D texture)
         {
-            AddItem(text, DefaultItemColor, texture, true);
+            AddItem(text, texture, true, null);
         }
 
         public void AddItem(string text, Color textColor)
@@ -330,15 +330,16 @@ namespace Rampastring.XNAUI.XNAControls
             AddItem(text, textColor, true);
         }
 
-        public void AddItem(string text, Color textColor, bool selectable)
+        public void AddItem(string text, Color? textColor, bool selectable)
         {
-            AddItem(text, textColor, null, selectable);
+            AddItem(text, null, selectable, textColor);
         }
 
-        public void AddItem(string text, Color textColor, Texture2D texture, bool selectable)
+        public void AddItem(string text, Texture2D texture, bool selectable, Color? textColor = null)
         {
             XNAListBoxItem item = new XNAListBoxItem();
-            item.TextColor = textColor;
+            if (textColor.HasValue)
+                item.TextColor = textColor.Value;
             item.Text = text;
             item.Texture = texture;
             item.Selectable = selectable;
@@ -422,16 +423,7 @@ namespace Rampastring.XNAUI.XNAControls
             int displayedLineCount = NumberOfLinesOnList;
             int currentLineCount = 0;
             TopIndex = Items.Count;
-
-            for (int i = Items.Count - 1; i > -1; i--)
-            {
-                currentLineCount += Items[i].TextLines.Count;
-
-                if (currentLineCount <= displayedLineCount)
-                    TopIndex--;
-                else
-                    break;
-            }
+            ViewTop -= Height - MARGIN * 2;
         }
 
         /// <summary>
@@ -478,7 +470,7 @@ namespace Rampastring.XNAUI.XNAControls
         private void ScrollBar_ScrolledToBottom(object sender, EventArgs e)
         {
             ScrollToBottom();
-            ScrollBar.RefreshButtonY(TopIndex);
+            ScrollBar.RefreshButtonY(ViewTop);
         }
 
         private void ScrollBar_Scrolled(object sender, EventArgs e)
@@ -618,12 +610,12 @@ namespace Rampastring.XNAUI.XNAControls
                     if (TopIndex > i)
                         TopIndex = i;
 
-                    ScrollBar.RefreshButtonY(TopIndex);
+                    ScrollBar.RefreshButtonY(ViewTop);
                     return;
                 }
             }
 
-            ScrollBar.RefreshButtonY(TopIndex);
+            ScrollBar.RefreshButtonY(ViewTop);
         }
 
         /// <summary>
@@ -640,13 +632,13 @@ namespace Rampastring.XNAUI.XNAControls
                     while (LastIndex < i)
                         TopIndex++;
 
-                    ScrollBar.RefreshButtonY(TopIndex);
+                    ScrollBar.RefreshButtonY(ViewTop);
                     return;
                 }
                 scrollLineCount++;
             }
 
-            ScrollBar.RefreshButtonY(TopIndex);
+            ScrollBar.RefreshButtonY(ViewTop);
         }
 
         /// <summary>
@@ -662,10 +654,10 @@ namespace Rampastring.XNAUI.XNAControls
 
             ViewTop -= Cursor.ScrollWheelValue * ScrollBar.ScrollStep;
 
-            if (TopIndex < 0)
+            if (ViewTop < 0)
             {
                 TopIndex = 0;
-                ScrollBar.RefreshButtonY(TopIndex);
+                ScrollBar.RefreshButtonY(ViewTop);
                 return;
             }
 
@@ -681,7 +673,7 @@ namespace Rampastring.XNAUI.XNAControls
                 TopIndex++;
             }
 
-            ScrollBar.RefreshButtonY(TopIndex);
+            ScrollBar.RefreshButtonY(ViewTop);
 
             base.OnMouseScrolled();
         }
@@ -726,7 +718,7 @@ namespace Rampastring.XNAUI.XNAControls
                 SelectedIndex = itemIndex;
             }
 
-            base.OnLeftClick();
+            base.OnMouseLeftDown();
         }
 
         public override void OnDoubleLeftClick()
@@ -797,15 +789,13 @@ namespace Rampastring.XNAUI.XNAControls
         {
             DrawPanel();
 
-            int height = 2;
+            int height = 2 - (ViewTop % LineHeight);
 
             for (int i = TopIndex; i < Items.Count; i++)
             { 
                 XNAListBoxItem lbItem = Items[i];
 
-                height -= ViewTop % LineHeight;
-
-                if (height + lbItem.TextLines.Count * LineHeight > Height)
+                if (height > Height)
                     break;
 
                 int x = TextBorderDistance;
