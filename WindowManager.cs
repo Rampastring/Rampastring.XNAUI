@@ -525,6 +525,7 @@ namespace Rampastring.XNAUI
             }
 
             XNAControl activeControl = null;
+            activeControlName = null;
 
             if (HasFocus)
                 Keyboard.Update(gameTime);
@@ -545,6 +546,7 @@ namespace Rampastring.XNAUI
                 {
                     control.IsActive = true;
                     activeControl = control;
+                    activeControlName = control.Name;
                 }
                 else
                     control.IsActive = false;
@@ -555,6 +557,8 @@ namespace Rampastring.XNAUI
 
             base.Update(gameTime);
         }
+
+        public string activeControlName;
 
         /// <summary>
         /// Draws all the visible controls in the WindowManager.
@@ -613,6 +617,8 @@ namespace Rampastring.XNAUI
 
             Renderer.DrawTexture(renderTargetToDraw, new Rectangle(SceneXPosition, SceneYPosition,
                 WindowWidth - (SceneXPosition * 2), WindowHeight - (SceneYPosition * 2)), Color.White);
+
+            Renderer.DrawString("Active control " + activeControlName, 0, Vector2.Zero, Color.Red, 1.0f);
 
             if (Cursor.Visible)
                 Cursor.Draw(gameTime);
