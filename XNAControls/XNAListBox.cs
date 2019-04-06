@@ -27,6 +27,7 @@ namespace Rampastring.XNAUI.XNAControls
         {
             DrawMode = ControlDrawMode.UNIQUE_RENDER_TARGET;
             ScrollBar = new XNAScrollBar(WindowManager);
+            ScrollBar.ScrollStep = LineHeight;
             ClientRectangleUpdated += XNAListBox_ClientRectangleUpdated;
         }
 
@@ -58,13 +59,7 @@ namespace Rampastring.XNAUI.XNAControls
 
         public Color FocusColor
         {
-            get
-            {
-                if (_focusColor.HasValue)
-                    return _focusColor.Value;
-
-                return UISettings.ActiveSettings.FocusColor;
-            }
+            get => _focusColor ?? UISettings.ActiveSettings.FocusColor;
             set { _focusColor = value; }
         }
 
@@ -72,17 +67,20 @@ namespace Rampastring.XNAUI.XNAControls
 
         public Color DefaultItemColor
         {
-            get
-            {
-                if (_defaultItemColor.HasValue)
-                    return _defaultItemColor.Value;
-
-                return UISettings.ActiveSettings.AltColor;
-            }
+            get => _defaultItemColor ?? UISettings.ActiveSettings.AltColor;
             set { _defaultItemColor = value; }
         }
 
-        public int LineHeight = 15;
+        private int _lineHeight = 15;
+
+        /// <summary>
+        /// Gets or sets the height of a single line of text in the list box.
+        /// </summary>
+        public int LineHeight
+        {
+            get => _lineHeight;
+            set { _lineHeight = value; ScrollBar.ScrollStep = value; }
+        }
 
         public int FontIndex { get; set; }
 
