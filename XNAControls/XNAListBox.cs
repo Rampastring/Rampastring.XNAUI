@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using Rampastring.Tools;
 using System.Globalization;
+using System.Collections.ObjectModel;
 
 namespace Rampastring.XNAUI.XNAControls
 {
@@ -53,6 +54,12 @@ namespace Rampastring.XNAUI.XNAControls
 
         #region Public members
 
+        /// <summary>
+        /// Returns the list of items in the list box.
+        /// If you manipulate the list directly, call
+        /// RefreshScrollbar afterwards.
+        /// TODO change to ObservableCollection?
+        /// </summary>
         public List<XNAListBoxItem> Items = new List<XNAListBoxItem>();
 
         private Color? _focusColor;
@@ -299,9 +306,7 @@ namespace Rampastring.XNAUI.XNAControls
             //}
 
             Items.Clear();
-
-            ScrollBar.Height = 0;
-            ScrollBar.Refresh();
+            RefreshScrollbar();
         }
 
         /// <summary>
@@ -392,9 +397,17 @@ namespace Rampastring.XNAUI.XNAControls
             }
 
             Items.Add(listBoxItem);
+            RefreshScrollbar();
+        }
 
+        /// <summary>
+        /// Refreshes the scroll bar's status. Call when list box items are modified.
+        /// </summary>
+        public void RefreshScrollbar()
+        {
             int length = 0;
-            Items.ForEach(i => length += i.TextLines.Count * LineHeight);
+            foreach (var item in Items)
+                length += item.TextLines.Count * LineHeight;
             ScrollBar.Length = length;
             ScrollBar.DisplayedPixelCount = Height - MARGIN * 2;
             ScrollBar.Refresh();
