@@ -80,10 +80,7 @@ namespace Rampastring.XNAUI.XNAControls
         /// </summary>
         public Color IdleColor
         {
-            get
-            {
-                return _idleColor ?? UISettings.ActiveSettings.TextColor;
-            }
+            get => _idleColor ?? UISettings.ActiveSettings.TextColor;
             set { _idleColor = value; }
         }
 
@@ -94,14 +91,9 @@ namespace Rampastring.XNAUI.XNAControls
         /// </summary>
         public Color HighlightColor
         {
-            get
-            {
-                return _highlightColor ?? UISettings.ActiveSettings.AltColor;
-            }
+            get => _highlightColor ?? UISettings.ActiveSettings.AltColor;
             set
-            {
-                _highlightColor = value;
-            }
+            { _highlightColor = value; }
         }
 
         public double AlphaRate { get; set; }
@@ -123,10 +115,14 @@ namespace Rampastring.XNAUI.XNAControls
             }
         }
 
-        int textLocationX;
-        int textLocationY;
+        /// <summary>
+        /// The Y coordinate of the check box text
+        /// relative to the location of the check box.
+        /// </summary>
+        protected int TextLocationY { get; set; }
 
-        double checkedAlpha = 0.0;
+
+        private double checkedAlpha = 0.0;
 
 
         public override void Initialize()
@@ -177,27 +173,27 @@ namespace Rampastring.XNAUI.XNAControls
             base.ParseAttributeFromINI(iniFile, key, value);
         }
 
-        private void SetTextPositionAndSize()
+        /// <summary>
+        /// Updates the size of the check box and the vertical position of its text.
+        /// </summary>
+        protected virtual void SetTextPositionAndSize()
         {
             if (CheckedTexture == null)
                 return;
-
-            textLocationX = CheckedTexture.Width + TEXT_PADDING_DEFAULT;
 
             if (!string.IsNullOrEmpty(Text))
             {
                 Vector2 textDimensions = Renderer.GetTextDimensions(Text, FontIndex);
 
-                textLocationY = (CheckedTexture.Height - (int)textDimensions.Y) / 2 - 1;
+                TextLocationY = (CheckedTexture.Height - (int)textDimensions.Y) / 2 - 1;
 
-                ClientRectangle = new Rectangle(X, Y,
-                    (int)textDimensions.X + TEXT_PADDING_DEFAULT + CheckedTexture.Width,
-                    Math.Max((int)textDimensions.Y, CheckedTexture.Height));
+                Width = (int)textDimensions.X + TEXT_PADDING_DEFAULT + CheckedTexture.Width;
+                Height = Math.Max((int)textDimensions.Y, CheckedTexture.Height);
             }
             else
             {
-                ClientRectangle = new Rectangle(X, Y, 
-                    CheckedTexture.Width, CheckedTexture.Height);
+                Width = CheckedTexture.Width;
+                Height = CheckedTexture.Height;
             }
         }
 
@@ -264,15 +260,15 @@ namespace Rampastring.XNAUI.XNAControls
             }
 
             int checkBoxYPosition = 0;
-            int textYPosition = textLocationY;
+            int textYPosition = TextLocationY;
 
-            if (textLocationY < 0)
+            if (TextLocationY < 0)
             {
                 // If the text is higher than the checkbox texture (textLocationY < 0), 
                 // let's draw the text at the top of the client
                 // rectangle and the check-box in the middle of the text.
                 // This is necessary for input to work properly.
-                checkBoxYPosition -= textLocationY;
+                checkBoxYPosition -= TextLocationY;
                 textYPosition = 0;
             }
 
