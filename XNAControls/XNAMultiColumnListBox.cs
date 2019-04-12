@@ -50,22 +50,10 @@ namespace Rampastring.XNAUI.XNAControls
 
         public delegate void SelectedIndexChangedEventHandler(object sender, EventArgs e);
         public event SelectedIndexChangedEventHandler SelectedIndexChanged;
-
-        int _headerFontIndex = 1;
-        public int HeaderFontIndex
-        {
-            get { return _headerFontIndex; }
-            set { _headerFontIndex = value; }
-        }
+        public int HeaderFontIndex { get; set; } = 1;
 
         public int FontIndex { get; set; }
-
-        int _lineHeight = 15;
-        public int LineHeight
-        {
-            get { return _lineHeight; }
-            set { _lineHeight = value; }
-        }
+        public int LineHeight { get; set; } = 15;
 
         public bool DrawListBoxBorders { get; set; }
 
@@ -219,7 +207,7 @@ namespace Rampastring.XNAUI.XNAControls
             listBox.ClientRectangle = new Rectangle(width, header.Bottom - 1,
                 header.Width, this.Height - header.Bottom + 1);
             listBox.DrawBorders = DrawListBoxBorders;
-            listBox.LineHeight = _lineHeight;
+            listBox.LineHeight = LineHeight;
             listBox.TopIndexChanged += ListBox_TopIndexChanged;
             listBox.SelectedIndexChanged += ListBox_SelectedIndexChanged;
             listBox.AllowMultiLineItems = false;
@@ -278,7 +266,7 @@ namespace Rampastring.XNAUI.XNAControls
                 listBox.TopIndexChanged += ListBox_TopIndexChanged;
                 listBox.SelectedIndexChanged += ListBox_SelectedIndexChanged;
                 listBox.TextBorderDistance = 5;
-                listBox.LineHeight = _lineHeight;
+                listBox.LineHeight = LineHeight;
                 listBox.AllowMultiLineItems = false;
                 listBox.AllowKeyboardInput = this.AllowKeyboardInput;
                 listBox.AllowRightClickUnselect = this.AllowRightClickUnselect;
@@ -311,6 +299,11 @@ namespace Rampastring.XNAUI.XNAControls
             for (int i = 0; i < listBoxes.Count - 1; i++)
                 listBoxes[i].EnableScrollbar = false;
         }
+
+        /// <summary>
+        /// Checks whether an item is selected in the list box.
+        /// </summary>
+        public bool IsValidIndexSelected() => SelectedIndex > 0 && SelectedIndex < ItemCount;
 
         private void ListBox_SelectedIndexChanged(object sender, EventArgs e)
         {
