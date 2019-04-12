@@ -303,7 +303,7 @@ namespace Rampastring.XNAUI.XNAControls
         /// <summary>
         /// Checks whether an item is selected in the list box.
         /// </summary>
-        public bool IsValidIndexSelected() => SelectedIndex > 0 && SelectedIndex < ItemCount;
+        public bool IsValidIndexSelected() => SelectedIndex > -1 && SelectedIndex < ItemCount;
 
         private void ListBox_SelectedIndexChanged(object sender, EventArgs e)
         {
