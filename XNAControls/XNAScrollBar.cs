@@ -56,7 +56,8 @@ namespace Rampastring.XNAUI.XNAControls
         public event EventHandler ScrolledToBottom;
 
         /// <summary>
-        /// The length of the scrollable area.
+        /// The height of the entire scrollable area.
+        /// For example in a list box, the sum of the height of its items.
         /// </summary>
         public int Length { get; set; }
 
@@ -243,6 +244,7 @@ namespace Rampastring.XNAUI.XNAControls
             {
                 ViewTop = Length - DisplayedPixelCount;
                 RefreshButtonY();
+                Scrolled?.Invoke(this, EventArgs.Empty);
                 ScrolledToBottom?.Invoke(this, EventArgs.Empty);
                 return;
             }

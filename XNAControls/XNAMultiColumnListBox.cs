@@ -201,7 +201,6 @@ namespace Rampastring.XNAUI.XNAControls
             header.ClientRectangle = new Rectangle(width, 0, header.Width, header.Height);
 
             headers.Add(header);
-            AddChild(header);
 
             listBox.Name = Name + "_lb" + listBoxes.Count;
             listBox.ClientRectangle = new Rectangle(width, header.Bottom - 1,
@@ -213,10 +212,11 @@ namespace Rampastring.XNAUI.XNAControls
             listBox.AllowMultiLineItems = false;
             listBox.AllowKeyboardInput = this.AllowKeyboardInput;
             listBox.AllowRightClickUnselect = this.AllowRightClickUnselect;
-            listBox.DrawMode = ControlDrawMode.NORMAL;
+            //listBox.DrawMode = ControlDrawMode.NORMAL;
 
             listBoxes.Add(listBox);
             AddChild(listBox);
+            AddChild(header);
         }
 
         public override void Initialize()
@@ -236,9 +236,6 @@ namespace Rampastring.XNAUI.XNAControls
                 header.Text = column.Header;
 
                 XNAPanel headerPanel = new XNAPanel(WindowManager);
-
-                AddChild(headerPanel);
-                headerPanel.AddChild(header);
 
                 if (DrawListBoxBorders)
                     headerPanel.ClientRectangle = new Rectangle(width - 1, 0, column.Width + 1, header.Height + 3);
@@ -270,11 +267,13 @@ namespace Rampastring.XNAUI.XNAControls
                 listBox.AllowMultiLineItems = false;
                 listBox.AllowKeyboardInput = this.AllowKeyboardInput;
                 listBox.AllowRightClickUnselect = this.AllowRightClickUnselect;
-                listBox.DrawMode = ControlDrawMode.NORMAL;
+                //listBox.DrawMode = ControlDrawMode.NORMAL;
 
                 listBoxes.Add(listBox);
 
                 AddChild(listBox);
+                AddChild(headerPanel);
+                headerPanel.AddChild(header);
 
                 width += column.Width;
             }
@@ -330,7 +329,7 @@ namespace Rampastring.XNAUI.XNAControls
         private void ListBox_TopIndexChanged(object sender, EventArgs e)
         {
             foreach (XNAListBox lb in listBoxes)
-                lb.TopIndex = ((XNAListBox)sender).TopIndex;
+                lb.ViewTop = ((XNAListBox)sender).ViewTop;
         }
 
         public void ClearItems()
@@ -352,7 +351,7 @@ namespace Rampastring.XNAUI.XNAControls
         public void AddItem(string[] info, bool selectable)
         {
             if (info.Length != listBoxes.Count)
-                throw new Exception("DXMultiColumnListBox.AddItem: Invalid amount of info for added item!");
+                throw new InvalidOperationException("XNAMultiColumnListBox.AddItem: Invalid amount of info for added item!");
 
             for (int i = 0; i < info.Length; i++)
             {
@@ -368,7 +367,7 @@ namespace Rampastring.XNAUI.XNAControls
         public void AddItem(XNAListBoxItem[] items)
         {
             if (items.Length != listBoxes.Count)
-                throw new Exception("DXMultiColumnListBox.AddItem: Invalid amount of list box items for added item!");
+                throw new InvalidOperationException("XNAMultiColumnListBox.AddItem: Invalid amount of list box items for added item!");
 
             for (int i = 0; i < items.Length; i++)
                 listBoxes[i].AddItem(items[i]);

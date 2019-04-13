@@ -225,6 +225,8 @@ namespace Rampastring.XNAUI.XNAControls
             {
                 CreateRenderTarget();
             }
+
+            _children.ForEach(c => c.CheckForRenderAreaChange());
         }
 
         /// <summary>
@@ -408,7 +410,7 @@ namespace Rampastring.XNAUI.XNAControls
         /// </summary>
         public bool IsChangingSize
         {
-            get => _isChangingSize;
+            get => _isChangingSize || (Parent != null && Parent.IsChangingSize);
             set
             {
                 _isChangingSize = value;
@@ -758,11 +760,11 @@ namespace Rampastring.XNAUI.XNAControls
 
             List<string> keys = iniFile.GetSectionKeys(Name);
 
-            if (keys == null)
-                return;
-
-            foreach (string key in keys)
-                ParseAttributeFromINI(iniFile, key, iniFile.GetStringValue(Name, key, String.Empty));
+            if (keys != null)
+            {
+                foreach (string key in keys)
+                    ParseAttributeFromINI(iniFile, key, iniFile.GetStringValue(Name, key, String.Empty));
+            }
 
             IsChangingSize = false;
         }
@@ -1031,9 +1033,8 @@ namespace Rampastring.XNAUI.XNAControls
         /// <summary>
         /// Draws the control.
         /// DO NOT call manually unless you know what you're doing.
-        /// This will likely be made private in future versions.
         /// </summary>
-        public void DrawInternal(GameTime gameTime)
+        internal void DrawInternal(GameTime gameTime)
         {
             if (DrawMode == ControlDrawMode.UNIQUE_RENDER_TARGET)
             {

@@ -432,7 +432,6 @@ namespace Rampastring.XNAUI.XNAControls
         public void ScrollToBottom()
         {
             int displayedLineCount = NumberOfLinesOnList;
-            int currentLineCount = 0;
             TopIndex = Items.Count;
             ViewTop -= Height - MARGIN * 2;
         }
@@ -455,7 +454,6 @@ namespace Rampastring.XNAUI.XNAControls
             ScrollBar.ClientRectangle = new Rectangle(Width - ScrollBar.ScrollWidth - 1,
                 1, ScrollBar.ScrollWidth, Height - 2);
             ScrollBar.Scrolled += ScrollBar_Scrolled;
-            ScrollBar.ScrolledToBottom += ScrollBar_ScrolledToBottom;
             AddChild(ScrollBar);
             ScrollBar.Refresh();
 
@@ -476,12 +474,6 @@ namespace Rampastring.XNAUI.XNAControls
         public int GetScrollBarWidth()
         {
             return ScrollBar.Width;
-        }
-
-        private void ScrollBar_ScrolledToBottom(object sender, EventArgs e)
-        {
-            ScrollToBottom();
-            ScrollBar.RefreshButtonY(ViewTop);
         }
 
         private void ScrollBar_Scrolled(object sender, EventArgs e)
@@ -759,7 +751,7 @@ namespace Rampastring.XNAUI.XNAControls
         /// to this control.</param>
         private int GetItemIndexOnCursor(Point mouseLocation)
         {
-            int height = 2;
+            int height = 2 - (ViewTop % LineHeight);
 
             if (mouseLocation.X < 0)
                 return -1;
@@ -778,14 +770,14 @@ namespace Rampastring.XNAUI.XNAControls
 
                 height += lbItem.TextLines.Count * LineHeight;
 
-                if (height > Height)
-                {
-                    return -1;
-                }
-
                 if (height > mouseLocation.Y)
                 {
                     return i;
+                }
+
+                if (height > Height)
+                {
+                    return -1;
                 }
             }
 
