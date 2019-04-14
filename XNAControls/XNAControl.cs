@@ -1036,6 +1036,9 @@ namespace Rampastring.XNAUI.XNAControls
         /// </summary>
         internal void DrawInternal(GameTime gameTime)
         {
+            if (!Visible)
+                return;
+
             if (DrawMode == ControlDrawMode.UNIQUE_RENDER_TARGET)
             {
                 drawPoint = Point.Zero;
