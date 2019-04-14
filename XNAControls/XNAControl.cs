@@ -1170,7 +1170,7 @@ namespace Rampastring.XNAUI.XNAControls
         /// <param name="color">The color to fill the area with.</param>
         public void FillControlArea(Color color)
         {
-            FillRectangle(new Rectangle(drawPoint.X, drawPoint.Y, Width, Height), color);
+            FillRectangle(new Rectangle(0, 0, Width, Height), color);
         }
 
         /// <summary>
