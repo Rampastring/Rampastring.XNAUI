@@ -98,19 +98,7 @@ namespace Rampastring.XNAUI
                         {
                             Texture2D texture = Texture2D.FromStream(graphicsDevice, fs);
                             texture.Name = name;
-
-                            // Premultiply alpha
-                            Color[] data = new Color[texture.Width * texture.Height];
-                            texture.GetData(data);
-
-                            for (int i = 0; i < data.Length; i++)
-                            {
-                                data[i].R = (byte)(data[i].R * data[i].A / 255);
-                                data[i].G = (byte)(data[i].G * data[i].A / 255);
-                                data[i].B = (byte)(data[i].B * data[i].A / 255);
-                            }
-
-                            texture.SetData(data);
+                            PremultiplyAlpha(texture);
 
                             return texture;
                         }
@@ -123,6 +111,21 @@ namespace Rampastring.XNAUI
             }
 
             return null;
+        }
+
+        private static void PremultiplyAlpha(Texture2D texture)
+        {
+            Color[] data = new Color[texture.Width * texture.Height];
+            texture.GetData(data);
+
+            for (int i = 0; i < data.Length; i++)
+            {
+                data[i].R = (byte)(data[i].R * data[i].A / 255);
+                data[i].G = (byte)(data[i].G * data[i].A / 255);
+                data[i].B = (byte)(data[i].B * data[i].A / 255);
+            }
+
+            texture.SetData(data);
         }
 
         /// <summary>
@@ -184,7 +187,9 @@ namespace Rampastring.XNAUI
                 {
                     image.Save(stream, System.Drawing.Imaging.ImageFormat.Png);
                     stream.Seek(0, SeekOrigin.Begin);
-                    return Texture2D.FromStream(graphicsDevice, stream);
+                    Texture2D texture = Texture2D.FromStream(graphicsDevice, stream);
+                    PremultiplyAlpha(texture);
+                    return texture;
                 }
             }
             catch (Exception ex)
