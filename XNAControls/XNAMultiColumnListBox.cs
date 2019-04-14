@@ -174,7 +174,43 @@ namespace Rampastring.XNAUI.XNAControls
                     return;
             }
 
+            const string columnWidthKeyStart = "ColumnWidth";
+            if (key.StartsWith(columnWidthKeyStart))
+            {
+                int headerIndex = Conversions.IntFromString(key.Substring(columnWidthKeyStart.Length), -1);
+                if (headerIndex == -1 || headerIndex >= headers.Count)
+                    return;
+
+                ChangeColumnWidth(headerIndex, Conversions.IntFromString(value, headers[headerIndex].Width));
+            }
+
             base.ParseAttributeFromINI(iniFile, key, value);
+        }
+
+        /// <summary>
+        /// Changes the width of a column and adjusts the positions
+        /// of the following columns accordingly.
+        /// </summary>
+        /// <param name="columnIndex">The index of the column.</param>
+        /// <param name="width">The new width of the column.</param>
+        public void ChangeColumnWidth(int columnIndex, int width)
+        {
+            headers[columnIndex].Width = width;
+            listBoxes[columnIndex].Width = width;
+
+            int totalWidth = 0;
+            for (int i = 0; i <= columnIndex; i++)
+            {
+                totalWidth += headers[i].Width;
+            }
+
+            for (int i = columnIndex + 1; i < headers.Count; i++)
+            {
+                headers[i].X = totalWidth;
+                listBoxes[i].X = totalWidth;
+
+                totalWidth += headers[i].Width;
+            }
         }
 
         public void AddColumn(string header, int width)
@@ -194,9 +230,7 @@ namespace Rampastring.XNAUI.XNAControls
         public void AddColumn(XNAPanel header, XNAListBox listBox)
         {
             int width = 0;
-
-            foreach (XNAPanel headerPanel in headers)
-                width += headerPanel.Width;
+            headers.ForEach(h => width += h.Width);
 
             header.ClientRectangle = new Rectangle(width, 0, header.Width, header.Height);
 
