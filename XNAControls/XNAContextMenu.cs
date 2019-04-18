@@ -304,7 +304,7 @@ namespace Rampastring.XNAUI.XNAControls
         {
             Point p = GetCursorPoint();
 
-            Rectangle displayRectangle = RenderRectangle();
+            Rectangle rect = GetWindowRectangle();
 
             if (p.X < 0 || p.X > Width ||
                 p.Y > Height ||

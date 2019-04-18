@@ -485,7 +485,7 @@ namespace Rampastring.XNAUI.XNAControls
 #endif
 
         /// <summary>
-        /// Gets the control's client area within the agme window.
+        /// Gets the control's client area within the game window.
         /// Use for input handling; for rendering, use <see cref="RenderRectangle"/> instead.
         /// </summary>
         /// <returns></returns>
