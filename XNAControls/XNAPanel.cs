@@ -118,12 +118,51 @@ namespace Rampastring.XNAUI.XNAControls
                     if (Renderer.CurrentSettings.SamplerState != SamplerState.LinearWrap &&
                         Renderer.CurrentSettings.SamplerState != SamplerState.PointWrap)
                     {
-                        Renderer.PushSettings(new SpriteBatchSettings(Renderer.CurrentSettings.SpriteSortMode,
-                            Renderer.CurrentSettings.BlendState, SamplerState.LinearWrap));
+                        //Renderer.PushSettings(new SpriteBatchSettings(Renderer.CurrentSettings.SpriteSortMode,
+                        //    Renderer.CurrentSettings.BlendState, SamplerState.LinearWrap));
 
-                        DrawTexture(BackgroundTexture, new Rectangle(0, 0, Width, Height), color);
+                        //DrawTexture(BackgroundTexture, new Rectangle(0, 0, Width, Height), color);
 
-                        Renderer.PopSettings();
+                        //Renderer.PopSettings();
+                        // ^ the above should work, but actually doesn't for some reason -
+                        // the texture is just scaled instead
+                        // it should have much higher performance than repeating the texture manually
+
+                        for (int x = 0; x < Width; x += BackgroundTexture.Width)
+                        {
+                            for (int y = 0; y < Height; y += BackgroundTexture.Height)
+                            {
+                                if (x + BackgroundTexture.Width < Width)
+                                {
+                                    if (y + BackgroundTexture.Height < Height)
+                                    {
+                                        DrawTexture(BackgroundTexture, new Rectangle(x, y,
+                                            BackgroundTexture.Width, BackgroundTexture.Height), color);
+                                    }
+                                    else
+                                    {
+                                        DrawTexture(BackgroundTexture,
+                                            new Rectangle(0, 0, BackgroundTexture.Width, Height - y),
+                                            new Rectangle(x, y,
+                                            BackgroundTexture.Width, Height - y), color);
+                                    }
+                                }
+                                else if (y + BackgroundTexture.Height < Height)
+                                {
+                                    DrawTexture(BackgroundTexture,
+                                        new Rectangle(0, 0, Width - x, BackgroundTexture.Height),
+                                        new Rectangle(x, y,
+                                        Width - x, BackgroundTexture.Height), color);
+                                }
+                                else
+                                {
+                                    DrawTexture(BackgroundTexture,
+                                        new Rectangle(0, 0, Width - x, Height - y),
+                                        new Rectangle(x, y,
+                                        Width - x, Height - y), color);
+                                }
+                            }
+                        }
                     }
                     else
                     {
