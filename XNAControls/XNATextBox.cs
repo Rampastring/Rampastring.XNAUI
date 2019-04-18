@@ -122,7 +122,7 @@ namespace Rampastring.XNAUI.XNAControls
 
             set
             {
-                text = value;
+                text = value ?? throw new InvalidOperationException("XNATextBox text cannot be set to null.");
                 InputPosition = 0;
                 TextStartPosition = 0;
 
@@ -264,7 +264,17 @@ namespace Rampastring.XNAUI.XNAControls
             if (WindowManager.SelectedControl != this || !Enabled || !Parent.Enabled || !WindowManager.HasFocus)
                 return;
 
-            switch (e.PressedKey)
+            HandleKeyPress(e.PressedKey);
+        }
+
+        /// <summary>
+        /// Handles a key press while the text box is the selected control.
+        /// Can be overridden in derived classes to handle additional key presses.
+        /// </summary>
+        /// <param name="key">The key that was pressed.</param>
+        protected virtual void HandleKeyPress(Keys key)
+        {
+            switch (key)
             {
                 case Keys.Home:
                     if (text.Length == 0)
