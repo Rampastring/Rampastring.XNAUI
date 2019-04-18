@@ -182,7 +182,7 @@ namespace Rampastring.XNAUI
         internal static void BeginDrawInternal(SpriteSortMode ssm, BlendState bs, SamplerState ss)
         {
 #if XNA
-            SpriteBatch.Begin(ssm, bs, ss, DepthStencilState.Default, RasterizerState.CullNone);
+            spriteBatch.Begin(ssm, bs, ss, DepthStencilState.Default, RasterizerState.CullNone);
 #else
             spriteBatch.Begin(ssm, bs, ss,
                 DepthStencilState.None, RasterizerState.CullCounterClockwise);
@@ -223,7 +223,7 @@ namespace Rampastring.XNAUI
 #if !XNA
             spriteBatch.Draw(texture, location, null, null, origin, rotation, scale, color, SpriteEffects.None, 0f);
 #else
-            SpriteBatch.Draw(texture, location, null, color, rotation, origin, scale, SpriteEffects.None, 0f);
+            spriteBatch.Draw(texture, location, null, color, rotation, origin, scale, SpriteEffects.None, 0f);
 #endif
         }
 
@@ -282,7 +282,7 @@ namespace Rampastring.XNAUI
                 throw new Exception("Invalid font index: " + fontIndex);
 
 #if XNA
-            SpriteBatch.DrawString(Fonts[fontIndex], text, new Vector2(location.X + 1f, location.Y + 1f), new Color(0, 0, 0, color.A));
+            spriteBatch.DrawString(fonts[fontIndex], text, new Vector2(location.X + 1f, location.Y + 1f), new Color(0, 0, 0, color.A));
 #else
             spriteBatch.DrawString(fonts[fontIndex], text,
                 new Vector2(location.X + 1f, location.Y + 1f), new Color((byte)0, (byte)0, (byte)0, color.A),

@@ -467,10 +467,22 @@ namespace Rampastring.XNAUI.XNAControls
             Point p = new Point(X, Y);
 
             if (Parent != null)
+#if XNA
+                return SumPoints(p, parent.GetWindowPoint());
+#else
                 return p + parent.GetWindowPoint();
+#endif
 
             return p;
         }
+
+#if XNA
+        // XNA's Point is too dumb to know the plus operator
+        private Point SumPoints(Point p1, Point p2)
+        {
+            return new Point(p1.X + p2.X, p1.Y + p2.Y);
+        }
+#endif
 
         /// <summary>
         /// Gets the control's client area within the agme window.
@@ -506,7 +518,11 @@ namespace Rampastring.XNAUI.XNAControls
                     return p;
                 }
 
+#if XNA
+                return SumPoints(p, Parent.GetRenderPoint());
+#else
                 return p + Parent.GetRenderPoint();
+#endif
             }
 
             return p;
@@ -590,7 +606,7 @@ namespace Rampastring.XNAUI.XNAControls
                 Callbacks.Add(new Callback(d, args));
         }
 
-        #region Child control management
+#region Child control management
 
         /// <summary>
         /// Adds a child to the control.
@@ -722,7 +738,7 @@ namespace Rampastring.XNAUI.XNAControls
             drawList = _children.OrderBy(c => c.DrawOrder).ToList();
         }
 
-        #endregion
+#endregion
 
         /// <summary>
         /// Initializes the control.
@@ -1082,7 +1098,7 @@ namespace Rampastring.XNAUI.XNAControls
             }
         }
 
-        #region Draw helpers
+#region Draw helpers
 
         Point drawPoint;
 
@@ -1197,7 +1213,7 @@ namespace Rampastring.XNAUI.XNAControls
                 new Vector2(end.X + drawPoint.X, end.Y + drawPoint.Y), color, thickness);
         }
 
-        #endregion
+#endregion
 
         /// <summary>
         /// Called when the mouse cursor enters the control's client rectangle.
