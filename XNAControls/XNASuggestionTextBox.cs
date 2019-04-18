@@ -28,7 +28,7 @@ namespace Rampastring.XNAUI.XNAControls
         {
             base.Initialize();
 
-            Text = Suggestion;
+            Text = Suggestion ?? string.Empty;
             base.TextColor = SuggestedTextColor;
         }
 
@@ -63,7 +63,7 @@ namespace Rampastring.XNAUI.XNAControls
             {
                 base.TextColor = SuggestedTextColor;
                 if (string.IsNullOrEmpty(Text))
-                    Text = Suggestion;
+                    Text = Suggestion ?? string.Empty;
             }
         }
 
