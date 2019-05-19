@@ -294,12 +294,12 @@ namespace Rampastring.XNAUI.XNAControls
             if (IdleTexture != null)
             {
                 if (idleTextureAlpha > 0f)
-                    DrawTexture(IdleTexture, Point.Zero, 
-                        new Color(RemapColor.R, RemapColor.G, RemapColor.B, (int)(idleTextureAlpha * Alpha * 255)));
+                    DrawTexture(IdleTexture, Point.Zero,
+                        RemapColor * Alpha);
 
                 if (HoverTexture != null && hoverTextureAlpha > 0f)
-                    DrawTexture(HoverTexture, Point.Zero, 
-                        new Color(RemapColor.R, RemapColor.G, RemapColor.B, (int)(hoverTextureAlpha * Alpha * 255)));
+                    DrawTexture(HoverTexture, Point.Zero,
+                        RemapColor * hoverTextureAlpha * Alpha);
             }
 
             Vector2 textPosition = new Vector2(TextXPosition, TextYPosition);

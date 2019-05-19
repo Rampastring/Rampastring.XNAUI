@@ -575,7 +575,7 @@ namespace Rampastring.XNAUI
 
             Renderer.ClearStack();
             Renderer.CurrentSettings = new SpriteBatchSettings(
-                SpriteSortMode.Deferred, BlendState.NonPremultiplied, null);
+                SpriteSortMode.Deferred, BlendState.AlphaBlend, null);
             Renderer.BeginDraw();
 
             for (int i = 0; i < Controls.Count; i++)
