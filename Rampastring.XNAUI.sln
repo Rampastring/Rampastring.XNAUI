@@ -19,8 +19,8 @@ Global
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{3EAF996D-7F03-433B-A9A5-17E69AC97C76}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{3EAF996D-7F03-433B-A9A5-17E69AC97C76}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{3EAF996D-7F03-433B-A9A5-17E69AC97C76}.Debug|Windows.ActiveCfg = Debug|Any CPU
-		{3EAF996D-7F03-433B-A9A5-17E69AC97C76}.Debug|Windows.Build.0 = Debug|Any CPU
+		{3EAF996D-7F03-433B-A9A5-17E69AC97C76}.Debug|Windows.ActiveCfg = Debug|Windows
+		{3EAF996D-7F03-433B-A9A5-17E69AC97C76}.Debug|Windows.Build.0 = Debug|Windows
 		{3EAF996D-7F03-433B-A9A5-17E69AC97C76}.Debug|WindowsGL.ActiveCfg = Debug|WindowsGL
 		{3EAF996D-7F03-433B-A9A5-17E69AC97C76}.Debug|WindowsGL.Build.0 = Debug|WindowsGL
 		{3EAF996D-7F03-433B-A9A5-17E69AC97C76}.Debug|XNAFramework.ActiveCfg = Debug|XNAFramework
