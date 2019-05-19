@@ -30,6 +30,8 @@ namespace Rampastring.XNAUI
 
         private static bool _initialized = false;
 
+        public static bool IsInitialized => _initialized;
+
         /// <summary>
         /// Initializes the AssetLoader.
         /// </summary>

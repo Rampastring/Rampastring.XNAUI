@@ -235,6 +235,8 @@ namespace Rampastring.XNAUI
             Cursor = new Input.Cursor(this);
             Cursor.Initialize();
             Keyboard = new RKeyboard(Game);
+            if (!AssetLoader.IsInitialized)
+                AssetLoader.Initialize(graphics.GraphicsDevice, content);
             Renderer.Initialize(GraphicsDevice, content, contentPath);
             SoundPlayer = new SoundPlayer(Game);
 

@@ -42,6 +42,8 @@ namespace Rampastring.XNAUI
             spriteBatch = new SpriteBatch(gd);
             fonts = new List<SpriteFont>();
 
+            if (!contentPath.EndsWith("/") && !contentPath.EndsWith("\\"))
+                contentPath += Path.DirectorySeparatorChar;
             content.RootDirectory = contentPath;
 
             int i = 0;
