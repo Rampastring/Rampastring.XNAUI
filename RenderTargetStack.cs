@@ -27,13 +27,19 @@ namespace Rampastring.XNAUI
 
         public static void PushRenderTarget(RenderTarget2D renderTarget)
         {
+            SpriteBatchSettings newSettings =
+                new SpriteBatchSettings(SpriteSortMode.Deferred, BlendState.AlphaBlend, null);
+            PushRenderTarget(renderTarget, newSettings);
+        }
+
+        public static void PushRenderTarget(RenderTarget2D renderTarget, SpriteBatchSettings newSettings)
+        {
             Renderer.EndDraw();
             RenderContext context = new RenderContext(renderTarget, currentContext);
             currentContext = context;
             graphicsDevice.SetRenderTarget(renderTarget);
             Renderer.PushSettingsInternal();
-            Renderer.CurrentSettings = new SpriteBatchSettings(SpriteSortMode.Deferred,
-                BlendState.AlphaBlend, null);
+            Renderer.CurrentSettings = newSettings;
             Renderer.BeginDraw();
         }
 

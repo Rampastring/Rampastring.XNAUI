@@ -166,7 +166,7 @@ namespace Rampastring.XNAUI.XNAControls
 
             DrawTexture(ButtonTexture,
                 new Rectangle((int)(tabLocationX), 0, ButtonTexture.Width, Height),
-                GetColorWithAlpha(Color.White));
+                Color.White);
         }
     }
 }

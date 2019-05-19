@@ -30,5 +30,13 @@ namespace Rampastring.XNAUI
         {
             return new Vector2(length * (float)Math.Cos(angle), length * (float)Math.Sin(angle));
         }
+
+        public static Color MultiplyAlpha(Color color)
+        {
+            return new Color((color.A * color.R) / 255,
+                (color.A * color.G) / 255,
+                (color.A * color.B) / 255,
+                color.A);
+        } 
     }
 }

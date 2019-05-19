@@ -86,7 +86,7 @@ namespace Rampastring.XNAUI.XNAControls
                 Rectangle rect = new Rectangle(wrect.X + i, wrect.Y + i,
                     wrect.Width - i, wrect.Height - i);
 
-                Renderer.DrawRectangle(rect, GetColorWithAlpha(BorderColor));
+                Renderer.DrawRectangle(rect, BorderColor);
             }
 
             int filledWidth = (int)((_shownValue / (double)Maximum) * (Width - BorderWidth * 2));
@@ -94,12 +94,12 @@ namespace Rampastring.XNAUI.XNAControls
             Rectangle filledRect = new Rectangle(wrect.X + BorderWidth, wrect.Y + BorderWidth, 
                 filledWidth, wrect.Height - BorderWidth * 2);
 
-            Renderer.FillRectangle(filledRect, GetColorWithAlpha(FilledColor));
+            Renderer.FillRectangle(filledRect, FilledColor);
 
             Rectangle unfilledRect = new Rectangle(wrect.X + BorderWidth + filledWidth, wrect.Y + BorderWidth,
                 wrect.Width - filledWidth - BorderWidth * 2, wrect.Height - BorderWidth * 2);
 
-            Renderer.FillRectangle(unfilledRect, GetColorWithAlpha(UnfilledColor));
+            Renderer.FillRectangle(unfilledRect, UnfilledColor);
 
             base.Draw(gameTime);
         }

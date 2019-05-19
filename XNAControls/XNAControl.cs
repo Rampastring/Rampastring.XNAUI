@@ -1064,7 +1064,7 @@ namespace Rampastring.XNAUI.XNAControls
                 RenderTargetStack.PopRenderTarget();
                 Rectangle rect = RenderRectangle();
                 Renderer.DrawTexture(renderTarget, new Rectangle(rect.X, rect.Y, 
-                    renderTarget.Width, renderTarget.Height), GetColorWithAlpha(Color.White));
+                    renderTarget.Width, renderTarget.Height), Color.White * Alpha);
             }
             else
             {

@@ -307,7 +307,7 @@ namespace Rampastring.XNAUI.XNAControls
             if (!Enabled || !AllowClick)
                 DrawStringWithShadow(_text, FontIndex, textPosition, TextColorDisabled);
             else
-                DrawStringWithShadow(_text, FontIndex, textPosition, GetColorWithAlpha(textColor));
+                DrawStringWithShadow(_text, FontIndex, textPosition, textColor);
 
             base.Draw(gameTime);
         }
