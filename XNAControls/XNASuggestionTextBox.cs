@@ -21,31 +21,17 @@ namespace Rampastring.XNAUI.XNAControls
             set => _suggestedTextColor = value;
         }
 
-
-        private Color realTextColor;
-
         public override void Initialize()
         {
             base.Initialize();
 
             Text = Suggestion ?? string.Empty;
-            base.TextColor = SuggestedTextColor;
         }
 
         public override Color TextColor
         {
-            get
-            {
-                return base.TextColor;
-            }
-
-            set
-            {
-                realTextColor = value;
-
-                if (WindowManager.SelectedControl == this)
-                    base.TextColor = realTextColor;
-            }
+            get => WindowManager.SelectedControl == this ? base.TextColor : SuggestedTextColor;
+            set => base.TextColor = value;
         }
 
         public override void OnSelectedChanged()
@@ -54,14 +40,11 @@ namespace Rampastring.XNAUI.XNAControls
 
             if (WindowManager.SelectedControl == this)
             {
-                base.TextColor = realTextColor;
-
                 if (Text == Suggestion)
                     Text = string.Empty;
             }
             else
             {
-                base.TextColor = SuggestedTextColor;
                 if (string.IsNullOrEmpty(Text))
                     Text = Suggestion ?? string.Empty;
             }
