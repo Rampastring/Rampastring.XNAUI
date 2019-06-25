@@ -520,10 +520,11 @@ namespace Rampastring.XNAUI
 
             lock (locker)
             {
-                foreach (Callback c in Callbacks)
-                    c.Invoke();
+                List<Callback> callbacks = Callbacks;
+                Callbacks = new List<Callback>();
 
-                Callbacks.Clear();
+                foreach (Callback c in callbacks)
+                    c.Invoke();
             }
 
             XNAControl activeControl = null;
