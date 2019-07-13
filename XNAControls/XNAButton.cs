@@ -26,8 +26,8 @@ namespace Rampastring.XNAUI.XNAControls
         public EnhancedSoundEffect ClickSoundEffect { get; set; }
 
         public float AlphaRate { get; set; }
-        float idleTextureAlpha = 1.0f;
-        float hoverTextureAlpha = 0.0f;
+        public float IdleTextureAlpha { get; private set; } = 1.0f;
+        public float HoverTextureAlpha { get; private set; } = 0.0f;
         ButtonAnimationMode animationMode;
 
         public Keys HotKey { get; set; }
@@ -110,8 +110,8 @@ namespace Rampastring.XNAUI.XNAControls
             if (HoverTexture != null)
             {
                 animationMode = ButtonAnimationMode.HIGHLIGHT;
-                idleTextureAlpha = 0.5f;
-                hoverTextureAlpha = 0.75f;
+                IdleTextureAlpha = 0.5f;
+                HoverTextureAlpha = 0.75f;
             }
 
             textColor = TextColorHover;
@@ -127,8 +127,8 @@ namespace Rampastring.XNAUI.XNAControls
             if (HoverTexture != null)
             {
                 animationMode = ButtonAnimationMode.RETURN;
-                idleTextureAlpha = 0.75f;
-                hoverTextureAlpha = 0.5f;
+                IdleTextureAlpha = 0.75f;
+                HoverTextureAlpha = 0.5f;
             }
 
             textColor = TextColorIdle;
@@ -258,30 +258,30 @@ namespace Rampastring.XNAUI.XNAControls
 
             if (animationMode == ButtonAnimationMode.HIGHLIGHT)
             {
-                idleTextureAlpha -= alphaRate;
-                if (idleTextureAlpha < 0.0f)
+                IdleTextureAlpha -= alphaRate;
+                if (IdleTextureAlpha < 0.0f)
                 {
-                    idleTextureAlpha = 0.0f;
+                    IdleTextureAlpha = 0.0f;
                 }
 
-                hoverTextureAlpha += alphaRate;
-                if (hoverTextureAlpha >= 1.0f)
+                HoverTextureAlpha += alphaRate;
+                if (HoverTextureAlpha >= 1.0f)
                 {
-                    hoverTextureAlpha = 1.0f;
+                    HoverTextureAlpha = 1.0f;
                 }
             }
             else
             {
-                hoverTextureAlpha -= alphaRate;
-                if (hoverTextureAlpha < 0.0f)
+                HoverTextureAlpha -= alphaRate;
+                if (HoverTextureAlpha < 0.0f)
                 {
-                    hoverTextureAlpha = 0.0f;
+                    HoverTextureAlpha = 0.0f;
                 }
 
-                idleTextureAlpha += alphaRate;
-                if (idleTextureAlpha >= 1.0f)
+                IdleTextureAlpha += alphaRate;
+                if (IdleTextureAlpha >= 1.0f)
                 {
-                    idleTextureAlpha = 1.0f;
+                    IdleTextureAlpha = 1.0f;
                 }
             }
 
@@ -293,13 +293,13 @@ namespace Rampastring.XNAUI.XNAControls
         {
             if (IdleTexture != null)
             {
-                if (idleTextureAlpha > 0f)
-                    DrawTexture(IdleTexture, Point.Zero,
+                if (IdleTextureAlpha > 0f)
+                    DrawTexture(IdleTexture, new Rectangle(0, 0, Width, Height),
                         RemapColor * Alpha);
 
-                if (HoverTexture != null && hoverTextureAlpha > 0f)
-                    DrawTexture(HoverTexture, Point.Zero,
-                        RemapColor * hoverTextureAlpha * Alpha);
+                if (HoverTexture != null && HoverTextureAlpha > 0f)
+                    DrawTexture(HoverTexture, new Rectangle(0, 0, Width, Height),
+                        RemapColor * HoverTextureAlpha * Alpha);
             }
 
             Vector2 textPosition = new Vector2(TextXPosition, TextYPosition);
