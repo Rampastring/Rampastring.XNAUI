@@ -155,9 +155,7 @@ namespace Rampastring.XNAUI.XNAControls
         {
             get
             {
-                int height = 2 - ViewTop % LineHeight;
-
-                Rectangle windowRectangle = RenderRectangle();
+                int height = 1 - ViewTop % LineHeight;
 
                 for (int i = TopIndex; i < Items.Count; i++)
                 {
@@ -165,8 +163,8 @@ namespace Rampastring.XNAUI.XNAControls
 
                     height += lbItem.TextLines.Count * LineHeight;
 
-                    if (height > Height)
-                        return i - 1;
+                    if (height >= Height)
+                        return i;
                 }
 
                 return Items.Count - 1;
@@ -512,7 +510,7 @@ namespace Rampastring.XNAUI.XNAControls
         /// <param name="character">The entered character.</param>
         private void HandleCharInput(char character)
         {
-            if (WindowManager.SelectedControl != this || !Enabled || !Parent.Enabled || !WindowManager.HasFocus || !AllowKeyboardInput)
+            if (WindowManager.SelectedControl != this || !Enabled || (Parent != null && !Parent.Enabled) || !WindowManager.HasFocus || !AllowKeyboardInput)
                 return;
 
             string charString = character.ToString();
