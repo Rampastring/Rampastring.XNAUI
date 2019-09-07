@@ -25,7 +25,13 @@ namespace Rampastring.XNAUI.XNAControls
         {
             get
             {
-                return _textColor ?? UISettings.ActiveSettings.AltColor;
+                if (_textColor.HasValue)
+                    return _textColor.Value;
+
+                if (!Selectable)
+                    return UISettings.ActiveSettings.DisabledItemColor;
+
+                return UISettings.ActiveSettings.AltColor;
             }
             set { _textColor = value; }
         }
@@ -55,13 +61,7 @@ namespace Rampastring.XNAUI.XNAControls
         public int TextYPadding { get; set; }
 
         public int TextXPadding { get; set; }
-
-        bool selectable = true;
-        public bool Selectable
-        {
-            get { return selectable; }
-            set { selectable = value; }
-        }
+        public bool Selectable { get; set; } = true;
 
         float alpha = 0.0f;
         public float Alpha
