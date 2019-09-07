@@ -97,6 +97,7 @@ namespace Rampastring.XNAUI.XNAControls
         {
             Height = BORDER_WIDTH * 2;
             DisabledItemColor = Color.Gray;
+            Disable();
         }
 
         public int ItemHeight { get; set; } = 17;
