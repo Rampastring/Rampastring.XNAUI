@@ -83,6 +83,20 @@ namespace Rampastring.XNAUI.XNAControls
 
         }
 
+        public int HoveredIndex
+        {
+            get
+            {
+                foreach (var listBox in listBoxes)
+                {
+                    if (listBox.HoveredIndex > -1 && listBox.HoveredIndex < listBox.Items.Count)
+                        return listBox.HoveredIndex;
+                }
+
+                return -1;
+            }
+        }
+
         private bool _allowKeyboardInput = false;
 
         /// <summary>
@@ -301,6 +315,7 @@ namespace Rampastring.XNAUI.XNAControls
                 listBox.AllowMultiLineItems = false;
                 listBox.AllowKeyboardInput = this.AllowKeyboardInput;
                 listBox.AllowRightClickUnselect = this.AllowRightClickUnselect;
+                listBox.RightClick += ListBox_RightClick;
                 //listBox.DrawMode = ControlDrawMode.NORMAL;
 
                 listBoxes.Add(listBox);
@@ -331,6 +346,11 @@ namespace Rampastring.XNAUI.XNAControls
 
             for (int i = 0; i < listBoxes.Count - 1; i++)
                 listBoxes[i].EnableScrollbar = false;
+        }
+
+        private void ListBox_RightClick(object sender, EventArgs e)
+        {
+            OnRightClick();
         }
 
         /// <summary>
@@ -374,7 +394,18 @@ namespace Rampastring.XNAUI.XNAControls
 
         public void SetTopIndex(int topIndex)
         {
+            if (listBoxes.Count == 0)
+                return;
+
             listBoxes[0].TopIndex = topIndex;
+        }
+
+        public void ScrollToBottom()
+        {
+            if (listBoxes.Count == 0)
+                return;
+
+            listBoxes[0].ScrollToBottom();
         }
 
         public void AddItem(List<string> info, bool selectable)
