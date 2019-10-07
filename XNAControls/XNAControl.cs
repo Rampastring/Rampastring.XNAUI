@@ -513,11 +513,11 @@ namespace Rampastring.XNAUI.XNAControls
 
             if (Parent != null)
             {
-                if (Parent.DrawMode == ControlDrawMode.UNIQUE_RENDER_TARGET)
-                {
-                    return p;
-                }
+                if (Detached)
+                    return GetWindowPoint();
 
+                if (Parent.DrawMode == ControlDrawMode.UNIQUE_RENDER_TARGET)
+                    return p;
 #if XNA
                 return SumPoints(p, Parent.GetRenderPoint());
 #else
