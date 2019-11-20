@@ -228,22 +228,19 @@ namespace Rampastring.XNAUI.XNAControls
                     item.Selectable = item.SelectableChecker();
             }
 
-            //if (Right > Parent.Width)
-            //{
-            //    X = cursorPoint.X - Width;
-            //}
-
-            //if (Bottom > Parent.Height)
-            //{
-            //    Y = cursorPoint.Y - Height;
-            //}
-
             Height = height;
 
             Enable();
 
             if (!Detached)
                 Detach();
+
+            Point windowPoint = GetWindowPoint();
+            if (windowPoint.X + Width > WindowManager.RenderResolutionX)
+                X -= Width;
+
+            if (windowPoint.Y + Height > WindowManager.RenderResolutionY)
+                Y -= Height;
         }
 
         public void ClearItems()
