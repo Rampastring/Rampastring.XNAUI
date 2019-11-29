@@ -138,12 +138,12 @@ namespace Rampastring.XNAUI.XNAControls
                     if (h > ViewTop)
                         return i;
                 }
-                return 0;
+                return Items.Count;
             }
             set
             {
                 int h = 0;
-                for (int i = 0; i < value; i++)
+                for (int i = 0; i < value && i < Items.Count; i++)
                 {
                     h += Items[i].TextLines.Count * LineHeight;
                 }
@@ -403,10 +403,7 @@ namespace Rampastring.XNAUI.XNAControls
         /// </summary>
         public void RefreshScrollbar()
         {
-            int length = 0;
-            foreach (var item in Items)
-                length += item.TextLines.Count * LineHeight;
-            ScrollBar.Length = length;
+            ScrollBar.Length = GetTotalLineCount() * LineHeight;
             ScrollBar.DisplayedPixelCount = Height - MARGIN * 2;
             ScrollBar.Refresh();
         }
@@ -425,13 +422,26 @@ namespace Rampastring.XNAUI.XNAControls
         }
 
         /// <summary>
+        /// Checks whether the list box is scrolled so that
+        /// the last item in the list is entirely visible.
+        /// </summary>
+        public bool IsScrolledToBottom()
+        {
+            return ViewTop + Height >= GetTotalLineCount() * LineHeight;
+        }
+
+        /// <summary>
         /// Scrolls the list box so that the last item is entirely visible.
         /// </summary>
         public void ScrollToBottom()
         {
-            int displayedLineCount = NumberOfLinesOnList;
-            TopIndex = Items.Count;
-            ViewTop -= Height - MARGIN * 2;
+            if (GetTotalLineCount() <= NumberOfLinesOnList)
+            {
+                TopIndex = 0;
+                return;
+            }
+
+            ViewTop = GetTotalLineCount() * LineHeight - Height + MARGIN * 2;
         }
 
         /// <summary>
@@ -658,23 +668,14 @@ namespace Rampastring.XNAUI.XNAControls
             if (ViewTop < 0)
             {
                 TopIndex = 0;
-                ScrollBar.RefreshButtonY(ViewTop);
                 return;
             }
 
-            int lastIndex = LastIndex;
-
-            if (lastIndex == Items.Count - 1)
+            if (IsScrolledToBottom())
             {
-                while (LastIndex == lastIndex && TopIndex > 0)
-                {
-                    TopIndex--;
-                }
-
-                TopIndex++;
+                // Show as many items above the last item as possible
+                ScrollToBottom();
             }
-
-            ScrollBar.RefreshButtonY(ViewTop);
 
             base.OnMouseScrolled();
         }
@@ -782,6 +783,32 @@ namespace Rampastring.XNAUI.XNAControls
             return -1;
         }
 
+        private struct ListBoxItemDrawInfo
+        {
+            public ListBoxItemDrawInfo(int topIndex, int yDrawOffset)
+            {
+                TopIndex = topIndex;
+                YDrawOffset = yDrawOffset;
+            }
+
+            public int TopIndex;
+            public int YDrawOffset;
+        }
+
+        private ListBoxItemDrawInfo GetTopIndexAndDrawOffset()
+        {
+            int h = 0;
+            for (int i = 0; i < Items.Count; i++)
+            {
+                int heightIncrease = Items[i].TextLines.Count * LineHeight;
+                if (h + heightIncrease > ViewTop)
+                    return new ListBoxItemDrawInfo(i, h - ViewTop);
+                h += heightIncrease;
+            }
+
+            return new ListBoxItemDrawInfo(Items.Count, 0);
+        }
+
         /// <summary>
         /// Draws the list box and its items.
         /// </summary>
@@ -790,9 +817,10 @@ namespace Rampastring.XNAUI.XNAControls
         {
             DrawPanel();
 
-            int height = 2 - (ViewTop % LineHeight);
+            var drawInfo = GetTopIndexAndDrawOffset();
+            int height = MARGIN + drawInfo.YDrawOffset;
 
-            for (int i = TopIndex; i < Items.Count; i++)
+            for (int i = drawInfo.TopIndex; i < Items.Count; i++)
             { 
                 XNAListBoxItem lbItem = Items[i];
 
