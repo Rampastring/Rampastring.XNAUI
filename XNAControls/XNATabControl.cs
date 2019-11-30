@@ -52,6 +52,20 @@ namespace Rampastring.XNAUI.XNAControls
             set { _textColor = value; }
         }
 
+        private Color? _textColorDisabled;
+
+        public Color TextColorDisabled
+        {
+            get
+            {
+                if (_textColorDisabled.HasValue)
+                    return _textColorDisabled.Value;
+
+                return UISettings.ActiveSettings.DisabledItemColor;
+            }
+            set { _textColorDisabled = value; }
+        }
+
         List<Tab> Tabs = new List<Tab>();
 
         public EnhancedSoundEffect ClickSound { get; set; }
@@ -109,11 +123,21 @@ namespace Rampastring.XNAUI.XNAControls
 
         protected override void ParseAttributeFromINI(IniFile iniFile, string key, string value)
         {
-            if (key.StartsWith("RemoveTabIndex"))
+
+            switch (key)
             {
-                int index = int.Parse(key.Substring(14));
-                if (Conversions.BooleanFromString(value, false))
-                    RemoveTab(index);
+                case "RemapColor":
+                case "TextColor":
+                    TextColor = AssetLoader.GetColorFromString(value);
+                    return;
+                case "TextColorDisabled":
+                    TextColorDisabled = AssetLoader.GetColorFromString(value);
+                    return;
+                case "RemoveTabIndex":
+                    int index = int.Parse(key.Substring(14));
+                    if (Conversions.BooleanFromString(value, false))
+                        RemoveTab(index);
+                    return;
             }
 
             base.ParseAttributeFromINI(iniFile, key, value);
@@ -161,7 +185,7 @@ namespace Rampastring.XNAUI.XNAControls
 
                 DrawStringWithShadow(tab.Text, FontIndex,
                     new Vector2(x + tab.TextXPosition, tab.TextYPosition),
-                    TextColor);
+                    tab.Selectable && Enabled ? TextColor : TextColorDisabled);
 
                 x += tab.DefaultTexture.Width;
             }
