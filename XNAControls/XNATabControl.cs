@@ -123,7 +123,6 @@ namespace Rampastring.XNAUI.XNAControls
 
         protected override void ParseAttributeFromINI(IniFile iniFile, string key, string value)
         {
-
             switch (key)
             {
                 case "RemapColor":
@@ -133,11 +132,13 @@ namespace Rampastring.XNAUI.XNAControls
                 case "TextColorDisabled":
                     TextColorDisabled = AssetLoader.GetColorFromString(value);
                     return;
-                case "RemoveTabIndex":
-                    int index = int.Parse(key.Substring(14));
-                    if (Conversions.BooleanFromString(value, false))
-                        RemoveTab(index);
-                    return;
+            }
+
+            if (key.StartsWith("RemoveTabIndex"))
+            {
+                int index = int.Parse(key.Substring(14));
+                if (Conversions.BooleanFromString(value, false))
+                    RemoveTab(index);
             }
 
             base.ParseAttributeFromINI(iniFile, key, value);
