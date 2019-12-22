@@ -280,7 +280,7 @@ namespace Rampastring.XNAUI.XNAControls
         private bool isScrollingQuickly = false;
         private bool selectedIndexChanged = false;
 
-        protected override void ParseAttributeFromINI(IniFile iniFile, string key, string value)
+        public override void ParseAttributeFromINI(IniFile iniFile, string key, string value)
         {
             switch (key)
             {

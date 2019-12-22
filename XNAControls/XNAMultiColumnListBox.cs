@@ -179,7 +179,7 @@ namespace Rampastring.XNAUI.XNAControls
             set { listBoxes[listBoxes.Count - 1].DrawSelectionUnderScrollbar = value; }
         }
 
-        protected override void ParseAttributeFromINI(IniFile iniFile, string key, string value)
+        public override void ParseAttributeFromINI(IniFile iniFile, string key, string value)
         {
             switch (key)
             {

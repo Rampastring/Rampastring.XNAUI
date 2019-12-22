@@ -237,7 +237,7 @@ namespace Rampastring.XNAUI.XNAControls
             Height = DropDownTexture.Height;
         }
 
-        protected override void ParseAttributeFromINI(IniFile iniFile, string key, string value)
+        public override void ParseAttributeFromINI(IniFile iniFile, string key, string value)
         {
             switch (key)
             {

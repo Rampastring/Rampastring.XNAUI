@@ -53,7 +53,7 @@ namespace Rampastring.XNAUI.XNAControls
                 ButtonTexture = AssetLoader.LoadTexture("trackbarButton.png");
         }
 
-        protected override void ParseAttributeFromINI(IniFile iniFile, string key, string value)
+        public override void ParseAttributeFromINI(IniFile iniFile, string key, string value)
         {
             switch (key)
             {

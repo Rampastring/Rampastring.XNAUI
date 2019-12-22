@@ -785,7 +785,7 @@ namespace Rampastring.XNAUI.XNAControls
             IsChangingSize = false;
         }
 
-        protected virtual void ParseAttributeFromINI(IniFile iniFile, string key, string value)
+        public virtual void ParseAttributeFromINI(IniFile iniFile, string key, string value)
         {
             switch (key)
             {
@@ -800,10 +800,22 @@ namespace Rampastring.XNAUI.XNAControls
                     ClientRectangle = new Rectangle(X, Y,
                         int.Parse(size[0]), int.Parse(size[1]));
                     return;
+                case "Width":
+                    Width = int.Parse(value);
+                    return;
+                case "Height":
+                    Height = int.Parse(value);
+                    return;
                 case "Location":
                     string[] location = value.Split(',');
                     ClientRectangle = new Rectangle(int.Parse(location[0]), int.Parse(location[1]),
                         Width, Height);
+                    return;
+                case "X":
+                    X = int.Parse(value);
+                    return;
+                case "Y":
+                    Y = int.Parse(value);
                     return;
                 case "RemapColor":
                     string[] colors = value.Split(',');

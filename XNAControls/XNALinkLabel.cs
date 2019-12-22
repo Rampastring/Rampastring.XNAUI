@@ -54,7 +54,7 @@ namespace Rampastring.XNAUI.XNAControls
         /// </summary>
         public bool DrawUnderline { get; set; } = true;
 
-        protected override void ParseAttributeFromINI(IniFile iniFile, string key, string value)
+        public override void ParseAttributeFromINI(IniFile iniFile, string key, string value)
         {
             switch (key)
             {

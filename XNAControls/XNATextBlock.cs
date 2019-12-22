@@ -49,7 +49,7 @@ namespace Rampastring.XNAUI.XNAControls
 
         public int TextYPosition { get; set; } = 3;
 
-        protected override void ParseAttributeFromINI(IniFile iniFile, string key, string value)
+        public override void ParseAttributeFromINI(IniFile iniFile, string key, string value)
         {
             switch (key)
             {

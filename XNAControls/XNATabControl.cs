@@ -107,7 +107,7 @@ namespace Rampastring.XNAUI.XNAControls
             Height = defaultTexture.Height;
         }
 
-        protected override void ParseAttributeFromINI(IniFile iniFile, string key, string value)
+        public override void ParseAttributeFromINI(IniFile iniFile, string key, string value)
         {
             if (key.StartsWith("RemoveTabIndex"))
             {

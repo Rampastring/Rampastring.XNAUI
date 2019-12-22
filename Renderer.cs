@@ -229,6 +229,15 @@ namespace Rampastring.XNAUI
 #endif
         }
 
+        /// <summary>
+        /// Draws a circle's perimiter.
+        /// </summary>
+        /// <param name="position">The center point of the circle.</param>
+        /// <param name="radius">The radius of the circle.</param>
+        /// <param name="color">The color of the circle.</param>
+        /// <param name="precision">Defines how smooth the circle's perimiter is. 
+        /// Larger values make the circle smoother, but have a larger effect on performance.</param>
+        /// <param name="thickness">The thickness of the perimiter.</param>
         public static void DrawCircle(Vector2 position, float radius, Color color, int precision = 8, int thickness = 1)
         {
             float angle = 0f;
@@ -264,7 +273,9 @@ namespace Rampastring.XNAUI
 
             for (int i = 0; i <= precision; i++)
             {
-                DrawTexture(texture, point, 0f, new Vector2(texture.Width / 2f, texture.Height / 2f), new Vector2(scale, scale), color);
+                DrawTexture(texture, point, 0f,
+                    new Vector2(texture.Width / 2f, texture.Height / 2f),
+                    new Vector2(scale, scale), color);
                 point = position + RMath.VectorFromLengthAndAngle(radius, angle);
                 angle += increase;
             }
