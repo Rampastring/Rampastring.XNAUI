@@ -273,6 +273,12 @@ namespace Rampastring.XNAUI.XNAControls
                     return;
             }
 
+            if (key.StartsWith("Option"))
+            {
+                AddItem(value);
+                return;
+            }
+
             base.ParseAttributeFromINI(iniFile, key, value);
         }
 
