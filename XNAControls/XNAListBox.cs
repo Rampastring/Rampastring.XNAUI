@@ -750,8 +750,6 @@ namespace Rampastring.XNAUI.XNAControls
         /// to this control.</param>
         private int GetItemIndexOnCursor(Point mouseLocation)
         {
-            int height = 2 - (ViewTop % LineHeight);
-
             if (mouseLocation.X < 0)
                 return -1;
 
@@ -763,7 +761,10 @@ namespace Rampastring.XNAUI.XNAControls
             else if (mouseLocation.X > Width)
                 return -1;
 
-            for (int i = TopIndex; i < Items.Count; i++)
+            var drawInfo = GetTopIndexAndDrawOffset();
+            int height = MARGIN + drawInfo.YDrawOffset;
+
+            for (int i = drawInfo.TopIndex; i < Items.Count; i++)
             {
                 XNAListBoxItem lbItem = Items[i];
 
