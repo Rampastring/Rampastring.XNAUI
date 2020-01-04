@@ -291,25 +291,25 @@ namespace Rampastring.XNAUI.XNAControls
             {
                 DrawTexture(clearTexture,
                     new Rectangle(0, checkBoxYPosition,
-                    clearTexture.Width, clearTexture.Height), Color.White);
+                    clearTexture.Width, clearTexture.Height), RemapColor);
             }
             else if (checkedAlpha == 1.0)
             {
                 DrawTexture(checkedTexture,
                     new Rectangle(0, checkBoxYPosition,
-                    clearTexture.Width, clearTexture.Height), 
-                    new Color(255, 255, 255, (int)(checkedAlpha * 255)));
+                    clearTexture.Width, clearTexture.Height),
+                    RemapColor * Convert.ToSingle(checkedAlpha));
             }
             else
             {
                 DrawTexture(clearTexture,
                     new Rectangle(0, checkBoxYPosition,
-                    clearTexture.Width, clearTexture.Height), Color.White);
+                    clearTexture.Width, clearTexture.Height), RemapColor);
 
                 DrawTexture(checkedTexture,
                     new Rectangle(0, checkBoxYPosition,
                     clearTexture.Width, clearTexture.Height),
-                    new Color(255, 255, 255, (int)(checkedAlpha * 255)));
+                    RemapColor * Convert.ToSingle(checkedAlpha));
             }
 
             base.Draw(gameTime);
