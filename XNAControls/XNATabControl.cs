@@ -42,13 +42,7 @@ namespace Rampastring.XNAUI.XNAControls
 
         public Color TextColor
         {
-            get
-            {
-                if (_textColor.HasValue)
-                    return _textColor.Value;
-
-                return UISettings.ActiveSettings.AltColor;
-            }
+            get => _textColor ?? UISettings.ActiveSettings.AltColor;
             set { _textColor = value; }
         }
 
@@ -56,13 +50,7 @@ namespace Rampastring.XNAUI.XNAControls
 
         public Color TextColorDisabled
         {
-            get
-            {
-                if (_textColorDisabled.HasValue)
-                    return _textColorDisabled.Value;
-
-                return UISettings.ActiveSettings.DisabledItemColor;
-            }
+            get => _textColorDisabled ?? UISettings.ActiveSettings.DisabledItemColor;
             set { _textColorDisabled = value; }
         }
 
