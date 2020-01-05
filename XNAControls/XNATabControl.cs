@@ -42,14 +42,16 @@ namespace Rampastring.XNAUI.XNAControls
 
         public Color TextColor
         {
-            get
-            {
-                if (_textColor.HasValue)
-                    return _textColor.Value;
-
-                return UISettings.ActiveSettings.AltColor;
-            }
+            get => _textColor ?? UISettings.ActiveSettings.AltColor;
             set { _textColor = value; }
+        }
+
+        private Color? _textColorDisabled;
+
+        public Color TextColorDisabled
+        {
+            get => _textColorDisabled ?? UISettings.ActiveSettings.DisabledItemColor;
+            set { _textColorDisabled = value; }
         }
 
         List<Tab> Tabs = new List<Tab>();
@@ -109,6 +111,17 @@ namespace Rampastring.XNAUI.XNAControls
 
         public override void ParseAttributeFromINI(IniFile iniFile, string key, string value)
         {
+            switch (key)
+            {
+                case "RemapColor":
+                case "TextColor":
+                    TextColor = AssetLoader.GetColorFromString(value);
+                    return;
+                case "TextColorDisabled":
+                    TextColorDisabled = AssetLoader.GetColorFromString(value);
+                    return;
+            }
+
             if (key.StartsWith("RemoveTabIndex"))
             {
                 int index = int.Parse(key.Substring(14));
@@ -161,7 +174,7 @@ namespace Rampastring.XNAUI.XNAControls
 
                 DrawStringWithShadow(tab.Text, FontIndex,
                     new Vector2(x + tab.TextXPosition, tab.TextYPosition),
-                    TextColor);
+                    tab.Selectable && Enabled ? TextColor : TextColorDisabled);
 
                 x += tab.DefaultTexture.Width;
             }
