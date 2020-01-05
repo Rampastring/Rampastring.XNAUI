@@ -208,7 +208,7 @@ namespace Rampastring.XNAUI.XNAControls
         /// </summary>
         protected virtual void OnClientRectangleUpdated()
         {
-            if (!IsChangingSize && initialized && DrawMode == ControlDrawMode.UNIQUE_RENDER_TARGET)
+            if (!IsChangingSize && Initialized && DrawMode == ControlDrawMode.UNIQUE_RENDER_TARGET)
             {
                 CreateRenderTarget();
             }
@@ -391,7 +391,7 @@ namespace Rampastring.XNAUI.XNAControls
             get { return drawMode; }
             set
             {
-                if (initialized)
+                if (Initialized)
                 {
                     throw new InvalidOperationException("DrawMode cannot be " +
                         "changed after a control has been initialized.");
@@ -430,7 +430,11 @@ namespace Rampastring.XNAUI.XNAControls
 
         private RenderTarget2D renderTarget;
 
-        private bool initialized = false;
+        /// <summary>
+        /// Determines whether the control's <see cref="Initialize"/> method
+        /// has been called yet.
+        /// </summary>
+        protected bool Initialized { get; private set; } = false;
 
         /// <summary>
         /// Checks if the last parent of this control is active.
@@ -747,7 +751,7 @@ namespace Rampastring.XNAUI.XNAControls
         {
             base.Initialize();
 
-            initialized = true;
+            Initialized = true;
 
             if (DrawMode == ControlDrawMode.UNIQUE_RENDER_TARGET)
                 CreateRenderTarget();
@@ -763,9 +767,9 @@ namespace Rampastring.XNAUI.XNAControls
                 SurfaceFormat.Color, DepthFormat.None, 0, RenderTargetUsage.PreserveContents);
         }
 
-        protected virtual int GetRenderTargetWidth() => Width;
+        protected virtual int GetRenderTargetWidth() => Width <= 0 ? 2 : Width;
 
-        protected virtual int GetRenderTargetHeight() => Height;
+        protected virtual int GetRenderTargetHeight() => Height <= 0 ? 2 : Height;
 
         public virtual void GetAttributes(IniFile iniFile)
         {

@@ -57,7 +57,6 @@ namespace Rampastring.XNAUI.XNAControls
 
         public bool DrawListBoxBorders { get; set; }
 
-        List<ListBoxColumn> columns = new List<ListBoxColumn>();
         List<XNAListBox> listBoxes = new List<XNAListBox>();
         List<XNAPanel> headers = new List<XNAPanel>();
 
@@ -188,6 +187,18 @@ namespace Rampastring.XNAUI.XNAControls
                     return;
             }
 
+            if (key.StartsWith("Column"))
+            {
+                string[] parts = value.Split(':');
+                if (parts.Length != 2)
+                    return;
+
+                if (!int.TryParse(parts[1], out int width))
+                    return;
+
+                AddColumn(parts[0], width);
+            }
+
             const string columnWidthKeyStart = "ColumnWidth";
             if (key.StartsWith(columnWidthKeyStart))
             {
@@ -227,11 +238,35 @@ namespace Rampastring.XNAUI.XNAControls
             }
         }
 
-        public void AddColumn(string header, int width)
+        /// <summary>
+        /// Creates a column with the given header text and width.
+        /// </summary>
+        /// <param name="headerText"></param>
+        /// <param name="width"></param>
+        public void AddColumn(string headerText, int width)
         {
-            columns.Add(new ListBoxColumn(header, width));
+            XNALabel headerLabel = new XNALabel(WindowManager);
+            headerLabel.FontIndex = HeaderFontIndex;
+            headerLabel.X = 3;
+            headerLabel.Y = 2;
+            headerLabel.Text = headerText;
+
+            XNAPanel headerPanel = new XNAPanel(WindowManager);
+            headerPanel.Height = headerLabel.Height + 3;
+            if (DrawListBoxBorders)
+                headerPanel.Width = width + 1;
+            else
+                headerPanel.Width = width;
+            headerPanel.AddChild(headerLabel);
+
+            AddColumn(headerPanel);
         }
 
+        /// <summary>
+        /// Creates a column with the given header and an automatically generated list box.
+        /// The width of the header defines the width of the list box.
+        /// </summary>
+        /// <param name="header">The header panel.</param>
         public void AddColumn(XNAPanel header)
         {
             XNAListBox listBox = new XNAListBox(WindowManager);
@@ -241,10 +276,16 @@ namespace Rampastring.XNAUI.XNAControls
             AddColumn(header, listBox);
         }
 
+        /// <summary>
+        /// Creates a column with the given header and list box.
+        /// </summary>
+        /// <param name="header">The header panel.</param>
+        /// <param name="listBox">The list box.</param>
         public void AddColumn(XNAPanel header, XNAListBox listBox)
         {
-            int width = 0;
-            headers.ForEach(h => width += h.Width);
+            AdjustExistingListBoxes();
+
+            int width = GetExistingWidth();
 
             header.ClientRectangle = new Rectangle(width, 0, header.Width, header.Height);
 
@@ -252,105 +293,49 @@ namespace Rampastring.XNAUI.XNAControls
 
             listBox.Name = Name + "_lb" + listBoxes.Count;
             listBox.ClientRectangle = new Rectangle(width, header.Bottom - 1,
-                header.Width, this.Height - header.Bottom + 1);
+                header.Width, Height - header.Bottom + 1);
             listBox.DrawBorders = DrawListBoxBorders;
             listBox.LineHeight = LineHeight;
             listBox.TopIndexChanged += ListBox_TopIndexChanged;
             listBox.SelectedIndexChanged += ListBox_SelectedIndexChanged;
             listBox.AllowMultiLineItems = false;
             listBox.AllowKeyboardInput = this.AllowKeyboardInput;
-            listBox.AllowRightClickUnselect = this.AllowRightClickUnselect;
-            //listBox.DrawMode = ControlDrawMode.NORMAL;
+            listBox.AllowRightClickUnselect = AllowRightClickUnselect;
 
             listBoxes.Add(listBox);
             AddChild(listBox);
             AddChild(header);
         }
 
-        public override void Initialize()
-        {
-            base.Initialize();
-
-            int width = 0;
-
-            foreach (XNAPanel header in headers)
-                width += header.ClientRectangle.Width;
-
-            foreach (ListBoxColumn column in columns)
-            {
-                XNALabel header = new XNALabel(WindowManager);
-                header.FontIndex = HeaderFontIndex;
-                header.ClientRectangle = new Rectangle(3, 2, 0, 0);
-                header.Text = column.Header;
-
-                XNAPanel headerPanel = new XNAPanel(WindowManager);
-
-                if (DrawListBoxBorders)
-                    headerPanel.ClientRectangle = new Rectangle(width - 1, 0, column.Width + 1, header.Height + 3);
-                else
-                    headerPanel.ClientRectangle = new Rectangle(width, 0, column.Width, header.Height + 3);
-
-                headers.Add(headerPanel);
-
-                XNAListBox listBox = new XNAListBox(WindowManager);
-                listBox.FontIndex = FontIndex;
-
-                if (DrawListBoxBorders)
-                {
-                    listBox.ClientRectangle = new Rectangle(width - 1, headerPanel.Bottom - 1,
-                        column.Width + 1, this.Height - headerPanel.Bottom + 1);
-                }
-                else
-                {
-                    listBox.ClientRectangle = new Rectangle(width, headerPanel.Bottom - 1,
-                        column.Width + 2, this.Height - headerPanel.Bottom + 1);
-                }
-
-                listBox.Name = Name + "_lb" + listBoxes.Count;
-                listBox.DrawBorders = DrawListBoxBorders;
-                listBox.TopIndexChanged += ListBox_TopIndexChanged;
-                listBox.SelectedIndexChanged += ListBox_SelectedIndexChanged;
-                listBox.TextBorderDistance = 5;
-                listBox.LineHeight = LineHeight;
-                listBox.AllowMultiLineItems = false;
-                listBox.AllowKeyboardInput = this.AllowKeyboardInput;
-                listBox.AllowRightClickUnselect = this.AllowRightClickUnselect;
-                listBox.RightClick += ListBox_RightClick;
-                //listBox.DrawMode = ControlDrawMode.NORMAL;
-
-                listBoxes.Add(listBox);
-
-                AddChild(listBox);
-                AddChild(headerPanel);
-                headerPanel.AddChild(header);
-
-                width += column.Width;
-            }
-
-            XNAListBox lb = listBoxes[listBoxes.Count - 1];
-
-            if (DrawListBoxBorders)
-            {
-                lb.ClientRectangle = new Rectangle(lb.X, lb.Y,
-                    lb.Width - 1, lb.Height);
-                XNAPanel headerPanel = headers[headers.Count - 1];
-                headerPanel.ClientRectangle = new Rectangle(headerPanel.X,
-                    headerPanel.Y, headerPanel.Width - 1,
-                    headerPanel.Height);
-            }
-            else
-            {
-                lb.ClientRectangle = new Rectangle(lb.X, lb.Y,
-                    lb.Width - 2, lb.Height);
-            }
-
-            for (int i = 0; i < listBoxes.Count - 1; i++)
-                listBoxes[i].EnableScrollbar = false;
-        }
-
         private void ListBox_RightClick(object sender, EventArgs e)
         {
             OnRightClick();
+        }
+
+        private void AdjustExistingListBoxes()
+        {
+            if (listBoxes.Count > 0)
+            {
+                XNAListBox lb = listBoxes[listBoxes.Count - 1];
+                lb.EnableScrollbar = false;
+
+                if (DrawListBoxBorders)
+                {
+                    lb.Width++;
+                    headers[headers.Count - 1].Width++;
+                }
+                else
+                {
+                    lb.Width += 2;
+                }
+            }
+        }
+
+        private int GetExistingWidth()
+        {
+            int width = 0;
+            headers.ForEach(h => width += h.Width);
+            return width;
         }
 
         /// <summary>
@@ -442,18 +427,5 @@ namespace Rampastring.XNAUI.XNAControls
         {
             return listBoxes[columnIndex].Items[itemIndex];
         }
-    }
-
-    class ListBoxColumn
-    {
-        public ListBoxColumn(string header, int width)
-        {
-            Header = header;
-            Width = width;
-        }
-
-        public string Header { get; set; }
-
-        public int Width { get; set; }
     }
 }
