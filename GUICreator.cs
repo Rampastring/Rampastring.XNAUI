@@ -22,6 +22,7 @@ namespace Rampastring.XNAUI
             typeof(XNALabel),
             typeof(XNALinkLabel),
             typeof(XNAListBox),
+            typeof(XNAMultiColumnListBox),
             typeof(XNAPanel),
             typeof(XNAProgressBar),
             typeof(XNASuggestionTextBox),
