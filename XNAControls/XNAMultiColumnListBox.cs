@@ -301,6 +301,7 @@ namespace Rampastring.XNAUI.XNAControls
             listBox.AllowMultiLineItems = false;
             listBox.AllowKeyboardInput = this.AllowKeyboardInput;
             listBox.AllowRightClickUnselect = AllowRightClickUnselect;
+            listBox.RightClick += ListBox_RightClick;
 
             listBoxes.Add(listBox);
             AddChild(listBox);
