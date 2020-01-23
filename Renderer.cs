@@ -172,6 +172,10 @@ namespace Rampastring.XNAUI
             spriteBatch.End();
         }
 
+        public static void PushRenderTarget(RenderTarget2D renderTarget) => RenderTargetStack.PushRenderTarget(renderTarget);
+
+        public static void PopRenderTarget(RenderTarget2D renderTarget) => RenderTargetStack.PopRenderTarget();
+
         //BlendState blendState = new BlendState();
         //blendState.AlphaDestinationBlend = Blend.One;
         //blendState.ColorDestinationBlend = Blend.InverseSourceAlpha;
