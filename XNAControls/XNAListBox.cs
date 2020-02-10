@@ -588,6 +588,8 @@ namespace Rampastring.XNAUI.XNAControls
             if (scrollKeyTime.Equals(TimeSpan.Zero))
                 action();
 
+            WindowManager.SelectedControl = this;
+
             scrollKeyTime += gameTime.ElapsedGameTime;
 
             if (isScrollingQuickly)
