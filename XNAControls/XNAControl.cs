@@ -447,6 +447,15 @@ namespace Rampastring.XNAUI.XNAControls
             return isActive;
         }
 
+        /// <summary>
+        /// Checks whether a condition applies to this control and all of its parents.
+        /// </summary>
+        /// <param name="func">The condition.</param>
+        public bool AppliesToSelfAndAllParents(Func<XNAControl, bool> func)
+        {
+            return func(this) && (Parent == null || Parent.AppliesToSelfAndAllParents(func));
+        }
+
         public virtual Color GetColorWithAlpha(Color baseColor)
         {
             return new Color(baseColor.R, baseColor.G, baseColor.B, (int)(Alpha * 255));
