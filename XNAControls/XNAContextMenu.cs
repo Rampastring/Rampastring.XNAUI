@@ -200,6 +200,11 @@ namespace Rampastring.XNAUI.XNAControls
             };
 
             AddItem(item);
+            
+            if (Enabled)
+            {
+                Height += GetItemHeight(item);
+            }
         }
 
         #endregion
