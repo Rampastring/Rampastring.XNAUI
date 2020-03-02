@@ -28,12 +28,21 @@ namespace Rampastring.XNAUI.XNAControls
         public float AlphaRate { get; set; }
         public float IdleTextureAlpha { get; private set; } = 1.0f;
         public float HoverTextureAlpha { get; private set; } = 0.0f;
-        ButtonAnimationMode animationMode;
 
         public Keys HotKey { get; set; }
 
         public int FontIndex { get; set; }
-        public bool AllowClick { get; set; } = true;
+
+        private bool _allowClick = true;
+        public bool AllowClick
+        {
+            get => _allowClick;
+            set
+            {
+                _allowClick = value;
+                animationMode = ButtonAnimationMode.RETURN;
+            }
+        }
 
         string _text = String.Empty;
         public override string Text
@@ -56,10 +65,7 @@ namespace Rampastring.XNAUI.XNAControls
 
         public Color TextColorIdle
         {
-            get
-            {
-                return _textColorIdle ?? UISettings.ActiveSettings.ButtonTextColor;
-            }
+            get => _textColorIdle ?? UISettings.ActiveSettings.ButtonTextColor;
             set
             {
                 _textColorIdle = value;
@@ -73,30 +79,26 @@ namespace Rampastring.XNAUI.XNAControls
 
         public Color TextColorHover
         {
-            get
-            {
-                return _textColorHover ?? UISettings.ActiveSettings.ButtonHoverColor;
-            }
-            set { _textColorHover = value; }
+            get => _textColorHover ?? UISettings.ActiveSettings.ButtonHoverColor;
+            set => _textColorHover = value;
         }
 
         private Color? _textColorDisabled;
 
         public Color TextColorDisabled
         {
-            get
-            {
-                return _textColorDisabled ?? UISettings.ActiveSettings.DisabledItemColor;
-            }
-            set { _textColorDisabled = value; }
+            get => _textColorDisabled ?? UISettings.ActiveSettings.DisabledItemColor;
+            set => _textColorDisabled = value;
         }
+
+        public bool AdaptiveText { get; set; } = true;
 
         /// <summary>
         /// The current color of the button's text.
         /// </summary>
-        Color textColor = Color.White;
+        private Color textColor = Color.White;
 
-        public bool AdaptiveText { get; set; } = true;
+        private ButtonAnimationMode animationMode;
 
         public override void OnMouseEnter()
         {
