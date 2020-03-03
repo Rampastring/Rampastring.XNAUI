@@ -297,8 +297,8 @@ namespace Rampastring.XNAUI.XNAControls
             {
                 DrawTexture(checkedTexture,
                     new Rectangle(0, checkBoxYPosition,
-                    clearTexture.Width, clearTexture.Height), 
-                    new Color(255, 255, 255, (int)(checkedAlpha * 255)));
+                    clearTexture.Width, clearTexture.Height),
+                    Color.White);
             }
             else
             {
@@ -309,7 +309,7 @@ namespace Rampastring.XNAUI.XNAControls
                 DrawTexture(checkedTexture,
                     new Rectangle(0, checkBoxYPosition,
                     clearTexture.Width, clearTexture.Height),
-                    new Color(255, 255, 255, (int)(checkedAlpha * 255)));
+                    Color.White * (float)checkedAlpha);
             }
 
             base.Draw(gameTime);

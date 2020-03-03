@@ -297,7 +297,7 @@ namespace Rampastring.XNAUI.XNAControls
             {
                 if (IdleTextureAlpha > 0f)
                     DrawTexture(IdleTexture, new Rectangle(0, 0, Width, Height),
-                        RemapColor * Alpha);
+                        RemapColor * IdleTextureAlpha * Alpha);
 
                 if (HoverTexture != null && HoverTextureAlpha > 0f)
                     DrawTexture(HoverTexture, new Rectangle(0, 0, Width, Height),
