@@ -241,6 +241,7 @@ namespace Rampastring.XNAUI.XNAControls
                         }
                     }
 
+                    TextChanged?.Invoke(this, EventArgs.Empty);
                     break;
             }
 
