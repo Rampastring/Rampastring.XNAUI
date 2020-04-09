@@ -290,6 +290,15 @@ namespace Rampastring.XNAUI.XNAControls
                 case "DrawSelectionUnderScrollbar":
                     DrawSelectionUnderScrollbar = Conversions.BooleanFromString(value, true);
                     return;
+                case nameof(AllowMultiLineItems):
+                    AllowMultiLineItems = Conversions.BooleanFromString(value, AllowMultiLineItems);
+                    return;
+                case nameof(AllowRightClickUnselect):
+                    AllowRightClickUnselect = Conversions.BooleanFromString(value, AllowRightClickUnselect);
+                    return;
+                case nameof(FontIndex):
+                    FontIndex = Conversions.IntFromString(value, FontIndex);
+                    return;
             }
 
             base.ParseAttributeFromINI(iniFile, key, value);
