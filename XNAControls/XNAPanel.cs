@@ -190,14 +190,6 @@ namespace Rampastring.XNAUI.XNAControls
 
             base.Draw(gameTime);
         }
-
-        public override Color GetColorWithAlpha(Color baseColor)
-        {
-            if (Parent == null)
-                return base.GetColorWithAlpha(baseColor);
-
-            return new Color(baseColor.R, baseColor.G, baseColor.B, Math.Min((int)(Math.Pow(Alpha, 0.5) * 255.0f), 255));
-        }
     }
 
     public enum PanelBackgroundImageDrawMode

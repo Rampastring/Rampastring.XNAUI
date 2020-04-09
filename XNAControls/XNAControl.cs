@@ -309,8 +309,8 @@ namespace Rampastring.XNAUI.XNAControls
         {
             get
             {
-                if (Parent != null)
-                    return alpha * Parent.Alpha;
+                // if (Parent != null)
+                //     return alpha * Parent.Alpha;
 
                 return alpha;
             }
@@ -454,11 +454,6 @@ namespace Rampastring.XNAUI.XNAControls
         public bool AppliesToSelfAndAllParents(Func<XNAControl, bool> func)
         {
             return func(this) && (Parent == null || Parent.AppliesToSelfAndAllParents(func));
-        }
-
-        public virtual Color GetColorWithAlpha(Color baseColor)
-        {
-            return new Color(baseColor.R, baseColor.G, baseColor.B, (int)(Alpha * 255));
         }
 
         /// <summary>
