@@ -479,6 +479,8 @@ namespace Rampastring.XNAUI.XNAControls
 
                 if (TextEndPosition > text.Length || !TextFitsBox())
                     TextEndPosition--;
+
+                TextChanged?.Invoke(this, EventArgs.Empty);
             }
 
             InputReceived?.Invoke(this, EventArgs.Empty);
@@ -495,6 +497,7 @@ namespace Rampastring.XNAUI.XNAControls
                     TextStartPosition--;
 
                 TextEndPosition--;
+                TextChanged?.Invoke(this, EventArgs.Empty);
             }
 
             InputReceived?.Invoke(this, EventArgs.Empty);
