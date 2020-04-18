@@ -222,6 +222,17 @@ namespace Rampastring.XNAUI.XNAControls
             }
         }
 
+        public XNAListBoxItem HoveredItem
+        {
+            get
+            {
+                if (HoveredIndex < 0 || HoveredIndex >= Items.Count)
+                    return null;
+
+                return Items[HoveredIndex];
+            }
+        }
+
         /// <summary>
         /// Returns the number of text lines that can fit on the list box at a time.
         /// </summary>
