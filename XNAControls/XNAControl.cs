@@ -309,9 +309,6 @@ namespace Rampastring.XNAUI.XNAControls
         {
             get
             {
-                // if (Parent != null)
-                //     return alpha * Parent.Alpha;
-
                 return alpha;
             }
             set
