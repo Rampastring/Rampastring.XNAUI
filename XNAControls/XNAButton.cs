@@ -40,7 +40,10 @@ namespace Rampastring.XNAUI.XNAControls
             set
             {
                 _allowClick = value;
-                animationMode = ButtonAnimationMode.RETURN;
+                if (_allowClick && cursorOnControl)
+                    AnimationMode = ButtonAnimationMode.HIGHLIGHT;
+                else
+                    AnimationMode = ButtonAnimationMode.RETURN;
             }
         }
 
@@ -98,42 +101,60 @@ namespace Rampastring.XNAUI.XNAControls
         /// </summary>
         private Color textColor = Color.White;
 
-        private ButtonAnimationMode animationMode;
+        private ButtonAnimationMode _animationMode;
+        private ButtonAnimationMode AnimationMode
+        {
+            get { return _animationMode; }
+            set 
+            { 
+                _animationMode = value;
+                if (_animationMode == ButtonAnimationMode.HIGHLIGHT)
+                {
+                    IdleTextureAlpha = 0.5f;
+                    HoverTextureAlpha = 0.75f;
+                }
+                else
+                {
+                    IdleTextureAlpha = 0.75f;
+                    HoverTextureAlpha = 0.5f;
+                }
+            }
+        }
+
+        private bool cursorOnControl = false;
 
         public override void OnMouseEnter()
         {
             base.OnMouseEnter();
 
-            if (!AllowClick || Cursor.LeftDown)
+            cursorOnControl = true;
+
+            if (Cursor.LeftDown)
+                return;
+
+            textColor = TextColorHover;
+
+            if (!AllowClick)
                 return;
 
             HoverSoundEffect?.Play();
 
             if (HoverTexture != null)
-            {
-                animationMode = ButtonAnimationMode.HIGHLIGHT;
-                IdleTextureAlpha = 0.5f;
-                HoverTextureAlpha = 0.75f;
-            }
-
-            textColor = TextColorHover;
+                AnimationMode = ButtonAnimationMode.HIGHLIGHT;
         }
 
         public override void OnMouseLeave()
         {
             base.OnMouseLeave();
 
+            cursorOnControl = false;
+            textColor = TextColorIdle;
+
             if (!AllowClick)
                 return;
 
             if (HoverTexture != null)
-            {
-                animationMode = ButtonAnimationMode.RETURN;
-                IdleTextureAlpha = 0.75f;
-                HoverTextureAlpha = 0.5f;
-            }
-
-            textColor = TextColorIdle;
+                AnimationMode = ButtonAnimationMode.RETURN;
         }
 
         public override void OnLeftClick()
@@ -258,7 +279,7 @@ namespace Rampastring.XNAUI.XNAControls
 
             float alphaRate = AlphaRate * (float)(gameTime.ElapsedGameTime.TotalMilliseconds / 10.0);
 
-            if (animationMode == ButtonAnimationMode.HIGHLIGHT)
+            if (AnimationMode == ButtonAnimationMode.HIGHLIGHT)
             {
                 IdleTextureAlpha -= alphaRate;
                 if (IdleTextureAlpha < 0.0f)
