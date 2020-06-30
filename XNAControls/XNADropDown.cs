@@ -373,7 +373,7 @@ namespace Rampastring.XNAUI.XNAControls
             CloseDropDown();
         }
 
-        protected void CloseDropDown()
+        protected virtual void CloseDropDown()
         {
             if (DropDownState == DropDownState.OPENED_UP)
             {
