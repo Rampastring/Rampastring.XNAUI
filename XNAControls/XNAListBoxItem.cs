@@ -1,5 +1,6 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using System;
 using System.Collections.Generic;
 
 namespace Rampastring.XNAUI.XNAControls
@@ -18,6 +19,8 @@ namespace Rampastring.XNAUI.XNAControls
             Text = text;
             TextColor = textColor;
         }
+
+        public event EventHandler TextChanged;
 
         private Color? _textColor;
 
@@ -51,7 +54,19 @@ namespace Rampastring.XNAUI.XNAControls
 
         public bool IsHeader { get; set; }
 
-        public string Text { get; set; }
+        private string _text;
+
+        /// <summary>
+        /// The text of the list box item prior to its parsing by the list box.
+        /// If this is modified when the item belongs to a <see cref="XNAListBox"/>, the ListBox
+        /// will re-parse it and save the result <see cref="TextLines"/> to support multi-line
+        /// items and potentially cut the text if it's too long.
+        /// </summary>
+        public string Text
+        {
+            get => _text;
+            set { _text = value; TextChanged?.Invoke(this, EventArgs.Empty); }
+        }
 
         /// <summary>
         /// Stores optional custom data associated with the list box item.
@@ -78,6 +93,6 @@ namespace Rampastring.XNAUI.XNAControls
             }
         }
 
-        public List<string> TextLines = new List<string>();
+        public List<string> TextLines;
     }
 }

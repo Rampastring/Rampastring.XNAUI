@@ -58,6 +58,9 @@ namespace Rampastring.XNAUI.XNAControls
         /// Returns the list of items in the list box.
         /// If you manipulate the list directly, call
         /// RefreshScrollbar afterwards.
+        /// !!! DO NOT remove items directly, use <see cref="Clear"/> or
+        /// one of the <see cref="RemoveItem(int)"/> overloads instead
+        /// or you risk leaking memory.
         /// TODO change to ObservableCollection?
         /// </summary>
         public List<XNAListBoxItem> Items = new List<XNAListBoxItem>();
@@ -317,12 +320,7 @@ namespace Rampastring.XNAUI.XNAControls
 
         public void Clear()
         {
-            //foreach (DXListBoxItem item in Items)
-            //{
-            //    if (item.Texture != null)
-            //        item.Texture.Dispose();
-            //}
-
+            Items.ForEach(item => item.TextChanged -= ListBoxItem_TextChanged);
             Items.Clear();
             RefreshScrollbar();
         }
@@ -373,6 +371,19 @@ namespace Rampastring.XNAUI.XNAControls
         /// <param name="listBoxItem">The item to add.</param>
         public void AddItem(XNAListBoxItem listBoxItem)
         {
+            CheckItemTextForWordWrapAndExcessSize(listBoxItem);
+
+            Items.Add(listBoxItem);
+            RefreshScrollbar();
+
+            listBoxItem.TextChanged += ListBoxItem_TextChanged;
+        }
+
+        private void ListBoxItem_TextChanged(object sender, EventArgs e) => 
+            CheckItemTextForWordWrapAndExcessSize((XNAListBoxItem)sender);
+
+        private void CheckItemTextForWordWrapAndExcessSize(XNAListBoxItem listBoxItem)
+        {
             int width = Width - TextBorderDistance * 2;
             if (EnableScrollbar)
             {
@@ -384,10 +395,9 @@ namespace Rampastring.XNAUI.XNAControls
                 int textureHeight = listBoxItem.Texture.Height;
                 int textureWidth = listBoxItem.Texture.Width;
 
-                if (listBoxItem.Texture.Height > LineHeight)
+                if (textureHeight > LineHeight)
                 {
                     double scaleRatio = textureHeight / (double)LineHeight;
-                    textureHeight = LineHeight;
                     textureWidth = (int)(textureWidth / scaleRatio);
                 }
 
@@ -413,9 +423,51 @@ namespace Rampastring.XNAUI.XNAControls
                     listBoxItem.TextXPadding = (width - (int)textSize.X) / 2;
                 }
             }
+        }
 
-            Items.Add(listBoxItem);
-            RefreshScrollbar();
+        /// <summary>
+        /// Removes the item at the specified index of the list box.
+        /// </summary>
+        /// <param name="index">The zero-based index of the item to remove.</param>
+        public void RemoveItem(int index)
+        {
+            var item = Items[index];
+            item.TextChanged -= ListBoxItem_TextChanged;
+            Items.RemoveAt(index);
+        }
+
+        /// <summary>
+        /// Removes the first item of the list box that fills the given condition.
+        /// Returns a bool that tells whether an item filling the condition
+        /// was found (and removed) from the list.
+        /// </summary>
+        public bool RemoveItem(Predicate<XNAListBoxItem> condition)
+        {
+            int index = Items.FindIndex(condition);
+            if (index > -1)
+            {
+                RemoveItem(index);
+                return true;
+            }
+
+            return false;
+        }
+
+        /// <summary>
+        /// Removes the given item at the specified index of the list box.
+        /// Returns a bool that tells whether the item was found (and removed)
+        /// from the list.
+        /// </summary>
+        public bool RemoveItem(XNAListBoxItem item)
+        {
+            int index = Items.IndexOf(item);
+            if (index > -1)
+            {
+                RemoveItem(index);
+                return true;
+            }
+
+            return false;
         }
 
         /// <summary>
