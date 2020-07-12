@@ -182,8 +182,11 @@ namespace Rampastring.XNAUI.XNAControls
         {
             switch (key)
             {
-                case "DrawSelectionUnderScrollbar":
+                case nameof(DrawSelectionUnderScrollbar):
                     DrawSelectionUnderScrollbar = Conversions.BooleanFromString(value, true);
+                    return;
+                case nameof(FontIndex):
+                    FontIndex = Conversions.IntFromString(value, FontIndex);
                     return;
             }
 
@@ -197,6 +200,24 @@ namespace Rampastring.XNAUI.XNAControls
                     return;
 
                 AddColumn(parts[0], width);
+            }
+
+            // Usage: ListBoxYAttribute:<AttrName>=<value>
+            // Allows setting list box attributes
+            if (key.StartsWith("ListBox") && key.Length > 19)
+            {
+                int listBoxId = Conversions.IntFromString(key.Substring(7, 1), -1);
+                if (listBoxId == -1)
+                    return;
+
+                if (listBoxId >= listBoxes.Count)
+                    return;
+
+                if (key.Substring(8, 10) != ":Attribute")
+                    return;
+
+                string attrName = key.Substring(18);
+                listBoxes[listBoxId].ParseAttributeFromINI(iniFile, attrName, value);
             }
 
             const string columnWidthKeyStart = "ColumnWidth";
