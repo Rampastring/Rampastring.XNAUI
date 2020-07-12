@@ -204,19 +204,19 @@ namespace Rampastring.XNAUI.XNAControls
 
             // Usage: ListBoxYAttribute:<AttrName>=<value>
             // Allows setting list box attributes
-            if (key.StartsWith("ListBox") && key.Length > 19)
+            if (key.StartsWith("ListBox") && key.Length > "ListBoxYAttribute:".Length)
             {
-                int listBoxId = Conversions.IntFromString(key.Substring(7, 1), -1);
+                int listBoxId = Conversions.IntFromString(key.Substring("ListBox".Length, 1), -1);
                 if (listBoxId == -1)
                     return;
 
                 if (listBoxId >= listBoxes.Count)
                     return;
 
-                if (key.Substring(8, 10) != ":Attribute")
+                if (key.Substring("ListBoxY".Length, ":Attribute".Length) != ":Attribute")
                     return;
 
-                string attrName = key.Substring(18);
+                string attrName = key.Substring("ListBoxYAttribute:".Length);
                 listBoxes[listBoxId].ParseAttributeFromINI(iniFile, attrName, value);
             }
 
