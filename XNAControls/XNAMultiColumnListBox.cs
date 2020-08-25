@@ -190,6 +190,16 @@ namespace Rampastring.XNAUI.XNAControls
                     return;
             }
 
+            const string columnWidthKeyStart = "ColumnWidth";
+            if (key.StartsWith(columnWidthKeyStart))
+            {
+                int headerIndex = Conversions.IntFromString(key.Substring(columnWidthKeyStart.Length), -1);
+                if (headerIndex == -1 || headerIndex >= headers.Count)
+                    return;
+
+                ChangeColumnWidth(headerIndex, Conversions.IntFromString(value, headers[headerIndex].Width));
+            }
+
             if (key.StartsWith("Column"))
             {
                 string[] parts = value.Split(':');
@@ -218,16 +228,6 @@ namespace Rampastring.XNAUI.XNAControls
 
                 string attrName = key.Substring("ListBoxYAttribute:".Length);
                 listBoxes[listBoxId].ParseAttributeFromINI(iniFile, attrName, value);
-            }
-
-            const string columnWidthKeyStart = "ColumnWidth";
-            if (key.StartsWith(columnWidthKeyStart))
-            {
-                int headerIndex = Conversions.IntFromString(key.Substring(columnWidthKeyStart.Length), -1);
-                if (headerIndex == -1 || headerIndex >= headers.Count)
-                    return;
-
-                ChangeColumnWidth(headerIndex, Conversions.IntFromString(value, headers[headerIndex].Width));
             }
 
             base.ParseAttributeFromINI(iniFile, key, value);
