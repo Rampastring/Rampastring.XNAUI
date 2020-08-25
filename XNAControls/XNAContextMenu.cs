@@ -108,60 +108,49 @@ namespace Rampastring.XNAUI.XNAControls
 
         public Color BorderColor
         {
-            get
-            {
-                return _borderColor ?? UISettings.ActiveSettings.PanelBorderColor;
-            }
-            set { _borderColor = value; }
+            get => _borderColor ?? UISettings.ActiveSettings.PanelBorderColor;
+            set => _borderColor = value;
         }
 
         private Color? _focusColor;
 
         public Color FocusColor
         {
-            get
-            {
-                return _focusColor ?? UISettings.ActiveSettings.FocusColor;
-            }
-            set { _focusColor = value; }
+            get => _focusColor ?? UISettings.ActiveSettings.FocusColor;
+            set => _focusColor = value;
         }
 
         private Color? _backColor;
 
         public Color BackColor
         {
-            get
-            {
-                return _backColor ?? UISettings.ActiveSettings.BackgroundColor;
-            }
-            set { _backColor = value; }
+            get => _backColor ?? UISettings.ActiveSettings.BackgroundColor;
+            set => _backColor = value;
         }
 
         private Color? _itemColor;
 
         public Color ItemColor
         {
-            get
-            {
-                return _itemColor ?? UISettings.ActiveSettings.AltColor;
-            }
-            set { _itemColor = value; }
+            get => _itemColor ?? UISettings.ActiveSettings.AltColor;
+            set => _itemColor = value;
         }
 
         private Color? _disabledItemColor;
 
         public Color DisabledItemColor
         {
-            get
-            {
-                return _disabledItemColor ?? UISettings.ActiveSettings.DisabledItemColor;
-            }
-            set { _disabledItemColor = value; }
+            get => _disabledItemColor ?? UISettings.ActiveSettings.DisabledItemColor;
+            set => _disabledItemColor = value;
         }
 
         public int FontIndex { get; set; }
 
-        int hoveredIndex = -1;
+        /// <summary>
+        /// The index of the context menu item that 
+        /// the user's cursor is hovering on. -1 for none.
+        /// </summary>
+        public int HoveredIndex { get; private set; } = -1;
 
         bool leftClickHandled = false;
 
@@ -270,9 +259,9 @@ namespace Rampastring.XNAUI.XNAControls
             int itemIndexOnCursor = GetItemIndexOnCursor();
 
             if (itemIndexOnCursor > -1 && Items[itemIndexOnCursor].Selectable)
-                hoveredIndex = itemIndexOnCursor;
+                HoveredIndex = itemIndexOnCursor;
             else
-                hoveredIndex = -1;
+                HoveredIndex = -1;
         }
 
         public override void OnLeftClick()
@@ -383,7 +372,7 @@ namespace Rampastring.XNAUI.XNAControls
 
             int itemHeight = GetItemHeight(item);
 
-            if (hoveredIndex == index)
+            if (HoveredIndex == index)
             {
                 FillRectangle(new Rectangle(point.X, point.Y, Width - BORDER_WIDTH * 2, itemHeight), FocusColor);
             }
