@@ -85,6 +85,8 @@ namespace Rampastring.XNAUI.XNAControls
             if (Cursor.LeftPressedDown)
             {
                 isHeldDown = true;
+                // It's fair to assume that dragged trackbars are selected
+                WindowManager.SelectedControl = this;
             }
         }
 

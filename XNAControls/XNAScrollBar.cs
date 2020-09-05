@@ -221,6 +221,7 @@ namespace Rampastring.XNAUI.XNAControls
             {
                 Scroll();
                 isHeldDown = true;
+                WindowManager.SelectedControl = this;
             }
         }
 
