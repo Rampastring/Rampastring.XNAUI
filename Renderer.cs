@@ -174,7 +174,7 @@ namespace Rampastring.XNAUI
 
         public static void PushRenderTarget(RenderTarget2D renderTarget) => RenderTargetStack.PushRenderTarget(renderTarget);
 
-        public static void PopRenderTarget(RenderTarget2D renderTarget) => RenderTargetStack.PopRenderTarget();
+        public static void PopRenderTarget() => RenderTargetStack.PopRenderTarget();
 
         //BlendState blendState = new BlendState();
         //blendState.AlphaDestinationBlend = Blend.One;
@@ -223,6 +223,14 @@ namespace Rampastring.XNAUI
             spriteBatch.Draw(texture, destinationRectangle, sourceRectangle, color);
         }
 
+        public static void DrawTexture(Texture2D texture, Rectangle sourceRectangle, Vector2 location, float rotation, Vector2 origin, Vector2 scale, Color color)
+        {
+#if !XNA
+            spriteBatch.Draw(texture, location, null, sourceRectangle, origin, rotation, scale, color, SpriteEffects.None, 0f);
+#else
+            spriteBatch.Draw(texture, location, sourceRectangle, color, rotation, origin, scale, SpriteEffects.None, 0f);
+#endif
+        }
 
         public static void DrawTexture(Texture2D texture, Vector2 location, float rotation, Vector2 origin, Vector2 scale, Color color)
         {
