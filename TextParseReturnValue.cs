@@ -40,7 +40,7 @@ namespace Rampastring.XNAUI
 
             string line = string.Empty;
             List<string> returnValue = new List<string>();
-            string[] wordArray = text.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+            string[] wordArray = text.Split(new string[] { " ", Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries);
 
             foreach (string word in wordArray)
             {
