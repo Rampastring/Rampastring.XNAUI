@@ -34,11 +34,13 @@ namespace Rampastring.XNAUI.Input
 
             foreach (Keys key in DownKeys)
             {
+                if (key == Keys.None)
+                    continue; // Work-around a MonoGame bug in OGL mode
+
                 if (KeyboardState.IsKeyUp(key))
                 {
                     DoKeyPress(key);
                     PressedKeys.Add(key);
-                    
                 }
             }
 
