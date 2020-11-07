@@ -165,6 +165,25 @@ namespace Rampastring.XNAUI.XNAControls
         /// </summary>
         public int TextEndPosition { get; set; }
 
+        // TODO PreviousControl and NextControl should be implemented at XNAControl level,
+        // but we currently lack a generic way to handle input in a selected control
+        // (without having all controls subscribe to Keyboard.OnKeyPressed, which could
+        // have bad effects on performance)
+
+        /// <summary>
+        /// The control to switch selection state to when
+        /// the user presses Tab while holding Shift.
+        /// See also <see cref="NextControl"/>.
+        /// </summary>
+        public XNAControl PreviousControl { get; set; }
+
+        /// <summary>
+        /// The control to switch selection state to when
+        /// the user presses Tab without holding Shift.
+        /// See also <see cref="PreviousControl"/>.
+        /// </summary>
+        public XNAControl NextControl { get; set; }
+
         protected TimeSpan barTimer = TimeSpan.Zero;
 
         private TimeSpan scrollKeyTime = TimeSpan.Zero;
@@ -371,6 +390,18 @@ namespace Rampastring.XNAUI.XNAControls
                     InputPosition = 0;
                     Text = string.Empty;
                     InputReceived?.Invoke(this, EventArgs.Empty);
+                    break;
+                case Keys.Tab:
+                    if (Keyboard.IsShiftHeldDown())
+                    {
+                        if (PreviousControl != null)
+                            WindowManager.SelectedControl = PreviousControl;
+                    }
+                    else if (NextControl != null)
+                    {
+                        WindowManager.SelectedControl = NextControl;
+                    }
+
                     break;
             }
         }

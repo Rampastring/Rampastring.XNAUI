@@ -60,8 +60,12 @@ namespace Rampastring.XNAUI.Input
 
         public bool IsCtrlHeldDown()
         {
-            return IsKeyHeldDown(Keys.RightControl) ||
-                        IsKeyHeldDown(Keys.LeftControl);
+            return IsKeyHeldDown(Keys.RightControl) || IsKeyHeldDown(Keys.LeftControl);
+        }
+
+        public bool IsShiftHeldDown()
+        {
+            return IsKeyHeldDown(Keys.RightShift) || IsKeyHeldDown(Keys.LeftShift);
         }
     }
 
