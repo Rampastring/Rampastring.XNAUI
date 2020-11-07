@@ -1,5 +1,6 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
+using Rampastring.Tools;
 using Rampastring.XNAUI.Input;
 using System;
 using System.Text;
@@ -169,6 +170,17 @@ namespace Rampastring.XNAUI.XNAControls
         private TimeSpan scrollKeyTime = TimeSpan.Zero;
         private TimeSpan timeSinceLastScroll = TimeSpan.Zero;
         private bool isScrollingQuickly = false;
+
+        public override void ParseAttributeFromINI(IniFile iniFile, string key, string value)
+        {
+            if (key == nameof(MaximumTextLength))
+            {
+                MaximumTextLength = Conversions.IntFromString(value, MaximumTextLength);
+                return;
+            }
+
+            base.ParseAttributeFromINI(iniFile, key, value);
+        }
 
         /// <summary>
         /// Initializes the text box.
