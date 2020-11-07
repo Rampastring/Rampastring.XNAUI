@@ -296,45 +296,46 @@ namespace Rampastring.XNAUI.XNAControls
             if (WindowManager.SelectedControl != this || !Enabled || !Parent.Enabled || !WindowManager.HasFocus)
                 return;
 
-            HandleKeyPress(e.PressedKey);
+            e.Handled = HandleKeyPress(e.PressedKey);
         }
 
         /// <summary>
         /// Handles a key press while the text box is the selected control.
         /// Can be overridden in derived classes to handle additional key presses.
+        /// Returns true if the key was handled.
         /// </summary>
         /// <param name="key">The key that was pressed.</param>
-        protected virtual void HandleKeyPress(Keys key)
+        protected virtual bool HandleKeyPress(Keys key)
         {
             switch (key)
             {
                 case Keys.Home:
-                    if (text.Length == 0)
-                        return;
-
-                    TextStartPosition = 0;
-                    TextEndPosition = 0;
-                    InputPosition = 0;
-
-                    while (true)
+                    if (text.Length != 0)
                     {
-                        if (TextEndPosition < text.Length)
-                        {
-                            TextEndPosition++;
+                        TextStartPosition = 0;
+                        TextEndPosition = 0;
+                        InputPosition = 0;
 
-                            if (!TextFitsBox())
+                        while (true)
+                        {
+                            if (TextEndPosition < text.Length)
                             {
-                                TextEndPosition--;
-                                break;
+                                TextEndPosition++;
+
+                                if (!TextFitsBox())
+                                {
+                                    TextEndPosition--;
+                                    break;
+                                }
+
+                                continue;
                             }
 
-                            continue;
+                            break;
                         }
-
-                        break;
                     }
 
-                    break;
+                    return true;
                 case Keys.End:
                     TextEndPosition = text.Length;
                     InputPosition = text.Length;
@@ -351,7 +352,7 @@ namespace Rampastring.XNAUI.XNAControls
                         break;
                     }
 
-                    break;
+                    return true;
                 case Keys.X:
                     if (!Keyboard.IsCtrlHeldDown())
                         break;
@@ -363,7 +364,7 @@ namespace Rampastring.XNAUI.XNAControls
                         InputReceived?.Invoke(this, EventArgs.Empty);
                     }
 
-                    break;
+                    return true;
                 case Keys.V:
                     if (!Keyboard.IsCtrlHeldDown())
                         break;
@@ -382,15 +383,15 @@ namespace Rampastring.XNAUI.XNAControls
                     if (!string.IsNullOrEmpty(text))
                         System.Windows.Forms.Clipboard.SetText(text);
 
-                    break;
+                    return true;
                 case Keys.Enter:
                     EnterPressed?.Invoke(this, EventArgs.Empty);
-                    break;
+                    return true;
                 case Keys.Escape:
                     InputPosition = 0;
                     Text = string.Empty;
                     InputReceived?.Invoke(this, EventArgs.Empty);
-                    break;
+                    return true;
                 case Keys.Tab:
                     if (Keyboard.IsShiftHeldDown())
                     {
@@ -402,8 +403,10 @@ namespace Rampastring.XNAUI.XNAControls
                         WindowManager.SelectedControl = NextControl;
                     }
 
-                    break;
+                    return true;
             }
+
+            return false;
         }
 
         private bool TextFitsBox()
