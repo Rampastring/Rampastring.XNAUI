@@ -49,13 +49,16 @@ namespace Rampastring.XNAUI.Input
 
         void DoKeyPress(Keys key)
         {
-            Delegate[] delegates = OnKeyPressed.GetInvocationList();
-            var args = new KeyPressEventArgs(key);
-            for (int i = 0; i < delegates.Length; i++)
+            if (OnKeyPressed != null)
             {
-                delegates[i].DynamicInvoke(this, args);
-                if (args.Handled)
-                    return;
+                Delegate[] delegates = OnKeyPressed.GetInvocationList();
+                var args = new KeyPressEventArgs(key);
+                for (int i = 0; i < delegates.Length; i++)
+                {
+                    delegates[i].DynamicInvoke(this, args);
+                    if (args.Handled)
+                        return;
+                }
             }
         }
 
