@@ -985,16 +985,32 @@ namespace Rampastring.XNAUI.XNAControls
                 if (Cursor.HasMoved)
                     OnMouseMove();
 
+                bool handleClick = activeChild == null;
+
                 if (!isLeftPressedOn && Cursor.LeftPressedDown)
                 {
                     isLeftPressedOn = true;
                     OnMouseLeftDown();
+                }
+                else if (isLeftPressedOn && Cursor.LeftClicked)
+                {
+                    if (handleClick)
+                        OnLeftClick();
+
+                    isLeftPressedOn = false;
                 }
 
                 if (!isRightPressedOn && Cursor.RightPressedDown)
                 {
                     isRightPressedOn = true;
                     OnMouseRightDown();
+                }
+                else if (isRightPressedOn && Cursor.RightClicked)
+                {
+                    if (handleClick)
+                        OnRightClick();
+
+                    isRightPressedOn = false;
                 }
 
                 if (activeChild == null)
