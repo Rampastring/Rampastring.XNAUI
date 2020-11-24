@@ -38,50 +38,56 @@ namespace Rampastring.XNAUI
             if (string.IsNullOrEmpty(text))
                 return new List<string>(0);
 
-            string line = string.Empty;
             List<string> returnValue = new List<string>();
-            string[] wordArray = text.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+            string[] lineArray = text.Split(new char[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries);
 
-            foreach (string word in wordArray)
+            foreach (string originalTextLine in lineArray)
             {
-                if (spriteFont.MeasureString(line + word).X > width)
+                string line = string.Empty;
+
+                string[] wordArray = originalTextLine.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+
+                foreach (string word in wordArray)
                 {
-                    if (line.Length > 0)
+                    if (spriteFont.MeasureString(line + word).X > width)
                     {
-                        returnValue.Add(line.Remove(line.Length - 1));
-                    }
-
-                    // Split individual words that are longer than the allowed width
-                    if (splitWords && spriteFont.MeasureString(word).X > width)
-                    {
-                        StringBuilder sb = new StringBuilder();
-
-                        for (int i = 0; i < word.Length; i++)
+                        if (line.Length > 0)
                         {
-                            if (spriteFont.MeasureString(sb.ToString() + word[i]).X > width)
-                            {
-                                returnValue.Add(sb.ToString());
-                                sb.Clear();
-                            }
-
-                            sb.Append(word[i]);
+                            returnValue.Add(line.Remove(line.Length - 1));
                         }
 
-                        if (sb.Length > 0)
-                            line = sb.ToString() + " ";
+                        // Split individual words that are longer than the allowed width
+                        if (splitWords && spriteFont.MeasureString(word).X > width)
+                        {
+                            StringBuilder sb = new StringBuilder();
 
+                            for (int i = 0; i < word.Length; i++)
+                            {
+                                if (spriteFont.MeasureString(sb.ToString() + word[i]).X > width)
+                                {
+                                    returnValue.Add(sb.ToString());
+                                    sb.Clear();
+                                }
+
+                                sb.Append(word[i]);
+                            }
+
+                            if (sb.Length > 0)
+                                line = sb.ToString() + " ";
+
+                            continue;
+                        }
+
+                        line = word + " ";
                         continue;
                     }
 
-                    line = word + " ";
-                    continue;
+                    line = line + word + " ";
                 }
 
-                line = line + word + " ";
+                if (!string.IsNullOrEmpty(line) && line.Length > 1)
+                    returnValue.Add(line);
             }
-
-            if (!string.IsNullOrEmpty(line) && line.Length > 1)
-                returnValue.Add(line);
 
             return returnValue;
         }

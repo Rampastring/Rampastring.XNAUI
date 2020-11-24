@@ -119,8 +119,8 @@ namespace Rampastring.XNAUI.XNAControls
     }
 
     /// <summary>
-    /// A text renderer.
-    /// Takes <see cref="XNATextPart"/>s, automatically formats them, applied line
+    /// A text renderer, practically an enhanced label control.
+    /// Takes <see cref="XNATextPart"/>s, automatically formats them, applies line
     /// breaks if necessary and renders them.
     /// </summary>
     public class XNATextRenderer : XNAControl
