@@ -1013,21 +1013,6 @@ namespace Rampastring.XNAUI.XNAControls
                     isRightPressedOn = false;
                 }
 
-                if (activeChild == null)
-                {
-                    if (isLeftPressedOn && Cursor.LeftClicked)
-                    {
-                        OnLeftClick();
-                        isLeftPressedOn = false;
-                    }
-
-                    if (isRightPressedOn && Cursor.RightClicked)
-                    {
-                        OnRightClick();
-                        isRightPressedOn = false;
-                    }
-                }
-
                 if (Cursor.ScrollWheelValue != 0)
                 {
                     OnMouseScrolled();
