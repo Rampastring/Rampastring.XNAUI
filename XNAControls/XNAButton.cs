@@ -101,25 +101,7 @@ namespace Rampastring.XNAUI.XNAControls
         /// </summary>
         private Color textColor = Color.White;
 
-        private ButtonAnimationMode _animationMode;
-        private ButtonAnimationMode AnimationMode
-        {
-            get { return _animationMode; }
-            set 
-            { 
-                _animationMode = value;
-                if (_animationMode == ButtonAnimationMode.HIGHLIGHT)
-                {
-                    IdleTextureAlpha = 0.5f;
-                    HoverTextureAlpha = 0.75f;
-                }
-                else
-                {
-                    IdleTextureAlpha = 0.75f;
-                    HoverTextureAlpha = 0.5f;
-                }
-            }
-        }
+        private ButtonAnimationMode AnimationMode { get; set; }
 
         private bool cursorOnControl = false;
 
@@ -140,7 +122,11 @@ namespace Rampastring.XNAUI.XNAControls
             HoverSoundEffect?.Play();
 
             if (HoverTexture != null)
+            {
+                IdleTextureAlpha = 0.5f;
+                HoverTextureAlpha = 0.75f;
                 AnimationMode = ButtonAnimationMode.HIGHLIGHT;
+            }
         }
 
         public override void OnMouseLeave()
@@ -154,7 +140,11 @@ namespace Rampastring.XNAUI.XNAControls
                 return;
 
             if (HoverTexture != null)
+            {
+                IdleTextureAlpha = 0.75f;
+                HoverTextureAlpha = 0.5f;
                 AnimationMode = ButtonAnimationMode.RETURN;
+            }
         }
 
         public override void OnLeftClick()
