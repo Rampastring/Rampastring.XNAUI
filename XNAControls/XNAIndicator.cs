@@ -1,5 +1,4 @@
-﻿using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Audio;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Rampastring.Tools;
 using System;
@@ -10,7 +9,8 @@ namespace Rampastring.XNAUI.XNAControls
     /// <summary>
     /// An indicator with dynamic textures pool.
     /// </summary>
-    public class XNAIndicator : XNAControl
+    /// <typeparam name="T">The type of the enum that specifies the possible indicator states.</typeparam>
+    public class XNAIndicator<T> : XNAControl where T : Enum
     {
         private const int TEXT_PADDING_DEFAULT = 5;
 
@@ -18,16 +18,16 @@ namespace Rampastring.XNAUI.XNAControls
         /// Creates a new indicator.
         /// </summary>
         /// <param name="windowManager">The window manager.</param>
-        public XNAIndicator(WindowManager windowManager) : base(windowManager)
-        {
+        public XNAIndicator(WindowManager windowManager) : base(windowManager) =>
             AlphaRate = UISettings.ActiveSettings.IndicatorAlphaRate * 2.0;
-        }
+
+        public XNAIndicator(WindowManager windowManager, Dictionary<T, Texture2D> textures) : this(windowManager) =>
+            Textures = textures;
 
         /// <summary>
         /// Contains a pool of textures for indicator.
         /// </summary>
-        public Dictionary<string, Texture2D> Textures { get; set; }
-
+        public Dictionary<T, Texture2D> Textures { get; set; }
 
         protected Texture2D _oldTexture = null;
         protected Texture2D _currentTexture = null;
@@ -37,7 +37,7 @@ namespace Rampastring.XNAUI.XNAControls
         /// </summary>
         protected Texture2D CurrentTexture
         {
-            get { return _currentTexture; }
+            get => _currentTexture;
             set
             {
                 if (value != _currentTexture)
@@ -67,7 +67,7 @@ namespace Rampastring.XNAUI.XNAControls
         public Color IdleColor
         {
             get => _idleColor ?? UISettings.ActiveSettings.TextColor;
-            set { _idleColor = value; }
+            set => _idleColor = value;
         }
 
         private Color? _highlightColor;
@@ -78,8 +78,7 @@ namespace Rampastring.XNAUI.XNAControls
         public Color HighlightColor
         {
             get => _highlightColor ?? UISettings.ActiveSettings.AltColor;
-            set
-            { _highlightColor = value; }
+            set => _highlightColor = value;
         }
 
         public double AlphaRate { get; set; }
@@ -89,10 +88,7 @@ namespace Rampastring.XNAUI.XNAControls
         /// </summary>
         public override string Text
         {
-            get
-            {
-                return base.Text;
-            }
+            get => base.Text;
 
             set
             {
@@ -114,32 +110,32 @@ namespace Rampastring.XNAUI.XNAControls
         public override void Initialize()
         {
             if (Textures == null || Textures.Count == 0)
-                Textures = UISettings.ActiveSettings.IndicatorTextures;
+                throw new InvalidOperationException($"{nameof(XNAIndicator<T>)}: No textures specified!");
 
             if (_oldTexture == null)
-                _oldTexture = Textures[UISettings.ActiveSettings.IndicatorInitialTextureKey];
+                _oldTexture = Textures[default(T)];
 
             if (_currentTexture == null)
-                _currentTexture = Textures[UISettings.ActiveSettings.IndicatorInitialTextureKey];
+                _currentTexture = Textures[default(T)];
 
             SetTextPositionAndSize();
 
             base.Initialize();
         }
 
-        public void SwitchTexture(string key)
+        /// <summary>
+        /// Switches the texture of the indicator.
+        /// </summary>
+        /// <param name="key">The enum texture key.</param>
+        public void SwitchTexture(T key)
         {
             if (Textures.ContainsKey(key))
-            {
                 CurrentTexture = Textures[key];
-            }
             else
-            {
-                Logger.Log("XNAIndicator: Tried to switch to non-existing texture " + key + "at indicator " + Name +  "!");
-            }
+                Logger.Log($"{nameof(XNAIndicator<T>)}: Tried to switch to non-existing texture {key} at indicator {Name}!");
         }
 
-        protected override void ParseAttributeFromINI(IniFile iniFile, string key, string value)
+        public override void ParseAttributeFromINI(IniFile iniFile, string key, string value)
         {
             switch (key)
             {
@@ -192,7 +188,7 @@ namespace Rampastring.XNAUI.XNAControls
         {
             double alphaRate = AlphaRate * (gameTime.ElapsedGameTime.TotalMilliseconds / 10.0);
             textureAlpha = Math.Min(textureAlpha + alphaRate, 1.0);
-            
+
             base.Update(gameTime);
         }
 
@@ -201,16 +197,16 @@ namespace Rampastring.XNAUI.XNAControls
         /// </summary>
         public override void Draw(GameTime gameTime)
         {
-            int checkBoxYPosition = 0;
+            int indicatorYPosition = 0;
             int textYPosition = TextLocationY;
 
             if (TextLocationY < 0)
             {
-                // If the text is higher than the checkbox texture (textLocationY < 0), 
-                // let's draw the text at the top of the client
-                // rectangle and the check-box in the middle of the text.
-                // This is necessary for input to work properly.
-                checkBoxYPosition -= TextLocationY;
+                // If the text is higher than the indicator texture
+                // (textLocationY < 0), let's draw the text at the top of 
+                // the client rectangle and the indicator in the middle of 
+                // the text. This is necessary for input to work properly.
+                indicatorYPosition -= TextLocationY;
                 textYPosition = 0;
             }
 
@@ -227,7 +223,7 @@ namespace Rampastring.XNAUI.XNAControls
             if (textureAlpha < 1.0)
             {
                 DrawTexture(_oldTexture,
-                    new Rectangle(0, checkBoxYPosition,
+                    new Rectangle(0, indicatorYPosition,
                     _oldTexture.Width, _oldTexture.Height), Color.White);
             }
 
@@ -235,7 +231,7 @@ namespace Rampastring.XNAUI.XNAControls
             if (textureAlpha > 0.0)
             {
                 DrawTexture(_currentTexture,
-                    new Rectangle(0, checkBoxYPosition,
+                    new Rectangle(0, indicatorYPosition,
                     _currentTexture.Width, _currentTexture.Height),
                     new Color(255, 255, 255, (int)(textureAlpha * 255)));
             }

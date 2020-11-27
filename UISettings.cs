@@ -1,6 +1,5 @@
-﻿using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using System.Collections.Generic;
 
 namespace Rampastring.XNAUI
 {
@@ -41,10 +40,6 @@ namespace Rampastring.XNAUI
         public Texture2D CheckBoxDisabledCheckedTexture { get; set; }
 
         public Texture2D CheckBoxDisabledClearTexture { get; set; }
-
-        public Dictionary<string, Texture2D> IndicatorTextures { get; set; }
-
-        public string IndicatorInitialTextureKey { get; set; }
 
         public float DefaultAlphaRate = 0.005f;
 
