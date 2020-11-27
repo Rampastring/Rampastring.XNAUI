@@ -1,4 +1,4 @@
-using Microsoft.Xna.Framework;
+﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Rampastring.Tools;
 using System;
@@ -224,7 +224,8 @@ namespace Rampastring.XNAUI.XNAControls
             {
                 DrawTexture(_oldTexture,
                     new Rectangle(0, indicatorYPosition,
-                    _oldTexture.Width, _oldTexture.Height), Color.White);
+                    _oldTexture.Width, _oldTexture.Height),
+                    Color.White * (float)textureAlpha);
             }
 
             // Don't draw new texture if it's fully invisible
@@ -233,7 +234,7 @@ namespace Rampastring.XNAUI.XNAControls
                 DrawTexture(_currentTexture,
                     new Rectangle(0, indicatorYPosition,
                     _currentTexture.Width, _currentTexture.Height),
-                    new Color(255, 255, 255, (int)(textureAlpha * 255)));
+                    Color.White * (float)textureAlpha);
             }
 
             base.Draw(gameTime);
