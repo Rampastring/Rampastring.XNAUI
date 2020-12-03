@@ -103,9 +103,7 @@ namespace Rampastring.XNAUI.XNAControls
         /// </summary>
         protected int TextLocationY { get; set; }
 
-
         private double textureAlpha = 1.0;
-
 
         public override void Initialize()
         {
@@ -127,7 +125,7 @@ namespace Rampastring.XNAUI.XNAControls
         /// Switches the texture of the indicator.
         /// </summary>
         /// <param name="key">The enum texture key.</param>
-        public void SwitchTexture(T key)
+        public virtual void SwitchTexture(T key)
         {
             if (Textures.ContainsKey(key))
                 CurrentTexture = Textures[key];
