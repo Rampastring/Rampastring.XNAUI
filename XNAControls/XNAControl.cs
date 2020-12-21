@@ -204,15 +204,21 @@ namespace Rampastring.XNAUI.XNAControls
         }
 
         /// <summary>
+        /// Called when the control's size is changed.
+        /// </summary>
+        protected virtual void OnSizeChanged()
+        {
+            if (!IsChangingSize && Initialized && DrawMode == ControlDrawMode.UNIQUE_RENDER_TARGET)
+            {
+                RefreshRenderTarget();
+            }
+        }
+
+        /// <summary>
         /// Called when the control's client rectangle is changed.
         /// </summary>
         protected virtual void OnClientRectangleUpdated()
         {
-            if (!IsChangingSize && Initialized && DrawMode == ControlDrawMode.UNIQUE_RENDER_TARGET)
-            {
-                CreateRenderTarget();
-            }
-
             ClientRectangleUpdated?.Invoke(this, EventArgs.Empty);
         }
 
@@ -221,9 +227,9 @@ namespace Rampastring.XNAUI.XNAControls
             if (DrawMode != ControlDrawMode.UNIQUE_RENDER_TARGET)
                 return;
 
-            if (renderTarget == null || renderTarget.Width != Width || renderTarget.Height != Height)
+            if (RenderTarget == null || RenderTarget.Width != Width || RenderTarget.Height != Height)
             {
-                CreateRenderTarget();
+                RefreshRenderTarget();
             }
 
             _children.ForEach(c => c.CheckForRenderAreaChange());
@@ -264,6 +270,7 @@ namespace Rampastring.XNAUI.XNAControls
             set
             {
                 _width = value;
+                OnSizeChanged();
                 OnClientRectangleUpdated();
             }
         }
@@ -277,6 +284,7 @@ namespace Rampastring.XNAUI.XNAControls
             set
             {
                 _height = value;
+                OnSizeChanged();
                 OnClientRectangleUpdated();
             }
         }
@@ -425,7 +433,11 @@ namespace Rampastring.XNAUI.XNAControls
 
         private bool isIteratingChildren = false;
 
-        private RenderTarget2D renderTarget;
+        /// <summary>
+        /// The render target of the control
+        /// in unique render target mode.
+        /// </summary>
+        protected RenderTarget2D RenderTarget { get; set; }
 
         /// <summary>
         /// Determines whether the control's <see cref="Initialize"/> method
@@ -753,17 +765,52 @@ namespace Rampastring.XNAUI.XNAControls
             base.Initialize();
 
             Initialized = true;
-
-            if (DrawMode == ControlDrawMode.UNIQUE_RENDER_TARGET)
-                CreateRenderTarget();
         }
 
-        private void CreateRenderTarget()
+        protected override void OnVisibleChanged(object sender, EventArgs args)
         {
-            if (renderTarget != null && !renderTarget.IsDisposed)
-                renderTarget.Dispose();
+            if (Visible)
+            {
+                if (DrawMode == ControlDrawMode.UNIQUE_RENDER_TARGET && RenderTarget == null)
+                    RenderTarget = GetRenderTarget();
+            }
+            else
+            {
+                if (DrawMode == ControlDrawMode.UNIQUE_RENDER_TARGET && RenderTarget != null && FreeRenderTarget())
+                    RenderTarget = null;
+            }
 
-            renderTarget = new RenderTarget2D(GraphicsDevice,
+            base.OnVisibleChanged(sender, args);
+        }
+
+        /// <summary>
+        /// Called for a control with an unique render target when its Visible= is set to false.
+        /// Can be used to free up the render target in derived classes.
+        /// Returns true if the render target should be cleared after this call, false otherwise.
+        /// </summary>
+        protected virtual bool FreeRenderTarget()
+        {
+            return false;
+        }
+
+        private void RefreshRenderTarget()
+        {
+            if (RenderTarget != null)
+            {
+                if (!FreeRenderTarget())
+                {
+                    RenderTarget.Dispose();
+                }
+            }
+
+            RenderTarget = GetRenderTarget();
+            if (RenderTarget == null)
+                throw new InvalidOperationException("GetRenderTarget did not return a render target.");
+        }
+
+        protected virtual RenderTarget2D GetRenderTarget()
+        {
+            return new RenderTarget2D(GraphicsDevice,
                 GetRenderTargetWidth(), GetRenderTargetHeight(), false,
                 SurfaceFormat.Color, DepthFormat.None, 0, RenderTargetUsage.PreserveContents);
         }
@@ -1075,14 +1122,17 @@ namespace Rampastring.XNAUI.XNAControls
 
             if (DrawMode == ControlDrawMode.UNIQUE_RENDER_TARGET)
             {
+                if (RenderTarget == null)
+                    RefreshRenderTarget();
+
                 drawPoint = Point.Zero;
-                RenderTargetStack.PushRenderTarget(renderTarget);
+                RenderTargetStack.PushRenderTarget(RenderTarget);
                 GraphicsDevice.Clear(Color.Transparent);
                 Draw(gameTime);
                 RenderTargetStack.PopRenderTarget();
                 Rectangle rect = RenderRectangle();
-                Renderer.DrawTexture(renderTarget, new Rectangle(rect.X, rect.Y, 
-                    renderTarget.Width, renderTarget.Height), Color.White * Alpha);
+                Renderer.DrawTexture(RenderTarget, new Rectangle(0, 0, Width, Height),
+                    new Rectangle(rect.X, rect.Y, Width, Height), Color.White * Alpha);
             }
             else
             {
