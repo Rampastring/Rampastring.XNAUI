@@ -28,6 +28,7 @@ namespace Rampastring.XNAUI.XNAControls
         {
             DrawMode = ControlDrawMode.UNIQUE_RENDER_TARGET;
             ScrollBar = new XNAScrollBar(WindowManager);
+            ScrollBar.Name = "XNAListBoxScrollBar";
             ScrollBar.ScrollStep = LineHeight;
             ClientRectangleUpdated += XNAListBox_ClientRectangleUpdated;
         }

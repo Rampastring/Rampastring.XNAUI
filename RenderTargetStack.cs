@@ -16,10 +16,31 @@ namespace Rampastring.XNAUI
         {
             FinalRenderTarget = finalRenderTarget;
             graphicsDevice = _graphicsDevice;
+            
             currentContext = new RenderContext(finalRenderTarget, null);
         }
 
+        internal static void InitDetachedScaledControlRenderTarget(int renderWidth, int renderHeight)
+        {
+            if (DetachedScaledControlRenderTarget != null)
+            {
+                DetachedScaledControlRenderTarget.Dispose();
+            }
+
+            DetachedScaledControlRenderTarget = new RenderTarget2D(graphicsDevice,
+                renderWidth, renderHeight,
+                false, SurfaceFormat.Color,
+                DepthFormat.None, 0,
+                RenderTargetUsage.DiscardContents);
+        }
+
         public static RenderTarget2D FinalRenderTarget { get; internal set; }
+
+        /// <summary>
+        /// A render target for controls that
+        /// are detached and have scaling applied to them.
+        /// </summary>
+        public static RenderTarget2D DetachedScaledControlRenderTarget { get; internal set; }
 
         private static RenderContext currentContext;
 

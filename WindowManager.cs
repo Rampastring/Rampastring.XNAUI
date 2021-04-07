@@ -179,6 +179,7 @@ namespace Rampastring.XNAUI
                 DepthFormat.None, 0, RenderTargetUsage.PreserveContents);
 
             RenderTargetStack.Initialize(renderTarget, GraphicsDevice);
+            RenderTargetStack.InitDetachedScaledControlRenderTarget(RenderResolutionX, RenderResolutionY);
 
             if (ScaleRatio > 1.5)
             {
@@ -543,7 +544,7 @@ namespace Rampastring.XNAUI
 
                 if (HasFocus && control.InputEnabled && control.Enabled && 
                     (activeControl == null &&
-                    control.RenderRectangle().Contains(Cursor.Location)
+                    control.GetWindowRectangle().Contains(Cursor.Location)
                     ||
                     control.Focused))
                 {

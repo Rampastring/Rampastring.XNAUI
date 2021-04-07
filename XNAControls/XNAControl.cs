@@ -182,9 +182,11 @@ namespace Rampastring.XNAUI.XNAControls
         #region Location and size
 
         private int _x, _y, _width, _height;
+        private int _scaling = 1;
+        private int _initScaling;
 
         /// <summary>
-        /// The display rectangle of the control inside its parent.
+        /// The non-scaled display rectangle of the control inside its parent.
         /// </summary>
         public Rectangle ClientRectangle
         {
@@ -275,6 +277,8 @@ namespace Rampastring.XNAUI.XNAControls
             }
         }
 
+        public int ScaledWidth => Width * Scaling;
+
         /// <summary>
         /// The height of the control.
         /// </summary>
@@ -288,6 +292,8 @@ namespace Rampastring.XNAUI.XNAControls
                 OnClientRectangleUpdated();
             }
         }
+
+        public int ScaledHeight => Height * Scaling;
 
         /// <summary>
         /// Shortcut for accessing ClientRectangle.Bottom.
@@ -424,6 +430,31 @@ namespace Rampastring.XNAUI.XNAControls
             }
         }
 
+        public int Scaling
+        {
+            get => _scaling;
+            set
+            {
+                if (DrawMode != ControlDrawMode.UNIQUE_RENDER_TARGET)
+                {
+                    throw new InvalidOperationException("Scaling cannot be " +
+                        "used when the control has no unique render target.");
+                }
+
+                if (Initialized && value < _initScaling)
+                {
+                    throw new InvalidOperationException("Scaling cannot be " +
+                        "lowered below the initial scaling multiplier after control initialization.");
+                }
+
+                if (value < 1)
+                {
+                    throw new InvalidOperationException("Scale factor cannot be below one.");
+                }
+
+                _scaling = value;
+            }
+        }
 
         #endregion
 
@@ -472,7 +503,8 @@ namespace Rampastring.XNAUI.XNAControls
         public Point GetCursorPoint()
         {
             Point windowPoint = GetWindowPoint();
-            return new Point(Cursor.Location.X - windowPoint.X, Cursor.Location.Y - windowPoint.Y);
+            int totalScaling = GetTotalScalingRecursive();
+            return new Point((Cursor.Location.X - windowPoint.X) / totalScaling, (Cursor.Location.Y - windowPoint.Y) / totalScaling);
         }
 
         /// <summary>
@@ -484,11 +516,16 @@ namespace Rampastring.XNAUI.XNAControls
             Point p = new Point(X, Y);
 
             if (Parent != null)
+            {
+                p = new Point(p.X * Parent.Scaling, p.Y * Parent.Scaling);
+
 #if XNA
                 return SumPoints(p, parent.GetWindowPoint());
 #else
                 return p + parent.GetWindowPoint();
 #endif
+            }
+
 
             return p;
         }
@@ -501,15 +538,29 @@ namespace Rampastring.XNAUI.XNAControls
         }
 #endif
 
+        public Point GetSizePoint()
+        {
+            int totalScaling = GetTotalScalingRecursive();
+            return new Point(Width * totalScaling, Height * totalScaling);
+        }
+
+        public int GetTotalScalingRecursive()
+        {
+            if (Parent != null)
+                return Scaling * Parent.GetTotalScalingRecursive();
+
+            return Scaling;
+        }
+
         /// <summary>
         /// Gets the control's client area within the game window.
         /// Use for input handling; for rendering, use <see cref="RenderRectangle"/> instead.
         /// </summary>
-        /// <returns></returns>
         public Rectangle GetWindowRectangle()
         {
             Point p = GetWindowPoint();
-            return new Rectangle(p.X, p.Y, Width, Height);
+            Point size = GetSizePoint();
+            return new Rectangle(p.X, p.Y, size.X, size.Y);
         }
 
         /// <summary>
@@ -556,8 +607,8 @@ namespace Rampastring.XNAUI.XNAControls
                 return;
             }
 
-            ClientRectangle = new Rectangle((Parent.Width - Width) / 2,
-                (Parent.Height - Height) / 2, Width, Height);
+            ClientRectangle = new Rectangle((Parent.Width - ScaledWidth) / 2,
+                (Parent.Height - ScaledHeight) / 2, Width, Height);
         }
 
         /// <summary>
@@ -571,7 +622,7 @@ namespace Rampastring.XNAUI.XNAControls
                 return;
             }
 
-            ClientRectangle = new Rectangle((Parent.Width - Width) / 2,
+            ClientRectangle = new Rectangle((Parent.Width - ScaledWidth) / 2,
                 Y, Width, Height);
         }
 
@@ -765,6 +816,7 @@ namespace Rampastring.XNAUI.XNAControls
             base.Initialize();
 
             Initialized = true;
+            _initScaling = _scaling;
         }
 
         protected override void OnVisibleChanged(object sender, EventArgs args)
@@ -1122,23 +1174,87 @@ namespace Rampastring.XNAUI.XNAControls
 
             if (DrawMode == ControlDrawMode.UNIQUE_RENDER_TARGET)
             {
-                if (RenderTarget == null)
-                    RefreshRenderTarget();
-
-                drawPoint = Point.Zero;
-                RenderTargetStack.PushRenderTarget(RenderTarget);
-                GraphicsDevice.Clear(Color.Transparent);
-                Draw(gameTime);
-                RenderTargetStack.PopRenderTarget();
-                Rectangle rect = RenderRectangle();
-                Renderer.DrawTexture(RenderTarget, new Rectangle(0, 0, Width, Height),
-                    new Rectangle(rect.X, rect.Y, Width, Height), Color.White * Alpha);
+                DrawInternal_UniqueRenderTarget(gameTime);
             }
             else
             {
                 drawPoint = GetRenderPoint();
-                Draw(gameTime);
+
+                if (Detached)
+                {
+                    DrawInternal_Detached(gameTime);
+                }
+                else
+                {
+                    Draw(gameTime);
+                }
             }
+        }
+
+        private void DrawInternal_UniqueRenderTarget(GameTime gameTime)
+        {
+            if (RenderTarget == null)
+                RefreshRenderTarget();
+
+            drawPoint = Point.Zero;
+            RenderTargetStack.PushRenderTarget(RenderTarget);
+            GraphicsDevice.Clear(Color.Transparent);
+            Draw(gameTime);
+            RenderTargetStack.PopRenderTarget();
+            Rectangle rect = RenderRectangle();
+            if (Scaling > 1 && Renderer.CurrentSettings.SamplerState != SamplerState.PointClamp)
+            {
+                Renderer.PushSettings(new SpriteBatchSettings(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp));
+                DrawUniqueRenderTarget(rect);
+                Renderer.PopSettings();
+            }
+            else
+            {
+                DrawUniqueRenderTarget(rect);
+            }
+        }
+
+        /// <summary>
+        /// Draws the control when it is detached from its parent.
+        /// </summary>
+        private void DrawInternal_Detached(GameTime gameTime)
+        {
+            int totalScaling = GetTotalScalingRecursive();
+            if (totalScaling > 1)
+            {
+                // We have to use an unique render target for scaling
+                RenderTargetStack.PushRenderTarget(RenderTargetStack.DetachedScaledControlRenderTarget);
+                Draw(gameTime);
+                RenderTargetStack.PopRenderTarget();
+                Rectangle renderRectangle = RenderRectangle();
+                if (Renderer.CurrentSettings.SamplerState != SamplerState.PointClamp)
+                {
+                    Renderer.PushSettings(new SpriteBatchSettings(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp));
+                    DrawDetachedScaledTexture(renderRectangle, totalScaling);
+                    Renderer.PopSettings();
+                }
+                else
+                {
+                    DrawDetachedScaledTexture(renderRectangle, totalScaling);
+                }
+
+                return;
+            }
+
+            Draw(gameTime);
+        }
+
+        private void DrawUniqueRenderTarget(Rectangle renderRectangle)
+        {
+            Renderer.DrawTexture(RenderTarget, new Rectangle(0, 0, Width, Height),
+                new Rectangle(renderRectangle.X, renderRectangle.Y, ScaledWidth, ScaledHeight), Color.White * Alpha);
+        }
+
+        private void DrawDetachedScaledTexture(Rectangle renderRectangle, int totalScaling)
+        {
+            Renderer.DrawTexture(RenderTargetStack.DetachedScaledControlRenderTarget,
+            renderRectangle,
+            new Rectangle(renderRectangle.X, renderRectangle.Y, Width * totalScaling, Height * totalScaling), Color.White * Alpha);
         }
 
         /// <summary>
@@ -1168,7 +1284,7 @@ namespace Rampastring.XNAUI.XNAControls
 
 #region Draw helpers
 
-        Point drawPoint;
+        private Point drawPoint;
 
         /// <summary>
         /// Draws a texture relative to the control's location.
