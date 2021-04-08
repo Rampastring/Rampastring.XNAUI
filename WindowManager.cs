@@ -448,7 +448,7 @@ namespace Rampastring.XNAUI
         /// </summary>
         public void ReorderControls()
         {
-            Controls = Controls.OrderBy(control => control.UpdateOrder).ToList();
+            Controls = Controls.OrderBy(control => control.Detached).ThenBy(control => control.UpdateOrder).ToList();
         }
 
         /// <summary>
