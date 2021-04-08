@@ -59,8 +59,10 @@ namespace Rampastring.XNAUI.XNAControls
         /// </summary>
         public event EventHandler MouseMove;
 
-        public delegate void MouseOnControlEventHandler(object sender, MouseEventArgs e);
-        public event MouseOnControlEventHandler MouseOnControl;
+        /// <summary>
+        /// Raised each frame when the mouse cursor is inside the control's area.
+        /// </summary>
+        public event EventHandler MouseOnControl;
 
         /// <summary>
         /// Raised when the scroll wheel is used while the cursor is inside
@@ -1090,11 +1092,7 @@ namespace Rampastring.XNAUI.XNAControls
 
                 Cursor.TextureIndex = CursorTextureIndex;
 
-                MouseEventArgs mouseEventArgs = new MouseEventArgs(
-                    new Point(Cursor.Location.X - rectangle.Location.X,
-                    Cursor.Location.Y - rectangle.Location.Y));
-
-                OnMouseOnControl(mouseEventArgs);
+                OnMouseOnControl();
 
                 if (Cursor.HasMoved)
                     OnMouseMove();
@@ -1500,9 +1498,9 @@ namespace Rampastring.XNAUI.XNAControls
         /// client rectangle.
         /// </summary>
         /// <param name="eventArgs">Mouse event arguments.</param>
-        public virtual void OnMouseOnControl(MouseEventArgs eventArgs)
+        public virtual void OnMouseOnControl()
         {
-            MouseOnControl?.Invoke(this, eventArgs);
+            MouseOnControl?.Invoke(this, EventArgs.Empty);
         }
 
         /// <summary>

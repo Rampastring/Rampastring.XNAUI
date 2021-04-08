@@ -758,11 +758,11 @@ namespace Rampastring.XNAUI.XNAControls
         /// <summary>
         /// Updates the hovered item index while the cursor is on this control.
         /// </summary>
-        public override void OnMouseOnControl(MouseEventArgs eventArgs)
+        public override void OnMouseOnControl()
         {
-            base.OnMouseOnControl(eventArgs);
+            base.OnMouseOnControl();
 
-            int itemIndex = GetItemIndexOnCursor(eventArgs.RelativeLocation);
+            int itemIndex = GetItemIndexOnCursor(GetCursorPoint());
             HoveredIndex = itemIndex;
         }
 

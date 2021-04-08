@@ -78,9 +78,9 @@ namespace Rampastring.XNAUI.XNAControls
         /// Scrolls the scrollbar if the user presses the mouse left button
         /// while moving the cursor over the scrollbar.
         /// </summary>
-        public override void OnMouseOnControl(MouseEventArgs e)
+        public override void OnMouseOnControl()
         {
-            base.OnMouseOnControl(e);
+            base.OnMouseOnControl();
 
             if (Cursor.LeftPressedDown)
             {
