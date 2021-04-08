@@ -456,6 +456,14 @@ namespace Rampastring.XNAUI.XNAControls
             }
         }
 
+        /// <summary>
+        /// Whether this control should allow input to pass through to controls
+        /// that come after this in the control hierarchy when the control
+        /// itself is the focus of input, but none of its children are.
+        /// Useful for controls that act as composite for other controls.
+        /// </summary>
+        public bool InputPassthrough { get; protected set; } = false;
+
         #endregion
 
         private TimeSpan timeSinceLastLeftClick = TimeSpan.Zero;
@@ -463,6 +471,12 @@ namespace Rampastring.XNAUI.XNAControls
         private bool isRightPressedOn = false;
 
         private bool isIteratingChildren = false;
+
+        /// <summary>
+        /// Whether a child of this control handled input during the ongoing frame.
+        /// Used for input pass-through.
+        /// </summary>
+        internal bool ChildHandledInput = false;
 
         /// <summary>
         /// The render target of the control
@@ -517,7 +531,8 @@ namespace Rampastring.XNAUI.XNAControls
 
             if (Parent != null)
             {
-                p = new Point(p.X * Parent.Scaling, p.Y * Parent.Scaling);
+                int parentTotalScaling = Parent.GetTotalScalingRecursive();
+                p = new Point(p.X * parentTotalScaling, p.Y * parentTotalScaling);
 
 #if XNA
                 return SumPoints(p, parent.GetWindowPoint());
@@ -1161,6 +1176,8 @@ namespace Rampastring.XNAUI.XNAControls
                 RemoveChildImmediate(child);
 
             childRemoveQueue.Clear();
+
+            ChildHandledInput = activeChild != null;
         }
 
         /// <summary>
