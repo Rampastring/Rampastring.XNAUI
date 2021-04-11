@@ -688,6 +688,12 @@ namespace Rampastring.XNAUI.XNAControls
         /// </summary>
         private void ScrollUp()
         {
+            if (SelectedIndex >= Items.Count)
+            {
+                SelectedIndex = Items.Count - 1;
+                return;
+            }
+
             for (int i = SelectedIndex - 1; i > -1; i--)
             {
                 if (Items[i].Selectable)
