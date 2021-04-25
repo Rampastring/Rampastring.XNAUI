@@ -559,7 +559,7 @@ namespace Rampastring.XNAUI
                 {
                     control.Update(gameTime);
 
-                    if (control.InputPassthrough && !control.ChildHandledInput)
+                    if (control.InputPassthrough && activeControl == control && !control.ChildHandledInput)
                     {
                         control.IsActive = false;
                         activeControl = null;
