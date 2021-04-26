@@ -92,7 +92,6 @@ namespace Rampastring.XNAUI
                 }
                 else
                 {
-                    Logger.Log($"RenderTargetPool.Get: Returning existing render target of size {bestRenderTarget.Width}x{bestRenderTarget.Height}");
                     renderTargets.RemoveAt(bestRenderTargetIndex);
                 }
 
