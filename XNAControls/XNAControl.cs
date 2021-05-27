@@ -200,8 +200,13 @@ namespace Rampastring.XNAUI.XNAControls
             {
                 _x = value.X;
                 _y = value.Y;
-                _width = value.Width;
-                _height = value.Height;
+                bool isSizeChanged = value.Width != _width || value.Height != _height;
+                if (isSizeChanged)
+                {
+                    _width = value.Width;
+                    _height = value.Height;
+                    OnSizeChanged();
+                }
 
                 OnClientRectangleUpdated();
             }
