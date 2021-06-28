@@ -133,6 +133,7 @@ namespace Rampastring.XNAUI.XNAControls
         }
 
         public int Padding { get; set; } = 3;
+        public int SpaceBetweenLines { get; set; } = 0;
 
         private List<XNATextPart> originalTextParts = new List<XNATextPart>();
 
@@ -141,6 +142,12 @@ namespace Rampastring.XNAUI.XNAControls
         public void AddTextPart(XNATextPart text)
         {
             originalTextParts.Add(text);
+        }
+
+        public void AddTextLine(XNATextPart text)
+        {
+            originalTextParts.Add(new XNATextPart(Environment.NewLine + text.Text,
+                text.FontIndex, text.Scale, text.Color, text.Underlined));
         }
 
         public void ClearTextParts()
@@ -212,6 +219,9 @@ namespace Rampastring.XNAUI.XNAControls
 
             ClientRectangleUpdated -= XNATextRenderer_ClientRectangleUpdated;
             Height = renderedTextLines.Sum(l => l.Height);
+            if (renderedTextLines.Count > 1)
+                Height += (renderedTextLines.Count - 1) * SpaceBetweenLines;
+
             ClientRectangleUpdated += XNATextRenderer_ClientRectangleUpdated;
         }
 
@@ -234,7 +244,7 @@ namespace Rampastring.XNAUI.XNAControls
                     x += part.Width + 1;
                 }
 
-                y += line.Height;
+                y += line.Height + SpaceBetweenLines;
             }
 
             base.Draw(gameTime);
