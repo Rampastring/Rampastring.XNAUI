@@ -76,6 +76,11 @@ namespace Rampastring.XNAUI.Input
         {
             return IsKeyHeldDown(Keys.RightShift) || IsKeyHeldDown(Keys.LeftShift);
         }
+
+        public bool IsAltHeldDown()
+        {
+            return IsKeyHeldDown(Keys.RightAlt) || IsKeyHeldDown(Keys.LeftAlt);
+        }
     }
 
     public class KeyPressEventArgs : EventArgs
