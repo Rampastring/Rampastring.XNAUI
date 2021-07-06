@@ -1,4 +1,4 @@
-﻿using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
 namespace Rampastring.XNAUI
@@ -44,5 +44,7 @@ namespace Rampastring.XNAUI
         public float DefaultAlphaRate = 0.005f;
 
         public float CheckBoxAlphaRate = 0.05f;
+
+        public float IndicatorAlphaRate = 0.05f;
     }
 }
