@@ -85,9 +85,8 @@ namespace Rampastring.XNAUI.XNAControls
     /// </summary>
     public class XNAContextMenu : XNAControl
     {
-        private const int BORDER_WIDTH = 1;
-        private const int TEXTURE_PADDING = 1;
-        private const int TEXT_PADDING = 1;
+        protected const int BORDER_WIDTH = 1;
+        protected const int TEXTURE_PADDING = 1;
 
         /// <summary>
         /// Creates a new context menu.
@@ -146,13 +145,17 @@ namespace Rampastring.XNAUI.XNAControls
 
         public int FontIndex { get; set; }
 
+        public int TextHorizontalPadding { get; set; } = 1;
+        public int TextVerticalPadding { get; set; } = 1;
+
         /// <summary>
         /// The index of the context menu item that 
         /// the user's cursor is hovering on. -1 for none.
         /// </summary>
         public int HoveredIndex { get; private set; } = -1;
 
-        bool leftClickHandled = false;
+        private bool leftClickHandled = false;
+        private bool openedOnThisFrame = false;
 
         #region AddItem methods
 
@@ -235,6 +238,8 @@ namespace Rampastring.XNAUI.XNAControls
 
             if (windowPoint.Y + Height > WindowManager.RenderResolutionY)
                 Y -= Height;
+
+            openedOnThisFrame = true;
         }
 
         public void ClearItems()
@@ -249,10 +254,11 @@ namespace Rampastring.XNAUI.XNAControls
 
             // Hide the drop-down if the left mouse button is clicked while the
             // cursor isn't on this control
-            if (Cursor.LeftClicked && !leftClickHandled)
+            if (Cursor.LeftClicked && !leftClickHandled && !openedOnThisFrame)
                 OnLeftClick();
 
             leftClickHandled = false;
+            openedOnThisFrame = false;
 
             // Update hovered index
 
@@ -379,7 +385,7 @@ namespace Rampastring.XNAUI.XNAControls
             else
                 FillRectangle(new Rectangle(point.X, point.Y, Width - BORDER_WIDTH * 2, itemHeight), BackColor);
 
-            int textX = point.X + TEXT_PADDING;
+            int textX = point.X + TextHorizontalPadding;
             if (item.Texture != null)
             {
                 Renderer.DrawTexture(item.Texture, new Rectangle(point.X + TEXTURE_PADDING, point.Y + TEXTURE_PADDING,
@@ -389,7 +395,7 @@ namespace Rampastring.XNAUI.XNAControls
 
             Color textColor = item.Selectable ? GetItemTextColor(item) : DisabledItemColor;
 
-            DrawStringWithShadow(item.Text, FontIndex, new Vector2(textX, point.Y + TEXT_PADDING), textColor);
+            DrawStringWithShadow(item.Text, FontIndex, new Vector2(textX, point.Y + TextVerticalPadding), textColor);
 
             return itemHeight;
         }
