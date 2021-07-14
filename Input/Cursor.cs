@@ -46,6 +46,12 @@ namespace Rampastring.XNAUI.Input
         public bool LeftPressedDown { get; private set; }
 
         /// <summary>
+        /// Gets a value that indicates whether the right mouse button is held down
+        /// on the current frame.
+        /// </summary>
+        public bool RightDown { get; private set; }
+
+        /// <summary>
         /// Gets a value that indicates whether the right mouse button was pressed
         /// down on this frame (meaning it's down on the current frame, but wasn't down
         /// on the previous frame).
@@ -58,8 +64,8 @@ namespace Rampastring.XNAUI.Input
 
         public Color RemapColor { get; set; }
 
-        WindowManager windowManager;
-        MouseState previousMouseState;
+        private WindowManager windowManager;
+        private MouseState previousMouseState;
 
         /// <summary>
         /// Attemps to replace the native operating system pointer cursor with
@@ -127,7 +133,8 @@ namespace Rampastring.XNAUI.Input
             if (LeftClicked)
                 LeftClickEvent?.Invoke(this, EventArgs.Empty);
 
-            RightPressedDown = ms.RightButton == ButtonState.Pressed && previousMouseState.RightButton != ButtonState.Pressed;
+            RightDown = ms.RightButton == ButtonState.Pressed;
+            RightPressedDown = RightDown && previousMouseState.RightButton != ButtonState.Pressed;
             RightClicked = ms.RightButton == ButtonState.Released && previousMouseState.RightButton == ButtonState.Pressed;
 
             previousMouseState = ms;
