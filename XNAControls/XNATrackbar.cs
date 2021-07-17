@@ -51,6 +51,9 @@ namespace Rampastring.XNAUI.XNAControls
 
             if (ButtonTexture == null)
                 ButtonTexture = AssetLoader.LoadTexture("trackbarButton.png");
+
+            if (Height == 0)
+                Height = ButtonTexture.Height;
         }
 
         public override void ParseAttributeFromINI(IniFile iniFile, string key, string value)
