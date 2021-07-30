@@ -26,6 +26,12 @@ namespace Rampastring.XNAUI.XNAControls
         public string Text { get; set; }
 
         /// <summary>
+        /// The hint text of the context menu item.
+        /// Drawn in the end of the item.
+        /// </summary>
+        public string HintText { get; set; }
+
+        /// <summary>
         /// Determines whether the context menu item is enabled
         /// (can be clicked on).
         /// </summary>
@@ -156,6 +162,7 @@ namespace Rampastring.XNAUI.XNAControls
         }
 
         public int FontIndex { get; set; }
+        public int HintFontIndex { get; set; }
 
         public int TextHorizontalPadding { get; set; } = 1;
         public int TextVerticalPadding { get; set; } = 1;
@@ -410,6 +417,11 @@ namespace Rampastring.XNAUI.XNAControls
             Color textColor = item.Selectable ? GetItemTextColor(item) : DisabledItemColor;
 
             DrawStringWithShadow(item.Text, FontIndex, new Vector2(textX, point.Y + TextVerticalPadding), textColor);
+            if (item.HintText != null)
+            {
+                int hintTextX = Width - TextHorizontalPadding - (int)Renderer.GetTextDimensions(item.HintText, HintFontIndex).X;
+                DrawStringWithShadow(item.HintText, HintFontIndex, new Vector2(hintTextX, point.Y + TextVerticalPadding), textColor);
+            }
 
             return itemHeight;
         }
