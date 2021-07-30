@@ -5,6 +5,16 @@ using System.Collections.Generic;
 
 namespace Rampastring.XNAUI.XNAControls
 {
+    public class ContextMenuItemSelectedEventArgs : EventArgs
+    {
+        public ContextMenuItemSelectedEventArgs(int itemIndex)
+        {
+            ItemIndex = itemIndex;
+        }
+
+        public int ItemIndex { get; }
+    }
+
     /// <summary>
     /// A context menu item.
     /// </summary>
@@ -98,6 +108,8 @@ namespace Rampastring.XNAUI.XNAControls
             DisabledItemColor = Color.Gray;
             Disable();
         }
+
+        public event EventHandler<ContextMenuItemSelectedEventArgs> OptionSelected;
 
         public int ItemHeight { get; set; } = 17;
 
@@ -283,6 +295,8 @@ namespace Rampastring.XNAUI.XNAControls
                 if (Items[itemIndexOnCursor].Selectable)
                 {
                     Items[itemIndexOnCursor].SelectAction?.Invoke();
+                    OptionSelected?.Invoke(this, new ContextMenuItemSelectedEventArgs(itemIndexOnCursor));
+
                     if (Detached)
                         Attach();
                     Disable();
