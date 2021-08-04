@@ -6,7 +6,7 @@ using System;
 using System.Collections.Generic;
 using Rampastring.Tools;
 using System.Globalization;
-using System.Collections.ObjectModel;
+using System.Linq;
 
 namespace Rampastring.XNAUI.XNAControls
 {
@@ -624,7 +624,7 @@ namespace Rampastring.XNAUI.XNAControls
 
         public override void Update(GameTime gameTime)
         {
-            foreach (XNAListBoxItem lbItem in Items)
+            foreach (XNAListBoxItem lbItem in Items.ToList())
             {
                 if (lbItem.Alpha < 1.0f)
                     lbItem.Alpha += ItemAlphaRate;
