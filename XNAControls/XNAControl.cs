@@ -1266,8 +1266,7 @@ namespace Rampastring.XNAUI.XNAControls
 
         private void DrawUniqueRenderTarget(Rectangle renderRectangle)
         {
-            Renderer.DrawTexture(RenderTarget, new Rectangle(0, 0, Width, Height),
-                new Rectangle(renderRectangle.X, renderRectangle.Y, ScaledWidth, ScaledHeight), Color.White * Alpha);
+            Renderer.DrawTexture(RenderTarget, new Rectangle(renderRectangle.X, renderRectangle.Y, RenderTarget.Width, RenderTarget.Height), Color.White * Alpha);
         }
 
         private void DrawDetachedScaledTexture(Rectangle renderRectangle, int totalScaling)
