@@ -29,13 +29,13 @@ namespace Rampastring.XNAUI.XNAControls
         /// </summary>
         public Dictionary<T, Texture2D> Textures { get; set; }
 
-        protected Texture2D _oldTexture = null;
-        protected Texture2D _currentTexture = null;
+        private Texture2D _oldTexture = null;
+        private Texture2D _currentTexture = null;
 
         /// <summary>
         /// Determines the currently displayed texture.
         /// </summary>
-        protected Texture2D CurrentTexture
+        protected virtual Texture2D CurrentTexture
         {
             get => _currentTexture;
             set
@@ -223,7 +223,7 @@ namespace Rampastring.XNAUI.XNAControls
                 DrawTexture(_oldTexture,
                     new Rectangle(0, indicatorYPosition,
                     _oldTexture.Width, _oldTexture.Height),
-                    Color.White * (float)textureAlpha);
+                    Color.White);
             }
 
             // Don't draw new texture if it's fully invisible
