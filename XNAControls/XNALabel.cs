@@ -26,11 +26,21 @@ namespace Rampastring.XNAUI.XNAControls
 
         public int FontIndex { get; set; }
 
+        private Vector2 _anchorPoint = Vector2.Zero;
+
         /// <summary>
         /// Determines the point that the text is placed around
         /// depending on TextAnchor.
         /// </summary>
-        public Vector2 AnchorPoint { get; set; }
+        public Vector2 AnchorPoint
+        {
+            get => _anchorPoint;
+            set
+            {
+                _anchorPoint = value;
+                RefreshClientRectangle();
+            }
+        }
 
         /// <summary>
         /// Determines the position of the label's text relative to AnchorPoint.
@@ -47,28 +57,32 @@ namespace Rampastring.XNAUI.XNAControls
             set
             {
                 base.Text = value;
+                RefreshClientRectangle();
+            }
+        }
 
-                if (!string.IsNullOrEmpty(base.Text))
+        private void RefreshClientRectangle()
+        {
+            if (!string.IsNullOrEmpty(base.Text))
+            {
+                Vector2 textSize = Renderer.GetTextDimensions(Text, FontIndex);
+
+                switch (TextAnchor)
                 {
-                    Vector2 textSize = Renderer.GetTextDimensions(Text, FontIndex);
-
-                    switch (TextAnchor)
-                    {
-                        case LabelTextAnchorInfo.CENTER:
-                            ClientRectangle = new Rectangle((int)(AnchorPoint.X - textSize.X / 2),
-                                (int)(AnchorPoint.Y - textSize.Y / 2), (int)textSize.X, (int)textSize.Y);
-                            break;
-                        case LabelTextAnchorInfo.RIGHT:
-                            ClientRectangle = new Rectangle((int)AnchorPoint.X, (int)AnchorPoint.Y, (int)textSize.X, (int)textSize.Y);
-                            break;
-                        case LabelTextAnchorInfo.LEFT:
-                            ClientRectangle = new Rectangle((int)(AnchorPoint.X - textSize.X),
-                                (int)AnchorPoint.Y, (int)textSize.X, (int)textSize.Y);
-                            break;
-                        case LabelTextAnchorInfo.NONE:
-                            ClientRectangle = new Rectangle(X, Y, (int)textSize.X, (int)textSize.Y);
-                            break;
-                    }
+                    case LabelTextAnchorInfo.CENTER:
+                        ClientRectangle = new Rectangle((int)(AnchorPoint.X - textSize.X / 2),
+                            (int)(AnchorPoint.Y - textSize.Y / 2), (int)textSize.X, (int)textSize.Y);
+                        break;
+                    case LabelTextAnchorInfo.RIGHT:
+                        ClientRectangle = new Rectangle((int)AnchorPoint.X, (int)AnchorPoint.Y, (int)textSize.X, (int)textSize.Y);
+                        break;
+                    case LabelTextAnchorInfo.LEFT:
+                        ClientRectangle = new Rectangle((int)(AnchorPoint.X - textSize.X),
+                            (int)AnchorPoint.Y, (int)textSize.X, (int)textSize.Y);
+                        break;
+                    case LabelTextAnchorInfo.NONE:
+                        ClientRectangle = new Rectangle(X, Y, (int)textSize.X, (int)textSize.Y);
+                        break;
                 }
             }
         }
