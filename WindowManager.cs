@@ -23,6 +23,8 @@ namespace Rampastring.XNAUI
     /// </summary>
     public class WindowManager : DrawableGameComponent
     {
+        private const int XNA_MAX_TEXTURE_SIZE = 2048;
+
         /// <summary>
         /// Creates a new WindowManager.
         /// </summary>
@@ -129,6 +131,11 @@ namespace Rampastring.XNAUI
         /// <param name="y">The height of the back buffer.</param>
         public void SetRenderResolution(int x, int y)
         {
+#if XNA
+            x = Math.Min(x, XNA_MAX_TEXTURE_SIZE);
+            y = Math.Min(y, XNA_MAX_TEXTURE_SIZE);
+#endif
+
             RenderResolutionX = x;
             RenderResolutionY = y;
 
@@ -181,8 +188,16 @@ namespace Rampastring.XNAUI
             RenderTargetStack.Initialize(renderTarget, GraphicsDevice);
             RenderTargetStack.InitDetachedScaledControlRenderTarget(RenderResolutionX, RenderResolutionY);
 
-            if (ScaleRatio > 1.5)
+            if (ScaleRatio > 1.5 && ScaleRatio % 1.0 == 0)
             {
+#if XNA
+                if (RenderResolutionX * 2 > XNA_MAX_TEXTURE_SIZE || RenderResolutionY * 2 > XNA_MAX_TEXTURE_SIZE)
+                {
+                    doubledRenderTarget = null;
+                    return;
+                }
+#endif
+
                 // Enable sharper scaling method
                 doubledRenderTarget = new RenderTarget2D(GraphicsDevice, 
                     RenderResolutionX * 2, RenderResolutionY * 2, false, SurfaceFormat.Color,
@@ -622,8 +637,12 @@ namespace Rampastring.XNAUI
 
             GraphicsDevice.Clear(Color.Black);
 
+            SamplerState scalingSamplerState = SamplerState.LinearClamp;
+            if (ScaleRatio % 1.0 == 0)
+                scalingSamplerState = SamplerState.PointClamp;
+
             Renderer.CurrentSettings = new SpriteBatchSettings(SpriteSortMode.Deferred,
-                    BlendState.NonPremultiplied, SamplerState.LinearClamp);
+                    BlendState.NonPremultiplied, scalingSamplerState);
             Renderer.BeginDraw();
 
             RenderTarget2D renderTargetToDraw = doubledRenderTarget != null ? doubledRenderTarget : renderTarget;
