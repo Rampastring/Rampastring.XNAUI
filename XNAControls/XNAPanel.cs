@@ -78,6 +78,10 @@ namespace Rampastring.XNAUI.XNAControls
                 case "BackgroundTexture":
                     BackgroundTexture = AssetLoader.LoadTexture(value);
                     return;
+                case "SolidColorBackgroundTexture":
+                    BackgroundTexture = AssetLoader.CreateTexture(AssetLoader.GetColorFromString(value), 2, 2);
+                    PanelBackgroundDrawMode = PanelBackgroundImageDrawMode.STRETCHED;
+                    return;
                 case "DrawBorders":
                     DrawBorders = Conversions.BooleanFromString(value, true);
                     return;
