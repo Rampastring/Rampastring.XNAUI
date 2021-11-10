@@ -189,10 +189,10 @@ namespace Rampastring.XNAUI.XNAControls
         {
             DrawPanel();
 
+            base.Draw(gameTime);
+
             if (DrawBorders)
                 DrawPanelBorders();
-
-            base.Draw(gameTime);
         }
     }
 
