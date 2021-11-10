@@ -1,5 +1,4 @@
 ﻿using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Rampastring.Tools;
@@ -32,6 +31,8 @@ namespace Rampastring.XNAUI.XNAControls
         public Keys HotKey { get; set; }
 
         public int FontIndex { get; set; }
+
+        public int TextShadowDistance { get; set; } = UISettings.ActiveSettings.TextShadowDistance;
 
         private bool _allowClick = true;
         public bool AllowClick
@@ -232,14 +233,17 @@ namespace Rampastring.XNAUI.XNAControls
                         CalculateTextPosition();
                     return;
                 case "IdleTexture":
-                    IdleTexture = AssetLoader.LoadTexture(iniFile.GetStringValue(Name, "IdleTexture", String.Empty));
+                    IdleTexture = AssetLoader.LoadTexture(value);
                     ClientRectangle = new Rectangle(X, Y,
                         IdleTexture.Width, IdleTexture.Height);
                     if (AdaptiveText)
                         CalculateTextPosition();
                     return;
                 case "HoverTexture":
-                    HoverTexture = AssetLoader.LoadTexture(iniFile.GetStringValue(Name, "HoverTexture", String.Empty));
+                    HoverTexture = AssetLoader.LoadTexture(value);
+                    return;
+                case "TextShadowDistance":
+                    TextShadowDistance = Conversions.IntFromString(value, TextShadowDistance);
                     return;
             }
 
@@ -318,9 +322,9 @@ namespace Rampastring.XNAUI.XNAControls
             Vector2 textPosition = new Vector2(TextXPosition, TextYPosition);
 
             if (!Enabled || !AllowClick)
-                DrawStringWithShadow(_text, FontIndex, textPosition, TextColorDisabled);
+                DrawStringWithShadow(_text, FontIndex, textPosition, TextColorDisabled, 1.0f, TextShadowDistance);
             else
-                DrawStringWithShadow(_text, FontIndex, textPosition, textColor);
+                DrawStringWithShadow(_text, FontIndex, textPosition, textColor, 1.0f, TextShadowDistance);
 
             base.Draw(gameTime);
         }

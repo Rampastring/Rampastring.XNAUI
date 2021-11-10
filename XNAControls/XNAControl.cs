@@ -1365,6 +1365,12 @@ namespace Rampastring.XNAUI.XNAControls
         /// <summary>
         /// Draws a string with a shadow, relative to the control's location.
         /// </summary>
+        /// <param name="text">The string to draw.</param>
+        /// <param name="fontIndex">The index of the font to use for drawing the string.</param>
+        /// <param name="location">The location of the text to draw, relative to the control's location.</param>
+        /// <param name="color">The color of the text.</param>
+        /// <param name="scale">The scale of the text.</param>
+        /// <param name="shadowDistance">How many distance units (typically pixels) the text shadow is offset from the text.</param>
         public void DrawStringWithShadow(string text, int fontIndex, Vector2 location, Color color, float scale = 1.0f, float shadowDistance = 1.0f)
         {
             Renderer.DrawStringWithShadow(text, fontIndex, 

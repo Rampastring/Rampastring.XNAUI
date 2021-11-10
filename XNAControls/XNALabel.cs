@@ -26,6 +26,8 @@ namespace Rampastring.XNAUI.XNAControls
 
         public int FontIndex { get; set; }
 
+        public int TextShadowDistance { get; set; } = UISettings.ActiveSettings.TextShadowDistance;
+
         private Vector2 _anchorPoint = Vector2.Zero;
 
         /// <summary>
@@ -122,6 +124,9 @@ namespace Rampastring.XNAUI.XNAControls
                         TextAnchor = info;
 
                     return;
+                case "TextShadowDistance":
+                    TextShadowDistance = Conversions.IntFromString(value, TextShadowDistance);
+                    return;
             }
 
             base.ParseAttributeFromINI(iniFile, key, value);
@@ -137,7 +142,7 @@ namespace Rampastring.XNAUI.XNAControls
         protected void DrawLabel()
         {
             if (!string.IsNullOrEmpty(Text))
-                DrawStringWithShadow(Text, FontIndex, Vector2.Zero, TextColor);
+                DrawStringWithShadow(Text, FontIndex, Vector2.Zero, TextColor, 1.0f, TextShadowDistance);
         }
     }
 
