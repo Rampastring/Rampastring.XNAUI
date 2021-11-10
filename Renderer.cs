@@ -301,18 +301,22 @@ namespace Rampastring.XNAUI
             spriteBatch.DrawString(fonts[fontIndex], text, location, color, 0f, Vector2.Zero, scale, SpriteEffects.None, 0f);
         }
 
-        public static void DrawStringWithShadow(string text, int fontIndex, Vector2 location, Color color, float scale = 1.0f)
+        public static void DrawStringWithShadow(string text, int fontIndex, Vector2 location, Color color, float scale = 1.0f, float shadowDistance = 1.0f)
         {
             if (fontIndex >= fonts.Count)
                 throw new Exception("Invalid font index: " + fontIndex);
 
 #if XNA
-            spriteBatch.DrawString(fonts[fontIndex], text, new Vector2(location.X + 1f, location.Y + 1f), new Color(0, 0, 0, color.A));
+            spriteBatch.DrawString(fonts[fontIndex], text,
+                new Vector2(location.X + shadowDistance, location.Y + shadowDistance),
+                new Color(0, 0, 0, color.A));
 #else
             spriteBatch.DrawString(fonts[fontIndex], text,
-                new Vector2(location.X + 1f, location.Y + 1f), new Color((byte)0, (byte)0, (byte)0, color.A),
+                new Vector2(location.X + shadowDistance, location.Y + shadowDistance),
+                new Color((byte)0, (byte)0, (byte)0, color.A),
                 0f, Vector2.Zero, scale, SpriteEffects.None, 0f);
 #endif
+
             spriteBatch.DrawString(fonts[fontIndex], text, location, color, 0f, Vector2.Zero, scale, SpriteEffects.None, 0f);
         }
 

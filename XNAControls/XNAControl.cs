@@ -774,7 +774,7 @@ namespace Rampastring.XNAUI.XNAControls
         private void InitChild(XNAControl child)
         {
             if (child.Parent != null)
-                throw new InvalidOperationException("Child controls cannot be shared between controls.");
+                throw new InvalidOperationException("Child controls cannot be shared between controls. Child control name: " + child.Name);
 
             child.Parent = this;
             child.UpdateOrderChanged += Child_UpdateOrderChanged;
@@ -1365,10 +1365,10 @@ namespace Rampastring.XNAUI.XNAControls
         /// <summary>
         /// Draws a string with a shadow, relative to the control's location.
         /// </summary>
-        public void DrawStringWithShadow(string text, int fontIndex, Vector2 location, Color color, float scale = 1.0f)
+        public void DrawStringWithShadow(string text, int fontIndex, Vector2 location, Color color, float scale = 1.0f, float shadowDistance = 1.0f)
         {
             Renderer.DrawStringWithShadow(text, fontIndex, 
-                new Vector2(location.X + drawPoint.X, location.Y + drawPoint.Y), color, scale);
+                new Vector2(location.X + drawPoint.X, location.Y + drawPoint.Y), color, scale, shadowDistance);
         }
 
         /// <summary>
