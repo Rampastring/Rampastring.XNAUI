@@ -1,5 +1,4 @@
 ﻿using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Graphics;
 using Rampastring.Tools;
 using System;
@@ -155,6 +154,9 @@ namespace Rampastring.XNAUI.XNAControls
             {
                 case "FontIndex":
                     FontIndex = Conversions.IntFromString(value, 0);
+                    return;
+                case "IdleColor":
+                    IdleColor = AssetLoader.GetColorFromString(value);
                     return;
                 case "HighlightColor":
                     HighlightColor = AssetLoader.GetColorFromString(value);
