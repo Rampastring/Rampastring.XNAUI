@@ -69,6 +69,8 @@ namespace Rampastring.XNAUI.XNAControls
                 case "DrawMode":
                     if (value == "Tiled")
                         PanelBackgroundDrawMode = PanelBackgroundImageDrawMode.TILED;
+                    else if (value == "Centered")
+                        PanelBackgroundDrawMode = PanelBackgroundImageDrawMode.CENTERED;
                     else
                         PanelBackgroundDrawMode = PanelBackgroundImageDrawMode.STRETCHED;
                     return;
@@ -173,7 +175,28 @@ namespace Rampastring.XNAUI.XNAControls
                         DrawTexture(BackgroundTexture, new Rectangle(0, 0, Width, Height), color);
                     }
                 }
-                else
+                else if (PanelBackgroundDrawMode == PanelBackgroundImageDrawMode.CENTERED)
+                {
+                    int x = (Width - BackgroundTexture.Width) / 2;
+                    int y = (Height - BackgroundTexture.Height) / 2;
+
+                    // Calculate texture source rectangle
+                    int sourceBeginX = x >= 0 ? 0 : -x;
+                    int sourceBeginY = y >= 0 ? 0 : -y;
+
+                    // Calculate draw destination rectangle
+                    int destBeginX = x >= 0 ? x : 0;
+                    int destBeginY = y >= 0 ? y : 0;
+
+                    // Width and height is shared between both rectangles
+                    int drawWidth = x >= 0 ? BackgroundTexture.Width : Width;
+                    int drawHeight = y >= 0 ? BackgroundTexture.Height : Height;
+
+                    DrawTexture(BackgroundTexture,
+                        new Rectangle(sourceBeginX, sourceBeginY, drawWidth, drawHeight),
+                        new Rectangle(destBeginX, destBeginY, drawWidth, drawHeight), color);
+                }
+                else // if (PanelBackgroundDrawMode == PanelBackgroundImageDrawMode.STRECHED)
                 {
                     DrawTexture(BackgroundTexture, new Rectangle(0, 0, Width, Height), color);
                 }
@@ -198,7 +221,21 @@ namespace Rampastring.XNAUI.XNAControls
 
     public enum PanelBackgroundImageDrawMode
     {
+        /// <summary>
+        /// The texture is tiled to fill the whole surface of the panel.
+        /// </summary>
         TILED,
-        STRETCHED
+
+        /// <summary>
+        /// The texture is stretched to fill the whole surface of the panel.
+        /// </summary>
+        STRETCHED,
+
+        /// <summary>
+        /// The texture is drawn once, centered on the panel.
+        /// If the texture is too large for the panel, parts
+        /// that would end up outside of the panel are cut off.
+        /// </summary>
+        CENTERED
     }
 }
