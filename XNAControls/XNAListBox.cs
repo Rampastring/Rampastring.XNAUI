@@ -891,6 +891,62 @@ namespace Rampastring.XNAUI.XNAControls
             return new ListBoxItemDrawInfo(Items.Count, 0);
         }
 
+        protected virtual void DrawListBoxItem(int index, int y)
+        {
+            XNAListBoxItem lbItem = Items[index];
+
+            int x = TextBorderDistance;
+
+            if (index == SelectedIndex)
+            {
+                int drawnWidth;
+
+                if (DrawSelectionUnderScrollbar || !ScrollBar.IsDrawn() || !EnableScrollbar)
+                {
+                    drawnWidth = Width - 2;
+                }
+                else
+                {
+                    drawnWidth = Width - 2 - ScrollBar.Width;
+                }
+
+                FillRectangle(new Rectangle(1, y, drawnWidth,
+                    lbItem.TextLines.Count * LineHeight),
+                    FocusColor);
+            }
+
+            if (lbItem.Texture != null)
+            {
+                int textureHeight = lbItem.Texture.Height;
+                int textureWidth = lbItem.Texture.Width;
+                int textureYPosition = 0;
+
+                if (lbItem.Texture.Height > LineHeight)
+                {
+                    double scaleRatio = textureHeight / (double)LineHeight;
+                    textureHeight = LineHeight;
+                    textureWidth = (int)(textureWidth / scaleRatio);
+                }
+                else
+                    textureYPosition = (LineHeight - textureHeight) / 2;
+
+                DrawTexture(lbItem.Texture,
+                    new Rectangle(x, y + textureYPosition,
+                    textureWidth, textureHeight), Color.White);
+
+                x += textureWidth + ITEM_TEXT_TEXTURE_MARGIN;
+            }
+
+            x += lbItem.TextXPadding;
+
+            for (int j = 0; j < lbItem.TextLines.Count; j++)
+            {
+                DrawStringWithShadow(lbItem.TextLines[j], FontIndex,
+                    new Vector2(x, y + j * LineHeight + lbItem.TextYPadding),
+                    lbItem.TextColor);
+            }
+        }
+
         /// <summary>
         /// Draws the list box and its items.
         /// </summary>
@@ -906,61 +962,12 @@ namespace Rampastring.XNAUI.XNAControls
             { 
                 XNAListBoxItem lbItem = Items[i];
 
-                if (height > Height)
-                    break;
-
-                int x = TextBorderDistance;
-
-                if (i == SelectedIndex)
-                {
-                    int drawnWidth;
-
-                    if (DrawSelectionUnderScrollbar || !ScrollBar.IsDrawn() || !EnableScrollbar)
-                    {
-                        drawnWidth = Width - 2;
-                    }
-                    else
-                    {
-                        drawnWidth = Width - 2 - ScrollBar.Width;
-                    }
-
-                    FillRectangle(new Rectangle(1, height, drawnWidth,
-                        lbItem.TextLines.Count * LineHeight),
-                        FocusColor);
-                }
-
-                if (lbItem.Texture != null)
-                {
-                    int textureHeight = lbItem.Texture.Height;
-                    int textureWidth = lbItem.Texture.Width;
-                    int textureYPosition = 0;
-
-                    if (lbItem.Texture.Height > LineHeight)
-                    {
-                        double scaleRatio = textureHeight / (double)LineHeight;
-                        textureHeight = LineHeight;
-                        textureWidth = (int)(textureWidth / scaleRatio);
-                    }
-                    else
-                        textureYPosition = (LineHeight - textureHeight) / 2;
-
-                    DrawTexture(lbItem.Texture,
-                        new Rectangle(x, height + textureYPosition, 
-                        textureWidth, textureHeight), Color.White);
-
-                    x += textureWidth + ITEM_TEXT_TEXTURE_MARGIN;
-                }
-
-                x += lbItem.TextXPadding;
-
-                for (int j = 0; j < lbItem.TextLines.Count; j++)
-                {
-                    DrawStringWithShadow(lbItem.TextLines[j], FontIndex, 
-                        new Vector2(x, height + j * LineHeight + lbItem.TextYPadding),
-                        lbItem.TextColor);
-                }
+                DrawListBoxItem(i, height);
 
                 height += lbItem.TextLines.Count * LineHeight;
+
+                if (height > Height)
+                    break;
             }
 
             if (DrawBorders)
