@@ -330,14 +330,14 @@ namespace Rampastring.XNAUI.XNAControls
             if (!OpenUp)
             {
                 DropDownState = DropDownState.OPENED_DOWN;
+                Height = DropDownTexture.Height + 2 + ItemHeight * Items.Count;
             }
             else
             {
                 DropDownState = DropDownState.OPENED_UP;
                 Y -= 1 + ItemHeight * Items.Count;
+                Height = DropDownTexture.Height + 1 + ItemHeight * Items.Count;
             }
-
-            Height = DropDownTexture.Height + 2 + ItemHeight * Items.Count;
 
             Detach();
             hoveredIndex = -1;
