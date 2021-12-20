@@ -11,10 +11,12 @@ Global
 		Debug|Windows = Debug|Windows
 		Debug|WindowsGL = Debug|WindowsGL
 		Debug|XNAFramework = Debug|XNAFramework
+		Debug|FNAFramework = Debug|FNAFramework
 		Release|Any CPU = Release|Any CPU
 		Release|Windows = Release|Windows
 		Release|WindowsGL = Release|WindowsGL
 		Release|XNAFramework = Release|XNAFramework
+		Release|FNAFramework = Release|FNAFramework
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{3EAF996D-7F03-433B-A9A5-17E69AC97C76}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
@@ -25,6 +27,8 @@ Global
 		{3EAF996D-7F03-433B-A9A5-17E69AC97C76}.Debug|WindowsGL.Build.0 = Debug|WindowsGL
 		{3EAF996D-7F03-433B-A9A5-17E69AC97C76}.Debug|XNAFramework.ActiveCfg = Debug|XNAFramework
 		{3EAF996D-7F03-433B-A9A5-17E69AC97C76}.Debug|XNAFramework.Build.0 = Debug|XNAFramework
+		{3EAF996D-7F03-433B-A9A5-17E69AC97C76}.Debug|FNAFramework.ActiveCfg = Debug|FNAFramework
+		{3EAF996D-7F03-433B-A9A5-17E69AC97C76}.Debug|FNAFramework.Build.0 = Debug|FNAFramework
 		{3EAF996D-7F03-433B-A9A5-17E69AC97C76}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{3EAF996D-7F03-433B-A9A5-17E69AC97C76}.Release|Any CPU.Build.0 = Release|Any CPU
 		{3EAF996D-7F03-433B-A9A5-17E69AC97C76}.Release|Windows.ActiveCfg = Release|Windows
@@ -33,6 +37,8 @@ Global
 		{3EAF996D-7F03-433B-A9A5-17E69AC97C76}.Release|WindowsGL.Build.0 = Release|WindowsGL
 		{3EAF996D-7F03-433B-A9A5-17E69AC97C76}.Release|XNAFramework.ActiveCfg = Release|XNAFramework
 		{3EAF996D-7F03-433B-A9A5-17E69AC97C76}.Release|XNAFramework.Build.0 = Release|XNAFramework
+		{3EAF996D-7F03-433B-A9A5-17E69AC97C76}.Release|FNAFramework.ActiveCfg = Release|FNAFramework
+		{3EAF996D-7F03-433B-A9A5-17E69AC97C76}.Release|FNAFramework.Build.0 = Release|FNAFramework
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

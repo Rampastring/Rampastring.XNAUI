@@ -89,13 +89,38 @@
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <LangVersion>latest</LangVersion>
   </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|FNAFramework' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\FNAFramework\Debug</OutputPath>
+    <DefineConstants>TRACE;DEBUG;XNA;FNA</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|FNAFramework' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\FNAFramework\Release</OutputPath>
+    <DefineConstants>TRACE;XNA;FNA</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <DocumentationFile>bin\FNAFramework\Release\Rampastring.XNAUI.XML</DocumentationFile>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <LangVersion>latest</LangVersion>
+  </PropertyGroup>
   <Choose>
     <When Condition="'$(Platform)' != 'XNAFramework'">
       <ItemGroup>
-        <Reference Include="MonoGame.Framework, Version=3.5.0.1636, Culture=neutral, processorArchitecture=MSIL">
+        <Reference Include="MonoGame.Framework, Version=3.5.0.1636, Culture=neutral, processorArchitecture=MSIL" Condition="'$(Platform)' != 'FNAFramework'">
           <SpecificVersion>False</SpecificVersion>
           <HintPath Condition=" '$(Platform)' != 'WindowsGL'">References\Windows\MonoGame.Framework.dll</HintPath>
           <HintPath Condition=" '$(Platform)' == 'WindowsGL'">References\WindowsGL\MonoGame.Framework.dll</HintPath>
+        </Reference>
+        <Reference Include="FNA" Condition="'$(Platform)' == 'FNAFramework'">
+          <SpecificVersion>False</SpecificVersion>
+          <HintPath>References\FNA\FNA.dll</HintPath>
         </Reference>
       </ItemGroup>
     </When>
