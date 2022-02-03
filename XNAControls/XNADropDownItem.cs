@@ -13,6 +13,8 @@ namespace Rampastring.XNAUI.XNAControls
         public Texture2D Texture { get; set; }
 
         public string Text { get; set; }
+        
+        public int? ItemHeight { get; set; }
 
         /// <summary>
         /// An object for containing custom info in the drop down item.

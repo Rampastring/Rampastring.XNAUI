@@ -4,6 +4,7 @@ using Microsoft.Xna.Framework.Graphics;
 using Rampastring.Tools;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Rampastring.XNAUI.XNAControls
 {
@@ -313,6 +314,8 @@ namespace Rampastring.XNAUI.XNAControls
             }
         }
 
+        public int TotalItemHeight => Items?.Aggregate(0, (totalHeight, item) => totalHeight + (item.ItemHeight ?? ItemHeight)) ?? 0;
+
         public override void OnMouseLeftDown()
         {
             base.OnMouseLeftDown();
@@ -330,13 +333,13 @@ namespace Rampastring.XNAUI.XNAControls
             if (!OpenUp)
             {
                 DropDownState = DropDownState.OPENED_DOWN;
-                Height = DropDownTexture.Height + 2 + ItemHeight * Items.Count;
+                Height = DropDownTexture.Height + 2 + TotalItemHeight;
             }
             else
             {
                 DropDownState = DropDownState.OPENED_UP;
-                Y -= 1 + ItemHeight * Items.Count;
-                Height = DropDownTexture.Height + 1 + ItemHeight * Items.Count;
+                Y -= 1 + TotalItemHeight;
+                Height = DropDownTexture.Height + 1 + TotalItemHeight;
             }
 
             Detach();
@@ -411,6 +414,20 @@ namespace Rampastring.XNAUI.XNAControls
             base.OnMouseScrolled();
         }
 
+        private int GetItemIndexForY(int y)
+        {
+            int totalY = 0;
+            for (int i = 0; i < Items.Count; i++)
+            {
+                var item = Items[i];
+                totalY += item.ItemHeight ?? ItemHeight;
+                if (totalY > y)
+                    return i;
+            }
+
+            return -1;
+        }
+
         /// <summary>
         /// Returns the index of the item that the cursor currently points to.
         /// </summary>
@@ -435,14 +452,14 @@ namespace Rampastring.XNAUI.XNAControls
                     return -1;
 
                 int y = p.Y - DropDownTexture.Height - 1;
-                itemIndex = y / ItemHeight;
+                itemIndex = GetItemIndexForY(y);
             }
             else // if (DropDownState == DropDownState.DROPPED_UP)
             {
                 if (p.Y > ClientRectangle.Height - DropDownTexture.Height - 1)
                     return -1;
 
-                itemIndex = (p.Y - 1) / ItemHeight;
+                itemIndex = GetItemIndexForY(p.Y - 1);
             }
 
             if (itemIndex < Items.Count && itemIndex > -1)
@@ -509,10 +526,11 @@ namespace Rampastring.XNAUI.XNAControls
 
                     DrawRectangle(listRectangle, BorderColor);
 
+                    int y = listRectangle.Y + 1;
                     for (int i = 0; i < Items.Count; i++)
                     {
-                        int y = listRectangle.Y + 1 + i * ItemHeight;
                         DrawItem(i, y);
+                        y += Items[i].ItemHeight ?? ItemHeight;
                     }
                 }
                 else
@@ -534,10 +552,10 @@ namespace Rampastring.XNAUI.XNAControls
 
             if (hoveredIndex == index)
             {
-                FillRectangle(new Rectangle(1, y, Width - 2, ItemHeight), FocusColor);
+                FillRectangle(new Rectangle(1, y, Width - 2, item.ItemHeight ?? ItemHeight), FocusColor);
             }
             else
-                FillRectangle(new Rectangle(1, y, Width - 2, ItemHeight), BackColor);
+                FillRectangle(new Rectangle(1, y, Width - 2, item.ItemHeight ?? ItemHeight), BackColor);
 
             int textX = 2;
             if (item.Texture != null)
@@ -555,6 +573,9 @@ namespace Rampastring.XNAUI.XNAControls
 
             if (item.Text != null)
                 DrawStringWithShadow(item.Text, FontIndex, new Vector2(textX, y + 1), textColor);
+
+            if (item is XNADropDownDividerItem dividerItem)
+                DrawLine(new Vector2(0, y + dividerItem.LineY), new Vector2(Width, y + dividerItem.LineY), BorderColor);
         }
     }
 }
