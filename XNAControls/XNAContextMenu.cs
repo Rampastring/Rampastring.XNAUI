@@ -199,7 +199,7 @@ namespace Rampastring.XNAUI.XNAControls
             AddItem(item);
         }
 
-        public void AddItem(string text, Action selectAction, Func<bool> selectableChecker = null, Func<bool> visibilityChecker = null, Texture2D texture = null)
+        public void AddItem(string text, Action selectAction, Func<bool> selectableChecker = null, Func<bool> visibilityChecker = null, Texture2D texture = null, string hintText = null)
         {
             var item = new XNAContextMenuItem()
             {
@@ -207,7 +207,8 @@ namespace Rampastring.XNAUI.XNAControls
                 SelectAction = selectAction,
                 SelectableChecker = selectableChecker,
                 VisibilityChecker = visibilityChecker,
-                Texture = texture
+                Texture = texture,
+                HintText = hintText
             };
 
             AddItem(item);
