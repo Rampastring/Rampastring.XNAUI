@@ -113,11 +113,9 @@ namespace Rampastring.XNAUI.XNAControls
             base.Update(gameTime);
         }
 
-        protected void DrawPanel()
+        protected void DrawBackgroundTexture(Texture2D texture, Color color)
         {
-            Color color = RemapColor;
-
-            if (BackgroundTexture != null)
+            if (texture != null)
             {
                 if (PanelBackgroundDrawMode == PanelBackgroundImageDrawMode.TILED)
                 {
@@ -127,42 +125,42 @@ namespace Rampastring.XNAUI.XNAControls
                         //Renderer.PushSettings(new SpriteBatchSettings(Renderer.CurrentSettings.SpriteSortMode,
                         //    Renderer.CurrentSettings.BlendState, SamplerState.LinearWrap));
 
-                        //DrawTexture(BackgroundTexture, new Rectangle(0, 0, Width, Height), color);
+                        //DrawTexture(texture, new Rectangle(0, 0, Width, Height), color);
 
                         //Renderer.PopSettings();
                         // ^ the above should work, but actually doesn't for some reason -
                         // the texture is just scaled instead
                         // it should have much higher performance than repeating the texture manually
 
-                        for (int x = 0; x < Width; x += BackgroundTexture.Width)
+                        for (int x = 0; x < Width; x += texture.Width)
                         {
-                            for (int y = 0; y < Height; y += BackgroundTexture.Height)
+                            for (int y = 0; y < Height; y += texture.Height)
                             {
-                                if (x + BackgroundTexture.Width < Width)
+                                if (x + texture.Width < Width)
                                 {
-                                    if (y + BackgroundTexture.Height < Height)
+                                    if (y + texture.Height < Height)
                                     {
-                                        DrawTexture(BackgroundTexture, new Rectangle(x, y,
-                                            BackgroundTexture.Width, BackgroundTexture.Height), color);
+                                        DrawTexture(texture, new Rectangle(x, y,
+                                            texture.Width, texture.Height), color);
                                     }
                                     else
                                     {
-                                        DrawTexture(BackgroundTexture,
-                                            new Rectangle(0, 0, BackgroundTexture.Width, Height - y),
+                                        DrawTexture(texture,
+                                            new Rectangle(0, 0, texture.Width, Height - y),
                                             new Rectangle(x, y,
-                                            BackgroundTexture.Width, Height - y), color);
+                                            texture.Width, Height - y), color);
                                     }
                                 }
-                                else if (y + BackgroundTexture.Height < Height)
+                                else if (y + texture.Height < Height)
                                 {
-                                    DrawTexture(BackgroundTexture,
-                                        new Rectangle(0, 0, Width - x, BackgroundTexture.Height),
+                                    DrawTexture(texture,
+                                        new Rectangle(0, 0, Width - x, texture.Height),
                                         new Rectangle(x, y,
-                                        Width - x, BackgroundTexture.Height), color);
+                                        Width - x, texture.Height), color);
                                 }
                                 else
                                 {
-                                    DrawTexture(BackgroundTexture,
+                                    DrawTexture(texture,
                                         new Rectangle(0, 0, Width - x, Height - y),
                                         new Rectangle(x, y,
                                         Width - x, Height - y), color);
@@ -172,13 +170,13 @@ namespace Rampastring.XNAUI.XNAControls
                     }
                     else
                     {
-                        DrawTexture(BackgroundTexture, new Rectangle(0, 0, Width, Height), color);
+                        DrawTexture(texture, new Rectangle(0, 0, Width, Height), color);
                     }
                 }
                 else if (PanelBackgroundDrawMode == PanelBackgroundImageDrawMode.CENTERED)
                 {
-                    int x = (Width - BackgroundTexture.Width) / 2;
-                    int y = (Height - BackgroundTexture.Height) / 2;
+                    int x = (Width - texture.Width) / 2;
+                    int y = (Height - texture.Height) / 2;
 
                     // Calculate texture source rectangle
                     int sourceBeginX = x >= 0 ? 0 : -x;
@@ -189,18 +187,23 @@ namespace Rampastring.XNAUI.XNAControls
                     int destBeginY = y >= 0 ? y : 0;
 
                     // Width and height is shared between both rectangles
-                    int drawWidth = x >= 0 ? BackgroundTexture.Width : Width;
-                    int drawHeight = y >= 0 ? BackgroundTexture.Height : Height;
+                    int drawWidth = x >= 0 ? texture.Width : Width;
+                    int drawHeight = y >= 0 ? texture.Height : Height;
 
-                    DrawTexture(BackgroundTexture,
+                    DrawTexture(texture,
                         new Rectangle(sourceBeginX, sourceBeginY, drawWidth, drawHeight),
                         new Rectangle(destBeginX, destBeginY, drawWidth, drawHeight), color);
                 }
                 else // if (PanelBackgroundDrawMode == PanelBackgroundImageDrawMode.STRECHED)
                 {
-                    DrawTexture(BackgroundTexture, new Rectangle(0, 0, Width, Height), color);
+                    DrawTexture(texture, new Rectangle(0, 0, Width, Height), color);
                 }
             }
+        }
+
+        protected void DrawPanel()
+        {
+            DrawBackgroundTexture(BackgroundTexture, RemapColor);
         }
 
         protected void DrawPanelBorders()
