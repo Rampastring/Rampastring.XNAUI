@@ -486,6 +486,12 @@ namespace Rampastring.XNAUI.XNAControls
         internal bool ChildHandledInput = false;
 
         /// <summary>
+        /// Gets a value that can be used to check whether a child of this control is active on the current frame.
+        /// See <see cref="IsActive"/>.
+        /// </summary>
+        public bool IsChildActive { get; private set; }
+
+        /// <summary>
         /// The render target of the control
         /// in unique render target mode.
         /// </summary>
@@ -1181,6 +1187,7 @@ namespace Rampastring.XNAUI.XNAControls
             childRemoveQueue.Clear();
 
             ChildHandledInput = activeChild != null;
+            IsChildActive = activeChild != null;
         }
 
         /// <summary>
@@ -1508,7 +1515,6 @@ namespace Rampastring.XNAUI.XNAControls
         /// Called on each frame while the mouse is on the control's
         /// client rectangle.
         /// </summary>
-        /// <param name="eventArgs">Mouse event arguments.</param>
         public virtual void OnMouseOnControl()
         {
             MouseOnControl?.Invoke(this, EventArgs.Empty);
