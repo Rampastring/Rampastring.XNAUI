@@ -46,14 +46,7 @@ namespace Rampastring.XNAUI.PlatformSpecific
             int x = (Screen.PrimaryScreen.Bounds.Width - game.Window.ClientBounds.Width) / 2;
             int y = (Screen.PrimaryScreen.Bounds.Height - game.Window.ClientBounds.Height) / 2;
 
-#if XNA
-            if (gameForm == null)
-                return;
-
-            gameForm.DesktopLocation = new System.Drawing.Point(x, y);
-#else
             game.Window.Position = new Microsoft.Xna.Framework.Point(x, y);
-#endif
         }
 
         /// <summary>
@@ -63,15 +56,7 @@ namespace Rampastring.XNAUI.PlatformSpecific
         /// windowed mode should be enabled.</param>
         public void SetBorderlessMode(bool value)
         {
-
-#if !XNA
             game.Window.IsBorderless = value;
-#else
-            if (value)
-                gameForm.FormBorderStyle = FormBorderStyle.None;
-            else
-                gameForm.FormBorderStyle = FormBorderStyle.FixedSingle;
-#endif
         }
 
         /// <summary>

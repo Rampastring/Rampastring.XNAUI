@@ -75,7 +75,7 @@ namespace Rampastring.XNAUI.Input
         /// <param name="path">The path to the cursor (.cur) file.</param>
         public void LoadNativeCursor(string path)
         {
-#if !WINDOWSGL
+#if WINDOWS
             if (!File.Exists(path))
                 return;
 

@@ -187,12 +187,8 @@ namespace Rampastring.XNAUI
 
         internal static void BeginDrawInternal(SpriteSortMode ssm, BlendState bs, SamplerState ss)
         {
-#if XNA
-            spriteBatch.Begin(ssm, bs, ss, DepthStencilState.Default, RasterizerState.CullNone);
-#else
             spriteBatch.Begin(ssm, bs, ss,
                 DepthStencilState.None, RasterizerState.CullCounterClockwise);
-#endif
         }
 
         internal static void PushSettingsInternal()
@@ -225,20 +221,12 @@ namespace Rampastring.XNAUI
 
         public static void DrawTexture(Texture2D texture, Rectangle sourceRectangle, Vector2 location, float rotation, Vector2 origin, Vector2 scale, Color color)
         {
-#if !XNA
-            spriteBatch.Draw(texture, location, null, sourceRectangle, origin, rotation, scale, color, SpriteEffects.None, 0f);
-#else
             spriteBatch.Draw(texture, location, sourceRectangle, color, rotation, origin, scale, SpriteEffects.None, 0f);
-#endif
         }
 
         public static void DrawTexture(Texture2D texture, Vector2 location, float rotation, Vector2 origin, Vector2 scale, Color color)
         {
-#if !XNA
-            spriteBatch.Draw(texture, location, null, null, origin, rotation, scale, color, SpriteEffects.None, 0f);
-#else
             spriteBatch.Draw(texture, location, null, color, rotation, origin, scale, SpriteEffects.None, 0f);
-#endif
         }
 
         /// <summary>
@@ -306,16 +294,10 @@ namespace Rampastring.XNAUI
             if (fontIndex >= fonts.Count)
                 throw new Exception("Invalid font index: " + fontIndex);
 
-#if XNA
-            spriteBatch.DrawString(fonts[fontIndex], text,
-                new Vector2(location.X + shadowDistance, location.Y + shadowDistance),
-                new Color(0, 0, 0, color.A));
-#else
             spriteBatch.DrawString(fonts[fontIndex], text,
                 new Vector2(location.X + shadowDistance, location.Y + shadowDistance),
                 new Color((byte)0, (byte)0, (byte)0, color.A),
                 0f, Vector2.Zero, scale, SpriteEffects.None, 0f);
-#endif
 
             spriteBatch.DrawString(fonts[fontIndex], text, location, color, 0f, Vector2.Zero, scale, SpriteEffects.None, 0f);
         }

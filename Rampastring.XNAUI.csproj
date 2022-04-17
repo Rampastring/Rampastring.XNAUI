@@ -1,218 +1,89 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{3EAF996D-7F03-433B-A9A5-17E69AC97C76}</ProjectGuid>
-    <OutputType>Library</OutputType>
-    <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Rampastring.XNAUI</RootNamespace>
-    <AssemblyName>Rampastring.XNAUI</AssemblyName>
-    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
-    <FileAlignment>512</FileAlignment>
-    <TargetFrameworkProfile />
+    <TargetFramework>net48</TargetFramework>
+    <UseWindowsForms>true</UseWindowsForms>
+    <Platforms>AnyCPU;x64</Platforms>
+    <GenerateResourceUsePreserializedResources>true</GenerateResourceUsePreserializedResources>
+    <Configurations>AresDebug;AresRelease;TSDebug;TSRelease;YRDebug;YRRelease</Configurations>
   </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <DebugSymbols>true</DebugSymbols>
-    <DebugType>full</DebugType>
-    <Optimize>false</Optimize>
-    <OutputPath>bin\AnyCPU\Debug\</OutputPath>
-    <DefineConstants>TRACE;DEBUG</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
+  <PropertyGroup Condition="'$(Platform)' != 'AnyCPU'">
+    <DefineConstants>$(DefineConstants);WINDOWS</DefineConstants>
   </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <DebugType>pdbonly</DebugType>
-    <Optimize>true</Optimize>
-    <OutputPath>bin\AnyCPU\Release\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|Windows' ">
-    <DebugType>pdbonly</DebugType>
-    <Optimize>false</Optimize>
-    <OutputPath>bin\Windows\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|Windows' ">
-    <DebugType>pdbonly</DebugType>
-    <Optimize>true</Optimize>
-    <OutputPath>bin\Windows\Release\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-    <DocumentationFile>bin\Windows\Release\Rampastring.XNAUI.XML</DocumentationFile>
-    <NoWarn>1591</NoWarn>
-    <LangVersion>latest</LangVersion>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|WindowsGL' ">
-    <DebugSymbols>true</DebugSymbols>
-    <DebugType>full</DebugType>
-    <Optimize>false</Optimize>
-    <OutputPath>bin\WindowsGL\Debug</OutputPath>
-    <DefineConstants>TRACE;DEBUG;WINDOWSGL LINUX</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|WindowsGL' ">
-    <DebugType>pdbonly</DebugType>
-    <Optimize>true</Optimize>
-    <OutputPath>bin\WindowsGL\Release</OutputPath>
-    <DefineConstants>TRACE;WINDOWSGL LINUX</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-    <DocumentationFile>bin\WindowsGL\Release\Rampastring.XNAUI.XML</DocumentationFile>
-    <LangVersion>latest</LangVersion>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|XNAFramework' ">
-    <DebugSymbols>true</DebugSymbols>
-    <DebugType>full</DebugType>
-    <Optimize>false</Optimize>
-    <OutputPath>bin\XNAFramework\Debug</OutputPath>
-    <DefineConstants>TRACE;DEBUG;XNA</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|XNAFramework' ">
-    <DebugType>pdbonly</DebugType>
-    <Optimize>true</Optimize>
-    <OutputPath>bin\XNAFramework\Release</OutputPath>
-    <DefineConstants>TRACE;XNA</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-    <DocumentationFile>bin\XNAFramework\Release\Rampastring.XNAUI.XML</DocumentationFile>
-    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
-    <LangVersion>latest</LangVersion>
-  </PropertyGroup>
-  <Choose>
-    <When Condition="'$(Platform)' != 'XNAFramework'">
-      <ItemGroup>
-        <Reference Include="MonoGame.Framework, Version=3.5.0.1636, Culture=neutral, processorArchitecture=MSIL">
-          <SpecificVersion>False</SpecificVersion>
-          <HintPath Condition=" '$(Platform)' != 'WindowsGL'">References\Windows\MonoGame.Framework.dll</HintPath>
-          <HintPath Condition=" '$(Platform)' == 'WindowsGL'">References\WindowsGL\MonoGame.Framework.dll</HintPath>
-        </Reference>
-      </ItemGroup>
-    </When>
-    <Otherwise>
-      <ItemGroup>
-        <Reference Include="Microsoft.Xna.Framework, Version=4.0.0.0, Culture=neutral, PublicKeyToken=842cf8be1de50553, processorArchitecture=x86">
-          <Private>False</Private>
-        </Reference>
-        <Reference Include="Microsoft.Xna.Framework.Game, Version=4.0.0.0, Culture=neutral, PublicKeyToken=842cf8be1de50553, processorArchitecture=x86">
-          <Private>False</Private>
-        </Reference>
-        <Reference Include="Microsoft.Xna.Framework.Graphics, Version=4.0.0.0, Culture=neutral, PublicKeyToken=842cf8be1de50553, processorArchitecture=x86">
-          <Private>False</Private>
-        </Reference>
-        <Reference Include="Microsoft.Xna.Framework.GamerServices, Version=4.0.0.0, Culture=neutral, PublicKeyToken=842cf8be1de50553, processorArchitecture=x86">
-          <Private>False</Private>
-        </Reference>
-        <Reference Include="Microsoft.Xna.Framework.Xact, Version=4.0.0.0, Culture=neutral, PublicKeyToken=842cf8be1de50553, processorArchitecture=x86">
-          <Private>False</Private>
-        </Reference>
-        <Reference Include="Microsoft.Xna.Framework.Video, Version=4.0.0.0, Culture=neutral, PublicKeyToken=842cf8be1de50553, processorArchitecture=x86">
-          <Private>False</Private>
-        </Reference>
-        <Reference Include="Microsoft.Xna.Framework.Avatar, Version=4.0.0.0, Culture=neutral, PublicKeyToken=842cf8be1de50553, processorArchitecture=x86">
-          <Private>False</Private>
-        </Reference>
-        <Reference Include="Microsoft.Xna.Framework.Net, Version=4.0.0.0, Culture=neutral, PublicKeyToken=842cf8be1de50553, processorArchitecture=x86">
-          <Private>False</Private>
-        </Reference>
-        <Reference Include="Microsoft.Xna.Framework.Storage, Version=4.0.0.0, Culture=neutral, PublicKeyToken=842cf8be1de50553, processorArchitecture=x86">
-          <Private>False</Private>
-        </Reference>
-      </ItemGroup>
-    </Otherwise>
-  </Choose>
+  <!--<ItemGroup Condition="'$(Platform)' != 'WindowsGL' And '$(Platform)' != 'XNAFramework'">-->
+  <ItemGroup Condition="'$(Platform)' != 'AnyCPU'">
+    <PackageReference Include="MonoGame.Framework.WindowsDX" Version="3.8.0.1641" />
+  </ItemGroup>
+  <ItemGroup Condition="'$(Platform)' == 'AnyCPU'">
+    <PackageReference Include="MonoGame.Framework.DesktopGL" Version="3.8.0.1641" />
+  </ItemGroup>
   <ItemGroup>
-    <Reference Include="Rampastring.Tools, Version=1.1.7568.40208, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>References\Rampastring.Tools.dll</HintPath>
+    <PackageReference Include="System.Resources.Extensions" Version="6.0.0" />
+  </ItemGroup>
+  <PropertyGroup Condition="'$(Configuration)' == 'AresDebug' Or '$(Configuration)' == 'TSDebug' Or '$(Configuration)' == 'YRDebug'">
+    <DefineConstants>$(DefineConstants);DEBUG</DefineConstants>
+  </PropertyGroup>
+  <!--<ItemGroup Condition="'$(Platform)' == 'XNAFramework'">
+   <Reference Include="Microsoft.Xna.Framework">
+      <HintPath>References\XNA\Microsoft.Xna.Framework.dll</HintPath>
     </Reference>
-    <Reference Include="System" />
-    <Reference Include="System.Core" />
-    <Reference Include="System.Drawing" />
-    <Reference Include="System.Windows.Forms" />
-    <Reference Include="System.Xml.Linq" />
-    <Reference Include="System.Data.DataSetExtensions" />
-    <Reference Include="Microsoft.CSharp" />
-    <Reference Include="System.Data" />
-    <Reference Include="System.Xml" />
-  </ItemGroup>
+    <Reference Include="Microsoft.Xna.Framework">
+      <HintPath>References\XNA\Microsoft.Xna.Framework.Game.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Xna.Framework">
+      <HintPath>References\XNA\Microsoft.Xna.Framework.Game.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Xna.Framework.Graphics">
+      <HintPath>References\XNA\Microsoft.Xna.Framework.Graphics.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Xna.Framework.GamerServices">
+      <HintPath>References\XNA\Microsoft.Xna.Framework.GamerServices.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Xna.Framework.Xact">
+      <HintPath>References\XNA\Microsoft.Xna.Framework.Xact.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Xna.Framework.Video">
+      <HintPath>References\XNA\Microsoft.Xna.Framework.Video.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Xna.Framework.Avatar">
+      <HintPath>References\XNA\Microsoft.Xna.Framework.Avatar.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Xna.Framework.Net">
+      <HintPath>References\XNA\Microsoft.Xna.Framework.Net.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Xna.Framework.Storage">
+      <HintPath>References\XNA\Microsoft.Xna.Framework.Storage.dll</HintPath>
+    </Reference>
+  </ItemGroup>-->
   <ItemGroup>
-    <Compile Include="AssetLoader.cs" />
-    <Compile Include="GUICreator.cs" />
-    <Compile Include="NativeMethods.cs" />
-    <Compile Include="EnhancedSoundEffect.cs" />
-    <Compile Include="PlatformSpecific\IGameWindowManager.cs" />
-    <Compile Include="PlatformSpecific\WindowsGameWindowManager.cs" />
-    <Compile Include="RenderTargetPool.cs" />
-    <Compile Include="RenderTargetStack.cs" />
-    <Compile Include="RMath.cs" />
-    <Compile Include="SoundPlayer.cs" />
-    <Compile Include="XNAControls\ControlDrawMode.cs" />
-    <Compile Include="XNAControls\XNAIndicator.cs" />
-    <Compile Include="XNAControls\XNALinkLabel.cs" />
-    <Compile Include="XNAControls\XNAListBoxItem.cs" />
-    <Compile Include="XNAControls\XNAPasswordBox.cs" />
-    <Compile Include="XNAControls\XNAScrollBar.cs" />
-    <Compile Include="XNAControls\XNASuggestionTextBox.cs" />
-    <Compile Include="XNAControls\XNATextBlock.cs" />
-    <Compile Include="XNAControls\XNATextBox.cs" />
-    <Compile Include="Input\Cursor.cs" />
-    <Compile Include="XNAControls\Callback.cs" />
-    <Compile Include="XNAControls\XNAButton.cs" />
-    <Compile Include="XNAControls\XNACheckBox.cs" />
-    <Compile Include="XNAControls\XNAContextMenu.cs" />
-    <Compile Include="XNAControls\XNADropDown.cs" />
-    <Compile Include="XNAControls\XNAControl.cs" />
-    <Compile Include="XNAControls\XNADropDownItem.cs" />
-    <Compile Include="XNAControls\XNALabel.cs" />
-    <Compile Include="XNAControls\XNAListBox.cs" />
-    <Compile Include="XNAControls\XNAMultiColumnListBox.cs" />
-    <Compile Include="XNAControls\XNAPanel.cs" />
-    <Compile Include="XNAControls\XNAProgressBar.cs" />
-    <Compile Include="XNAControls\XNATabControl.cs" />
-    <Compile Include="XNAControls\XNATextRenderer.cs" />
-    <Compile Include="XNAControls\XNATimerControl.cs" />
-    <Compile Include="XNAControls\XNATrackbar.cs" />
-    <Compile Include="XNAControls\MouseEventArgs.cs" />
-    <Compile Include="Input\KeyboardEventArgs.cs" />
-    <Compile Include="Input\KeyboardEventInput.cs" />
-    <Compile Include="Properties\Resources.Designer.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>Resources.resx</DependentUpon>
-    </Compile>
-    <Compile Include="Renderer.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Input\RKeyboard.cs" />
-    <Compile Include="TextParseReturnValue.cs" />
-    <Compile Include="UISettings.cs" />
-    <Compile Include="WindowManager.cs" />
+    <ProjectReference Include="..\Rampastring.Tools\Rampastring.Tools.csproj" />
   </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="Properties\Resources.resx">
-      <Generator>ResXFileCodeGenerator</Generator>
-      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
-    </EmbeddedResource>
-  </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Resources\" />
-  </ItemGroup>
-  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
-       Other similar extension points exist, see Microsoft.Common.targets.
-  <Target Name="BeforeBuild">
-  </Target>
-  <Target Name="AfterBuild">
-  </Target>
-  -->
 </Project>
+
+<!--[assembly: AssemblyTitle("Rampastring XNA/MonoGame UI Library")]
+[assembly: AssemblyDescription("Rampastring XNA/MonoGame UI Library")]
+[assembly: AssemblyConfiguration("")]
+[assembly: AssemblyCompany("Rampastring")]
+[assembly: AssemblyProduct("Rampastring.XNAUI")]
+[assembly: AssemblyCopyright("Copyright © Rami 'Rampastring' Pasanen 2016-2022")]
+[assembly: AssemblyTrademark("")]
+[assembly: AssemblyCulture("")]
+
+// Setting ComVisible to false makes the types in this assembly not visible
+// to COM components.  If you need to access a type in this assembly from
+// COM, set the ComVisible attribute to true on that type.
+[assembly: ComVisible(false)]
+
+// The following GUID is for the ID of the typelib if this project is exposed to COM
+[assembly: Guid("458846e4-0824-482d-8a65-09fda51cb38f")]
+
+// Version information for an assembly consists of the following four values:
+//
+//      Major Version
+//      Minor Version
+//      Build Number
+//      Revision
+//
+// You can specify all the values or you can default the Build and Revision Numbers
+// by using the '*' as shown below:
+// [assembly: AssemblyVersion("1.0.*")]
+[assembly: AssemblyVersion("2.1.*")]-->
