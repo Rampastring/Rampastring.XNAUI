@@ -66,7 +66,7 @@ namespace Rampastring.XNAUI.Input
         /// <param name="window">The XNA window to which text input should be linked.</param>
         public static void Initialize(GameWindow window)
         {
-#if !WINDOWS
+#if NOTWINDOWS
             return;
 #endif
 
