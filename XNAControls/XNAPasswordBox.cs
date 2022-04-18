@@ -1,8 +1,4 @@
-﻿using Microsoft.Xna.Framework;
-using Rampastring.Tools;
-using System;
-
-namespace Rampastring.XNAUI.XNAControls
+﻿namespace Rampastring.XNAUI.XNAControls
 {
     /// <summary>
     /// A text box that displays its characters as a different character 

@@ -6,7 +6,6 @@ using System;
 using System.Collections.Generic;
 using Rampastring.Tools;
 using System.Globalization;
-using System.Collections.ObjectModel;
 
 namespace Rampastring.XNAUI.XNAControls
 {
