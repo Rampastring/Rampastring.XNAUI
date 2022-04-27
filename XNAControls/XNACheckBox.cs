@@ -284,7 +284,7 @@ namespace Rampastring.XNAUI.XNAControls
 
                 DrawStringWithShadow(Text, FontIndex,
                     new Vector2(checkedTexture.Width + TextPadding, textYPosition),
-                    textColor);
+                    textColor, 1.0f, UISettings.ActiveSettings.TextShadowDistance);
             }
 
             // Might not be worth it to save one draw-call per frame with a confusing

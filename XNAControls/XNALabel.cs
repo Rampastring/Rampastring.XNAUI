@@ -26,7 +26,7 @@ namespace Rampastring.XNAUI.XNAControls
 
         public int FontIndex { get; set; }
 
-        public int TextShadowDistance { get; set; } = UISettings.ActiveSettings.TextShadowDistance;
+        public float TextShadowDistance { get; set; } = UISettings.ActiveSettings.TextShadowDistance;
 
         private Vector2 _anchorPoint = Vector2.Zero;
 
@@ -142,7 +142,7 @@ namespace Rampastring.XNAUI.XNAControls
 
                     return;
                 case "TextShadowDistance":
-                    TextShadowDistance = Conversions.IntFromString(value, TextShadowDistance);
+                    TextShadowDistance = Conversions.FloatFromString(value, TextShadowDistance);
                     return;
             }
 
