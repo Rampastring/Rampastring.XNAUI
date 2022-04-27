@@ -432,7 +432,7 @@ namespace Rampastring.XNAUI.XNAControls
                 if (Renderer.GetTextDimensions(text.ToString(), FontIndex).X +
                     TEXT_HORIZONTAL_MARGIN > x)
                 {
-                    inputPosition = i - 1;
+                    inputPosition = i;
                     break;
                 }
             }
