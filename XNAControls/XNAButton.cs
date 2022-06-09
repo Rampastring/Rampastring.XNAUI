@@ -32,7 +32,7 @@ namespace Rampastring.XNAUI.XNAControls
 
         public int FontIndex { get; set; }
 
-        public int TextShadowDistance { get; set; } = UISettings.ActiveSettings.TextShadowDistance;
+        public float TextShadowDistance { get; set; } = UISettings.ActiveSettings.TextShadowDistance;
 
         private bool _allowClick = true;
         public bool AllowClick
@@ -243,7 +243,7 @@ namespace Rampastring.XNAUI.XNAControls
                     HoverTexture = AssetLoader.LoadTexture(value);
                     return;
                 case "TextShadowDistance":
-                    TextShadowDistance = Conversions.IntFromString(value, TextShadowDistance);
+                    TextShadowDistance = Conversions.FloatFromString(value, TextShadowDistance);
                     return;
             }
 

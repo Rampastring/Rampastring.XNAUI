@@ -410,30 +410,23 @@ namespace Rampastring.XNAUI.XNAControls
 
         public override void OnLeftClick()
         {
-            if (WindowManager.SelectedControl == this)
+            int x = GetCursorPoint().X;
+            int inputPosition = TextEndPosition;
+
+            StringBuilder text = new StringBuilder();
+
+            for (int i = TextStartPosition; i < TextEndPosition - TextStartPosition; i++)
             {
-                int x = GetCursorPoint().X;
-                int inputPosition = TextEndPosition;
-
-                StringBuilder text = new StringBuilder();
-
-                for (int i = TextStartPosition; i < TextEndPosition - TextStartPosition; i++)
+                text.Append(Text[i]);
+                if (Renderer.GetTextDimensions(text.ToString(), FontIndex).X +
+                    TEXT_HORIZONTAL_MARGIN > x)
                 {
-                    text.Append(Text[i]);
-                    if (Renderer.GetTextDimensions(text.ToString(), FontIndex).X + 
-                        TEXT_HORIZONTAL_MARGIN > x)
-                    {
-                        inputPosition = i - 1;
-                        break;
-                    }
+                    inputPosition = i;
+                    break;
                 }
+            }
 
-                InputPosition = Math.Max(0, inputPosition);
-            }
-            else
-            {
-                InputPosition = TextEndPosition;
-            }
+            InputPosition = Math.Max(0, inputPosition);
 
             barTimer = TimeSpan.Zero;
 

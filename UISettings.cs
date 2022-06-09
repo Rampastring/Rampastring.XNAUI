@@ -13,7 +13,8 @@ namespace Rampastring.XNAUI
         /// </summary>
         public static UISettings ActiveSettings { get; set; }
 
-        public int TextShadowDistance { get; set; } = 1;
+        public float TextShadowDistance { get; set; } = 1.0f;
+        public Color TextShadowColor { get; set; } = Color.Black;
 
         public Color TextColor { get; set; } = new Color(196, 196, 196);
 
