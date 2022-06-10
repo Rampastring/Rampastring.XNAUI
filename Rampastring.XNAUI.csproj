@@ -23,7 +23,16 @@
     <GenerateResourceUsePreserializedResources>true</GenerateResourceUsePreserializedResources>
     <GenerateDocumentationFile>True</GenerateDocumentationFile>
     <Configurations>WindowsDXDebug;WindowsDXRelease;WindowsGLDebug;WindowsGLRelease</Configurations>
+    <ComVisible>false</ComVisible>
+    <CLSCompliant>false</CLSCompliant>
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+    <EmbedUntrackedSources>true</EmbedUntrackedSources>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
   </PropertyGroup>
+  <ItemGroup>
+    <None Include="README.md" Pack="true" PackagePath="\" />
+  </ItemGroup>
   <PropertyGroup Condition="'$(Configuration)' == 'WindowsDXDebug' Or '$(Configuration)' == 'WindowsGLDebug'">
     <DefineConstants>$(DefineConstants);DEBUG</DefineConstants>
   </PropertyGroup>
@@ -35,20 +44,11 @@
     <PackageReference Include="MonoGame.Framework.DesktopGL" Version="3.8.0.1641" />
   </ItemGroup>
   <ItemGroup>
+    <PackageReference Include="Rampastring.Tools" Version="1.1.0" />
     <PackageReference Include="StyleCop.Analyzers" Version="1.2.0-beta.435">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
     <PackageReference Include="System.Resources.Extensions" Version="6.0.0" />
-  </ItemGroup>
-  <ItemGroup>
-    <Reference Include="Rampastring.Tools" Condition="'$(Configuration)' == 'WindowsDXDebug' Or '$(Configuration)' == 'WindowsGLDebug'">
-      <HintPath Condition="'$(TargetFramework)' == 'net48'">References\Rampastring.Tools\Debug\net48\Rampastring.Tools.dll</HintPath>
-      <HintPath Condition="'$(TargetFramework)' == 'net6.0-windows10.0.22000.0'">References\Rampastring.Tools\Debug\net6.0-windows10.0.22000.0\Rampastring.Tools.dll</HintPath>
-    </Reference>
-    <Reference Include="Rampastring.Tools" Condition="'$(Configuration)' == 'WindowsDXRelease' Or '$(Configuration)' == 'WindowsGLRelease'">
-      <HintPath Condition="'$(TargetFramework)' == 'net48'">References\Rampastring.Tools\Release\net48\Rampastring.Tools.dll</HintPath>
-      <HintPath Condition="'$(TargetFramework)' == 'net6.0-windows10.0.22000.0'">References\Rampastring.Tools\Release\net6.0-windows10.0.22000.0\Rampastring.Tools.dll</HintPath>
-    </Reference>
   </ItemGroup>
 </Project>
