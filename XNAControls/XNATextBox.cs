@@ -208,14 +208,25 @@ namespace Rampastring.XNAUI.XNAControls
         {
             base.Initialize();
 
+#if !XNA
             Game.Window.TextInput += Window_TextInput;
+#else
+            KeyboardEventInput.CharEntered += KeyboardEventInput_CharEntered;
+#endif
             Keyboard.OnKeyPressed += Keyboard_OnKeyPressed;
         }
 
+#if XNA
+        private void KeyboardEventInput_CharEntered(object sender, KeyboardEventArgs e)
+        {
+            HandleCharInput(e.Character);
+        }
+#else
         private void Window_TextInput(object sender, TextInputEventArgs e)
         {
             HandleCharInput(e.Character);
         }
+#endif
 
         private void HandleCharInput(char character)
         {

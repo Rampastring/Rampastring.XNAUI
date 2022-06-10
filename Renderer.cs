@@ -196,8 +196,12 @@ namespace Rampastring.XNAUI
 
         internal static void BeginDrawInternal(SpriteSortMode ssm, BlendState bs, SamplerState ss)
         {
+#if XNA
+            spriteBatch.Begin(ssm, bs, ss, DepthStencilState.Default, RasterizerState.CullNone);
+#else
             spriteBatch.Begin(ssm, bs, ss,
                 DepthStencilState.None, RasterizerState.CullCounterClockwise);
+#endif
         }
 
         internal static void PushSettingsInternal()
@@ -300,13 +304,16 @@ namespace Rampastring.XNAUI
 
         public static void DrawStringWithShadow(string text, int fontIndex, Vector2 location, Color color, float scale = 1.0f, float shadowDistance = 1.0f)
         {
-            if (fontIndex >= fonts.Count)
-                throw new Exception("Invalid font index: " + fontIndex);
-
+#if XNA
+            spriteBatch.DrawString(fonts[fontIndex], text,
+                new Vector2(location.X + shadowDistance, location.Y + shadowDistance),
+                new Color(0, 0, 0, color.A));
+#else
             spriteBatch.DrawString(fonts[fontIndex], text,
                 new Vector2(location.X + shadowDistance, location.Y + shadowDistance),
                 UISettings.ActiveSettings.TextShadowColor * (color.A / 255.0f),
                 0f, Vector2.Zero, scale, SpriteEffects.None, 0f);
+#endif
 
             spriteBatch.DrawString(fonts[fontIndex], text, location, color, 0f, Vector2.Zero, scale, SpriteEffects.None, 0f);
         }

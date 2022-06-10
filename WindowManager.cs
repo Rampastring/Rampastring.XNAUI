@@ -128,6 +128,11 @@ namespace Rampastring.XNAUI
         /// <param name="y">The height of the back buffer.</param>
         public void SetRenderResolution(int x, int y)
         {
+#if XNA
+            x = Math.Min(x, XNA_MAX_TEXTURE_SIZE);
+            y = Math.Min(y, XNA_MAX_TEXTURE_SIZE);
+#endif
+
             RenderResolutionX = x;
             RenderResolutionY = y;
 
@@ -182,6 +187,14 @@ namespace Rampastring.XNAUI
 
             if (ScaleRatio > 1.5 && ScaleRatio % 1.0 == 0)
             {
+#if XNA
+                if (RenderResolutionX * 2 > XNA_MAX_TEXTURE_SIZE || RenderResolutionY * 2 > XNA_MAX_TEXTURE_SIZE)
+                {
+                    doubledRenderTarget = null;
+                    return;
+                }
+#endif
+
                 // Enable sharper scaling method
                 doubledRenderTarget = new RenderTarget2D(GraphicsDevice, 
                     RenderResolutionX * 2, RenderResolutionY * 2, false, SurfaceFormat.Color,
@@ -209,6 +222,7 @@ namespace Rampastring.XNAUI
         {
             Logger.Log("Restarting game.");
 
+#if !XNA
             // MonoGame takes ages to unload assets compared to XNA; sometimes MonoGame
             // can take over 8 seconds while XNA takes only 1 second
             // This is a bit dirty, but at least it makes the MonoGame build exit quicker
@@ -217,6 +231,9 @@ namespace Rampastring.XNAUI
             Application.DoEvents();
             Process.Start(Application.ExecutablePath);
             Environment.Exit(0);
+#else
+            Application.Restart();
+#endif
         }
 
         /// <summary>
@@ -241,6 +258,10 @@ namespace Rampastring.XNAUI
 
             if (UISettings.ActiveSettings == null)
                 UISettings.ActiveSettings = new UISettings();
+#if XNA
+
+            KeyboardEventInput.Initialize(Game.Window);
+#endif
         }
 
         private void GameWindowManager_GameWindowClosing(object sender, EventArgs e)

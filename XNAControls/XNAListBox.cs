@@ -524,8 +524,13 @@ namespace Rampastring.XNAUI.XNAControls
             base.Initialize();
 
             Keyboard.OnKeyPressed += Keyboard_OnKeyPressed;
-            Game.Window.TextInput += Window_TextInput;
 
+#if !XNA
+            Game.Window.TextInput += Window_TextInput;
+#else
+            KeyboardEventInput.CharEntered += KeyboardEventInput_CharEntered;
+
+#endif
             ScrollBar.ClientRectangle = new Rectangle(Width - ScrollBar.ScrollWidth - 1,
                 1, ScrollBar.ScrollWidth, Height - 2);
             ScrollBar.Scrolled += ScrollBar_Scrolled;
@@ -568,10 +573,17 @@ namespace Rampastring.XNAUI.XNAControls
                 System.Windows.Forms.Clipboard.SetText(SelectedItem.Text);
         }
 
+#if XNA
+        private void KeyboardEventInput_CharEntered(object sender, KeyboardEventArgs e)
+        {
+            HandleCharInput(e.Character);
+        }
+#else
         private void Window_TextInput(object sender, TextInputEventArgs e)
         {
             HandleCharInput(e.Character);
         }
+#endif
 
         /// <summary>
         /// Allows the user to select items by selecting the list box and then

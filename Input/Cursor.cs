@@ -67,6 +67,31 @@ namespace Rampastring.XNAUI.Input
         private WindowManager windowManager;
         private MouseState previousMouseState;
 
+        /// <summary>
+        /// Attemps to replace the native operating system pointer cursor with
+        /// a cursor file from a specific path for the game window. If succesful,
+        /// the cursor sprite is hidden, otherwise the cursor sprite remains visible.
+        /// </summary>
+        /// <param name="path">The path to the cursor (.cur) file.</param>
+        public void LoadNativeCursor(string path)
+        {
+#if !WINDOWSGL
+            if (!File.Exists(path))
+                return;
+
+            IntPtr cursorPointer = NativeMethods.LoadCursor(path);
+
+            var form = (System.Windows.Forms.Form)System.Windows.Forms.Control.FromHandle(Game.Window.Handle);
+
+            if (form != null)
+            {
+                form.Cursor = new System.Windows.Forms.Cursor(cursorPointer);
+                Visible = false;
+                Game.IsMouseVisible = true;
+            }
+#endif
+        }
+
         public override void Initialize()
         {
         }
