@@ -1,40 +1,31 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 14
-VisualStudioVersion = 14.0.25123.0
+# Visual Studio Version 17
+VisualStudioVersion = 17.2.32414.248
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Rampastring.XNAUI", "Rampastring.XNAUI.csproj", "{3EAF996D-7F03-433B-A9A5-17E69AC97C76}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Rampastring.XNAUI", "Rampastring.XNAUI.csproj", "{3EAF996D-7F03-433B-A9A5-17E69AC97C76}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
-		Debug|Any CPU = Debug|Any CPU
-		Debug|Windows = Debug|Windows
-		Debug|WindowsGL = Debug|WindowsGL
-		Debug|XNAFramework = Debug|XNAFramework
-		Release|Any CPU = Release|Any CPU
-		Release|Windows = Release|Windows
-		Release|WindowsGL = Release|WindowsGL
-		Release|XNAFramework = Release|XNAFramework
+		WindowsDXDebug|Any CPU = WindowsDXDebug|Any CPU
+		WindowsDXRelease|Any CPU = WindowsDXRelease|Any CPU
+		WindowsGLDebug|Any CPU = WindowsGLDebug|Any CPU
+		WindowsGLRelease|Any CPU = WindowsGLRelease|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{3EAF996D-7F03-433B-A9A5-17E69AC97C76}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{3EAF996D-7F03-433B-A9A5-17E69AC97C76}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{3EAF996D-7F03-433B-A9A5-17E69AC97C76}.Debug|Windows.ActiveCfg = Debug|Windows
-		{3EAF996D-7F03-433B-A9A5-17E69AC97C76}.Debug|Windows.Build.0 = Debug|Windows
-		{3EAF996D-7F03-433B-A9A5-17E69AC97C76}.Debug|WindowsGL.ActiveCfg = Debug|WindowsGL
-		{3EAF996D-7F03-433B-A9A5-17E69AC97C76}.Debug|WindowsGL.Build.0 = Debug|WindowsGL
-		{3EAF996D-7F03-433B-A9A5-17E69AC97C76}.Debug|XNAFramework.ActiveCfg = Debug|XNAFramework
-		{3EAF996D-7F03-433B-A9A5-17E69AC97C76}.Debug|XNAFramework.Build.0 = Debug|XNAFramework
-		{3EAF996D-7F03-433B-A9A5-17E69AC97C76}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{3EAF996D-7F03-433B-A9A5-17E69AC97C76}.Release|Any CPU.Build.0 = Release|Any CPU
-		{3EAF996D-7F03-433B-A9A5-17E69AC97C76}.Release|Windows.ActiveCfg = Release|Windows
-		{3EAF996D-7F03-433B-A9A5-17E69AC97C76}.Release|Windows.Build.0 = Release|Windows
-		{3EAF996D-7F03-433B-A9A5-17E69AC97C76}.Release|WindowsGL.ActiveCfg = Release|WindowsGL
-		{3EAF996D-7F03-433B-A9A5-17E69AC97C76}.Release|WindowsGL.Build.0 = Release|WindowsGL
-		{3EAF996D-7F03-433B-A9A5-17E69AC97C76}.Release|XNAFramework.ActiveCfg = Release|XNAFramework
-		{3EAF996D-7F03-433B-A9A5-17E69AC97C76}.Release|XNAFramework.Build.0 = Release|XNAFramework
+		{3EAF996D-7F03-433B-A9A5-17E69AC97C76}.WindowsDXDebug|Any CPU.ActiveCfg = WindowsDXDebug|Any CPU
+		{3EAF996D-7F03-433B-A9A5-17E69AC97C76}.WindowsDXDebug|Any CPU.Build.0 = WindowsDXDebug|Any CPU
+		{3EAF996D-7F03-433B-A9A5-17E69AC97C76}.WindowsDXRelease|Any CPU.ActiveCfg = WindowsDXRelease|Any CPU
+		{3EAF996D-7F03-433B-A9A5-17E69AC97C76}.WindowsDXRelease|Any CPU.Build.0 = WindowsDXRelease|Any CPU
+		{3EAF996D-7F03-433B-A9A5-17E69AC97C76}.WindowsGLDebug|Any CPU.ActiveCfg = WindowsGLDebug|Any CPU
+		{3EAF996D-7F03-433B-A9A5-17E69AC97C76}.WindowsGLDebug|Any CPU.Build.0 = WindowsGLDebug|Any CPU
+		{3EAF996D-7F03-433B-A9A5-17E69AC97C76}.WindowsGLRelease|Any CPU.ActiveCfg = WindowsGLRelease|Any CPU
+		{3EAF996D-7F03-433B-A9A5-17E69AC97C76}.WindowsGLRelease|Any CPU.Build.0 = WindowsGLRelease|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {F8EE831B-908F-4F0A-87BB-D97DC5FF5027}
 	EndGlobalSection
 EndGlobal

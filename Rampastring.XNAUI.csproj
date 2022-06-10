@@ -1,6 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>net6.0-windows10.0.22000.0</TargetFramework>
+    <TargetFrameworks>net48;net6.0-windows10.0.22000.0</TargetFrameworks>
     <TargetPlatformMinVersion>7.0</TargetPlatformMinVersion>
     <UseWindowsForms>true</UseWindowsForms>
     <Title></Title>
@@ -19,31 +19,36 @@
     <AnalysisLevel>preview-all</AnalysisLevel>
     <LangVersion>preview</LangVersion>
     <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
-    <Platforms>AnyCPU;x64;ARM64</Platforms>
+    <Platforms>AnyCPU</Platforms>
     <GenerateResourceUsePreserializedResources>true</GenerateResourceUsePreserializedResources>
-    <Configurations>AresDebug;AresRelease;TSDebug;TSRelease;YRDebug;YRRelease</Configurations>
+    <GenerateDocumentationFile>True</GenerateDocumentationFile>
+    <Configurations>WindowsDXDebug;WindowsDXRelease;WindowsGLDebug;WindowsGLRelease</Configurations>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Platform)' == 'AnyCPU'">
-    <DefineConstants>$(DefineConstants);NOTWINDOWS</DefineConstants>
+  <PropertyGroup Condition="'$(Configuration)' == 'WindowsDXDebug' Or '$(Configuration)' == 'WindowsGLDebug'">
+    <DefineConstants>$(DefineConstants);DEBUG</DefineConstants>
   </PropertyGroup>
-  <!--Switching between Platforms within VS IDE requires reloading the project file-->
-  <ItemGroup Condition="'$(Platform)' != 'AnyCPU'">
+  <!--Switching between Configurations within VS IDE requires reloading the project file-->
+  <ItemGroup Condition="'$(Configuration)' == 'WindowsDXDebug' Or '$(Configuration)' == 'WindowsDXRelease'">
     <PackageReference Include="MonoGame.Framework.WindowsDX" Version="3.8.0.1641" />
   </ItemGroup>
-  <ItemGroup Condition="'$(Platform)' == 'AnyCPU'">
+  <ItemGroup Condition="'$(Configuration)' == 'WindowsGLDebug' Or '$(Configuration)' == 'WindowsGLRelease'">
     <PackageReference Include="MonoGame.Framework.DesktopGL" Version="3.8.0.1641" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="StyleCop.Analyzers" Version="1.2.0-beta.406">
+    <PackageReference Include="StyleCop.Analyzers" Version="1.2.0-beta.435">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
     <PackageReference Include="System.Resources.Extensions" Version="6.0.0" />
   </ItemGroup>
-  <PropertyGroup Condition="'$(Configuration)' == 'AresDebug' Or '$(Configuration)' == 'TSDebug' Or '$(Configuration)' == 'YRDebug'">
-    <DefineConstants>$(DefineConstants);DEBUG</DefineConstants>
-  </PropertyGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Rampastring.Tools\Rampastring.Tools.csproj" />
+    <Reference Include="Rampastring.Tools" Condition="'$(Configuration)' == 'WindowsDXDebug' Or '$(Configuration)' == 'WindowsGLDebug'">
+      <HintPath Condition="'$(TargetFramework)' == 'net48'">References\Rampastring.Tools\Debug\net48\Rampastring.Tools.dll</HintPath>
+      <HintPath Condition="'$(TargetFramework)' == 'net6.0-windows10.0.22000.0'">References\Rampastring.Tools\Debug\net6.0-windows10.0.22000.0\Rampastring.Tools.dll</HintPath>
+    </Reference>
+    <Reference Include="Rampastring.Tools" Condition="'$(Configuration)' == 'WindowsDXRelease' Or '$(Configuration)' == 'WindowsGLRelease'">
+      <HintPath Condition="'$(TargetFramework)' == 'net48'">References\Rampastring.Tools\Release\net48\Rampastring.Tools.dll</HintPath>
+      <HintPath Condition="'$(TargetFramework)' == 'net6.0-windows10.0.22000.0'">References\Rampastring.Tools\Release\net6.0-windows10.0.22000.0\Rampastring.Tools.dll</HintPath>
+    </Reference>
   </ItemGroup>
 </Project>
