@@ -1,3 +1,3 @@
 dotnet pack .\Rampastring.XNAUI.csproj -c WindowsDXRelease
 dotnet pack .\Rampastring.XNAUI.csproj -c WindowsGLRelease
-dotnet pack .\Rampastring.XNAUI.csproj -c XNARelease
+dotnet pack .\Rampastring.XNAUI.csproj -c XNARelease -p:PlatformTarget=x86
