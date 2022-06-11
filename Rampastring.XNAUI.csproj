@@ -73,6 +73,9 @@
     <Reference Include="Microsoft.Xna.Framework.Graphics">
       <HintPath>References\XNA\Microsoft.Xna.Framework.Graphics.dll</HintPath>
     </Reference>
+    <Reference Include="Microsoft.Xna.Framework.Input.Touch.dll">
+      <HintPath>References\XNA\Microsoft.Xna.Framework.Input.Touch.dll</HintPath>
+    </Reference>
     <Reference Include="Microsoft.Xna.Framework.Net">
       <HintPath>References\XNA\Microsoft.Xna.Framework.Net.dll</HintPath>
     </Reference>
