@@ -31,7 +31,13 @@
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
     <EmbedUntrackedSources>true</EmbedUntrackedSources>
     <PackageReadmeFile>README.md</PackageReadmeFile>
+    <TargetsForTfmSpecificContentInPackage>$(TargetsForTfmSpecificContentInPackage);IncludeXNAAssemblies</TargetsForTfmSpecificContentInPackage>
   </PropertyGroup>
+  <Target Name="IncludeXNAAssemblies" Condition="'$(Configuration)' == 'XNADebug' Or '$(Configuration)' == 'XNARelease'">
+    <ItemGroup>
+      <TfmSpecificPackageFile Include="References\XNA\*.dll" PackagePath="lib" />
+    </ItemGroup>
+  </Target>
   <ItemGroup>
     <None Include="README.md" Pack="true" PackagePath="\" />
   </ItemGroup>
