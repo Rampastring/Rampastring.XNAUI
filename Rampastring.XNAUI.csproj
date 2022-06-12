@@ -12,9 +12,12 @@
     <Version>2.1.0.0</Version>
     <FileVersion>2.1.0.0</FileVersion>
     <InformationalVersion>2.1.0.0</InformationalVersion>
-    <AssemblyName Condition="'$(Configuration)' == 'WindowsDXDebug' Or '$(Configuration)' == 'WindowsDXRelease'">Rampastring.XNAUI.DX</AssemblyName>
-    <AssemblyName Condition="'$(Configuration)' == 'WindowsGLDebug' Or '$(Configuration)' == 'WindowsGLRelease'">Rampastring.XNAUI.GL</AssemblyName>
-    <AssemblyName Condition="'$(Configuration)' == 'XNADebug' Or '$(Configuration)' == 'XNARelease'">Rampastring.XNAUI.XNA</AssemblyName>
+    <AssemblyName Condition="'$(Configuration)' == 'WindowsDXRelease'">Rampastring.XNAUI.DX</AssemblyName>
+    <AssemblyName Condition="'$(Configuration)' == 'WindowsGLRelease'">Rampastring.XNAUI.GL</AssemblyName>
+    <AssemblyName Condition="'$(Configuration)' == 'XNARelease'">Rampastring.XNAUI.XNA</AssemblyName>
+    <AssemblyName Condition="'$(Configuration)' == 'WindowsDXDebug'">Rampastring.XNAUI.DX.Debug</AssemblyName>
+    <AssemblyName Condition="'$(Configuration)' == 'WindowsGLDebug'">Rampastring.XNAUI.GL.Debug</AssemblyName>
+    <AssemblyName Condition="'$(Configuration)' == 'XNADebug'">Rampastring.XNAUI.XNA.Debug</AssemblyName>
     <RootNamespace>Rampastring.XNAUI</RootNamespace>
     <ComVisible>false</ComVisible>
     <CLSCompliant>false</CLSCompliant>
