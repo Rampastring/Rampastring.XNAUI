@@ -31,18 +31,13 @@
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
     <EmbedUntrackedSources>true</EmbedUntrackedSources>
     <PackageReadmeFile>README.md</PackageReadmeFile>
-    <TargetsForTfmSpecificContentInPackage>$(TargetsForTfmSpecificContentInPackage);IncludeXNAAssemblies</TargetsForTfmSpecificContentInPackage>
+    <TargetsForTfmSpecificBuildOutput>$(TargetsForTfmSpecificBuildOutput);IncludeXNAAssemblies</TargetsForTfmSpecificBuildOutput>
   </PropertyGroup>
-  <Target Name="IncludeXNAAssemblies" Condition="'$(Configuration)' == 'XNADebug' Or '$(Configuration)' == 'XNARelease'">
-    <ItemGroup>
-      <TfmSpecificPackageFile Include="References\XNA\*.dll" PackagePath="lib" />
-    </ItemGroup>
-  </Target>
-  <ItemGroup>
-    <None Include="README.md" Pack="true" PackagePath="\" />
-  </ItemGroup>
   <PropertyGroup Condition="'$(Configuration)' == 'WindowsDXDebug' Or '$(Configuration)' == 'WindowsGLDebug' Or '$(Configuration)' == 'XNADebug'">
     <DefineConstants>$(DefineConstants);DEBUG</DefineConstants>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)' == 'WindowsDXDebug' Or '$(Configuration)' == 'WindowsDXRelease'">
+    <DefineConstants>$(DefineConstants);WINDOWSDX</DefineConstants>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)' == 'WindowsGLDebug' Or '$(Configuration)' == 'WindowsGLRelease'">
     <DefineConstants>$(DefineConstants);WINDOWSGL</DefineConstants>
@@ -50,43 +45,30 @@
   <PropertyGroup Condition="'$(Configuration)' == 'XNADebug' Or '$(Configuration)' == 'XNARelease'">
     <DefineConstants>$(DefineConstants);XNA</DefineConstants>
   </PropertyGroup>
+  <Target Name="IncludeXNAAssemblies" Condition="$(DefineConstants.Contains('XNA'))">
+    <ItemGroup>
+      <BuildOutputInPackage Include="References\XNA\*" />
+    </ItemGroup>
+  </Target>
+  <ItemGroup>
+    <None Include="README.md" Pack="true" PackagePath="\" />
+  </ItemGroup>
   <!--Switching between Configurations within VS IDE requires reloading the project file-->
-  <ItemGroup Condition="'$(Configuration)' == 'WindowsDXDebug' Or '$(Configuration)' == 'WindowsDXRelease'">
+  <ItemGroup Condition="$(DefineConstants.Contains('WINDOWSDX'))">
     <PackageReference Include="MonoGame.Framework.WindowsDX" Version="3.8.0.1641" />
   </ItemGroup>
-  <ItemGroup Condition="'$(Configuration)' == 'WindowsGLDebug' Or '$(Configuration)' == 'WindowsGLRelease'">
+  <ItemGroup Condition="$(DefineConstants.Contains('WINDOWSGL'))">
     <PackageReference Include="MonoGame.Framework.DesktopGL" Version="3.8.0.1641" />
   </ItemGroup>
-  <ItemGroup Condition="'$(Configuration)' == 'XNADebug' Or '$(Configuration)' == 'XNARelease'">
+  <ItemGroup Condition="$(DefineConstants.Contains('XNA'))">
     <Reference Include="Microsoft.Xna.Framework">
       <HintPath>References\XNA\Microsoft.Xna.Framework.dll</HintPath>
-    </Reference>
-    <Reference Include="Microsoft.Xna.Framework.Avatar">
-      <HintPath>References\XNA\Microsoft.Xna.Framework.Avatar.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.Xna.Framework.Game">
       <HintPath>References\XNA\Microsoft.Xna.Framework.Game.dll</HintPath>
     </Reference>
-    <Reference Include="Microsoft.Xna.Framework.GamerServices">
-      <HintPath>References\XNA\Microsoft.Xna.Framework.GamerServices.dll</HintPath>
-    </Reference>
     <Reference Include="Microsoft.Xna.Framework.Graphics">
       <HintPath>References\XNA\Microsoft.Xna.Framework.Graphics.dll</HintPath>
-    </Reference>
-    <Reference Include="Microsoft.Xna.Framework.Input.Touch.dll">
-      <HintPath>References\XNA\Microsoft.Xna.Framework.Input.Touch.dll</HintPath>
-    </Reference>
-    <Reference Include="Microsoft.Xna.Framework.Net">
-      <HintPath>References\XNA\Microsoft.Xna.Framework.Net.dll</HintPath>
-    </Reference>
-    <Reference Include="Microsoft.Xna.Framework.Storage">
-      <HintPath>References\XNA\Microsoft.Xna.Framework.Storage.dll</HintPath>
-    </Reference>
-    <Reference Include="Microsoft.Xna.Framework.Video">
-      <HintPath>References\XNA\Microsoft.Xna.Framework.Video.dll</HintPath>
-    </Reference>
-    <Reference Include="Microsoft.Xna.Framework.Xact">
-      <HintPath>References\XNA\Microsoft.Xna.Framework.Xact.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
