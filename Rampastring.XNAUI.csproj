@@ -35,6 +35,7 @@
     <EmbedUntrackedSources>true</EmbedUntrackedSources>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <TargetsForTfmSpecificBuildOutput>$(TargetsForTfmSpecificBuildOutput);IncludeXNAAssemblies</TargetsForTfmSpecificBuildOutput>
+    <TargetsForTfmSpecificContentInPackage>$(TargetsForTfmSpecificContentInPackage);IncludeDesktopGLAssemblies</TargetsForTfmSpecificContentInPackage>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)' == 'WindowsDXDebug' Or '$(Configuration)' == 'WindowsGLDebug' Or '$(Configuration)' == 'XNADebug'">
     <DefineConstants>$(DefineConstants);DEBUG</DefineConstants>
@@ -53,6 +54,51 @@
       <BuildOutputInPackage Include="References\XNA\*" />
     </ItemGroup>
   </Target>
+  <Target Name="IncludeDesktopGLAssemblies" Condition="$(DefineConstants.Contains('WINDOWSGL')) And '$(TargetFrameworkIdentifier)' == '.NETFramework'">
+    <ItemGroup>
+      <TfmSpecificPackageFile Include="$(OutputPath)\x64\libopenal.so.1">
+        <PackagePath>runtimes\linux-x64\native\libopenal.so.1</PackagePath>
+      </TfmSpecificPackageFile>
+      <TfmSpecificPackageFile Include="$(OutputPath)\x64\libSDL2-2.0.so.0">
+        <PackagePath>runtimes\linux-x64\native\libSDL2-2.0.so.0</PackagePath>
+      </TfmSpecificPackageFile>
+      <TfmSpecificPackageFile Include="$(OutputPath)\libopenal.1.dylib">
+        <PackagePath>runtimes\osx\native\libopenal.1.dylib</PackagePath>
+      </TfmSpecificPackageFile>
+      <TfmSpecificPackageFile Include="$(OutputPath)\libSDL2-2.0.0.dylib">
+        <PackagePath>runtimes\osx\native\libSDL2-2.0.0.dylib</PackagePath>
+      </TfmSpecificPackageFile>
+      <TfmSpecificPackageFile Include="$(OutputPath)\x64\SDL2.dll">
+        <PackagePath>runtimes\win-x64\native\SDL2.dll</PackagePath>
+      </TfmSpecificPackageFile>
+      <TfmSpecificPackageFile Include="$(OutputPath)\x64\soft_oal.dll">
+        <PackagePath>runtimes\win-x64\native\soft_oal.dll</PackagePath>
+      </TfmSpecificPackageFile>
+      <TfmSpecificPackageFile Include="$(OutputPath)\x86\SDL2.dll">
+        <PackagePath>runtimes\win-x86\native\SDL2.dll</PackagePath>
+      </TfmSpecificPackageFile>
+      <TfmSpecificPackageFile Include="$(OutputPath)\x86\soft_oal.dll">
+        <PackagePath>runtimes\win-x86\native\soft_oal.dll</PackagePath>
+      </TfmSpecificPackageFile>
+      <TfmSpecificPackageFile Include="build\GL.targets" Condition="!$(DefineConstants.Contains('DEBUG'))">
+        <PackagePath>build\Rampastring.XNAUI.GL.targets</PackagePath>
+      </TfmSpecificPackageFile>
+      <TfmSpecificPackageFile Include="build\GL.targets" Condition="$(DefineConstants.Contains('DEBUG'))">
+        <PackagePath>build\Rampastring.XNAUI.GL.Debug.targets</PackagePath>
+      </TfmSpecificPackageFile>
+      <TfmSpecificPackageFile Include="build\GL.targets" Condition="!$(DefineConstants.Contains('DEBUG'))">
+        <PackagePath>buildTransitive\Rampastring.XNAUI.GL.targets</PackagePath>
+      </TfmSpecificPackageFile>
+      <TfmSpecificPackageFile Include="build\GL.targets" Condition="$(DefineConstants.Contains('DEBUG'))">
+        <PackagePath>buildTransitive\Rampastring.XNAUI.GL.Debug.targets</PackagePath>
+      </TfmSpecificPackageFile>
+    </ItemGroup>
+  </Target>
+  <ItemGroup>
+    <Compile Remove="build\**" />
+    <EmbeddedResource Remove="build\**" />
+    <None Remove="build\**" />
+  </ItemGroup>
   <ItemGroup>
     <None Include="README.md" Pack="true" PackagePath="\" />
   </ItemGroup>
