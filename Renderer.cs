@@ -48,14 +48,14 @@ namespace Rampastring.XNAUI
 
             contentManager = content;
 
-            content.RootDirectory = SafePath.Combine(contentPath);
+            content.RootDirectory = SafePath.GetDirectory(contentPath).FullName;
 
             int i = 0;
             while (true)
             {
                 string sfName = string.Format("SpriteFont{0}", i);
 
-                if (File.Exists(SafePath.Combine(contentPath, FormattableString.Invariant($"{sfName}.xnb"))))
+                if (SafePath.GetFile(contentPath, FormattableString.Invariant($"{sfName}.xnb")).Exists)
                 {
                     fonts.Add(content.Load<SpriteFont>(sfName));
                     i++;

@@ -147,7 +147,7 @@ namespace Rampastring.XNAUI
         {
             foreach (string searchPath in AssetSearchPaths)
             {
-                if (File.Exists(SafePath.Combine(searchPath, name)))
+                if (SafePath.GetFile(searchPath, name).Exists)
                     return true;
             }
 

@@ -135,7 +135,7 @@ namespace Rampastring.XNAUI.PlatformSpecific
             if (gameForm == null)
                 return;
 
-            gameForm.Icon = Icon.ExtractAssociatedIcon(SafePath.Combine(path));
+            gameForm.Icon = Icon.ExtractAssociatedIcon(SafePath.GetFile(path).FullName);
         }
 
         /// <summary>
