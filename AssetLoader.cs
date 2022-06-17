@@ -94,16 +94,16 @@ namespace Rampastring.XNAUI
             {
                 foreach (string searchPath in AssetSearchPaths)
                 {
-                    if (File.Exists(searchPath + name))
-                    {
-                        using (FileStream fs = File.OpenRead(searchPath + name))
-                        {
-                            Texture2D texture = Texture2D.FromStream(graphicsDevice, fs);
-                            texture.Name = name;
-                            PremultiplyAlpha(texture);
+                    FileInfo fileInfo = SafePath.GetFile(searchPath, name);
 
-                            return texture;
-                        }
+                    if (fileInfo.Exists)
+                    {
+                        using FileStream fs = fileInfo.OpenRead();
+                        Texture2D texture = Texture2D.FromStream(graphicsDevice, fs);
+                        texture.Name = name;
+                        PremultiplyAlpha(texture);
+
+                        return texture;
                     }
                 }
             }
@@ -147,7 +147,7 @@ namespace Rampastring.XNAUI
         {
             foreach (string searchPath in AssetSearchPaths)
             {
-                if (File.Exists(searchPath + name))
+                if (File.Exists(SafePath.Combine(searchPath, name)))
                     return true;
             }
 
@@ -215,15 +215,15 @@ namespace Rampastring.XNAUI
 
             foreach (string searchPath in AssetSearchPaths)
             {
-                if (File.Exists(searchPath + name))
+                FileInfo fileInfo = SafePath.GetFile(searchPath, name);
+
+                if (fileInfo.Exists)
                 {
-                    using (FileStream fs = File.OpenRead(searchPath + name))
-                    {
-                        SoundEffect se = SoundEffect.FromStream(fs);
-                        se.Name = name;
-                        soundCache.Add(se);
-                        return se;
-                    }
+                    using FileStream fs = fileInfo.OpenRead();
+                    SoundEffect se = SoundEffect.FromStream(fs);
+                    se.Name = name;
+                    soundCache.Add(se);
+                    return se;
                 }
             }
 
@@ -304,7 +304,7 @@ namespace Rampastring.XNAUI
             try
             {
                 string[] colorArray = colorString.Split(',');
-                Color color = new Color(Convert.ToByte(colorArray[0]), 
+                Color color = new Color(Convert.ToByte(colorArray[0]),
                     Convert.ToByte(colorArray[1]),
                     Convert.ToByte(colorArray[2]),
                     Convert.ToByte(colorArray[3]));

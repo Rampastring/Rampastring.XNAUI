@@ -8,6 +8,8 @@ using System.Text;
 
 namespace Rampastring.XNAUI
 {
+    using Tools;
+
     public struct SpriteBatchSettings
     {
         public SpriteBatchSettings(SpriteSortMode ssm, BlendState bs, SamplerState ss)
@@ -46,16 +48,14 @@ namespace Rampastring.XNAUI
 
             contentManager = content;
 
-            if (!contentPath.EndsWith("/") && !contentPath.EndsWith("\\"))
-                contentPath += Path.DirectorySeparatorChar;
-            content.RootDirectory = contentPath;
+            content.RootDirectory = SafePath.Combine(contentPath);
 
             int i = 0;
             while (true)
             {
                 string sfName = string.Format("SpriteFont{0}", i);
 
-                if (File.Exists(contentPath + sfName + ".xnb"))
+                if (File.Exists(SafePath.Combine(contentPath, FormattableString.Invariant($"{sfName}.xnb"))))
                 {
                     fonts.Add(content.Load<SpriteFont>(sfName));
                     i++;

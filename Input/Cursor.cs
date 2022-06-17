@@ -3,6 +3,7 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using System;
 using System.IO;
+using Rampastring.Tools;
 
 namespace Rampastring.XNAUI.Input
 {
@@ -76,10 +77,11 @@ namespace Rampastring.XNAUI.Input
         public void LoadNativeCursor(string path)
         {
 #if !WINDOWSGL
-            if (!File.Exists(path))
+            FileInfo fileInfo = SafePath.GetFile(path);
+            if (!fileInfo.Exists)
                 return;
 
-            IntPtr cursorPointer = NativeMethods.LoadCursor(path);
+            IntPtr cursorPointer = NativeMethods.LoadCursor(fileInfo.FullName);
 
             var form = (System.Windows.Forms.Form)System.Windows.Forms.Control.FromHandle(Game.Window.Handle);
 
