@@ -3,13 +3,11 @@ using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Content;
-using System.IO;
 using System.Text;
+using Rampastring.Tools;
 
 namespace Rampastring.XNAUI
 {
-    using Tools;
-
     public struct SpriteBatchSettings
     {
         public SpriteBatchSettings(SpriteSortMode ssm, BlendState bs, SamplerState ss)
