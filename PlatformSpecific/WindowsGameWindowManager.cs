@@ -122,7 +122,7 @@ namespace Rampastring.XNAUI.PlatformSpecific
             if (gameForm == null)
                 return;
 
-            WindowFlasher.FlashWindowEx(gameForm);
+            WindowFlasher.FlashWindowEx(gameForm.Handle);
         }
 
         /// <summary>
