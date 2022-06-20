@@ -4,6 +4,7 @@ using Microsoft.Xna.Framework.Input;
 using System;
 using System.IO;
 using Rampastring.Tools;
+using Windows.Win32;
 
 namespace Rampastring.XNAUI.Input
 {
@@ -74,6 +75,9 @@ namespace Rampastring.XNAUI.Input
         /// the cursor sprite is hidden, otherwise the cursor sprite remains visible.
         /// </summary>
         /// <param name="path">The path to the cursor (.cur) file.</param>
+#if !NETFRAMEWORK
+        [System.Runtime.Versioning.SupportedOSPlatform("windows5.0")]
+#endif
         public void LoadNativeCursor(string path)
         {
 #if !WINDOWSGL
@@ -81,16 +85,28 @@ namespace Rampastring.XNAUI.Input
             if (!fileInfo.Exists)
                 return;
 
-            IntPtr cursorPointer = NativeMethods.LoadCursor(fileInfo.FullName);
+            DestroyCursorSafeHandle cursorPointer = PInvoke.LoadCursorFromFile(fileInfo.FullName);
 
             var form = (System.Windows.Forms.Form)System.Windows.Forms.Control.FromHandle(Game.Window.Handle);
+            bool success = false;
+
+            cursorPointer.DangerousAddRef(ref success);
+
+            if (!success)
+                throw new Exception(FormattableString.Invariant($"{nameof(DestroyCursorSafeHandle)}.{nameof(DestroyCursorSafeHandle.DangerousAddRef)}"));
 
             if (form != null)
             {
-                form.Cursor = new System.Windows.Forms.Cursor(cursorPointer);
+                form.Cursor = new System.Windows.Forms.Cursor(cursorPointer.DangerousGetHandle());
                 Visible = false;
                 Game.IsMouseVisible = true;
             }
+
+            /* We don't call DestroyCursorSafeHandle.DangerousRelease() or DestroyCursorSafeHandle.Dispose():
+             * The DestroyCursor function destroys a nonshared cursor.
+             * Do not use this function to destroy a shared cursor.
+             * A shared cursor is valid as long as the module from which it was loaded remains in memory.
+             * LoadCursorFromFile creates a shared cursor */
 #endif
         }
 

@@ -1,0 +1,17 @@
+﻿LoadCursorFromFile
+ImmGetContext
+ImmAssociateContext
+ImmReleaseContext
+WM_GETDLGCODE
+WM_CHAR
+WM_IME_SETCONTEXT
+WM_INPUTLANGCHANGE
+DLGC_WANTALLKEYS
+WINDOW_LONG_PTR_INDEX
+//CallWindowProc
+//SetWindowLong
+//SetWindowLongPtr
+LRESULT
+WPARAM
+LPARAM
+WNDPROC

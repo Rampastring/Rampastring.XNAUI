@@ -8,6 +8,9 @@ namespace Rampastring.XNAUI.PlatformSpecific
 
         void AllowClosing();
         void CenterOnScreen();
+#if !NETFRAMEWORK
+        [System.Runtime.Versioning.SupportedOSPlatform("windows5.1.2600")]
+#endif
         void FlashWindow();
         IntPtr GetWindowHandle();
         void HideWindow();

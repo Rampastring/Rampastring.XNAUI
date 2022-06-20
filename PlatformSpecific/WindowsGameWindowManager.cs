@@ -117,12 +117,15 @@ namespace Rampastring.XNAUI.PlatformSpecific
         /// <summary>
         /// Flashes the game window on the taskbar.
         /// </summary>
+#if !NETFRAMEWORK
+        [System.Runtime.Versioning.SupportedOSPlatform("windows5.1.2600")]
+#endif
         public void FlashWindow()
         {
             if (gameForm == null)
                 return;
 
-            WindowFlasher.FlashWindowEx(gameForm.Handle);
+            _ = WindowFlasher.FlashWindowEx(gameForm.Handle);
         }
 
         /// <summary>
