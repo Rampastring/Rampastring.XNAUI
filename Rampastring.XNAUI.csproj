@@ -96,8 +96,11 @@
   </Target>
   <ItemGroup>
     <Compile Remove="build\**" />
+    <Compile Remove="References\**" />
     <EmbeddedResource Remove="build\**" />
+    <EmbeddedResource Remove="References\**" />
     <None Remove="build\**" />
+    <None Remove="References\**" />
   </ItemGroup>
   <ItemGroup>
     <None Include="README.md" Pack="true" PackagePath="\" />
