@@ -21,6 +21,8 @@ namespace Rampastring.XNAUI.XNAControls
         /// <param name="windowManager">The game window manager.</param>
         public XNAScrollBar(WindowManager windowManager) : base(windowManager)
         {
+            ExclusiveInputCapture = true;
+
             var scrollUpTexture = AssetLoader.LoadTexture("sbUpArrow.png");
 
             btnScrollUp = new XNAButton(WindowManager);
@@ -298,15 +300,19 @@ namespace Rampastring.XNAUI.XNAControls
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         public override void Update(GameTime gameTime)
         {
+            base.Update(gameTime);
+
             if (isHeldDown)
             {
                 if (!Cursor.LeftDown)
+                {
                     isHeldDown = false;
+                    if (WindowManager.SelectedControl == this)
+                        WindowManager.SelectedControl = null;
+                }
                 else
                     Scroll();
             }
-
-            base.Update(gameTime);
         }
 
         /// <summary>
