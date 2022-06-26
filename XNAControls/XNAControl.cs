@@ -323,6 +323,15 @@ namespace Rampastring.XNAUI.XNAControls
         public string Name { get; set; }
         public Color RemapColor { get; set; } = Color.White;
 
+        /// <summary>
+        /// Determines whether this control should exclusively capture input when it's the selected control,
+        /// preventing any other control from being the input focus. An example is scroll bars; when the user
+        /// starts dragging a scroll bar, no other control should get focus as long as the scroll bar is being scrolled,
+        /// even if the cursor left the scroll bar's area.
+        /// NOTE: controls using this should give up their selected control status when they've figured out they don't need it anymore.
+        /// </summary>
+        public bool ExclusiveInputCapture { get; protected set; } = false;
+
         bool CursorOnControl = false;
 
         float alpha = 1.0f;
@@ -1073,6 +1082,8 @@ namespace Rampastring.XNAUI.XNAControls
 
             XNAControl activeChild = null;
 
+            bool isInputCaptured = WindowManager.IsInputExclusivelyCaptured && WindowManager.SelectedControl != this;
+
             if (Cursor.IsOnScreen && IsActive && rectangle.Contains(Cursor.Location))
             {
                 if (!CursorOnControl)
@@ -1103,17 +1114,24 @@ namespace Rampastring.XNAUI.XNAControls
 
                 Cursor.TextureIndex = CursorTextureIndex;
 
-                OnMouseOnControl();
+                bool handleClick = false;
 
-                if (Cursor.HasMoved)
-                    OnMouseMove();
+                if (!isInputCaptured)
+                {
+                    OnMouseOnControl();
 
-                bool handleClick = activeChild == null;
+                    if (Cursor.HasMoved)
+                        OnMouseMove();
+
+                    handleClick = activeChild == null;
+                }
 
                 if (!isLeftPressedOn && Cursor.LeftPressedDown)
                 {
                     isLeftPressedOn = true;
-                    OnMouseLeftDown();
+
+                    if (!isInputCaptured)
+                        OnMouseLeftDown();
                 }
                 else if (isLeftPressedOn && Cursor.LeftClicked)
                 {
@@ -1126,7 +1144,9 @@ namespace Rampastring.XNAUI.XNAControls
                 if (!isRightPressedOn && Cursor.RightPressedDown)
                 {
                     isRightPressedOn = true;
-                    OnMouseRightDown();
+
+                    if (!isInputCaptured)
+                        OnMouseRightDown();
                 }
                 else if (isRightPressedOn && Cursor.RightClicked)
                 {
@@ -1138,12 +1158,14 @@ namespace Rampastring.XNAUI.XNAControls
 
                 if (Cursor.ScrollWheelValue != 0)
                 {
-                    OnMouseScrolled();
+                    if (!isInputCaptured)
+                        OnMouseScrolled();
                 }
             }
             else if (CursorOnControl)
             {
-                OnMouseLeave();
+                if (!isInputCaptured)
+                    OnMouseLeave();
 
                 CursorOnControl = false;
                 isRightPressedOn = false;

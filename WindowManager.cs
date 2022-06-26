@@ -114,6 +114,8 @@ namespace Rampastring.XNAUI
             }
         }
 
+        public bool IsInputExclusivelyCaptured => SelectedControl != null && SelectedControl.ExclusiveInputCapture;
+
         private GraphicsDeviceManager graphics;
 
         private IGameWindowManager gameWindowManager;
@@ -295,6 +297,7 @@ namespace Rampastring.XNAUI
             
             control.Initialize();
             Controls.Add(control);
+            ReorderControls();
         }
 
         /// <summary>
