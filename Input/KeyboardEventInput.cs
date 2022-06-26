@@ -48,9 +48,6 @@ namespace Rampastring.XNAUI.Input
 #endif
         public static void Initialize(GameWindow window)
         {
-#if WINDOWSGL
-            return;
-#endif
             if (initialized)
                 throw new InvalidOperationException("KeyboardEventInput.Initialize can only be called once!");
 

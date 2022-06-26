@@ -68,10 +68,11 @@ namespace Rampastring.XNAUI.Input
 
         private WindowManager windowManager;
         private MouseState previousMouseState;
+#if WINFORMS
 
         /// <summary>
-        /// Attemps to replace the native operating system pointer cursor with
-        /// a cursor file from a specific path for the game window. If succesful,
+        /// Attempts to replace the native operating system pointer cursor with
+        /// a cursor file from a specific path for the game window. If successful,
         /// the cursor sprite is hidden, otherwise the cursor sprite remains visible.
         /// </summary>
         /// <param name="path">The path to the cursor (.cur) file.</param>
@@ -80,7 +81,7 @@ namespace Rampastring.XNAUI.Input
 #endif
         public void LoadNativeCursor(string path)
         {
-#if !WINDOWSGL
+
             FileInfo fileInfo = SafePath.GetFile(path);
             if (!fileInfo.Exists)
                 return;
@@ -107,8 +108,8 @@ namespace Rampastring.XNAUI.Input
              * Do not use this function to destroy a shared cursor.
              * A shared cursor is valid as long as the module from which it was loaded remains in memory.
              * LoadCursorFromFile creates a shared cursor */
+    }
 #endif
-        }
 
         public override void Initialize()
         {
@@ -120,7 +121,11 @@ namespace Rampastring.XNAUI.Input
 
             DrawnLocation = new Point(ms.X, ms.Y);
 
+#if !WINFORMS
+            if (Disabled)
+#else
             if (!windowManager.HasFocus || Disabled)
+#endif
             {
                 LeftClicked = false;
                 RightClicked = false;

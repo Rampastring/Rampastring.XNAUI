@@ -1,8 +1,10 @@
 ﻿using Microsoft.Xna.Framework;
+#if WINFORMS
 using Rampastring.Tools;
 using System;
 using System.Drawing;
 using System.Windows.Forms;
+#endif
 
 namespace Rampastring.XNAUI.PlatformSpecific
 {
@@ -14,21 +16,26 @@ namespace Rampastring.XNAUI.PlatformSpecific
         public WindowsGameWindowManager(Game game)
         {
             this.game = game;
+#if WINFORMS
             gameForm = (Form)Control.FromHandle(game.Window.Handle);
 
             if (gameForm != null)
             {
                 gameForm.FormClosing += GameForm_FormClosing_Event;
             }
+#endif
         }
 
+#if WINFORMS
         private Form gameForm;
-        private Game game;
 
         private bool closingPrevented = false;
 
         public event EventHandler GameWindowClosing;
 
+#endif
+        private Game game;
+#if WINFORMS
 
         private void GameForm_FormClosing_Event(object sender, FormClosingEventArgs e)
         {
@@ -52,6 +59,7 @@ namespace Rampastring.XNAUI.PlatformSpecific
             game.Window.Position = new Microsoft.Xna.Framework.Point(x, y);
 #endif
         }
+#endif
 
         /// <summary>
         /// Enables or disables borderless windowed mode.
@@ -70,6 +78,7 @@ namespace Rampastring.XNAUI.PlatformSpecific
 #endif
         }
 
+#if WINFORMS
         /// <summary>
         /// Minimizes the game window.
         /// </summary>
@@ -202,5 +211,6 @@ namespace Rampastring.XNAUI.PlatformSpecific
 
             return Form.ActiveForm != null;
         }
+#endif
     }
 }

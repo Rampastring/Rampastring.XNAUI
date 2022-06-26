@@ -1,8 +1,9 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFrameworks>net48;net6.0-windows10.0.22000.0</TargetFrameworks>
-    <TargetPlatformMinVersion>7.0</TargetPlatformMinVersion>
-    <UseWindowsForms>true</UseWindowsForms>
+    <TargetFrameworks Condition="'$(Configuration)' == 'UniversalGLDebug' Or '$(Configuration)' == 'UniversalGLRelease'">net48;net6.0</TargetFrameworks>
+    <TargetFrameworks Condition="'$(Configuration)' != 'UniversalGLDebug' And '$(Configuration)' != 'UniversalGLRelease'">net48;net6.0-windows10.0.22000.0</TargetFrameworks>
+    <SupportedOSPlatformVersion Condition="'$(Configuration)' != 'UniversalGLDebug' And '$(Configuration)' != 'UniversalGLRelease'">7.0</SupportedOSPlatformVersion>
+    <UseWindowsForms Condition="'$(Configuration)' != 'UniversalGLDebug' And '$(Configuration)' != 'UniversalGLRelease'">true</UseWindowsForms>
     <Title></Title>
     <Description>Rampastring XNA/MonoGame UI Library</Description>
     <Company>Rampastring</Company>
@@ -12,12 +13,14 @@
     <Version>2.1.0.0</Version>
     <FileVersion>2.1.0.0</FileVersion>
     <InformationalVersion>2.1.0.0</InformationalVersion>
-    <AssemblyName Condition="'$(Configuration)' == 'WindowsDXRelease'">Rampastring.XNAUI.DX</AssemblyName>
-    <AssemblyName Condition="'$(Configuration)' == 'WindowsGLRelease'">Rampastring.XNAUI.GL</AssemblyName>
-    <AssemblyName Condition="'$(Configuration)' == 'XNARelease'">Rampastring.XNAUI.XNA</AssemblyName>
-    <AssemblyName Condition="'$(Configuration)' == 'WindowsDXDebug'">Rampastring.XNAUI.DX.Debug</AssemblyName>
-    <AssemblyName Condition="'$(Configuration)' == 'WindowsGLDebug'">Rampastring.XNAUI.GL.Debug</AssemblyName>
-    <AssemblyName Condition="'$(Configuration)' == 'XNADebug'">Rampastring.XNAUI.XNA.Debug</AssemblyName>
+    <AssemblyName Condition="'$(Configuration)' == 'WindowsDXRelease'">Rampastring.XNAUI.WindowsDX</AssemblyName>
+    <AssemblyName Condition="'$(Configuration)' == 'WindowsGLRelease'">Rampastring.XNAUI.WindowsGL</AssemblyName>
+    <AssemblyName Condition="'$(Configuration)' == 'UniversalGLRelease'">Rampastring.XNAUI.UniversalGL</AssemblyName>
+    <AssemblyName Condition="'$(Configuration)' == 'WindowsXNARelease'">Rampastring.XNAUI.WindowsXNA</AssemblyName>
+    <AssemblyName Condition="'$(Configuration)' == 'WindowsDXDebug'">Rampastring.XNAUI.WindowsDX.Debug</AssemblyName>
+    <AssemblyName Condition="'$(Configuration)' == 'WindowsGLDebug'">Rampastring.XNAUI.WindowsGL.Debug</AssemblyName>
+    <AssemblyName Condition="'$(Configuration)' == 'UniversalGLDebug'">Rampastring.XNAUI.UniversalGL.Debug</AssemblyName>
+    <AssemblyName Condition="'$(Configuration)' == 'WindowsXNADebug'">Rampastring.XNAUI.WindowsXNA.Debug</AssemblyName>
     <RootNamespace>Rampastring.XNAUI</RootNamespace>
     <ComVisible>false</ComVisible>
     <CLSCompliant>false</CLSCompliant>
@@ -25,9 +28,8 @@
     <LangVersion>preview</LangVersion>
     <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
     <Platforms>AnyCPU;x86</Platforms>
-    <GenerateResourceUsePreserializedResources>true</GenerateResourceUsePreserializedResources>
     <GenerateDocumentationFile>True</GenerateDocumentationFile>
-    <Configurations>WindowsDXDebug;WindowsDXRelease;WindowsGLDebug;WindowsGLRelease;XNADebug;XNARelease</Configurations>
+    <Configurations>WindowsDXDebug;WindowsDXRelease;WindowsGLDebug;WindowsGLRelease;WindowsXNADebug;WindowsXNARelease;UniversalGLDebug;UniversalGLRelease</Configurations>
     <ComVisible>false</ComVisible>
     <CLSCompliant>false</CLSCompliant>
     <IncludeSymbols>true</IncludeSymbols>
@@ -37,24 +39,28 @@
     <TargetsForTfmSpecificBuildOutput>$(TargetsForTfmSpecificBuildOutput);IncludeXNAAssemblies</TargetsForTfmSpecificBuildOutput>
     <TargetsForTfmSpecificContentInPackage>$(TargetsForTfmSpecificContentInPackage);IncludeDesktopGLAssemblies</TargetsForTfmSpecificContentInPackage>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)' == 'WindowsDXDebug' Or '$(Configuration)' == 'WindowsGLDebug' Or '$(Configuration)' == 'XNADebug'">
+  <PropertyGroup Condition="'$(Configuration)' == 'WindowsDXDebug' Or '$(Configuration)' == 'UniversalGLDebug' Or '$(Configuration)' == 'WindowsGLDebug' Or '$(Configuration)' == 'WindowsXNADebug'">
     <DefineConstants>$(DefineConstants);DEBUG</DefineConstants>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)' == 'WindowsDXDebug' Or '$(Configuration)' == 'WindowsDXRelease'">
-    <DefineConstants>$(DefineConstants);WINDOWSDX</DefineConstants>
+    <DefineConstants>$(DefineConstants);DX;WINFORMS;ISWINDOWS</DefineConstants>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)' == 'UniversalGLDebug' Or '$(Configuration)' == 'UniversalGLRelease'">
+    <DefineConstants>$(DefineConstants);GL</DefineConstants>
+    <DefineConstants Condition="$(TargetFramework.Contains('-windows'))">$(DefineConstants);ISWINDOWS</DefineConstants>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)' == 'WindowsGLDebug' Or '$(Configuration)' == 'WindowsGLRelease'">
-    <DefineConstants>$(DefineConstants);WINDOWSGL</DefineConstants>
+    <DefineConstants>$(DefineConstants);GL;WINFORMS;ISWINDOWS</DefineConstants>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)' == 'XNADebug' Or '$(Configuration)' == 'XNARelease'">
-    <DefineConstants>$(DefineConstants);XNA</DefineConstants>
+  <PropertyGroup Condition="'$(Configuration)' == 'WindowsXNADebug' Or '$(Configuration)' == 'WindowsXNARelease'">
+    <DefineConstants>$(DefineConstants);XNA;WINFORMS;ISWINDOWS</DefineConstants>
   </PropertyGroup>
   <Target Name="IncludeXNAAssemblies" Condition="$(DefineConstants.Contains('XNA'))">
     <ItemGroup>
       <BuildOutputInPackage Include="References\XNA\*" />
     </ItemGroup>
   </Target>
-  <Target Name="IncludeDesktopGLAssemblies" Condition="$(DefineConstants.Contains('WINDOWSGL')) And '$(TargetFrameworkIdentifier)' == '.NETFramework'">
+  <Target Name="IncludeDesktopGLAssemblies" Condition="$(DefineConstants.Contains('GL')) And '$(TargetFrameworkIdentifier)' == '.NETFramework'">
     <ItemGroup>
       <TfmSpecificPackageFile Include="$(OutputPath)\x64\libopenal.so.1">
         <PackagePath>runtimes\linux-x64\native\libopenal.so.1</PackagePath>
@@ -80,17 +86,29 @@
       <TfmSpecificPackageFile Include="$(OutputPath)\x86\soft_oal.dll">
         <PackagePath>runtimes\win-x86\native\soft_oal.dll</PackagePath>
       </TfmSpecificPackageFile>
-      <TfmSpecificPackageFile Include="build\GL.targets" Condition="!$(DefineConstants.Contains('DEBUG'))">
-        <PackagePath>build\Rampastring.XNAUI.GL.targets</PackagePath>
+      <TfmSpecificPackageFile Include="build\GL.targets" Condition="!$(DefineConstants.Contains('DEBUG')) And $(DefineConstants.Contains('WINFORMS'))">
+        <PackagePath>build\Rampastring.XNAUI.WindowsGL.targets</PackagePath>
       </TfmSpecificPackageFile>
-      <TfmSpecificPackageFile Include="build\GL.targets" Condition="$(DefineConstants.Contains('DEBUG'))">
-        <PackagePath>build\Rampastring.XNAUI.GL.Debug.targets</PackagePath>
+      <TfmSpecificPackageFile Include="build\GL.targets" Condition="$(DefineConstants.Contains('DEBUG')) And $(DefineConstants.Contains('WINFORMS'))">
+        <PackagePath>build\Rampastring.XNAUI.WindowsGL.Debug.targets</PackagePath>
       </TfmSpecificPackageFile>
-      <TfmSpecificPackageFile Include="build\GL.targets" Condition="!$(DefineConstants.Contains('DEBUG'))">
-        <PackagePath>buildTransitive\Rampastring.XNAUI.GL.targets</PackagePath>
+      <TfmSpecificPackageFile Include="build\GL.targets" Condition="!$(DefineConstants.Contains('DEBUG')) And $(DefineConstants.Contains('WINFORMS'))">
+        <PackagePath>buildTransitive\Rampastring.XNAUI.WindowsGL.targets</PackagePath>
       </TfmSpecificPackageFile>
-      <TfmSpecificPackageFile Include="build\GL.targets" Condition="$(DefineConstants.Contains('DEBUG'))">
-        <PackagePath>buildTransitive\Rampastring.XNAUI.GL.Debug.targets</PackagePath>
+      <TfmSpecificPackageFile Include="build\GL.targets" Condition="$(DefineConstants.Contains('DEBUG')) And $(DefineConstants.Contains('WINFORMS'))">
+        <PackagePath>buildTransitive\Rampastring.XNAUI.WindowsGL.Debug.targets</PackagePath>
+      </TfmSpecificPackageFile>
+      <TfmSpecificPackageFile Include="build\GL.targets" Condition="!$(DefineConstants.Contains('DEBUG')) And !$(DefineConstants.Contains('WINFORMS'))">
+        <PackagePath>build\Rampastring.XNAUI.UniversalGL.targets</PackagePath>
+      </TfmSpecificPackageFile>
+      <TfmSpecificPackageFile Include="build\GL.targets" Condition="$(DefineConstants.Contains('DEBUG')) And !$(DefineConstants.Contains('WINFORMS'))">
+        <PackagePath>build\Rampastring.XNAUI.UniversalGL.Debug.targets</PackagePath>
+      </TfmSpecificPackageFile>
+      <TfmSpecificPackageFile Include="build\GL.targets" Condition="!$(DefineConstants.Contains('DEBUG')) And !$(DefineConstants.Contains('WINFORMS'))">
+        <PackagePath>buildTransitive\Rampastring.XNAUI.UniversalGL.targets</PackagePath>
+      </TfmSpecificPackageFile>
+      <TfmSpecificPackageFile Include="build\GL.targets" Condition="$(DefineConstants.Contains('DEBUG')) And !$(DefineConstants.Contains('WINFORMS'))">
+        <PackagePath>buildTransitive\Rampastring.XNAUI.UniversalGL.Debug.targets</PackagePath>
       </TfmSpecificPackageFile>
     </ItemGroup>
   </Target>
@@ -102,14 +120,18 @@
     <None Remove="build\**" />
     <None Remove="References\**" />
   </ItemGroup>
+  <ItemGroup Condition="!$(DefineConstants.Contains('XNA'))">
+    <Compile Remove="Input\KeyboardEventArgs.cs" />
+    <Compile Remove="Input\KeyboardEventInput.cs" />
+  </ItemGroup>
   <ItemGroup>
     <None Include="README.md" Pack="true" PackagePath="\" />
   </ItemGroup>
   <!--Switching between Configurations within VS IDE requires reloading the project file-->
-  <ItemGroup Condition="$(DefineConstants.Contains('WINDOWSDX'))">
+  <ItemGroup Condition="$(DefineConstants.Contains('DX'))">
     <PackageReference Include="MonoGame.Framework.WindowsDX" Version="3.8.0.1641" />
   </ItemGroup>
-  <ItemGroup Condition="$(DefineConstants.Contains('WINDOWSGL'))">
+  <ItemGroup Condition="$(DefineConstants.Contains('GL'))">
     <PackageReference Include="MonoGame.Framework.DesktopGL" Version="3.8.0.1641" />
   </ItemGroup>
   <ItemGroup Condition="$(DefineConstants.Contains('XNA'))">
@@ -128,9 +150,11 @@
     <PackageReference Include="Microsoft.Windows.CsWin32" Version="0.2.1-beta">
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
+    <PackageReference Include="SixLabors.ImageSharp" Version="2.1.3" />
     <PackageReference Include="StyleCop.Analyzers" Version="1.2.0-beta.435">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
+    <PackageReference Include="TextCopy" Version="6.1.0" />
   </ItemGroup>
 </Project>

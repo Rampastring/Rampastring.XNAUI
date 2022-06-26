@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using Rampastring.Tools;
 using System.Globalization;
+using TextCopy;
 
 namespace Rampastring.XNAUI.XNAControls
 {
@@ -379,7 +380,7 @@ namespace Rampastring.XNAUI.XNAControls
             listBoxItem.TextChanged += ListBoxItem_TextChanged;
         }
 
-        private void ListBoxItem_TextChanged(object sender, EventArgs e) => 
+        private void ListBoxItem_TextChanged(object sender, EventArgs e) =>
             CheckItemTextForWordWrapAndExcessSize((XNAListBoxItem)sender);
 
         private void CheckItemTextForWordWrapAndExcessSize(XNAListBoxItem listBoxItem)
@@ -523,8 +524,10 @@ namespace Rampastring.XNAUI.XNAControls
         {
             base.Initialize();
 
+#if WINFORMS
             Keyboard.OnKeyPressed += Keyboard_OnKeyPressed;
 
+#endif
 #if !XNA
             Game.Window.TextInput += Window_TextInput;
 #else
@@ -560,6 +563,7 @@ namespace Rampastring.XNAUI.XNAControls
         {
             ViewTop = ScrollBar.ViewTop;
         }
+#if WINFORMS
 
         /// <summary>
         /// Allows copying items to the clipboard using Ctrl + C.
@@ -570,8 +574,9 @@ namespace Rampastring.XNAUI.XNAControls
                 return;
 
             if (e.PressedKey == Keys.C && Keyboard.IsCtrlHeldDown())
-                System.Windows.Forms.Clipboard.SetText(SelectedItem.Text);
+                ClipboardService.SetText(SelectedItem.Text);
         }
+#endif
 
 #if XNA
         private void KeyboardEventInput_CharEntered(object sender, KeyboardEventArgs e)
@@ -592,7 +597,11 @@ namespace Rampastring.XNAUI.XNAControls
         /// <param name="character">The entered character.</param>
         private void HandleCharInput(char character)
         {
+#if WINFORMS
             if (WindowManager.SelectedControl != this || !Enabled || (Parent != null && !Parent.Enabled) || !WindowManager.HasFocus || !AllowKeyboardInput)
+#else
+            if (WindowManager.SelectedControl != this || !Enabled || (Parent != null && !Parent.Enabled) || !AllowKeyboardInput)
+#endif
                 return;
 
             string charString = character.ToString();
@@ -958,7 +967,7 @@ namespace Rampastring.XNAUI.XNAControls
             int height = MARGIN + drawInfo.YDrawOffset;
 
             for (int i = drawInfo.TopIndex; i < Items.Count; i++)
-            { 
+            {
                 XNAListBoxItem lbItem = Items[i];
 
                 DrawListBoxItem(i, height);
