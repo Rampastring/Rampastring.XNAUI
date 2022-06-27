@@ -9,7 +9,6 @@ namespace Rampastring.XNAUI.PlatformSpecific
 #if WINFORMS
         event EventHandler GameWindowClosing;
         void AllowClosing();
-        void CenterOnScreen();
 #if !NETFRAMEWORK
         [System.Runtime.Versioning.SupportedOSPlatform("windows5.1.2600")]
 #endif
@@ -19,13 +18,12 @@ namespace Rampastring.XNAUI.PlatformSpecific
         void MaximizeWindow();
         void MinimizeWindow();
         void PreventClosing();
-#endif
-        void SetBorderlessMode(bool value);
-#if WINFORMS
         void SetControlBox(bool value);
         void SetIcon(string path);
         void ShowWindow();
         bool HasFocus();
 #endif
+        void CenterOnScreen();
+        void SetBorderlessMode(bool value);
     }
 }

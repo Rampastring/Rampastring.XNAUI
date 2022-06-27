@@ -358,7 +358,6 @@ namespace Rampastring.XNAUI
             control.ClientRectangle = new Rectangle((RenderResolutionX - control.Width) / 2,
                 (RenderResolutionY - control.Height) / 2, control.Width, control.Height);
         }
-#if WINFORMS
 
         /// <summary>
         /// Centers the game window on the screen.
@@ -367,7 +366,6 @@ namespace Rampastring.XNAUI
         {
             gameWindowManager.CenterOnScreen();
         }
-#endif
 
         /// <summary>
         /// Enables or disables borderless windowed mode.

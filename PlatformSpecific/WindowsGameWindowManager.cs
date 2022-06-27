@@ -1,4 +1,5 @@
 ﻿using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 #if WINFORMS
 using Rampastring.Tools;
 using System;
@@ -41,14 +42,17 @@ namespace Rampastring.XNAUI.PlatformSpecific
         {
             GameWindowClosing?.Invoke(this, EventArgs.Empty);
         }
+#endif
 
         /// <summary>
         /// Centers the game window on the screen.
         /// </summary>
         public void CenterOnScreen()
         {
-            int x = (Screen.PrimaryScreen.Bounds.Width - game.Window.ClientBounds.Width) / 2;
-            int y = (Screen.PrimaryScreen.Bounds.Height - game.Window.ClientBounds.Height) / 2;
+            int currentWidth = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Width;
+            int currentHeight = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Height;
+            int x = (currentWidth - game.Window.ClientBounds.Width) / 2;
+            int y = (currentHeight - game.Window.ClientBounds.Height) / 2;
 
 #if XNA
             if (gameForm == null)
@@ -59,7 +63,6 @@ namespace Rampastring.XNAUI.PlatformSpecific
             game.Window.Position = new Microsoft.Xna.Framework.Point(x, y);
 #endif
         }
-#endif
 
         /// <summary>
         /// Enables or disables borderless windowed mode.
