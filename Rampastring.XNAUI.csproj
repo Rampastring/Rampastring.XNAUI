@@ -10,9 +10,9 @@
     <Product>Rampastring.XNAUI</Product>
     <Copyright>Copyright © Rami 'Rampastring' Pasanen 2016-2022</Copyright>
     <Trademark></Trademark>
-    <Version>3.0.0.0</Version>
-    <FileVersion>3.0.0.0</FileVersion>
-    <InformationalVersion>3.0.0.0</InformationalVersion>
+    <Version>3.0.1.0</Version>
+    <FileVersion>3.0.1.0</FileVersion>
+    <InformationalVersion>3.0.1.0</InformationalVersion>
     <AssemblyName Condition="'$(Configuration)' == 'WindowsDXRelease'">Rampastring.XNAUI.WindowsDX</AssemblyName>
     <AssemblyName Condition="'$(Configuration)' == 'WindowsGLRelease'">Rampastring.XNAUI.WindowsGL</AssemblyName>
     <AssemblyName Condition="'$(Configuration)' == 'UniversalGLRelease'">Rampastring.XNAUI.UniversalGL</AssemblyName>

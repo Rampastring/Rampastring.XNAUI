@@ -22,7 +22,6 @@ namespace Rampastring.XNAUI
         private static List<PrioritizedSoundInstance> soundList;
 
         public static float Volume { get; private set; } = 1.0f;
-#if NETFRAMEWORK || ISWINDOWS
 
         public void SetVolume(float volume)
         {
@@ -37,7 +36,6 @@ namespace Rampastring.XNAUI
                 Logger.Log("SoundPlayer exception when setting volume: " + ex.Message);
             }
         }
-#endif
 
         /// <summary>
         /// Plays a sound.
