@@ -5,6 +5,7 @@ using Rampastring.XNAUI.Input;
 using System;
 using System.Text;
 using System.Text.RegularExpressions;
+using TextCopy;
 
 namespace Rampastring.XNAUI.XNAControls
 {
@@ -230,7 +231,11 @@ namespace Rampastring.XNAUI.XNAControls
 
         private void HandleCharInput(char character)
         {
+#if WINFORMS
             if (WindowManager.SelectedControl != this || !Enabled || !Parent.Enabled || !WindowManager.HasFocus)
+#else
+            if (WindowManager.SelectedControl != this || !Enabled || !Parent.Enabled)
+#endif
                 return;
 
             switch (character)
@@ -293,7 +298,11 @@ namespace Rampastring.XNAUI.XNAControls
 
         private void Keyboard_OnKeyPressed(object sender, KeyPressEventArgs e)
         {
+#if WINFORMS
             if (WindowManager.SelectedControl != this || !Enabled || !Parent.Enabled || !WindowManager.HasFocus)
+#else
+            if (WindowManager.SelectedControl != this || !Enabled || !Parent.Enabled)
+#endif
                 return;
 
             e.Handled = HandleKeyPress(e.PressedKey);
@@ -359,7 +368,7 @@ namespace Rampastring.XNAUI.XNAControls
 
                     if (!string.IsNullOrEmpty(text))
                     {
-                        System.Windows.Forms.Clipboard.SetText(text);
+                        ClipboardService.SetText(text);
                         Text = string.Empty;
                         InputReceived?.Invoke(this, EventArgs.Empty);
                     }
@@ -371,7 +380,7 @@ namespace Rampastring.XNAUI.XNAControls
 
                     // Replace newlines with spaces
                     // https://stackoverflow.com/questions/238002/replace-line-breaks-in-a-string-c-sharp
-                    string textToAdd = Regex.Replace(System.Windows.Forms.Clipboard.GetText(), @"\r\n?|\n", " ");
+                    string textToAdd = Regex.Replace(ClipboardService.GetText(), @"\r\n?|\n", " ");
                     Text = Text + Renderer.GetSafeString(textToAdd, FontIndex);
                     InputReceived?.Invoke(this, EventArgs.Empty);
 
@@ -381,7 +390,7 @@ namespace Rampastring.XNAUI.XNAControls
                         break;
 
                     if (!string.IsNullOrEmpty(text))
-                        System.Windows.Forms.Clipboard.SetText(text);
+                        ClipboardService.SetText(text);
 
                     return true;
                 case Keys.Enter:
@@ -573,7 +582,11 @@ namespace Rampastring.XNAUI.XNAControls
         {
             FillControlArea(BackColor);
 
+#if WINFORMS
             if (WindowManager.SelectedControl == this && Enabled && WindowManager.HasFocus)
+#else
+            if (WindowManager.SelectedControl == this && Enabled)
+#endif
                 DrawRectangle(new Rectangle(0, 0, Width, Height), ActiveBorderColor);
             else
                 DrawRectangle(new Rectangle(0, 0, Width, Height), IdleBorderColor);
@@ -582,8 +595,11 @@ namespace Rampastring.XNAUI.XNAControls
                 FontIndex, new Vector2(TEXT_HORIZONTAL_MARGIN, TEXT_VERTICAL_MARGIN),
                 TextColor);
 
-            if (WindowManager.SelectedControl == this && Enabled && WindowManager.HasFocus &&
-                barTimer.TotalSeconds < BAR_ON_TIME)
+#if WINFORMS
+            if (WindowManager.SelectedControl == this && Enabled && WindowManager.HasFocus && barTimer.TotalSeconds < BAR_ON_TIME)
+#else
+            if (WindowManager.SelectedControl == this && Enabled && barTimer.TotalSeconds < BAR_ON_TIME)
+#endif
             {
                 int barLocationX = TEXT_HORIZONTAL_MARGIN;
 

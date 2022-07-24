@@ -1,8 +1,11 @@
 ﻿using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
+#if WINFORMS
 using Rampastring.Tools;
 using System;
 using System.Drawing;
 using System.Windows.Forms;
+#endif
 
 namespace Rampastring.XNAUI.PlatformSpecific
 {
@@ -14,34 +17,42 @@ namespace Rampastring.XNAUI.PlatformSpecific
         public WindowsGameWindowManager(Game game)
         {
             this.game = game;
+#if WINFORMS
             gameForm = (Form)Control.FromHandle(game.Window.Handle);
 
             if (gameForm != null)
             {
                 gameForm.FormClosing += GameForm_FormClosing_Event;
             }
+#endif
         }
 
+#if WINFORMS
         private Form gameForm;
-        private Game game;
 
         private bool closingPrevented = false;
 
         public event EventHandler GameWindowClosing;
 
+#endif
+        private Game game;
+#if WINFORMS
 
         private void GameForm_FormClosing_Event(object sender, FormClosingEventArgs e)
         {
             GameWindowClosing?.Invoke(this, EventArgs.Empty);
         }
+#endif
 
         /// <summary>
         /// Centers the game window on the screen.
         /// </summary>
         public void CenterOnScreen()
         {
-            int x = (Screen.PrimaryScreen.Bounds.Width - game.Window.ClientBounds.Width) / 2;
-            int y = (Screen.PrimaryScreen.Bounds.Height - game.Window.ClientBounds.Height) / 2;
+            int currentWidth = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Width;
+            int currentHeight = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Height;
+            int x = (currentWidth - game.Window.ClientBounds.Width) / 2;
+            int y = (currentHeight - game.Window.ClientBounds.Height) / 2;
 
 #if XNA
             if (gameForm == null)
@@ -70,6 +81,7 @@ namespace Rampastring.XNAUI.PlatformSpecific
 #endif
         }
 
+#if WINFORMS
         /// <summary>
         /// Minimizes the game window.
         /// </summary>
@@ -117,12 +129,15 @@ namespace Rampastring.XNAUI.PlatformSpecific
         /// <summary>
         /// Flashes the game window on the taskbar.
         /// </summary>
+#if !NETFRAMEWORK
+        [System.Runtime.Versioning.SupportedOSPlatform("windows5.1.2600")]
+#endif
         public void FlashWindow()
         {
             if (gameForm == null)
                 return;
 
-            WindowFlasher.FlashWindowEx(gameForm);
+            _ = WindowFlasher.FlashWindowEx(gameForm.Handle);
         }
 
         /// <summary>
@@ -135,7 +150,7 @@ namespace Rampastring.XNAUI.PlatformSpecific
             if (gameForm == null)
                 return;
 
-            gameForm.Icon = Icon.ExtractAssociatedIcon(path);
+            gameForm.Icon = Icon.ExtractAssociatedIcon(SafePath.GetFile(path).FullName);
         }
 
         /// <summary>
@@ -199,5 +214,6 @@ namespace Rampastring.XNAUI.PlatformSpecific
 
             return Form.ActiveForm != null;
         }
+#endif
     }
 }
