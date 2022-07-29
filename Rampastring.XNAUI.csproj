@@ -158,6 +158,7 @@
     <Compile Include="RMath.cs" />
     <Compile Include="SoundPlayer.cs" />
     <Compile Include="XNAControls\ControlDrawMode.cs" />
+    <Compile Include="XNAControls\XNADropDownDividerItem.cs" />
     <Compile Include="XNAControls\XNAIndicator.cs" />
     <Compile Include="XNAControls\XNALinkLabel.cs" />
     <Compile Include="XNAControls\XNAListBoxItem.cs" />
