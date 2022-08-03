@@ -2,7 +2,8 @@
   <PropertyGroup>
     <TargetFrameworks Condition="'$(Configuration)' == 'UniversalGLDebug' Or '$(Configuration)' == 'UniversalGLRelease'">net48;net6.0</TargetFrameworks>
     <TargetFrameworks Condition="'$(Configuration)' != 'UniversalGLDebug' And '$(Configuration)' != 'UniversalGLRelease'">net48;net6.0-windows10.0.22000.0</TargetFrameworks>
-    <SupportedOSPlatformVersion Condition="'$(Configuration)' != 'UniversalGLDebug' And '$(Configuration)' != 'UniversalGLRelease'">7.0</SupportedOSPlatformVersion>
+    <SupportedOSPlatformVersion Condition="'$(Configuration)' != 'UniversalGLDebug' And '$(Configuration)' != 'UniversalGLRelease'">10.0.22000.0</SupportedOSPlatformVersion>
+    <TargetPlatformMinVersion Condition="'$(Configuration)' != 'UniversalGLDebug' And '$(Configuration)' != 'UniversalGLRelease'">7.0</TargetPlatformMinVersion>
     <UseWindowsForms Condition="'$(Configuration)' != 'UniversalGLDebug' And '$(Configuration)' != 'UniversalGLRelease'">true</UseWindowsForms>
     <Title></Title>
     <Description>Rampastring XNA/MonoGame UI Library</Description>
@@ -148,7 +149,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Rampastring.Tools" Version="1.1.0" />
+    <PackageReference Include="Rampastring.Tools" Version="2.0.0" />
     <PackageReference Include="Microsoft.Windows.CsWin32" Version="0.2.10-beta">
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
