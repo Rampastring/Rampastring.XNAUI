@@ -5,15 +5,12 @@
     <SupportedOSPlatformVersion Condition="'$(Configuration)' != 'UniversalGLDebug' And '$(Configuration)' != 'UniversalGLRelease'">10.0.22000.0</SupportedOSPlatformVersion>
     <TargetPlatformMinVersion Condition="'$(Configuration)' != 'UniversalGLDebug' And '$(Configuration)' != 'UniversalGLRelease'">7.0</TargetPlatformMinVersion>
     <UseWindowsForms Condition="'$(Configuration)' != 'UniversalGLDebug' And '$(Configuration)' != 'UniversalGLRelease'">true</UseWindowsForms>
-    <Title></Title>
+    <Title>Rampastring.XNAUI</Title>
     <Description>Rampastring XNA/MonoGame UI Library</Description>
     <Company>Rampastring</Company>
     <Product>Rampastring.XNAUI</Product>
     <Copyright>Copyright © Rami 'Rampastring' Pasanen 2016-2022</Copyright>
     <Trademark></Trademark>
-    <Version>3.0.3.0</Version>
-    <FileVersion>3.0.3.0</FileVersion>
-    <InformationalVersion>3.0.3.0</InformationalVersion>
     <AssemblyName Condition="'$(Configuration)' == 'WindowsDXRelease'">Rampastring.XNAUI.WindowsDX</AssemblyName>
     <AssemblyName Condition="'$(Configuration)' == 'WindowsGLRelease'">Rampastring.XNAUI.WindowsGL</AssemblyName>
     <AssemblyName Condition="'$(Configuration)' == 'UniversalGLRelease'">Rampastring.XNAUI.UniversalGL</AssemblyName>
@@ -39,6 +36,13 @@
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <TargetsForTfmSpecificBuildOutput>$(TargetsForTfmSpecificBuildOutput);IncludeXNAAssemblies</TargetsForTfmSpecificBuildOutput>
     <TargetsForTfmSpecificContentInPackage>$(TargetsForTfmSpecificContentInPackage);IncludeDesktopGLAssemblies</TargetsForTfmSpecificContentInPackage>
+    <PackageId>Rampastring.XNAUI</PackageId>
+    <PackageTags></PackageTags>
+    <PackageProjectUrl>https://github.com/Rampastring/Rampastring.XNAUI</PackageProjectUrl>
+    <PublishRepositoryUrl>true</PublishRepositoryUrl>
+    <PackageLicenseExpression></PackageLicenseExpression>
+    <ContinuousIntegrationBuild Condition="'$(GITHUB_ACTIONS)' == 'true'">true</ContinuousIntegrationBuild>
+    <EnablePackageValidation>true</EnablePackageValidation>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)' == 'WindowsDXDebug' Or '$(Configuration)' == 'UniversalGLDebug' Or '$(Configuration)' == 'WindowsGLDebug' Or '$(Configuration)' == 'WindowsXNADebug'">
     <DefineConstants>$(DefineConstants);DEBUG</DefineConstants>
@@ -150,9 +154,8 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Rampastring.Tools" Version="2.0.0" />
-    <PackageReference Include="Microsoft.Windows.CsWin32" Version="0.2.10-beta">
-      <PrivateAssets>all</PrivateAssets>
-    </PackageReference>
+    <PackageReference Include="Microsoft.Windows.CsWin32" Version="0.2.10-beta" PrivateAssets="All" />
+    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1" PrivateAssets="All" />
     <PackageReference Include="SixLabors.ImageSharp" Version="2.1.3" />
     <PackageReference Include="TextCopy" Version="6.1.0" />
   </ItemGroup>
