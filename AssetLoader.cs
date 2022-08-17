@@ -186,14 +186,11 @@ namespace Rampastring.XNAUI
         {
             try
             {
-                using (image)
-                {
-                    using var stream = new MemoryStream();
-                    image.Save(stream, new PngEncoder());
-                    var texture = Texture2D.FromStream(graphicsDevice, stream);
-                    PremultiplyAlpha(texture);
-                    return texture;
-                }
+                using var stream = new MemoryStream();
+                image.Save(stream, new PngEncoder());
+                var texture = Texture2D.FromStream(graphicsDevice, stream);
+                PremultiplyAlpha(texture);
+                return texture;
             }
             catch (Exception ex)
             {

@@ -302,6 +302,9 @@ namespace Rampastring.XNAUI
 
         public static void DrawStringWithShadow(string text, int fontIndex, Vector2 location, Color color, float scale = 1.0f, float shadowDistance = 1.0f)
         {
+            if (fontIndex >= fonts.Count)
+                throw new Exception("Invalid font index: " + fontIndex);
+
 #if XNA
             spriteBatch.DrawString(fonts[fontIndex], text,
                 new Vector2(location.X + shadowDistance, location.Y + shadowDistance),

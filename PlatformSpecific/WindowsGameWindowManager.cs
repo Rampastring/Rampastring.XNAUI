@@ -137,7 +137,7 @@ namespace Rampastring.XNAUI.PlatformSpecific
             if (gameForm == null)
                 return;
 
-            _ = WindowFlasher.FlashWindowEx(gameForm.Handle);
+            WindowFlasher.FlashWindowEx(gameForm.Handle);
         }
 
         /// <summary>
@@ -213,6 +213,11 @@ namespace Rampastring.XNAUI.PlatformSpecific
                 return game.IsActive;
 
             return Form.ActiveForm != null;
+        }
+#else
+        public bool HasFocus()
+        {
+            return game.IsActive;
         }
 #endif
     }

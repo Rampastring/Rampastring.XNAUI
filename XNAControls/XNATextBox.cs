@@ -231,11 +231,7 @@ namespace Rampastring.XNAUI.XNAControls
 
         private void HandleCharInput(char character)
         {
-#if WINFORMS
             if (WindowManager.SelectedControl != this || !Enabled || !Parent.Enabled || !WindowManager.HasFocus)
-#else
-            if (WindowManager.SelectedControl != this || !Enabled || !Parent.Enabled)
-#endif
                 return;
 
             switch (character)
@@ -298,11 +294,7 @@ namespace Rampastring.XNAUI.XNAControls
 
         private void Keyboard_OnKeyPressed(object sender, KeyPressEventArgs e)
         {
-#if WINFORMS
             if (WindowManager.SelectedControl != this || !Enabled || !Parent.Enabled || !WindowManager.HasFocus)
-#else
-            if (WindowManager.SelectedControl != this || !Enabled || !Parent.Enabled)
-#endif
                 return;
 
             e.Handled = HandleKeyPress(e.PressedKey);
@@ -582,11 +574,7 @@ namespace Rampastring.XNAUI.XNAControls
         {
             FillControlArea(BackColor);
 
-#if WINFORMS
             if (WindowManager.SelectedControl == this && Enabled && WindowManager.HasFocus)
-#else
-            if (WindowManager.SelectedControl == this && Enabled)
-#endif
                 DrawRectangle(new Rectangle(0, 0, Width, Height), ActiveBorderColor);
             else
                 DrawRectangle(new Rectangle(0, 0, Width, Height), IdleBorderColor);
@@ -595,11 +583,7 @@ namespace Rampastring.XNAUI.XNAControls
                 FontIndex, new Vector2(TEXT_HORIZONTAL_MARGIN, TEXT_VERTICAL_MARGIN),
                 TextColor);
 
-#if WINFORMS
             if (WindowManager.SelectedControl == this && Enabled && WindowManager.HasFocus && barTimer.TotalSeconds < BAR_ON_TIME)
-#else
-            if (WindowManager.SelectedControl == this && Enabled && barTimer.TotalSeconds < BAR_ON_TIME)
-#endif
             {
                 int barLocationX = TEXT_HORIZONTAL_MARGIN;
 

@@ -84,13 +84,11 @@ namespace Rampastring.XNAUI
         /// </summary>
         public int RenderResolutionY { get; private set; } = 600;
 
-#if WINFORMS
         /// <summary>
         /// Gets a boolean that determines whether the game window currently has input focus.
         /// </summary>
         public bool HasFocus { get; private set; } = true;
 
-#endif
         public double ScaleRatio { get; private set; } = 1.0;
 
         public int SceneXPosition { get; private set; } = 0;
@@ -272,6 +270,8 @@ namespace Rampastring.XNAUI
             gameWindowManager = new WindowsGameWindowManager(Game);
 #if WINFORMS
             gameWindowManager.GameWindowClosing += GameWindowManager_GameWindowClosing;
+#else
+            Game.Exiting += GameWindowManager_GameWindowClosing;
 #endif
 
             if (UISettings.ActiveSettings == null)
@@ -281,13 +281,11 @@ namespace Rampastring.XNAUI
             KeyboardEventInput.Initialize(Game.Window);
 #endif
         }
-#if WINFORMS
 
         private void GameWindowManager_GameWindowClosing(object sender, EventArgs e)
         {
             GameClosing?.Invoke(this, EventArgs.Empty);
         }
-#endif
 
         /// <summary>
         /// Schedules a delegate to be executed on the next game loop frame, 
@@ -553,10 +551,8 @@ namespace Rampastring.XNAUI
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         public override void Update(GameTime gameTime)
         {
-#if WINFORMS
             HasFocus = gameWindowManager.HasFocus();
 
-#endif
             lock (locker)
             {
                 List<Callback> callbacks = Callbacks;
@@ -569,11 +565,9 @@ namespace Rampastring.XNAUI
             XNAControl activeControl = null;
             activeControlName = null;
 
-#if WINFORMS
             if (HasFocus)
                 Keyboard.Update(gameTime);
 
-#endif
             Cursor.Update(gameTime);
 
             SoundPlayer.Update(gameTime);
@@ -582,13 +576,8 @@ namespace Rampastring.XNAUI
             {
                 XNAControl control = Controls[i];
 
-#if WINFORMS
                 if (HasFocus && control.InputEnabled && control.Enabled &&
                     (activeControl == null && control.GetWindowRectangle().Contains(Cursor.Location) || control.Focused))
-#else
-                if (control.InputEnabled && control.Enabled &&
-                    (activeControl == null && control.GetWindowRectangle().Contains(Cursor.Location) || control.Focused))
-#endif
                 {
                     control.IsActive = true;
                     activeControl = control;

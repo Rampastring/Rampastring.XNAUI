@@ -121,11 +121,7 @@ namespace Rampastring.XNAUI.Input
 
             DrawnLocation = new Point(ms.X, ms.Y);
 
-#if !WINFORMS
-            if (Disabled)
-#else
             if (!windowManager.HasFocus || Disabled)
-#endif
             {
                 LeftClicked = false;
                 RightClicked = false;

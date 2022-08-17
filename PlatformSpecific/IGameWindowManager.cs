@@ -21,8 +21,8 @@ namespace Rampastring.XNAUI.PlatformSpecific
         void SetControlBox(bool value);
         void SetIcon(string path);
         void ShowWindow();
-        bool HasFocus();
 #endif
+        bool HasFocus();
         void CenterOnScreen();
         void SetBorderlessMode(bool value);
     }

@@ -597,11 +597,7 @@ namespace Rampastring.XNAUI.XNAControls
         /// <param name="character">The entered character.</param>
         private void HandleCharInput(char character)
         {
-#if WINFORMS
             if (WindowManager.SelectedControl != this || !Enabled || (Parent != null && !Parent.Enabled) || !WindowManager.HasFocus || !AllowKeyboardInput)
-#else
-            if (WindowManager.SelectedControl != this || !Enabled || (Parent != null && !Parent.Enabled) || !AllowKeyboardInput)
-#endif
                 return;
 
             string charString = character.ToString();
