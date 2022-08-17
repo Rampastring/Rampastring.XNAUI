@@ -3,6 +3,8 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using System;
 using System.IO;
+using Rampastring.Tools;
+using Windows.Win32;
 
 namespace Rampastring.XNAUI.Input
 {
@@ -66,31 +68,48 @@ namespace Rampastring.XNAUI.Input
 
         private WindowManager windowManager;
         private MouseState previousMouseState;
+#if WINFORMS
 
         /// <summary>
-        /// Attemps to replace the native operating system pointer cursor with
-        /// a cursor file from a specific path for the game window. If succesful,
+        /// Attempts to replace the native operating system pointer cursor with
+        /// a cursor file from a specific path for the game window. If successful,
         /// the cursor sprite is hidden, otherwise the cursor sprite remains visible.
         /// </summary>
         /// <param name="path">The path to the cursor (.cur) file.</param>
+#if !NETFRAMEWORK
+        [System.Runtime.Versioning.SupportedOSPlatform("windows5.0")]
+#endif
         public void LoadNativeCursor(string path)
         {
-#if !WINDOWSGL
-            if (!File.Exists(path))
+
+            FileInfo fileInfo = SafePath.GetFile(path);
+            if (!fileInfo.Exists)
                 return;
 
-            IntPtr cursorPointer = NativeMethods.LoadCursor(path);
+            DestroyCursorSafeHandle cursorPointer = PInvoke.LoadCursorFromFile(fileInfo.FullName);
 
             var form = (System.Windows.Forms.Form)System.Windows.Forms.Control.FromHandle(Game.Window.Handle);
+            bool success = false;
+
+            cursorPointer.DangerousAddRef(ref success);
+
+            if (!success)
+                throw new Exception(FormattableString.Invariant($"{nameof(DestroyCursorSafeHandle)}.{nameof(DestroyCursorSafeHandle.DangerousAddRef)}"));
 
             if (form != null)
             {
-                form.Cursor = new System.Windows.Forms.Cursor(cursorPointer);
+                form.Cursor = new System.Windows.Forms.Cursor(cursorPointer.DangerousGetHandle());
                 Visible = false;
                 Game.IsMouseVisible = true;
             }
+
+            /* We don't call DestroyCursorSafeHandle.DangerousRelease() or DestroyCursorSafeHandle.Dispose():
+             * The DestroyCursor function destroys a nonshared cursor.
+             * Do not use this function to destroy a shared cursor.
+             * A shared cursor is valid as long as the module from which it was loaded remains in memory.
+             * LoadCursorFromFile creates a shared cursor */
+    }
 #endif
-        }
 
         public override void Initialize()
         {

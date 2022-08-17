@@ -563,7 +563,6 @@ namespace Rampastring.XNAUI.XNAControls
 #endif
             }
 
-
             return p;
         }
 
@@ -573,8 +572,8 @@ namespace Rampastring.XNAUI.XNAControls
         {
             return new Point(p1.X + p2.X, p1.Y + p2.Y);
         }
-#endif
 
+#endif
         public Point GetSizePoint()
         {
             int totalScaling = GetTotalScalingRecursive();
@@ -623,6 +622,7 @@ namespace Rampastring.XNAUI.XNAControls
 
                 if (Parent.DrawMode == ControlDrawMode.UNIQUE_RENDER_TARGET)
                     return p;
+
 #if XNA
                 return SumPoints(p, Parent.GetRenderPoint());
 #else

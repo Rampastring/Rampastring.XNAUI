@@ -1,13 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Drawing;
 using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Graphics;
 using Rampastring.Tools;
-using Color = Microsoft.Xna.Framework.Color;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Media;
+using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.Formats.Png;
+using Color = Microsoft.Xna.Framework.Color;
 
 namespace Rampastring.XNAUI
 {
@@ -94,16 +95,16 @@ namespace Rampastring.XNAUI
             {
                 foreach (string searchPath in AssetSearchPaths)
                 {
-                    if (File.Exists(searchPath + name))
-                    {
-                        using (FileStream fs = File.OpenRead(searchPath + name))
-                        {
-                            Texture2D texture = Texture2D.FromStream(graphicsDevice, fs);
-                            texture.Name = name;
-                            PremultiplyAlpha(texture);
+                    FileInfo fileInfo = SafePath.GetFile(searchPath, name);
 
-                            return texture;
-                        }
+                    if (fileInfo.Exists)
+                    {
+                        using FileStream fs = fileInfo.OpenRead();
+                        Texture2D texture = Texture2D.FromStream(graphicsDevice, fs);
+                        texture.Name = name;
+                        PremultiplyAlpha(texture);
+
+                        return texture;
                     }
                 }
             }
@@ -147,7 +148,7 @@ namespace Rampastring.XNAUI
         {
             foreach (string searchPath in AssetSearchPaths)
             {
-                if (File.Exists(searchPath + name))
+                if (SafePath.GetFile(searchPath, name).Exists)
                     return true;
             }
 
@@ -176,7 +177,7 @@ namespace Rampastring.XNAUI
         }
 
         /// <summary>
-        /// Creates a texture from a <see cref="System.Drawing.Image"/>.
+        /// Creates a texture from a <see cref="Image"/>.
         /// Returns null if creating the texture fails.
         /// </summary>
         /// <param name="image">The image.</param>
@@ -185,14 +186,11 @@ namespace Rampastring.XNAUI
         {
             try
             {
-                using (MemoryStream stream = new MemoryStream())
-                {
-                    image.Save(stream, System.Drawing.Imaging.ImageFormat.Png);
-                    stream.Seek(0, SeekOrigin.Begin);
-                    Texture2D texture = Texture2D.FromStream(graphicsDevice, stream);
-                    PremultiplyAlpha(texture);
-                    return texture;
-                }
+                using var stream = new MemoryStream();
+                image.Save(stream, new PngEncoder());
+                var texture = Texture2D.FromStream(graphicsDevice, stream);
+                PremultiplyAlpha(texture);
+                return texture;
             }
             catch (Exception ex)
             {
@@ -215,15 +213,15 @@ namespace Rampastring.XNAUI
 
             foreach (string searchPath in AssetSearchPaths)
             {
-                if (File.Exists(searchPath + name))
+                FileInfo fileInfo = SafePath.GetFile(searchPath, name);
+
+                if (fileInfo.Exists)
                 {
-                    using (FileStream fs = File.OpenRead(searchPath + name))
-                    {
-                        SoundEffect se = SoundEffect.FromStream(fs);
-                        se.Name = name;
-                        soundCache.Add(se);
-                        return se;
-                    }
+                    using FileStream fs = fileInfo.OpenRead();
+                    SoundEffect se = SoundEffect.FromStream(fs);
+                    se.Name = name;
+                    soundCache.Add(se);
+                    return se;
                 }
             }
 
@@ -304,7 +302,7 @@ namespace Rampastring.XNAUI
             try
             {
                 string[] colorArray = colorString.Split(',');
-                Color color = new Color(Convert.ToByte(colorArray[0]), 
+                Color color = new Color(Convert.ToByte(colorArray[0]),
                     Convert.ToByte(colorArray[1]),
                     Convert.ToByte(colorArray[2]),
                     Convert.ToByte(colorArray[3]));

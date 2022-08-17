@@ -3,8 +3,8 @@ using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Content;
-using System.IO;
 using System.Text;
+using Rampastring.Tools;
 
 namespace Rampastring.XNAUI
 {
@@ -46,16 +46,14 @@ namespace Rampastring.XNAUI
 
             contentManager = content;
 
-            if (!contentPath.EndsWith("/") && !contentPath.EndsWith("\\"))
-                contentPath += Path.DirectorySeparatorChar;
-            content.RootDirectory = contentPath;
+            content.RootDirectory = SafePath.GetDirectory(contentPath).FullName;
 
             int i = 0;
             while (true)
             {
                 string sfName = string.Format("SpriteFont{0}", i);
 
-                if (File.Exists(contentPath + sfName + ".xnb"))
+                if (SafePath.GetFile(contentPath, FormattableString.Invariant($"{sfName}.xnb")).Exists)
                 {
                     fonts.Add(content.Load<SpriteFont>(sfName));
                     i++;
@@ -234,20 +232,12 @@ namespace Rampastring.XNAUI
 
         public static void DrawTexture(Texture2D texture, Rectangle sourceRectangle, Vector2 location, float rotation, Vector2 origin, Vector2 scale, Color color)
         {
-#if !XNA
-            spriteBatch.Draw(texture, location, null, sourceRectangle, origin, rotation, scale, color, SpriteEffects.None, 0f);
-#else
             spriteBatch.Draw(texture, location, sourceRectangle, color, rotation, origin, scale, SpriteEffects.None, 0f);
-#endif
         }
 
         public static void DrawTexture(Texture2D texture, Vector2 location, float rotation, Vector2 origin, Vector2 scale, Color color)
         {
-#if !XNA
-            spriteBatch.Draw(texture, location, null, null, origin, rotation, scale, color, SpriteEffects.None, 0f);
-#else
             spriteBatch.Draw(texture, location, null, color, rotation, origin, scale, SpriteEffects.None, 0f);
-#endif
         }
 
         /// <summary>

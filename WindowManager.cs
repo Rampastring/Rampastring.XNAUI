@@ -5,15 +5,18 @@ using Microsoft.Xna.Framework.Graphics;
 using Rampastring.XNAUI.XNAControls;
 using Rampastring.Tools;
 using Microsoft.Xna.Framework.Content;
-using System.Drawing;
 using Color = Microsoft.Xna.Framework.Color;
 using Rectangle = Microsoft.Xna.Framework.Rectangle;
-using System.IO;
 using Rampastring.XNAUI.Input;
 using System.Diagnostics;
 using System.Linq;
 using Rampastring.XNAUI.PlatformSpecific;
+#if NETFRAMEWORK
+using System.Reflection;
+#endif
+#if WINFORMS
 using System.Windows.Forms;
+#endif
 
 namespace Rampastring.XNAUI
 {
@@ -123,7 +126,6 @@ namespace Rampastring.XNAUI
         private IGameWindowManager gameWindowManager;
         private RenderTarget2D renderTarget;
         private RenderTarget2D doubledRenderTarget;
-        private bool closingPrevented = false;
 
         /// <summary>
         /// Sets the rendering (back buffer) resolution of the game.
@@ -201,7 +203,7 @@ namespace Rampastring.XNAUI
 #endif
 
                 // Enable sharper scaling method
-                doubledRenderTarget = new RenderTarget2D(GraphicsDevice, 
+                doubledRenderTarget = new RenderTarget2D(GraphicsDevice,
                     RenderResolutionX * 2, RenderResolutionY * 2, false, SurfaceFormat.Color,
                     DepthFormat.None, 0, RenderTargetUsage.PreserveContents);
             }
@@ -233,8 +235,15 @@ namespace Rampastring.XNAUI
             // This is a bit dirty, but at least it makes the MonoGame build exit quicker
             GameClosing?.Invoke(this, EventArgs.Empty);
             // TODO move Windows-specific functionality
+#if WINFORMS
             Application.DoEvents();
-            Process.Start(Application.ExecutablePath);
+#endif
+#if NETFRAMEWORK
+            Process.Start(Assembly.GetEntryAssembly().Location);
+#else
+            Process.Start(Environment.ProcessPath);
+#endif
+
             Environment.Exit(0);
 #else
             Application.Restart();
@@ -259,11 +268,16 @@ namespace Rampastring.XNAUI
             SoundPlayer = new SoundPlayer(Game);
 
             gameWindowManager = new WindowsGameWindowManager(Game);
+#if WINFORMS
             gameWindowManager.GameWindowClosing += GameWindowManager_GameWindowClosing;
+#else
+            Game.Exiting += GameWindowManager_GameWindowClosing;
+#endif
 
             if (UISettings.ActiveSettings == null)
                 UISettings.ActiveSettings = new UISettings();
 #if XNA
+
             KeyboardEventInput.Initialize(Game.Window);
 #endif
         }
@@ -296,7 +310,7 @@ namespace Rampastring.XNAUI
             {
                 throw new InvalidOperationException("WindowManager.AddAndInitializeControl: Control " + control.Name + " already exists!");
             }
-            
+
             control.Initialize();
             Controls.Add(control);
             ReorderControls();
@@ -354,13 +368,14 @@ namespace Rampastring.XNAUI
         /// <summary>
         /// Enables or disables borderless windowed mode.
         /// </summary>
-        /// <param name="value">A boolean that determines whether borderless 
+        /// <param name="value">A boolean that determines whether borderless
         /// windowed mode should be enabled.</param>
         public void SetBorderlessMode(bool value)
         {
             gameWindowManager.SetBorderlessMode(value);
         }
 
+#if WINFORMS
         public void MinimizeWindow()
         {
             gameWindowManager.MinimizeWindow();
@@ -433,6 +448,7 @@ namespace Rampastring.XNAUI
             gameWindowManager.AllowClosing();
         }
 
+#endif
         /// <summary>
         /// Removes a control from the window manager.
         /// </summary>
@@ -560,11 +576,8 @@ namespace Rampastring.XNAUI
             {
                 XNAControl control = Controls[i];
 
-                if (HasFocus && control.InputEnabled && control.Enabled && 
-                    (activeControl == null &&
-                    control.GetWindowRectangle().Contains(Cursor.Location)
-                    ||
-                    control.Focused))
+                if (HasFocus && control.InputEnabled && control.Enabled &&
+                    (activeControl == null && control.GetWindowRectangle().Contains(Cursor.Location) || control.Focused))
                 {
                     control.IsActive = true;
                     activeControl = control;
@@ -655,8 +668,8 @@ namespace Rampastring.XNAUI
 
 #if DEBUG
             Renderer.DrawString("Active control " + activeControlName, 0, Vector2.Zero, Color.Red, 1.0f);
-#endif
 
+#endif
             if (Cursor.Visible)
                 Cursor.Draw(gameTime);
 

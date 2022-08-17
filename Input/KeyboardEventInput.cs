@@ -1,6 +1,11 @@
 ﻿using Microsoft.Xna.Framework;
 using System;
+using Windows.Win32;
 using System.Runtime.InteropServices;
+using Windows.Win32.Foundation;
+using Windows.Win32.UI.WindowsAndMessaging;
+using System.ComponentModel;
+using Windows.Win32.Globalization;
 
 namespace Rampastring.XNAUI.Input
 {
@@ -29,66 +34,58 @@ namespace Rampastring.XNAUI.Input
         ///// </summary>
         //public static event KeyEventHandler KeyUp;
 
-        delegate IntPtr WndProc(IntPtr hWnd, uint msg, IntPtr wParam, IntPtr lParam);
-
         static bool initialized;
         static IntPtr prevWndProc;
-        static WndProc hookProcDelegate;
-        static IntPtr hIMC;
-
-        //various Win32 constants that we need
-        const int GWL_WNDPROC = -4;
-        const int WM_KEYDOWN = 0x100;
-        const int WM_KEYUP = 0x101;
-        const int WM_CHAR = 0x102;
-        const int WM_IME_SETCONTEXT = 0x0281;
-        const int WM_INPUTLANGCHANGE = 0x51;
-        const int WM_GETDLGCODE = 0x87;
-        const int WM_IME_COMPOSITION = 0x10f;
-        const int DLGC_WANTALLKEYS = 4;
-
-        //Win32 functions that we're using
-        [DllImport("Imm32.dll")]
-        static extern IntPtr ImmGetContext(IntPtr hWnd);
-
-        [DllImport("Imm32.dll")]
-        static extern IntPtr ImmAssociateContext(IntPtr hWnd, IntPtr hIMC);
-
-        [DllImport("user32.dll")]
-        static extern IntPtr CallWindowProc(IntPtr lpPrevWndFunc, IntPtr hWnd, uint Msg, IntPtr wParam, IntPtr lParam);
-
-        [DllImport("user32.dll")]
-        static extern int SetWindowLong(IntPtr hWnd, int nIndex, int dwNewLong);
+        static WNDPROC hookProcDelegate;
+        static HIMC hIMC;
 
         /// <summary>
         /// Initialize the TextInput with the given GameWindow.
         /// </summary>
         /// <param name="window">The XNA window to which text input should be linked.</param>
+#if !NETFRAMEWORK
+        [System.Runtime.Versioning.SupportedOSPlatform("windows5.1.2600")]
+#endif
         public static void Initialize(GameWindow window)
         {
-#if LINUX
-            return;
-#endif
-
             if (initialized)
                 throw new InvalidOperationException("KeyboardEventInput.Initialize can only be called once!");
 
-            hookProcDelegate = new WndProc(HookProc);
-            prevWndProc = (IntPtr)SetWindowLong(window.Handle, GWL_WNDPROC,
-                (int)Marshal.GetFunctionPointerForDelegate(hookProcDelegate));
+            hookProcDelegate = HookProc;
 
-            hIMC = ImmGetContext(window.Handle);
+            if (Environment.Is64BitProcess)
+            {
+                nint result = PInvoke.SetWindowLongPtr((HWND)window.Handle, WINDOW_LONG_PTR_INDEX.GWL_WNDPROC, Marshal.GetFunctionPointerForDelegate(hookProcDelegate));
+
+                if (result == IntPtr.Zero)
+                    throw new Win32Exception(Marshal.GetLastWin32Error());
+
+                prevWndProc = result;
+            }
+            else
+            {
+                var result = (IntPtr)PInvoke.SetWindowLong((HWND)window.Handle, WINDOW_LONG_PTR_INDEX.GWL_WNDPROC, (int)Marshal.GetFunctionPointerForDelegate(hookProcDelegate));
+
+                if (result == IntPtr.Zero)
+                    throw new Win32Exception(Marshal.GetLastWin32Error());
+
+                prevWndProc = result;
+            }
+
+            hIMC = PInvoke.ImmGetContext((HWND)window.Handle);
             initialized = true;
         }
 
-        static IntPtr HookProc(IntPtr hWnd, uint msg, IntPtr wParam, IntPtr lParam)
+        private static LRESULT HookProc(HWND hWnd, uint msg, WPARAM wParam, LPARAM lParam)
         {
-            IntPtr returnCode = CallWindowProc(prevWndProc, hWnd, msg, wParam, lParam);
+            Delegate xnaDelegate = Marshal.GetDelegateForFunctionPointer(prevWndProc, typeof(Action));
+            var wndProcDelegate = (WndProcDelegate)Delegate.CreateDelegate(typeof(WndProcDelegate), xnaDelegate.Target, xnaDelegate.Method, false);
+            var returnCode = (LRESULT)PInvoke.CallWindowProc(wndProcDelegate, hWnd, msg, (nint)(nuint)wParam, lParam);
 
             switch (msg)
             {
-                case WM_GETDLGCODE:
-                    returnCode = (IntPtr)(returnCode.ToInt32() | DLGC_WANTALLKEYS);
+                case PInvoke.WM_GETDLGCODE:
+                    returnCode = (LRESULT)(returnCode | (nint)PInvoke.DLGC_WANTALLKEYS);
                     break;
 
                 //case WM_KEYDOWN:
@@ -101,19 +98,18 @@ namespace Rampastring.XNAUI.Input
                 //        KeyUp(null, new KeyEventArgs((Keys)wParam));
                 //    break;
 
-                case WM_CHAR:
-                    if (CharEntered != null)
-                        CharEntered(null, new KeyboardEventArgs((char)wParam, lParam.ToInt32()));
+                case PInvoke.WM_CHAR:
+                    CharEntered?.Invoke(null, new KeyboardEventArgs((char)wParam, (int)lParam));
                     break;
 
-                case WM_IME_SETCONTEXT:
-                    if (wParam.ToInt32() == 1)
-                        ImmAssociateContext(hWnd, hIMC);
+                case PInvoke.WM_IME_SETCONTEXT:
+                    if (wParam == 1)
+                        PInvoke.ImmAssociateContext(hWnd, hIMC);
                     break;
 
-                case WM_INPUTLANGCHANGE:
-                    ImmAssociateContext(hWnd, hIMC);
-                    returnCode = (IntPtr)1;
+                case PInvoke.WM_INPUTLANGCHANGE:
+                    PInvoke.ImmAssociateContext(hWnd, hIMC);
+                    returnCode = (LRESULT)1;
                     break;
             }
 
