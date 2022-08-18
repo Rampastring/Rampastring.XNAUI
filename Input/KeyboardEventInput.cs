@@ -99,7 +99,7 @@ namespace Rampastring.XNAUI.Input
                 //    break;
 
                 case PInvoke.WM_CHAR:
-                    CharEntered?.Invoke(null, new KeyboardEventArgs((char)wParam, (int)lParam));
+                    CharEntered?.Invoke(null, new KeyboardEventArgs((char)wParam.Value, (int)lParam.Value));
                     break;
 
                 case PInvoke.WM_IME_SETCONTEXT:
