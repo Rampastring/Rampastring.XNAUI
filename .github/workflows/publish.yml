@@ -33,7 +33,7 @@ jobs:
         dotnet pack Rampastring.XNAUI.csproj --configuration WindowsGLDebug -p:AssemblyVersion=$env:GitVersion_AssemblySemVer -p:FileVersion=$env:GitVersion_AssemblySemFileVer -p:InformationalVersion=$env:GitVersion_InformationalVersion -p:PackageVersion=$env:GitVersion_NuGetVersionV2
         dotnet pack Rampastring.XNAUI.csproj --configuration WindowsXNADebug -p:PlatformTarget=x86 -p:AssemblyVersion=$env:GitVersion_AssemblySemVer -p:FileVersion=$env:GitVersion_AssemblySemFileVer -p:InformationalVersion=$env:GitVersion_InformationalVersion -p:PackageVersion=$env:GitVersion_NuGetVersionV2
     - name: Push
-      run: dotnet nuget push bin\Release\*.nupkg --api-key ${{ secrets.NUGET_API_KEY }} --source https://api.nuget.org/v3/index.json
+      run: dotnet nuget push bin\*\*.nupkg --api-key ${{ secrets.NUGET_API_KEY }} --source https://api.nuget.org/v3/index.json
     - name: Prerelease
       if: ${{ env.GitVersion_PreReleaseTag != '' }}
       run: gh release create ${{ format('v{0}', env.GitVersion_SemVer) }} --generate-notes --target ${{ github.sha }} --prerelease
