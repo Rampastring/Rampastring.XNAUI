@@ -5,7 +5,14 @@
     <SupportedOSPlatformVersion Condition="'$(Configuration)' != 'UniversalGLDebug' And '$(Configuration)' != 'UniversalGLRelease'">10.0.22000.0</SupportedOSPlatformVersion>
     <TargetPlatformMinVersion Condition="'$(Configuration)' != 'UniversalGLDebug' And '$(Configuration)' != 'UniversalGLRelease'">7.0</TargetPlatformMinVersion>
     <UseWindowsForms Condition="'$(Configuration)' != 'UniversalGLDebug' And '$(Configuration)' != 'UniversalGLRelease'">true</UseWindowsForms>
-    <Title>Rampastring.XNAUI</Title>
+    <Title Condition="'$(Configuration)' == 'WindowsDXRelease'">Rampastring.XNAUI (WindowsDX)</Title>
+    <Title Condition="'$(Configuration)' == 'WindowsGLRelease'">Rampastring.XNAUI (WindowsGL)</Title>
+    <Title Condition="'$(Configuration)' == 'UniversalGLRelease'">Rampastring.XNAUI (UniversalGL)</Title>
+    <Title Condition="'$(Configuration)' == 'WindowsXNARelease'">Rampastring.XNAUI (XNA)</Title>
+    <Title Condition="'$(Configuration)' == 'WindowsDXDebug'">Rampastring.XNAUI (WindowsDX Debug Build)</Title>
+    <Title Condition="'$(Configuration)' == 'WindowsGLDebug'">Rampastring.XNAUI (WindowsGL Debug Build)</Title>
+    <Title Condition="'$(Configuration)' == 'UniversalGLDebug'">Rampastring.XNAUI (UniversalGL Debug Build)</Title>
+    <Title Condition="'$(Configuration)' == 'WindowsXNADebug'">Rampastring.XNAUI (XNA Debug Build)</Title>
     <Description>Rampastring XNA/MonoGame UI Library</Description>
     <Company>Rampastring</Company>
     <Product>Rampastring.XNAUI</Product>
@@ -36,7 +43,14 @@
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <TargetsForTfmSpecificBuildOutput>$(TargetsForTfmSpecificBuildOutput);IncludeXNAAssemblies</TargetsForTfmSpecificBuildOutput>
     <TargetsForTfmSpecificContentInPackage>$(TargetsForTfmSpecificContentInPackage);IncludeDesktopGLAssemblies</TargetsForTfmSpecificContentInPackage>
-    <PackageId>Rampastring.XNAUI</PackageId>
+    <PackageId Condition="'$(Configuration)' == 'WindowsDXRelease'">Rampastring.XNAUI.WindowsDX</PackageId>
+    <PackageId Condition="'$(Configuration)' == 'WindowsGLRelease'">Rampastring.XNAUI.WindowsGL</PackageId>
+    <PackageId Condition="'$(Configuration)' == 'UniversalGLRelease'">Rampastring.XNAUI.UniversalGL</PackageId>
+    <PackageId Condition="'$(Configuration)' == 'WindowsXNARelease'">Rampastring.XNAUI.WindowsXNA</PackageId>
+    <PackageId Condition="'$(Configuration)' == 'WindowsDXDebug'">Rampastring.XNAUI.WindowsDX.Debug</PackageId>
+    <PackageId Condition="'$(Configuration)' == 'WindowsGLDebug'">Rampastring.XNAUI.WindowsGL.Debug</PackageId>
+    <PackageId Condition="'$(Configuration)' == 'UniversalGLDebug'">Rampastring.XNAUI.UniversalGL.Debug</PackageId>
+    <PackageId Condition="'$(Configuration)' == 'WindowsXNADebug'">Rampastring.XNAUI.WindowsXNA.Debug</PackageId>
     <PackageTags></PackageTags>
     <PackageProjectUrl>https://github.com/Rampastring/Rampastring.XNAUI</PackageProjectUrl>
     <PublishRepositoryUrl>true</PublishRepositoryUrl>
