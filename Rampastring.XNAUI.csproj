@@ -60,6 +60,10 @@
   <PropertyGroup Condition="'$(Configuration)' == 'WindowsXNADebug' Or '$(Configuration)' == 'WindowsXNARelease'">
     <DefineConstants>$(DefineConstants);XNA;WINFORMS;ISWINDOWS</DefineConstants>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)'=='WindowsDXRelease' Or '$(Configuration)'=='UniversalGLRelease' Or '$(Configuration)'=='WindowsGLRelease' Or '$(Configuration)'=='WindowsXNARelease'">
+    <Optimize>true</Optimize>
+    <EnforceCodeStyleInBuild>false</EnforceCodeStyleInBuild>
+  </PropertyGroup>
   <Target Name="IncludeXNAAssemblies" Condition="$(DefineConstants.Contains('XNA'))">
     <ItemGroup>
       <BuildOutputInPackage Include="References\XNA\*" />
