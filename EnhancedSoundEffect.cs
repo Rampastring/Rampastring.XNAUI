@@ -106,7 +106,17 @@ namespace Rampastring.XNAUI
         /// </summary>
         public void Dispose()
         {
-            soundEffect?.Dispose();
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+                soundEffect?.Dispose();
+                soundEffect = null;
+            }
         }
     }
 

@@ -41,7 +41,7 @@ namespace Rampastring.XNAUI
                 throw new ArgumentException("GUICreator.AddControl: Type needs to be a class type derived from XNAControl.");
 
             if (controlTypes.Contains(type))
-                throw new Exception("GUICreator.AddControl: The type " + type.Name + " is already added to the control type list!");
+                throw new InvalidOperationException("GUICreator.AddControl: The type " + type.Name + " is already added to the control type list!");
 
             controlTypes.Add(type);
         }
