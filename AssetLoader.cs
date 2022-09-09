@@ -9,6 +9,7 @@ using Microsoft.Xna.Framework.Media;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Formats.Png;
 using Color = Microsoft.Xna.Framework.Color;
+using System.Globalization;
 
 namespace Rampastring.XNAUI
 {
@@ -249,6 +250,24 @@ namespace Rampastring.XNAUI
         }
 
         /// <summary>
+        /// Loads an <see cref="Effect"/> with the specified name.
+        /// </summary>
+        /// <param name="name">The name of the effect.</param>
+        /// <returns>The loaded effect, or null if loading the effect fails.</returns>
+        public static Effect LoadEffect(string name)
+        {
+            try
+            {
+                return contentManager.Load<Effect>(name);
+            }
+            catch (Exception ex)
+            {
+                Logger.Log("Loading shader effect " + name + " failed! Message: " + ex.Message);
+                return null;
+            }
+        }
+
+        /// <summary>
         /// Creates a color based on a color string in the form "R,G,B" or "R,G,B,A". All values must be between 0 and 255.
         /// </summary>
         /// <param name="colorString">The color string in the form "R,G,B,A". All values must be between 0 and 255.</param>
@@ -262,11 +281,15 @@ namespace Rampastring.XNAUI
                 int alpha = 255;
                 if (colorArray.Length == 4)
                 {
-                    alpha = Convert.ToByte(colorArray[3]);
+                    alpha = Convert.ToByte(colorArray[3], CultureInfo.InvariantCulture);
                 }
 
-                Color color = new Color(Convert.ToByte(colorArray[0]),
-                    Convert.ToByte(colorArray[1]), Convert.ToByte(colorArray[2]), alpha);
+                var color = new Color(
+                    Convert.ToByte(colorArray[0], CultureInfo.InvariantCulture),
+                    Convert.ToByte(colorArray[1], CultureInfo.InvariantCulture),
+                    Convert.ToByte(colorArray[2], CultureInfo.InvariantCulture),
+                    alpha);
+
                 return color;
             }
             catch
@@ -302,15 +325,16 @@ namespace Rampastring.XNAUI
             try
             {
                 string[] colorArray = colorString.Split(',');
-                Color color = new Color(Convert.ToByte(colorArray[0]),
-                    Convert.ToByte(colorArray[1]),
-                    Convert.ToByte(colorArray[2]),
-                    Convert.ToByte(colorArray[3]));
+                Color color = new Color(
+                    Convert.ToByte(colorArray[0], CultureInfo.InvariantCulture),
+                    Convert.ToByte(colorArray[1], CultureInfo.InvariantCulture),
+                    Convert.ToByte(colorArray[2], CultureInfo.InvariantCulture),
+                    Convert.ToByte(colorArray[3], CultureInfo.InvariantCulture));
                 return color;
             }
             catch
             {
-                throw new Exception("AssetLoader.GetRGBAColorFromString: Failed to convert " + colorString + " to a valid color!");
+                throw new FormatException("AssetLoader.GetRGBAColorFromString: Failed to convert " + colorString + " to a valid color!");
             }
         }
     }
