@@ -1246,14 +1246,14 @@ namespace Rampastring.XNAUI.XNAControls
                 RefreshRenderTarget();
 
             drawPoint = Point.Zero;
-            RenderTargetStack.PushRenderTarget(RenderTarget);
+            Renderer.PushRenderTarget(RenderTarget);
             GraphicsDevice.Clear(Color.Transparent);
             Draw(gameTime);
-            RenderTargetStack.PopRenderTarget();
+            Renderer.PopRenderTarget();
             Rectangle rect = RenderRectangle();
             if (Scaling > 1 && Renderer.CurrentSettings.SamplerState != SamplerState.PointClamp)
             {
-                Renderer.PushSettings(new SpriteBatchSettings(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp));
+                Renderer.PushSettings(new SpriteBatchSettings(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp, null, null, null));
                 DrawUniqueRenderTarget(rect);
                 Renderer.PopSettings();
             }
@@ -1272,13 +1272,13 @@ namespace Rampastring.XNAUI.XNAControls
             if (totalScaling > 1)
             {
                 // We have to use an unique render target for scaling
-                RenderTargetStack.PushRenderTarget(RenderTargetStack.DetachedScaledControlRenderTarget);
+                Renderer.PushRenderTarget(RenderTargetStack.DetachedScaledControlRenderTarget);
                 Draw(gameTime);
-                RenderTargetStack.PopRenderTarget();
+                Renderer.PopRenderTarget();
                 Rectangle renderRectangle = RenderRectangle();
                 if (Renderer.CurrentSettings.SamplerState != SamplerState.PointClamp)
                 {
-                    Renderer.PushSettings(new SpriteBatchSettings(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp));
+                    Renderer.PushSettings(new SpriteBatchSettings(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp, null, null, null));
                     DrawDetachedScaledTexture(renderRectangle, totalScaling);
                     Renderer.PopSettings();
                 }
@@ -1364,7 +1364,7 @@ namespace Rampastring.XNAUI.XNAControls
         /// </summary>
         public void DrawTexture(Texture2D texture, Rectangle sourceRectangle, Rectangle destinationRectangle, Color color)
         {
-            Rectangle destRect = new Rectangle(drawPoint.X + destinationRectangle.X,
+            var destRect = new Rectangle(drawPoint.X + destinationRectangle.X,
                 drawPoint.Y + destinationRectangle.Y,
                 destinationRectangle.Width,
                 destinationRectangle.Height);
@@ -1375,11 +1375,24 @@ namespace Rampastring.XNAUI.XNAControls
         /// <summary>
         /// Draws a texture relative to the control's location.
         /// </summary>
-        public void DrawTexture(Texture2D texture, Vector2 location, float rotation, Vector2 origin, Vector2 scale, Color color)
+        public void DrawTexture(Texture2D texture, Vector2 location, float rotation, Vector2 origin, Vector2 scale, Color color, float layerDepth)
         {
             Renderer.DrawTexture(texture,
                 new Vector2(location.X + drawPoint.X, location.Y + drawPoint.Y),
-                rotation, origin, scale, color);
+                rotation, origin, scale, color, layerDepth);
+        }
+
+        /// <summary>
+        /// Draws a texture relative to the control's location.
+        /// </summary>
+        public void DrawTexture(Texture2D texture, Rectangle destinationRectangle, Rectangle? sourceRectangle, Color color, float rotation, Vector2 origin, SpriteEffects effects, float layerDepth)
+        {
+            var destRect = new Rectangle(drawPoint.X + destinationRectangle.X,
+                drawPoint.Y + destinationRectangle.Y,
+                destinationRectangle.Width,
+                destinationRectangle.Height);
+
+            Renderer.DrawTexture(texture, destRect, sourceRectangle, color, rotation, origin, effects, layerDepth);
         }
 
         /// <summary>
@@ -1446,10 +1459,11 @@ namespace Rampastring.XNAUI.XNAControls
         /// <param name="end">The end point of the line.</param>
         /// <param name="color">The color of the line.</param>
         /// <param name="thickness">The thickness of the line.</param>
-        public void DrawLine(Vector2 start, Vector2 end, Color color, int thickness = 1)
+        /// <param name="depth">The depth of the line for the depth buffer.</param>
+        public void DrawLine(Vector2 start, Vector2 end, Color color, int thickness = 1, float depth = 0f)
         {
             Renderer.DrawLine(new Vector2(start.X + drawPoint.X, start.Y + drawPoint.Y),
-                new Vector2(end.X + drawPoint.X, end.Y + drawPoint.Y), color, thickness);
+                new Vector2(end.X + drawPoint.X, end.Y + drawPoint.Y), color, thickness, depth);
         }
 
 #endregion

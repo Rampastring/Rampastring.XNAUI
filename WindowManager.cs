@@ -617,7 +617,7 @@ namespace Rampastring.XNAUI
 
             Renderer.ClearStack();
             Renderer.CurrentSettings = new SpriteBatchSettings(
-                SpriteSortMode.Deferred, BlendState.AlphaBlend, null);
+                SpriteSortMode.Deferred, BlendState.AlphaBlend, null, null, null, null);
             Renderer.BeginDraw();
 
             for (int i = 0; i < Controls.Count; i++)
@@ -635,7 +635,7 @@ namespace Rampastring.XNAUI
                 GraphicsDevice.SetRenderTarget(doubledRenderTarget);
                 GraphicsDevice.Clear(Color.Black);
                 Renderer.CurrentSettings = new SpriteBatchSettings(SpriteSortMode.Deferred,
-                    BlendState.NonPremultiplied, SamplerState.PointWrap);
+                    BlendState.NonPremultiplied, SamplerState.PointWrap, null, null, null);
                 Renderer.BeginDraw();
                 Renderer.DrawTexture(renderTarget, new Rectangle(0, 0,
                     RenderResolutionX * 2, RenderResolutionY * 2), Color.White);
@@ -658,7 +658,7 @@ namespace Rampastring.XNAUI
                 scalingSamplerState = SamplerState.PointClamp;
 
             Renderer.CurrentSettings = new SpriteBatchSettings(SpriteSortMode.Deferred,
-                    BlendState.NonPremultiplied, scalingSamplerState);
+                    BlendState.NonPremultiplied, scalingSamplerState, null, null, null);
             Renderer.BeginDraw();
 
             RenderTarget2D renderTargetToDraw = doubledRenderTarget != null ? doubledRenderTarget : renderTarget;

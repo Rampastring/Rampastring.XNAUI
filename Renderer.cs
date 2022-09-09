@@ -10,16 +10,22 @@ namespace Rampastring.XNAUI
 {
     public struct SpriteBatchSettings
     {
-        public SpriteBatchSettings(SpriteSortMode ssm, BlendState bs, SamplerState ss)
+        public SpriteBatchSettings(SpriteSortMode ssm, BlendState bs, SamplerState ss, DepthStencilState dss, RasterizerState rs, Effect effect)
         {
             SpriteSortMode = ssm;
             BlendState = bs;
             SamplerState = ss;
+            DepthStencilState = dss;
+            RasterizerState = rs;
+            Effect = effect;
         }
 
-        public SpriteSortMode SpriteSortMode { get; }
-        public SamplerState SamplerState { get; }
-        public BlendState BlendState { get; }
+        public readonly SpriteSortMode SpriteSortMode;
+        public readonly SamplerState SamplerState;
+        public readonly BlendState BlendState;
+        public readonly DepthStencilState DepthStencilState;
+        public readonly RasterizerState RasterizerState;
+        public readonly Effect Effect;
     }
 
     /// <summary>
@@ -38,6 +44,8 @@ namespace Rampastring.XNAUI
         private static readonly LinkedList<SpriteBatchSettings> settingStack = new LinkedList<SpriteBatchSettings>();
 
         internal static SpriteBatchSettings CurrentSettings;
+
+        public static SpriteBatchSettings GetCurrentSettings() => CurrentSettings;
 
         public static void Initialize(GraphicsDevice gd, ContentManager content, string contentPath)
         {
@@ -179,7 +187,10 @@ namespace Rampastring.XNAUI
             spriteBatch.End();
         }
 
-        public static void PushRenderTarget(RenderTarget2D renderTarget) => RenderTargetStack.PushRenderTarget(renderTarget);
+        public static void PushRenderTarget(RenderTarget2D renderTarget) => RenderTargetStack.PushRenderTarget(renderTarget,
+            new SpriteBatchSettings(SpriteSortMode.Deferred, BlendState.AlphaBlend, null, null, null, null));
+
+        public static void PushRenderTarget(RenderTarget2D renderTarget, SpriteBatchSettings settings) => RenderTargetStack.PushRenderTarget(renderTarget, settings);
 
         public static void PopRenderTarget() => RenderTargetStack.PopRenderTarget();
 
@@ -190,15 +201,14 @@ namespace Rampastring.XNAUI
         //blendState.ColorSourceBlend = Blend.SourceAlpha;
 
         internal static void BeginDrawInternal(SpriteBatchSettings settings) =>
-            BeginDrawInternal(settings.SpriteSortMode, settings.BlendState, settings.SamplerState);
+            BeginDrawInternal(settings.SpriteSortMode, settings.BlendState, settings.SamplerState, settings.DepthStencilState, settings.RasterizerState, settings.Effect);
 
-        internal static void BeginDrawInternal(SpriteSortMode ssm, BlendState bs, SamplerState ss)
+        internal static void BeginDrawInternal(SpriteSortMode ssm, BlendState bs, SamplerState ss, DepthStencilState dss, RasterizerState rs, Effect effect)
         {
 #if XNA
             spriteBatch.Begin(ssm, bs, ss, DepthStencilState.Default, RasterizerState.CullNone);
 #else
-            spriteBatch.Begin(ssm, bs, ss,
-                DepthStencilState.None, RasterizerState.CullCounterClockwise);
+            spriteBatch.Begin(ssm, bs, ss, dss, rs, effect);
 #endif
         }
 
@@ -230,14 +240,19 @@ namespace Rampastring.XNAUI
             spriteBatch.Draw(texture, destinationRectangle, sourceRectangle, color);
         }
 
-        public static void DrawTexture(Texture2D texture, Rectangle sourceRectangle, Vector2 location, float rotation, Vector2 origin, Vector2 scale, Color color)
+        public static void DrawTexture(Texture2D texture, Rectangle sourceRectangle, Vector2 location, float rotation, Vector2 origin, Vector2 scale, Color color, float layerDepth = 0f)
         {
-            spriteBatch.Draw(texture, location, sourceRectangle, color, rotation, origin, scale, SpriteEffects.None, 0f);
+            spriteBatch.Draw(texture, location, sourceRectangle, color, rotation, origin, scale, SpriteEffects.None, layerDepth);
         }
 
-        public static void DrawTexture(Texture2D texture, Vector2 location, float rotation, Vector2 origin, Vector2 scale, Color color)
+        public static void DrawTexture(Texture2D texture, Rectangle destinationRectangle, Rectangle? sourceRectangle, Color color, float rotation, Vector2 origin, SpriteEffects effects, float layerDepth)
         {
-            spriteBatch.Draw(texture, location, null, color, rotation, origin, scale, SpriteEffects.None, 0f);
+            spriteBatch.Draw(texture, destinationRectangle, sourceRectangle, color, rotation, origin, effects, layerDepth);
+        }
+
+        public static void DrawTexture(Texture2D texture, Vector2 location, float rotation, Vector2 origin, Vector2 scale, Color color, float layerDepth = 0f)
+        {
+            spriteBatch.Draw(texture, location, null, color, rotation, origin, scale, SpriteEffects.None, layerDepth);
         }
 
         /// <summary>
@@ -274,8 +289,9 @@ namespace Rampastring.XNAUI
         /// <param name="color">The remap color of the texture.</param>
         /// <param name="precision">How many times the texture is drawn on the perimiter.</param>
         /// <param name="scale">The scale of the drawn texture compared to the size of the texture itself.</param>
+        /// <param name="layerDepth">The depth of the texture.</param>
         public static void DrawCircleWithTexture(Vector2 position, float radius,
-            Texture2D texture, Color color, int precision = 8, float scale = 1f)
+            Texture2D texture, Color color, int precision = 8, float scale = 1f, float layerDepth = 0f)
         {
             float angle = 0f;
             float increase = (float)Math.PI * 2f / precision;
@@ -286,21 +302,21 @@ namespace Rampastring.XNAUI
             {
                 DrawTexture(texture, point, 0f,
                     new Vector2(texture.Width / 2f, texture.Height / 2f),
-                    new Vector2(scale, scale), color);
+                    new Vector2(scale, scale), color, layerDepth);
                 point = position + RMath.VectorFromLengthAndAngle(radius, angle);
                 angle += increase;
             }
         }
 
-        public static void DrawString(string text, int fontIndex, Vector2 location, Color color, float scale = 1.0f)
+        public static void DrawString(string text, int fontIndex, Vector2 location, Color color, float scale = 1.0f, float depth = 0f)
         {
             if (fontIndex >= fonts.Count)
                 throw new Exception("Invalid font index: " + fontIndex);
 
-            spriteBatch.DrawString(fonts[fontIndex], text, location, color, 0f, Vector2.Zero, scale, SpriteEffects.None, 0f);
+            spriteBatch.DrawString(fonts[fontIndex], text, location, color, 0f, Vector2.Zero, scale, SpriteEffects.None, depth);
         }
 
-        public static void DrawStringWithShadow(string text, int fontIndex, Vector2 location, Color color, float scale = 1.0f, float shadowDistance = 1.0f)
+        public static void DrawStringWithShadow(string text, int fontIndex, Vector2 location, Color color, float scale = 1.0f, float shadowDistance = 1.0f, float depth = 0f)
         {
             if (fontIndex >= fonts.Count)
                 throw new Exception("Invalid font index: " + fontIndex);
@@ -313,10 +329,10 @@ namespace Rampastring.XNAUI
             spriteBatch.DrawString(fonts[fontIndex], text,
                 new Vector2(location.X + shadowDistance, location.Y + shadowDistance),
                 UISettings.ActiveSettings.TextShadowColor * (color.A / 255.0f),
-                0f, Vector2.Zero, scale, SpriteEffects.None, 0f);
+                0f, Vector2.Zero, scale, SpriteEffects.None, depth);
 #endif
 
-            spriteBatch.DrawString(fonts[fontIndex], text, location, color, 0f, Vector2.Zero, scale, SpriteEffects.None, 0f);
+            spriteBatch.DrawString(fonts[fontIndex], text, location, color, 0f, Vector2.Zero, scale, SpriteEffects.None, depth);
         }
 
         public static void DrawRectangle(Rectangle rect, Color color, int thickness = 1)
@@ -340,7 +356,7 @@ namespace Rampastring.XNAUI
             return fonts[fontIndex].MeasureString(text);
         }
 
-        public static void DrawLine(Vector2 start, Vector2 end, Color color, int thickness = 1)
+        public static void DrawLine(Vector2 start, Vector2 end, Color color, int thickness = 1, float depth = 0f)
         {
             Vector2 line = end - start;
             if (thickness > 1)
@@ -349,9 +365,10 @@ namespace Rampastring.XNAUI
                 end += offset;
                 start += offset;
             }
+
             spriteBatch.Draw(whitePixelTexture,
                 new Rectangle((int)start.X, (int)start.Y, (int)line.Length(), thickness),
-                null, color, (float)Math.Atan2(line.Y, line.X), new Vector2(0, 0), SpriteEffects.None, 0f);
+                null, color, (float)Math.Atan2(line.Y, line.X), new Vector2(0, 0), SpriteEffects.None, depth);
         }
 
         #endregion

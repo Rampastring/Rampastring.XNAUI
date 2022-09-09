@@ -42,13 +42,6 @@ namespace Rampastring.XNAUI
 
         private static GraphicsDevice graphicsDevice;
 
-        public static void PushRenderTarget(RenderTarget2D renderTarget)
-        {
-            SpriteBatchSettings newSettings =
-                new SpriteBatchSettings(SpriteSortMode.Deferred, BlendState.AlphaBlend, null);
-            PushRenderTarget(renderTarget, newSettings);
-        }
-
         public static void PushRenderTarget(RenderTarget2D renderTarget, SpriteBatchSettings newSettings)
         {
             Renderer.EndDraw();
