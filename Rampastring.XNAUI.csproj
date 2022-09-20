@@ -107,18 +107,6 @@
       <TfmSpecificPackageFile Include="build\GL.targets" Condition="$(DefineConstants.Contains('DEBUG')) And $(DefineConstants.Contains('WINFORMS'))">
         <PackagePath>buildTransitive\Rampastring.XNAUI.WindowsGL.Debug.targets</PackagePath>
       </TfmSpecificPackageFile>
-      <TfmSpecificPackageFile Include="build\GL.targets" Condition="!$(DefineConstants.Contains('DEBUG')) And !$(DefineConstants.Contains('WINFORMS'))">
-        <PackagePath>build\Rampastring.XNAUI.UniversalGL.targets</PackagePath>
-      </TfmSpecificPackageFile>
-      <TfmSpecificPackageFile Include="build\GL.targets" Condition="$(DefineConstants.Contains('DEBUG')) And !$(DefineConstants.Contains('WINFORMS'))">
-        <PackagePath>build\Rampastring.XNAUI.UniversalGL.Debug.targets</PackagePath>
-      </TfmSpecificPackageFile>
-      <TfmSpecificPackageFile Include="build\GL.targets" Condition="!$(DefineConstants.Contains('DEBUG')) And !$(DefineConstants.Contains('WINFORMS'))">
-        <PackagePath>buildTransitive\Rampastring.XNAUI.UniversalGL.targets</PackagePath>
-      </TfmSpecificPackageFile>
-      <TfmSpecificPackageFile Include="build\GL.targets" Condition="$(DefineConstants.Contains('DEBUG')) And !$(DefineConstants.Contains('WINFORMS'))">
-        <PackagePath>buildTransitive\Rampastring.XNAUI.UniversalGL.Debug.targets</PackagePath>
-      </TfmSpecificPackageFile>
     </ItemGroup>
   </Target>
   <ItemGroup>
