@@ -1011,6 +1011,10 @@ namespace Rampastring.XNAUI.XNAControls
                             Width, WindowManager.RenderResolutionY - Y - Conversions.IntFromString(value, 0));
                     }
                     return;
+                case "ControlDrawMode":
+                    if (value == "UniqueRenderTarget")
+                        DrawMode = ControlDrawMode.UNIQUE_RENDER_TARGET;
+                    return;
             }
         }
 
