@@ -408,7 +408,9 @@ public class XNAContextMenu : XNAControl
             FillRectangle(new Rectangle(point.X, point.Y, Width - BORDER_WIDTH * 2, itemHeight), FocusColor);
         }
         else
+        {
             FillRectangle(new Rectangle(point.X, point.Y, Width - BORDER_WIDTH * 2, itemHeight), BackColor);
+        }
 
         int textX = point.X + TextHorizontalPadding;
         if (item.Texture != null)

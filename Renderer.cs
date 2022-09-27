@@ -5,6 +5,7 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Content;
 using System.Text;
 using Rampastring.Tools;
+using System.Globalization;
 
 namespace Rampastring.XNAUI;
 
@@ -59,7 +60,7 @@ public static class Renderer
         int i = 0;
         while (true)
         {
-            string sfName = string.Format("SpriteFont{0}", i);
+            string sfName = string.Format(CultureInfo.InvariantCulture, "SpriteFont{0}", i);
 
             if (SafePath.GetFile(contentPath, FormattableString.Invariant($"{sfName}.xnb")).Exists)
             {

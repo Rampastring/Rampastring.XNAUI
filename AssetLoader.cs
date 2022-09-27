@@ -30,9 +30,7 @@ public static class AssetLoader
     private static List<Texture2D> textureCache;
     private static List<SoundEffect> soundCache;
 
-    private static bool _initialized = false;
-
-    public static bool IsInitialized => _initialized;
+    public static bool IsInitialized { get; private set; } = false;
 
     /// <summary>
     /// Initializes the AssetLoader.
@@ -41,9 +39,9 @@ public static class AssetLoader
     /// <param name="content">The game content manager.</param>
     public static void Initialize(GraphicsDevice gd, ContentManager content)
     {
-        if (_initialized)
+        if (IsInitialized)
             throw new InvalidOperationException("AssetLoader is already initialized.");
-        _initialized = true;
+        IsInitialized = true;
 
         graphicsDevice = gd;
         AssetSearchPaths = new List<string>();

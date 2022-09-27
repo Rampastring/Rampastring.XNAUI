@@ -34,10 +34,10 @@ namespace Rampastring.XNAUI.Input
         ///// </summary>
         //public static event KeyEventHandler KeyUp;
 
-        static bool initialized;
-        static IntPtr prevWndProc;
-        static WNDPROC hookProcDelegate;
-        static HIMC hIMC;
+        private static bool initialized;
+        private static IntPtr prevWndProc;
+        private static WNDPROC hookProcDelegate;
+        private static HIMC hIMC;
 
         /// <summary>
         /// Initialize the TextInput with the given GameWindow.

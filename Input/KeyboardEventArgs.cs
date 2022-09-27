@@ -4,48 +4,39 @@ namespace Rampastring.XNAUI.Input
 {
     public class KeyboardEventArgs : EventArgs
     {
-        private readonly char character;
-        private readonly int lParam;
-
         public KeyboardEventArgs(char character, int lParam)
         {
-            this.character = character;
-            this.lParam = lParam;
+            this.Character = character;
+            this.Param = lParam;
         }
 
-        public char Character
-        {
-            get { return character; }
-        }
+        public char Character { get; private set; }
 
-        public int Param
-        {
-            get { return lParam; }
-        }
+        public int Param { get; private set; }
 
         public int RepeatCount
         {
-            get { return lParam & 0xffff; }
+            get { return Param & 0xffff; }
         }
 
         public bool ExtendedKey
         {
-            get { return (lParam & (1 << 24)) > 0; }
+            get { return (Param & (1 << 24)) > 0; }
         }
 
         public bool AltPressed
         {
-            get { return (lParam & (1 << 29)) > 0; }
+            get { return (Param & (1 << 29)) > 0; }
         }
 
         public bool PreviousState
         {
-            get { return (lParam & (1 << 30)) > 0; }
+            get { return (Param & (1 << 30)) > 0; }
         }
 
         public bool TransitionState
         {
-            get { return (lParam & (1 << 31)) > 0; }
+            get { return (Param & (1 << 31)) > 0; }
         }
     }
 }

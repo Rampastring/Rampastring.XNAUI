@@ -22,7 +22,7 @@ public class XNAControl : DrawableGameComponent
     /// <param name="windowManager">The WindowManager associated with this control.</param>
     public XNAControl(WindowManager windowManager) : base(windowManager.Game)
     {
-        WindowManager = windowManager ?? throw new ArgumentNullException("windowManager");
+        WindowManager = windowManager ?? throw new ArgumentNullException(nameof(windowManager));
     }
 
     /// <summary>
@@ -721,7 +721,7 @@ public class XNAControl : DrawableGameComponent
     public virtual void AddChild(XNAControl child)
     {
         if (child == null)
-            throw new ArgumentNullException("child");
+            throw new ArgumentNullException(nameof(child));
 
         if (isIteratingChildren)
             childAddQueue.Add(child);
@@ -738,7 +738,7 @@ public class XNAControl : DrawableGameComponent
     public void AddChildWithoutInitialize(XNAControl child)
     {
         if (child == null)
-            throw new ArgumentNullException("child");
+            throw new ArgumentNullException(nameof(child));
 
         if (isIteratingChildren)
         {
@@ -746,7 +746,9 @@ public class XNAControl : DrawableGameComponent
                 " while the control is iterating through its children.");
         }
         else
+        {
             AddChildImmediateWithoutInitialize(child);
+        }
     }
 
     /// <summary>

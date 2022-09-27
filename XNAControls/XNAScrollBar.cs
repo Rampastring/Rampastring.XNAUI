@@ -230,7 +230,10 @@ public class XNAScrollBar : XNAControl
 
         if (point.Y < btnScrollUp.Height
             || point.Y > btnScrollDown.Y)
+        {
             return;
+        }
+
 
         if (point.Y <= buttonMinY)
         {

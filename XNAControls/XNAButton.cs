@@ -311,12 +311,16 @@ public class XNAButton : XNAControl
         if (IdleTexture != null)
         {
             if (IdleTextureAlpha > 0f)
+            {
                 DrawTexture(IdleTexture, new Rectangle(0, 0, Width, Height),
                     RemapColor * IdleTextureAlpha * Alpha);
+            }
 
             if (HoverTexture != null && HoverTextureAlpha > 0f)
+            {
                 DrawTexture(HoverTexture, new Rectangle(0, 0, Width, Height),
                     RemapColor * HoverTextureAlpha * Alpha);
+            }
         }
 
         var textPosition = new Vector2(TextXPosition, TextYPosition);

@@ -3,6 +3,7 @@ using Microsoft.Xna.Framework.Graphics;
 using Rampastring.Tools;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 
 namespace Rampastring.XNAUI.XNAControls;
 
@@ -123,7 +124,7 @@ public class XNATabControl : XNAControl
 
         if (key.StartsWith("RemoveTabIndex"))
         {
-            int index = int.Parse(key.Substring(14));
+            int index = int.Parse(key.Substring(14), CultureInfo.InvariantCulture);
             if (Conversions.BooleanFromString(value, false))
                 RemoveTab(index);
         }

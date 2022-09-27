@@ -22,16 +22,10 @@ public class XNATimerControl : XNAControl
         Visible = false;
     }
 
-    private TimeSpan _interval;
-
     /// <summary>
     /// The interval after which the TimeElapsed event is raised.
     /// </summary>
-    public TimeSpan Interval
-    {
-        get { return _interval; }
-        set { _interval = value; }
-    }
+    public TimeSpan Interval { get; set; }
 
     /// <summary>
     /// If set, the timer will automatically restart after calling

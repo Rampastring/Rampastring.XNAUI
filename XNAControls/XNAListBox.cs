@@ -175,9 +175,7 @@ public class XNAListBox : XNAPanel
         }
     }
 
-    private float itemAlphaRate = 0.01f;
-    public float ItemAlphaRate
-    { get { return itemAlphaRate; } set { itemAlphaRate = value; } }
+    public float ItemAlphaRate { get; set; } = 0.01f;
 
     private int selectedIndex = -1;
     public int SelectedIndex
@@ -262,29 +260,17 @@ public class XNAListBox : XNAPanel
         }
     }
 
-    private bool _allowRightClickUnselect = true;
-
     /// <summary>
     /// Gets or sets a bool that determines whether the user is able to un-select
     /// the currently selected listbox item by right-clicking on the list box.
     /// </summary>
-    public bool AllowRightClickUnselect
-    {
-        get { return _allowRightClickUnselect; }
-        set { _allowRightClickUnselect = value; }
-    }
-
-    private bool _drawSelectionUnderScrollbar = false;
+    public bool AllowRightClickUnselect { get; set; } = true;
 
     /// <summary>
     /// Controls whether the highlighted background of the selected item should
     /// be drawn under the scrollbar area.
     /// </summary>
-    public bool DrawSelectionUnderScrollbar
-    {
-        get { return _drawSelectionUnderScrollbar; }
-        set { _drawSelectionUnderScrollbar = value; }
-    }
+    public bool DrawSelectionUnderScrollbar { get; set; } = false;
 
     #endregion
 
@@ -844,7 +830,9 @@ public class XNAListBox : XNAPanel
                 return -1;
         }
         else if (mouseLocation.X > Width)
+        {
             return -1;
+        }
 
         var drawInfo = GetTopIndexAndDrawOffset();
         int height = MARGIN + drawInfo.YDrawOffset;
@@ -932,7 +920,9 @@ public class XNAListBox : XNAPanel
                 textureWidth = (int)(textureWidth / scaleRatio);
             }
             else
+            {
                 textureYPosition = (LineHeight - textureHeight) / 2;
+            }
 
             DrawTexture(lbItem.Texture,
                 new Rectangle(x, y + textureYPosition,

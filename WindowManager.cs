@@ -166,14 +166,14 @@ public class WindowManager : DrawableGameComponent
             ratio = yRatio;
             textureHeight = WindowHeight;
             textureWidth = (int)(RenderResolutionX * ratio);
-            texturePositionX = (int)(WindowWidth - textureWidth) / 2;
+            texturePositionX = (WindowWidth - textureWidth) / 2;
         }
         else
         {
             ratio = xRatio;
             textureWidth = WindowWidth;
             textureHeight = (int)(RenderResolutionY * ratio);
-            texturePositionY = (int)(WindowHeight - textureHeight) / 2;
+            texturePositionY = (WindowHeight - textureHeight) / 2;
         }
 
         ScaleRatio = ratio;
@@ -584,7 +584,9 @@ public class WindowManager : DrawableGameComponent
                 activeControlName = control.Name;
             }
             else
+            {
                 control.IsActive = false;
+            }
 
             if (control.Enabled)
             {
@@ -668,7 +670,7 @@ public class WindowManager : DrawableGameComponent
                 BlendState.NonPremultiplied, scalingSamplerState, null, null, null);
         Renderer.BeginDraw();
 
-        RenderTarget2D renderTargetToDraw = doubledRenderTarget != null ? doubledRenderTarget : renderTarget;
+        RenderTarget2D renderTargetToDraw = doubledRenderTarget ?? renderTarget;
 
         Renderer.DrawTexture(renderTargetToDraw, new Rectangle(SceneXPosition, SceneYPosition,
             WindowWidth - (SceneXPosition * 2), WindowHeight - (SceneYPosition * 2)), Color.White);

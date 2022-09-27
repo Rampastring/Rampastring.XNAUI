@@ -512,7 +512,9 @@ public class XNADropDown : XNAControl
                 }
             }
             else
+            {
                 DrawTexture(DropDownTexture, ddRectangle, RemapColor);
+            }
         }
 
         base.Draw(gameTime);
@@ -533,7 +535,9 @@ public class XNADropDown : XNAControl
             FillRectangle(new Rectangle(1, y, Width - 2, ItemHeight), FocusColor);
         }
         else
+        {
             FillRectangle(new Rectangle(1, y, Width - 2, ItemHeight), BackColor);
+        }
 
         int textX = 2;
         if (item.Texture != null)

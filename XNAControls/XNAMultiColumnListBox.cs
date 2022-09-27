@@ -78,7 +78,6 @@ public class XNAMultiColumnListBox : XNAPanel
                     lb.SelectedIndex = value;
             }
         }
-
     }
 
     public int HoveredIndex
@@ -190,7 +189,7 @@ public class XNAMultiColumnListBox : XNAPanel
         }
 
         const string columnWidthKeyStart = "ColumnWidth";
-        if (key.StartsWith(columnWidthKeyStart))
+        if (key.StartsWith(columnWidthKeyStart, StringComparison.InvariantCulture))
         {
             int headerIndex = Conversions.IntFromString(key.Substring(columnWidthKeyStart.Length), -1);
             if (headerIndex == -1 || headerIndex >= headers.Count)
@@ -199,7 +198,7 @@ public class XNAMultiColumnListBox : XNAPanel
             ChangeColumnWidth(headerIndex, Conversions.IntFromString(value, headers[headerIndex].Width));
         }
 
-        if (key.StartsWith("Column"))
+        if (key.StartsWith("Column", StringComparison.InvariantCulture))
         {
             string[] parts = value.Split(':');
             if (parts.Length != 2)
@@ -213,7 +212,7 @@ public class XNAMultiColumnListBox : XNAPanel
 
         // Usage: ListBoxYAttribute:<AttrName>=<value>
         // Allows setting list box attributes
-        if (key.StartsWith("ListBox") && key.Length > "ListBoxYAttribute:".Length)
+        if (key.StartsWith("ListBox", StringComparison.InvariantCulture) && key.Length > "ListBoxYAttribute:".Length)
         {
             int listBoxId = Conversions.IntFromString(key.Substring("ListBox".Length, 1), -1);
             if (listBoxId == -1)
