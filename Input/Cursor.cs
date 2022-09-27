@@ -6,168 +6,166 @@ using System.IO;
 using Rampastring.Tools;
 using Windows.Win32;
 
-namespace Rampastring.XNAUI.Input
+namespace Rampastring.XNAUI.Input;
+
+public class Cursor : DrawableGameComponent
 {
-    public class Cursor : DrawableGameComponent
+    public Cursor(WindowManager windowManager)
+        : base(windowManager.Game)
     {
-        public Cursor(WindowManager windowManager)
-            : base(windowManager.Game)
-        {
-            previousMouseState = Mouse.GetState();
-            RemapColor = Color.White;
-            this.windowManager = windowManager;
-        }
+        previousMouseState = Mouse.GetState();
+        RemapColor = Color.White;
+        this.windowManager = windowManager;
+    }
 
-        public event EventHandler LeftClickEvent;
+    public event EventHandler LeftClickEvent;
 
-        public Point Location { get; set; }
-        Point DrawnLocation { get; set; }
+    public Point Location { get; set; }
+    private Point DrawnLocation { get; set; }
 
-        public bool HasMoved { get; private set; }
-        public bool IsOnScreen { get; private set; }
+    public bool HasMoved { get; private set; }
+    public bool IsOnScreen { get; private set; }
 
-        public Texture2D[] Textures;
+    public Texture2D[] Textures;
 
-        public int TextureIndex { get; set; }
+    public int TextureIndex { get; set; }
 
-        public bool LeftClicked { get; private set; }
+    public bool LeftClicked { get; private set; }
 
-        public bool RightClicked { get; private set; }
+    public bool RightClicked { get; private set; }
 
-        /// <summary>
-        /// Gets a value that indicates whether the left mouse button is held down
-        /// on the current frame.
-        /// </summary>
-        public bool LeftDown { get; private set; }
+    /// <summary>
+    /// Gets a value that indicates whether the left mouse button is held down
+    /// on the current frame.
+    /// </summary>
+    public bool LeftDown { get; private set; }
 
-        /// <summary>
-        /// Gets a value that indicates whether the left mouse button was pressed
-        /// down on this frame (meaning it's down on the current frame, but wasn't down
-        /// on the previous frame).
-        /// </summary>
-        public bool LeftPressedDown { get; private set; }
+    /// <summary>
+    /// Gets a value that indicates whether the left mouse button was pressed
+    /// down on this frame (meaning it's down on the current frame, but wasn't down
+    /// on the previous frame).
+    /// </summary>
+    public bool LeftPressedDown { get; private set; }
 
-        /// <summary>
-        /// Gets a value that indicates whether the right mouse button is held down
-        /// on the current frame.
-        /// </summary>
-        public bool RightDown { get; private set; }
+    /// <summary>
+    /// Gets a value that indicates whether the right mouse button is held down
+    /// on the current frame.
+    /// </summary>
+    public bool RightDown { get; private set; }
 
-        /// <summary>
-        /// Gets a value that indicates whether the right mouse button was pressed
-        /// down on this frame (meaning it's down on the current frame, but wasn't down
-        /// on the previous frame).
-        /// </summary>
-        public bool RightPressedDown { get; private set; }
+    /// <summary>
+    /// Gets a value that indicates whether the right mouse button was pressed
+    /// down on this frame (meaning it's down on the current frame, but wasn't down
+    /// on the previous frame).
+    /// </summary>
+    public bool RightPressedDown { get; private set; }
 
-        public bool Disabled { get; set; }
+    public bool Disabled { get; set; }
 
-        public int ScrollWheelValue { get; set; }
+    public int ScrollWheelValue { get; set; }
 
-        public Color RemapColor { get; set; }
+    public Color RemapColor { get; set; }
 
-        private WindowManager windowManager;
-        private MouseState previousMouseState;
+    private WindowManager windowManager;
+    private MouseState previousMouseState;
 #if WINFORMS
 
-        /// <summary>
-        /// Attempts to replace the native operating system pointer cursor with
-        /// a cursor file from a specific path for the game window. If successful,
-        /// the cursor sprite is hidden, otherwise the cursor sprite remains visible.
-        /// </summary>
-        /// <param name="path">The path to the cursor (.cur) file.</param>
+    /// <summary>
+    /// Attempts to replace the native operating system pointer cursor with
+    /// a cursor file from a specific path for the game window. If successful,
+    /// the cursor sprite is hidden, otherwise the cursor sprite remains visible.
+    /// </summary>
+    /// <param name="path">The path to the cursor (.cur) file.</param>
 #if !NETFRAMEWORK
-        [System.Runtime.Versioning.SupportedOSPlatform("windows5.0")]
+    [System.Runtime.Versioning.SupportedOSPlatform("windows5.0")]
 #endif
-        public void LoadNativeCursor(string path)
+    public void LoadNativeCursor(string path)
+    {
+        FileInfo fileInfo = SafePath.GetFile(path);
+        if (!fileInfo.Exists)
+            return;
+
+        DestroyCursorSafeHandle cursorPointer = PInvoke.LoadCursorFromFile(fileInfo.FullName);
+
+        var form = (System.Windows.Forms.Form)System.Windows.Forms.Control.FromHandle(Game.Window.Handle);
+        bool success = false;
+
+        cursorPointer.DangerousAddRef(ref success);
+
+        if (!success)
+            throw new Exception(FormattableString.Invariant($"{nameof(DestroyCursorSafeHandle)}.{nameof(DestroyCursorSafeHandle.DangerousAddRef)}"));
+
+        if (form != null)
         {
+            form.Cursor = new System.Windows.Forms.Cursor(cursorPointer.DangerousGetHandle());
+            Visible = false;
+            Game.IsMouseVisible = true;
+        }
 
-            FileInfo fileInfo = SafePath.GetFile(path);
-            if (!fileInfo.Exists)
-                return;
-
-            DestroyCursorSafeHandle cursorPointer = PInvoke.LoadCursorFromFile(fileInfo.FullName);
-
-            var form = (System.Windows.Forms.Form)System.Windows.Forms.Control.FromHandle(Game.Window.Handle);
-            bool success = false;
-
-            cursorPointer.DangerousAddRef(ref success);
-
-            if (!success)
-                throw new Exception(FormattableString.Invariant($"{nameof(DestroyCursorSafeHandle)}.{nameof(DestroyCursorSafeHandle.DangerousAddRef)}"));
-
-            if (form != null)
-            {
-                form.Cursor = new System.Windows.Forms.Cursor(cursorPointer.DangerousGetHandle());
-                Visible = false;
-                Game.IsMouseVisible = true;
-            }
-
-            /* We don't call DestroyCursorSafeHandle.DangerousRelease() or DestroyCursorSafeHandle.Dispose():
-             * The DestroyCursor function destroys a nonshared cursor.
-             * Do not use this function to destroy a shared cursor.
-             * A shared cursor is valid as long as the module from which it was loaded remains in memory.
-             * LoadCursorFromFile creates a shared cursor */
+        /* We don't call DestroyCursorSafeHandle.DangerousRelease() or DestroyCursorSafeHandle.Dispose():
+         * The DestroyCursor function destroys a nonshared cursor.
+         * Do not use this function to destroy a shared cursor.
+         * A shared cursor is valid as long as the module from which it was loaded remains in memory.
+         * LoadCursorFromFile creates a shared cursor */
     }
 #endif
 
-        public override void Initialize()
+    public override void Initialize()
+    {
+    }
+
+    public override void Update(GameTime gameTime)
+    {
+        MouseState ms = Mouse.GetState();
+
+        DrawnLocation = new Point(ms.X, ms.Y);
+
+        if (!windowManager.HasFocus || Disabled)
         {
+            LeftClicked = false;
+            RightClicked = false;
+            LeftDown = false;
+            return;
         }
 
-        public override void Update(GameTime gameTime)
-        {
-            MouseState ms = Mouse.GetState();
+        Point location = DrawnLocation;
 
-            DrawnLocation = new Point(ms.X, ms.Y);
+        IsOnScreen = !(location.X < 0 || location.Y < 0 ||
+            location.X > windowManager.WindowWidth ||
+            location.Y > windowManager.WindowHeight);
 
-            if (!windowManager.HasFocus || Disabled)
-            {
-                LeftClicked = false;
-                RightClicked = false;
-                LeftDown = false;
-                return;
-            }
+        location = new Point(location.X - windowManager.SceneXPosition, location.Y - windowManager.SceneYPosition);
+        location = new Point((int)(location.X / windowManager.ScaleRatio), (int)(location.Y / windowManager.ScaleRatio));
 
-            Point location = DrawnLocation;
+        HasMoved = (location != Location);
 
-            IsOnScreen = !(location.X < 0 || location.Y < 0 ||
-                location.X > windowManager.WindowWidth ||
-                location.Y > windowManager.WindowHeight);
+        Location = location;
 
-            location = new Point(location.X - windowManager.SceneXPosition, location.Y - windowManager.SceneYPosition);
-            location = new Point((int)(location.X / windowManager.ScaleRatio), (int)(location.Y / windowManager.ScaleRatio));
+        ScrollWheelValue = (ms.ScrollWheelValue - previousMouseState.ScrollWheelValue) / 40;
 
-            HasMoved = (location != Location);
+        LeftDown = ms.LeftButton == ButtonState.Pressed;
+        LeftPressedDown = LeftDown && previousMouseState.LeftButton != ButtonState.Pressed;
 
-            Location = location;
+        LeftClicked = !LeftDown && previousMouseState.LeftButton == ButtonState.Pressed;
 
-            ScrollWheelValue = (ms.ScrollWheelValue - previousMouseState.ScrollWheelValue) / 40;
+        if (LeftClicked)
+            LeftClickEvent?.Invoke(this, EventArgs.Empty);
 
-            LeftDown = ms.LeftButton == ButtonState.Pressed;
-            LeftPressedDown = LeftDown && previousMouseState.LeftButton != ButtonState.Pressed;
+        RightDown = ms.RightButton == ButtonState.Pressed;
+        RightPressedDown = RightDown && previousMouseState.RightButton != ButtonState.Pressed;
+        RightClicked = ms.RightButton == ButtonState.Released && previousMouseState.RightButton == ButtonState.Pressed;
 
-            LeftClicked = !LeftDown && previousMouseState.LeftButton == ButtonState.Pressed;
+        previousMouseState = ms;
+    }
 
-            if (LeftClicked)
-                LeftClickEvent?.Invoke(this, EventArgs.Empty);
+    public override void Draw(GameTime gameTime)
+    {
+        if (Textures == null)
+            return;
 
-            RightDown = ms.RightButton == ButtonState.Pressed;
-            RightPressedDown = RightDown && previousMouseState.RightButton != ButtonState.Pressed;
-            RightClicked = ms.RightButton == ButtonState.Released && previousMouseState.RightButton == ButtonState.Pressed;
+        Texture2D texture = Textures[TextureIndex];
 
-            previousMouseState = ms;
-        }
-
-        public override void Draw(GameTime gameTime)
-        {
-            if (Textures == null)
-                return;
-
-            Texture2D texture = Textures[TextureIndex];
-
-            Renderer.DrawTexture(texture,
-                new Rectangle(DrawnLocation.X, DrawnLocation.Y, texture.Width, texture.Height), RemapColor);
-        }
+        Renderer.DrawTexture(texture,
+            new Rectangle(DrawnLocation.X, DrawnLocation.Y, texture.Width, texture.Height), RemapColor);
     }
 }

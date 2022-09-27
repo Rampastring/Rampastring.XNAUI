@@ -4,97 +4,96 @@ using Rampastring.Tools;
 using System;
 using System.Collections.Generic;
 
-namespace Rampastring.XNAUI
+namespace Rampastring.XNAUI;
+
+/// <summary>
+/// A sound player that manages prioritized sounds, with the aim of preventing
+/// insignificant sounds from overriding important sounds while still
+/// playing insignificant sounds if there's no risk of them cutting off
+/// important sounds.
+/// </summary>
+public class SoundPlayer : GameComponent
 {
-    /// <summary>
-    /// A sound player that manages prioritized sounds, with the aim of preventing
-    /// insignificant sounds from overriding important sounds while still
-    /// playing insignificant sounds if there's no risk of them cutting off
-    /// important sounds.
-    /// </summary>
-    public class SoundPlayer : GameComponent
+    public SoundPlayer(Game game) : base(game)
     {
-        public SoundPlayer(Game game) : base(game)
+        soundList = new List<PrioritizedSoundInstance>();
+    }
+
+    private static List<PrioritizedSoundInstance> soundList;
+
+    public static float Volume { get; private set; } = 1.0f;
+
+    public void SetVolume(float volume)
+    {
+        Volume = volume;
+
+        try
         {
-            soundList = new List<PrioritizedSoundInstance>();
+            MediaPlayer.Volume = volume;
         }
-
-        private static List<PrioritizedSoundInstance> soundList;
-
-        public static float Volume { get; private set; } = 1.0f;
-
-        public void SetVolume(float volume)
+        catch (Exception ex)
         {
-            Volume = volume;
-
-            try
-            {
-                MediaPlayer.Volume = volume;
-            }
-            catch (Exception ex)
-            {
-                Logger.Log("SoundPlayer exception when setting volume: " + ex.Message);
-            }
+            Logger.Log("SoundPlayer exception when setting volume: " + ex.Message);
         }
+    }
 
-        /// <summary>
-        /// Plays a sound.
-        /// </summary>
-        /// <param name="sound">The sound to play.</param>
-        public static void Play(EnhancedSoundEffect sound)
+    /// <summary>
+    /// Plays a sound.
+    /// </summary>
+    /// <param name="sound">The sound to play.</param>
+    public static void Play(EnhancedSoundEffect sound)
+    {
+        if (soundList == null)
+            return;
+
+        Play(Volume, sound);
+    }
+
+    /// <summary>
+    /// Plays a sound with the specified volume.
+    /// </summary>
+    /// <param name="volume">The volume that the sound will be played at.</param>
+    /// <param name="sound">The sound to play.</param>
+    public static void PlayWithVolume(float volume, EnhancedSoundEffect sound)
+    {
+        Play(volume, sound);
+    }
+
+    private static void Play(float volume, EnhancedSoundEffect sound)
+    {
+        foreach (var psi in soundList)
         {
-            if (soundList == null)
+            if (psi.Priority > sound.Priority)
                 return;
-
-            Play(Volume, sound);
         }
 
-        /// <summary>
-        /// Plays a sound with the specified volume.
-        /// </summary>
-        /// <param name="volume">The volume that the sound will be played at.</param>
-        /// <param name="sound">The sound to play.</param>
-        public static void PlayWithVolume(float volume, EnhancedSoundEffect sound)
-        {
-            Play(volume, sound);
-        }
+        var soundInstance = sound.CreateSoundInstance();
 
-        private static void Play(float volume, EnhancedSoundEffect sound)
+        if (soundInstance == null)
+            return;
+
+        soundInstance.Volume = volume;
+
+        var prioritizedSoundInstance = new PrioritizedSoundInstance(
+            soundInstance, sound.Priority, sound.PriorityDecayRate);
+
+        soundInstance.Play();
+        soundList.Add(prioritizedSoundInstance);
+    }
+
+    public override void Update(GameTime gameTime)
+    {
+        for (int i = 0; i < soundList.Count; i++)
         {
-            foreach (var psi in soundList)
+            var sound = soundList[i];
+            if (!sound.Update(gameTime))
             {
-                if (psi.Priority > sound.Priority)
-                    return;
+                sound.Dispose();
+                soundList.RemoveAt(i);
+                i--;
             }
-
-            var soundInstance = sound.CreateSoundInstance();
-
-            if (soundInstance == null)
-                return;
-
-            soundInstance.Volume = volume;
-
-            var prioritizedSoundInstance = new PrioritizedSoundInstance(
-                soundInstance, sound.Priority, sound.PriorityDecayRate);
-
-            soundInstance.Play();
-            soundList.Add(prioritizedSoundInstance);
         }
 
-        public override void Update(GameTime gameTime)
-        {
-            for (int i = 0; i < soundList.Count; i++)
-            {
-                var sound = soundList[i];
-                if (!sound.Update(gameTime))
-                {
-                    sound.Dispose();
-                    soundList.RemoveAt(i);
-                    i--;
-                }
-            }
-
-            base.Update(gameTime);
-        }
+        base.Update(gameTime);
     }
 }

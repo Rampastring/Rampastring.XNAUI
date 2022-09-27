@@ -1,26 +1,24 @@
 ﻿using System;
 
-namespace Rampastring.XNAUI.XNAControls
+namespace Rampastring.XNAUI.XNAControls;
+
+/// <summary>
+/// A callback for storing a delegate and its parameters.
+/// </summary>
+internal class Callback
 {
-    /// <summary>
-    /// A callback for storing a delegate and its parameters.
-    /// </summary>
-    class Callback
+    public Callback(Delegate d, object[] args)
     {
-        public Callback(Delegate d, object[] args)
-        {
-            this.d = d;
-            this.arguments = args;
-        }
+        this.d = d;
+        this.arguments = args;
+    }
 
-        Delegate d;
+    private Delegate d;
+    private object[] arguments;
 
-        object[] arguments;
-
-        public void Invoke()
-        {
-            //Logger.Log("Executing callback " + d.Method.Name);
-            d.DynamicInvoke(arguments);
-        }
+    public void Invoke()
+    {
+        //Logger.Log("Executing callback " + d.Method.Name);
+        d.DynamicInvoke(arguments);
     }
 }

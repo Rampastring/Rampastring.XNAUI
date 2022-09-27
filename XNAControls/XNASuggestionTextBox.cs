@@ -1,65 +1,63 @@
 ﻿using Microsoft.Xna.Framework;
 using Rampastring.Tools;
 
-namespace Rampastring.XNAUI.XNAControls
+namespace Rampastring.XNAUI.XNAControls;
+
+/// <summary>
+/// A text box that displays a "suggestion" text when it's not active.
+/// </summary>
+public class XNASuggestionTextBox : XNATextBox
 {
-    /// <summary>
-    /// A text box that displays a "suggestion" text when it's not active.
-    /// </summary>
-    public class XNASuggestionTextBox : XNATextBox
+    public XNASuggestionTextBox(WindowManager windowManager) : base(windowManager)
     {
-        public XNASuggestionTextBox(WindowManager windowManager) : base(windowManager)
+    }
+
+    public string Suggestion { get; set; }
+
+    private Color? _suggestedTextColor;
+
+    public Color SuggestedTextColor
+    {
+        get => _suggestedTextColor ?? UISettings.ActiveSettings.SubtleTextColor;
+        set => _suggestedTextColor = value;
+    }
+
+    public override void Initialize()
+    {
+        base.Initialize();
+
+        Text = Suggestion ?? string.Empty;
+    }
+
+    public override void ParseAttributeFromINI(IniFile iniFile, string key, string value)
+    {
+        if (key == "Suggestion")
         {
+            Suggestion = value;
         }
 
-        public string Suggestion { get; set; }
+        base.ParseAttributeFromINI(iniFile, key, value);
+    }
 
-        private Color? _suggestedTextColor;
+    public override Color TextColor
+    {
+        get => WindowManager.SelectedControl == this ? base.TextColor : SuggestedTextColor;
+        set => base.TextColor = value;
+    }
 
-        public Color SuggestedTextColor
+    public override void OnSelectedChanged()
+    {
+        base.OnSelectedChanged();
+
+        if (WindowManager.SelectedControl == this)
         {
-            get => _suggestedTextColor ?? UISettings.ActiveSettings.SubtleTextColor;
-            set => _suggestedTextColor = value;
+            if (Text == Suggestion)
+                Text = string.Empty;
         }
-
-        public override void Initialize()
+        else
         {
-            base.Initialize();
-
-            Text = Suggestion ?? string.Empty;
+            if (string.IsNullOrEmpty(Text))
+                Text = Suggestion ?? string.Empty;
         }
-
-        public override void ParseAttributeFromINI(IniFile iniFile, string key, string value)
-        {
-            if (key == "Suggestion")
-            {
-                Suggestion = value;
-            }
-
-            base.ParseAttributeFromINI(iniFile, key, value);
-        }
-
-        public override Color TextColor
-        {
-            get => WindowManager.SelectedControl == this ? base.TextColor : SuggestedTextColor;
-            set => base.TextColor = value;
-        }
-
-        public override void OnSelectedChanged()
-        {
-            base.OnSelectedChanged();
-
-            if (WindowManager.SelectedControl == this)
-            {
-                if (Text == Suggestion)
-                    Text = string.Empty;
-            }
-            else
-            {
-                if (string.IsNullOrEmpty(Text))
-                    Text = Suggestion ?? string.Empty;
-            }
-        }
-
     }
 }
