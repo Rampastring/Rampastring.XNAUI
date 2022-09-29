@@ -555,11 +555,14 @@ public class WindowManager : DrawableGameComponent
 
         lock (locker)
         {
-            List<Callback> callbacks = Callbacks;
-            Callbacks = new List<Callback>();
+            if (Callbacks.Count > 0)
+            {
+                List<Callback> callbacks = Callbacks;
+                Callbacks = new List<Callback>();
 
-            foreach (Callback c in callbacks)
-                c.Invoke();
+                foreach (Callback c in callbacks)
+                    c.Invoke();
+            }
         }
 
         XNAControl activeControl = null;
