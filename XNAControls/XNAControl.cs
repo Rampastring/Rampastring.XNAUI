@@ -6,6 +6,7 @@ using Rampastring.XNAUI.Input;
 using System.Collections.ObjectModel;
 using System.Linq;
 using Microsoft.Xna.Framework.Graphics;
+using System.Globalization;
 
 namespace Rampastring.XNAUI.XNAControls;
 
@@ -921,7 +922,7 @@ public class XNAControl : DrawableGameComponent
         if (keys != null)
         {
             foreach (string key in keys)
-                ParseAttributeFromINI(iniFile, key, iniFile.GetStringValue(Name, key, String.Empty));
+                ParseAttributeFromINI(iniFile, key, iniFile.GetStringValue(Name, key, string.Empty));
         }
 
         IsChangingSize = false;
@@ -932,35 +933,37 @@ public class XNAControl : DrawableGameComponent
         switch (key)
         {
             case "DrawOrder":
-                DrawOrder = Int32.Parse(value);
+                DrawOrder = int.Parse(value, CultureInfo.InvariantCulture);
                 return;
             case "UpdateOrder":
-                UpdateOrder = Int32.Parse(value);
+                UpdateOrder = int.Parse(value, CultureInfo.InvariantCulture);
                 return;
             case "Size":
                 string[] size = value.Split(',');
                 ClientRectangle = new Rectangle(X, Y,
-                    int.Parse(size[0]), int.Parse(size[1]));
+                    int.Parse(size[0], CultureInfo.InvariantCulture),
+                    int.Parse(size[1], CultureInfo.InvariantCulture));
                 return;
             case "Width":
-                Width = int.Parse(value);
+                Width = int.Parse(value, CultureInfo.InvariantCulture);
                 return;
             case "Height":
-                Height = int.Parse(value);
+                Height = int.Parse(value, CultureInfo.InvariantCulture);
                 return;
             case "Location":
                 string[] location = value.Split(',');
-                ClientRectangle = new Rectangle(int.Parse(location[0]), int.Parse(location[1]),
+                ClientRectangle = new Rectangle(
+                    int.Parse(location[0], CultureInfo.InvariantCulture),
+                    int.Parse(location[1], CultureInfo.InvariantCulture),
                     Width, Height);
                 return;
             case "X":
-                X = int.Parse(value);
+                X = int.Parse(value, CultureInfo.InvariantCulture);
                 return;
             case "Y":
-                Y = int.Parse(value);
+                Y = int.Parse(value, CultureInfo.InvariantCulture);
                 return;
             case "RemapColor":
-                string[] colors = value.Split(',');
                 RemapColor = AssetLoader.GetColorFromString(value);
                 return;
             case "Text":
