@@ -604,11 +604,17 @@ public class WindowManager : DrawableGameComponent
             }
         }
 
-        // Make sure that if input is exclusively captured, the control that is capturing the input is visible and enabled
+        // Make sure that, if input is exclusively captured:
+        // 1) a mouse button is held down
+        // 2) the control that is capturing the input is visible and enabled
+        // If either of these conditions is not true, then release the exclusively captured input.
         if (SelectedControl != null && SelectedControl.ExclusiveInputCapture)
         {
-            if (!SelectedControl.AppliesToSelfAndAllParents(p => p.Enabled && p.InputEnabled))
+            if ((!Cursor.RightDown && !Cursor.LeftDown) ||
+                !SelectedControl.AppliesToSelfAndAllParents(p => p.Enabled && p.InputEnabled))
+            {
                 SelectedControl = null;
+            }
         }
 
         base.Update(gameTime);
