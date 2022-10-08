@@ -7,30 +7,36 @@ namespace Rampastring.XNAUI;
 
 public class TextParseReturnValue
 {
-    public int LineCount = 1;
+    public int LineCount;
     public string Text;
+
+    public TextParseReturnValue(string text, int lineCount)
+    {
+        Text = text;
+        LineCount = lineCount;
+    }
 
     public static TextParseReturnValue FixText(SpriteFont spriteFont, int width, string text)
     {
         string line = string.Empty;
-        var returnValue = new TextParseReturnValue();
-        returnValue.Text = string.Empty;
+        int lineCount = 0;
+        string processedText = string.Empty;
         string[] wordArray = text.Split(' ');
 
         foreach (string word in wordArray)
         {
             if (spriteFont.MeasureString(line + word).Length() > width)
             {
-                returnValue.Text = returnValue.Text + line + Environment.NewLine;
-                returnValue.LineCount++;
+                processedText = processedText + line + Environment.NewLine;
+                lineCount++;
                 line = string.Empty;
             }
 
             line = line + word + " ";
         }
 
-        returnValue.Text = returnValue.Text + line;
-        return returnValue;
+        processedText = processedText + line;
+        return new TextParseReturnValue(processedText, lineCount);
     }
 
     public static List<string> GetFixedTextLines(SpriteFont spriteFont, int width, string text, bool splitWords = true)
@@ -86,7 +92,7 @@ public class TextParseReturnValue
             }
 
             if (!string.IsNullOrEmpty(line) && line.Length > 1)
-                returnValue.Add(line);
+                returnValue.Add(line.TrimEnd());
         }
 
         return returnValue;

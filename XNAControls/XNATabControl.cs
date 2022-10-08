@@ -122,7 +122,7 @@ public class XNATabControl : XNAControl
                 return;
         }
 
-        if (key.StartsWith("RemoveTabIndex"))
+        if (key.StartsWith("RemoveTabIndex", StringComparison.InvariantCulture))
         {
             int index = int.Parse(key.Substring(14), CultureInfo.InvariantCulture);
             if (Conversions.BooleanFromString(value, false))

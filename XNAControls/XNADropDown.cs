@@ -271,7 +271,7 @@ public class XNADropDown : XNAControl
                 return;
         }
 
-        if (key.StartsWith("Option"))
+        if (key.StartsWith("Option", StringComparison.InvariantCulture))
         {
             AddItem(value);
             return;
