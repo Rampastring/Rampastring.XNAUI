@@ -370,9 +370,13 @@ public class XNATextBox : XNAControl
                 if (!Keyboard.IsCtrlHeldDown())
                     break;
 
+                string clipboardText = ClipboardService.GetText();
+                if (clipboardText == null)
+                    return true;
+
                 // Replace newlines with spaces
                 // https://stackoverflow.com/questions/238002/replace-line-breaks-in-a-string-c-sharp
-                string textToAdd = Regex.Replace(ClipboardService.GetText(), @"\r\n?|\n", " ");
+                string textToAdd = Regex.Replace(clipboardText, @"\r\n?|\n", " ");
                 Text = Text + Renderer.GetSafeString(textToAdd, FontIndex);
                 InputReceived?.Invoke(this, EventArgs.Empty);
 
