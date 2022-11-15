@@ -262,7 +262,7 @@ public class XNATextBox : XNAControl
                 text = text.Insert(InputPosition, character.ToString());
                 InputPosition++;
 
-                if (TextEndPosition == text.Length - 1 ||
+                if (TextEndPosition >= text.Length - 1 ||
                     InputPosition > TextEndPosition)
                 {
                     TextEndPosition++;
@@ -548,7 +548,9 @@ public class XNATextBox : XNAControl
             if (TextStartPosition > 0)
                 TextStartPosition--;
 
-            TextEndPosition--;
+            if (TextEndPosition > text.Length - 1)
+                TextEndPosition--;
+
             TextChanged?.Invoke(this, EventArgs.Empty);
         }
 
