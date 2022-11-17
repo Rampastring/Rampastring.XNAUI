@@ -501,6 +501,15 @@ public class XNAControl : DrawableGameComponent
     public bool IsChildActive { get; private set; }
 
     /// <summary>
+    /// Determines whether the control will automatically update the order of children
+    /// when their DrawOrder or UpdateOrder is changed.
+    /// 
+    /// It is recommended to set this to false prior to performing large Update/DrawOrder changes
+    /// for children in performance-critical points, and set it back to true afterwards.
+    /// </summary>
+    public bool AutoUpdateChildOrder { get; protected set; } = true;
+
+    /// <summary>
     /// The render target of the control
     /// in unique render target mode.
     /// </summary>
@@ -800,10 +809,26 @@ public class XNAControl : DrawableGameComponent
 
     private void Child_DrawOrderChanged(object sender, EventArgs e)
     {
-        drawList = _children.OrderBy(c => c.DrawOrder).ToList();
+        if (AutoUpdateChildOrder)
+            UpdateChildDrawList();
     }
 
     private void Child_UpdateOrderChanged(object sender, EventArgs e)
+    {
+        if (AutoUpdateChildOrder)
+            UpdateChildUpdateList();
+    }
+
+    private void UpdateChildDrawList()
+    {
+        // Controls that are updated first should be drawn last
+        // (on top of the other controls).
+        // It's weird for the updateorder and draworder to behave differently,
+        // but at this point we don't have a choice because of backwards compatibility.
+        drawList = _children.OrderBy(c => c.DrawOrder).ToList();
+    }
+
+    private void UpdateChildUpdateList()
     {
         updateList = _children.OrderBy(c => c.UpdateOrder).Reverse().ToList();
     }
@@ -837,12 +862,8 @@ public class XNAControl : DrawableGameComponent
 
     private void ReorderControls()
     {
-        // Controls that are updated first should be drawn last
-        // (on top of the other controls).
-        // It's weird for the updateorder and draworder to behave differently,
-        // but at this point we don't have a choice because of backwards compatibility.
-        updateList = _children.OrderBy(c => c.UpdateOrder).Reverse().ToList();
-        drawList = _children.OrderBy(c => c.DrawOrder).ToList();
+        UpdateChildUpdateList();
+        UpdateChildDrawList();
     }
 
     #endregion
