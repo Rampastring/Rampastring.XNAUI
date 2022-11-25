@@ -2,9 +2,11 @@
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using System;
+#if WINFORMS
 using System.IO;
 using Rampastring.Tools;
 using Windows.Win32;
+#endif
 
 namespace Rampastring.XNAUI.Input;
 

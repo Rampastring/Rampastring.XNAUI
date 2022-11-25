@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFrameworks Condition="'$(Configuration)' == 'UniversalGLDebug' Or '$(Configuration)' == 'UniversalGLRelease'">net6.0</TargetFrameworks>
-    <TargetFrameworks Condition="'$(Configuration)' != 'UniversalGLDebug' And '$(Configuration)' != 'UniversalGLRelease'">net48;net6.0-windows</TargetFrameworks>
+    <TargetFramework Condition="'$(Configuration)' == 'UniversalGLDebug' Or '$(Configuration)' == 'UniversalGLRelease'">net7.0</TargetFramework>
+    <TargetFrameworks Condition="'$(Configuration)' != 'UniversalGLDebug' And '$(Configuration)' != 'UniversalGLRelease'">net7.0-windows;net48</TargetFrameworks>
     <UseWindowsForms Condition="'$(Configuration)' != 'UniversalGLDebug' And '$(Configuration)' != 'UniversalGLRelease'">true</UseWindowsForms>
     <Title Condition="'$(Configuration)' == 'WindowsDXRelease'">Rampastring.XNAUI (WindowsDX)</Title>
     <Title Condition="'$(Configuration)' == 'WindowsGLRelease'">Rampastring.XNAUI (WindowsGL)</Title>
@@ -64,7 +64,7 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)' == 'UniversalGLDebug' Or '$(Configuration)' == 'UniversalGLRelease'">
     <DefineConstants>$(DefineConstants);GL</DefineConstants>
-    <DefineConstants Condition="$(TargetFramework.Contains('-windows'))">$(DefineConstants);ISWINDOWS</DefineConstants>
+    <DefineConstants Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'windows'">$(DefineConstants);ISWINDOWS</DefineConstants>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)' == 'WindowsGLDebug' Or '$(Configuration)' == 'WindowsGLRelease'">
     <DefineConstants>$(DefineConstants);GL;WINFORMS;ISWINDOWS</DefineConstants>
@@ -145,10 +145,10 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Rampastring.Tools" Version="2.0.3" />
-    <PackageReference Include="Microsoft.Windows.CsWin32" Version="0.2.46-beta" PrivateAssets="All" />
+    <PackageReference Include="Rampastring.Tools" Version="2.0.4" />
+    <PackageReference Include="Microsoft.Windows.CsWin32" Version="0.2.138-beta" PrivateAssets="All" />
     <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1" PrivateAssets="All" />
     <PackageReference Include="SixLabors.ImageSharp" Version="2.1.3" />
-    <PackageReference Include="TextCopy" Version="6.1.0" />
+    <PackageReference Include="TextCopy" Version="6.2.0" />
   </ItemGroup>
 </Project>
