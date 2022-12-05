@@ -70,7 +70,7 @@ public class EnhancedSoundEffect : IDisposable
     /// </summary>
     public float RepeatPrevention { get; set; }
 
-    public float Volume { get; set; } = 1.0f;
+    public float? Volume { get; set; }
 
     /// <summary>
     /// Plays this sound if it's enabled.
@@ -90,7 +90,7 @@ public class EnhancedSoundEffect : IDisposable
             lastPlayTime = dtn;
         }
 
-        SoundPlayer.PlayWithVolume(Volume, this);
+        SoundPlayer.PlayWithVolume(Volume ?? SoundPlayer.Volume, this);
     }
 
     internal SoundEffectInstance CreateSoundInstance()
