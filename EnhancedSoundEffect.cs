@@ -70,6 +70,9 @@ public class EnhancedSoundEffect : IDisposable
     /// </summary>
     public float RepeatPrevention { get; set; }
 
+    /// <summary>
+    /// The volume multiplier for this sound effect.
+    /// </summary>
     public float Volume { get; set; } = 1.0f;
 
     /// <summary>
@@ -90,7 +93,7 @@ public class EnhancedSoundEffect : IDisposable
             lastPlayTime = dtn;
         }
 
-        SoundPlayer.PlayWithVolume(Volume, this);
+        SoundPlayer.Play(this);
     }
 
     internal SoundEffectInstance CreateSoundInstance()

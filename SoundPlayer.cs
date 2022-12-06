@@ -43,20 +43,18 @@ public class SoundPlayer : GameComponent
     /// <param name="sound">The sound to play.</param>
     public static void Play(EnhancedSoundEffect sound)
     {
-        if (soundList == null)
-            return;
-
-        Play(Volume, sound);
+        Play(sound.Volume * Volume, sound);
     }
 
     /// <summary>
     /// Plays a sound with the specified volume.
+    /// This overrides the volume setting of the sound itself.
     /// </summary>
     /// <param name="volume">The volume that the sound will be played at.</param>
     /// <param name="sound">The sound to play.</param>
     public static void PlayWithVolume(float volume, EnhancedSoundEffect sound)
     {
-        Play(volume, sound);
+        Play(volume * Volume, sound);
     }
 
     private static void Play(float volume, EnhancedSoundEffect sound)
@@ -78,7 +76,8 @@ public class SoundPlayer : GameComponent
             soundInstance, sound.Priority, sound.PriorityDecayRate);
 
         soundInstance.Play();
-        soundList.Add(prioritizedSoundInstance);
+
+        soundList?.Add(prioritizedSoundInstance);
     }
 
     public override void Update(GameTime gameTime)
