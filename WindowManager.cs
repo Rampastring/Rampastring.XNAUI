@@ -239,9 +239,13 @@ public class WindowManager : DrawableGameComponent
         Application.DoEvents();
 #endif
 #if NETFRAMEWORK
-        Process.Start(Assembly.GetEntryAssembly().Location);
+        using var process = Process.Start(Assembly.GetEntryAssembly().Location);
 #else
-        Process.Start(Environment.ProcessPath);
+        using var process = Process.Start(new ProcessStartInfo
+        {
+            FileName = Environment.ProcessPath,
+            Arguments = Environment.CommandLine
+        });
 #endif
 
         Environment.Exit(0);
