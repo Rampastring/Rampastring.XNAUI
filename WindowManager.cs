@@ -119,7 +119,18 @@ public class WindowManager : DrawableGameComponent
         }
     }
 
+    /// <summary>
+    /// Returns a bool that determines whether input is
+    /// currently exclusively captured by the selected control.
+    /// </summary>
     public bool IsInputExclusivelyCaptured => SelectedControl != null && SelectedControl.ExclusiveInputCapture;
+
+    /// <summary>
+    /// A list of custom control INI attribute parsers.
+    /// Allows extending the control INI attribute parsing
+    /// system with custom INI keys.
+    /// </summary>
+    public List<IControlINIAttributeParser> ControlINIAttributeParsers { get; private set; } = new List<IControlINIAttributeParser>();
 
     private GraphicsDeviceManager graphics;
 

@@ -860,7 +860,12 @@ public class XNAControl : DrawableGameComponent
         }
     }
 
-    private void ReorderControls()
+    /// <summary>
+    /// Re-orders the internal list of children of this control based on the
+    /// DrawOrder and UpdateOrder values of the children. Does not need to be called
+    /// manually unless you've made use of disabling <see cref="AutoUpdateChildOrder"/>.
+    /// </summary>
+    public void ReorderControls()
     {
         UpdateChildUpdateList();
         UpdateChildDrawList();
@@ -1040,6 +1045,15 @@ public class XNAControl : DrawableGameComponent
                 if (value == "UniqueRenderTarget")
                     DrawMode = ControlDrawMode.UNIQUE_RENDER_TARGET;
                 return;
+        }
+
+        // Attempt to parse the key through custom parsers
+        foreach (IControlINIAttributeParser parser in WindowManager.ControlINIAttributeParsers)
+        {
+            if (parser.ParseAttributeFromINI(this, iniFile, key, value))
+            {
+                return;
+            }
         }
     }
 
