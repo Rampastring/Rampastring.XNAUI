@@ -1,4 +1,4 @@
-﻿using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework;
 using System;
 using System.Collections.Generic;
 using Rampastring.Tools;
@@ -956,6 +956,13 @@ public class XNAControl : DrawableGameComponent
 
     public virtual void ParseAttributeFromINI(IniFile iniFile, string key, string value)
     {
+        // Attempt to parse the key through custom parsers
+        foreach (IControlINIAttributeParser parser in WindowManager.ControlINIAttributeParsers)
+        {
+            if (parser.ParseAttributeFromINI(this, iniFile, key, value))
+                return;
+        }
+
         switch (key)
         {
             case "DrawOrder":
@@ -1045,15 +1052,6 @@ public class XNAControl : DrawableGameComponent
                 if (value == "UniqueRenderTarget")
                     DrawMode = ControlDrawMode.UNIQUE_RENDER_TARGET;
                 return;
-        }
-
-        // Attempt to parse the key through custom parsers
-        foreach (IControlINIAttributeParser parser in WindowManager.ControlINIAttributeParsers)
-        {
-            if (parser.ParseAttributeFromINI(this, iniFile, key, value))
-            {
-                return;
-            }
         }
     }
 
