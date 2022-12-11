@@ -133,7 +133,7 @@ public class XNAIndicator<T> : XNAControl where T : Enum
             Logger.Log($"{nameof(XNAIndicator<T>)}: Tried to switch to non-existing texture {key} at indicator {Name}!");
     }
 
-    public override void ParseAttributeFromINI(IniFile iniFile, string key, string value)
+    protected override void ParseControlINIAttribute(IniFile iniFile, string key, string value)
     {
         switch (key)
         {
@@ -148,7 +148,7 @@ public class XNAIndicator<T> : XNAControl where T : Enum
                 return;
         }
 
-        base.ParseAttributeFromINI(iniFile, key, value);
+        base.ParseControlINIAttribute(iniFile, key, value);
     }
 
     /// <summary>

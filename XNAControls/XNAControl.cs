@@ -948,21 +948,43 @@ public class XNAControl : DrawableGameComponent
         if (keys != null)
         {
             foreach (string key in keys)
-                ParseAttributeFromINI(iniFile, key, iniFile.GetStringValue(Name, key, string.Empty));
+                ParseINIAttribute(iniFile, key, iniFile.GetStringValue(Name, key, string.Empty));
         }
 
         IsChangingSize = false;
     }
 
-    public virtual void ParseAttributeFromINI(IniFile iniFile, string key, string value)
+    /// <summary>
+    /// Attempts to parse given key's value using custom parsers and control's own parsing method (see
+    /// <see cref="ParseControlINIAttribute(IniFile, string, string)"/>) and sets the parameter value for the control.
+    /// </summary>
+    /// <param name="iniFile">The INI file that is being read from.</param>
+    /// <param name="key">The key that is being read.</param>
+    /// <param name="value">The key's value.</param>
+    public void ParseINIAttribute(IniFile iniFile, string key, string value)
     {
         // Attempt to parse the key through custom parsers
         foreach (IControlINIAttributeParser parser in WindowManager.ControlINIAttributeParsers)
         {
-            if (parser.ParseAttributeFromINI(this, iniFile, key, value))
+            if (parser.ParseINIAttribute(this, iniFile, key, value))
                 return;
         }
 
+        ParseControlINIAttribute(iniFile, key, value);
+    }
+
+    /// <summary>
+    /// Attempts to parse given key's value and sets the parameter value for the control.
+    /// </summary>
+    /// <remarks>
+    /// The control-specific INI attributes should be defined in an override of this method,
+    /// which should also call the base method for parsing the inherited attributes.
+    /// </remarks>
+    /// <param name="iniFile">The INI file that is being read from.</param>
+    /// <param name="key">The key that is being read.</param>
+    /// <param name="value">The key's value.</param>
+    protected virtual void ParseControlINIAttribute(IniFile iniFile, string key, string value)
+    {
         switch (key)
         {
             case "DrawOrder":

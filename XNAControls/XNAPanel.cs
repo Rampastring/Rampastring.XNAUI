@@ -49,7 +49,7 @@ public class XNAPanel : XNAControl
         // BorderTexture = AssetLoader.CreateTexture(Color.White, 1, 1);
     }
 
-    public override void ParseAttributeFromINI(IniFile iniFile, string key, string value)
+    protected override void ParseControlINIAttribute(IniFile iniFile, string key, string value)
     {
         switch (key)
         {
@@ -93,7 +93,7 @@ public class XNAPanel : XNAControl
                 return;
         }
 
-        base.ParseAttributeFromINI(iniFile, key, value);
+        base.ParseControlINIAttribute(iniFile, key, value);
     }
 
     public override void Update(GameTime gameTime)
