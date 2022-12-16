@@ -111,7 +111,7 @@ public class XNALabel : XNAControl
         base.Initialize();
     }
 
-    public override void ParseAttributeFromINI(IniFile iniFile, string key, string value)
+    protected override void ParseControlINIAttribute(IniFile iniFile, string key, string value)
     {
         switch (key)
         {
@@ -145,7 +145,7 @@ public class XNALabel : XNAControl
                 return;
         }
 
-        base.ParseAttributeFromINI(iniFile, key, value);
+        base.ParseControlINIAttribute(iniFile, key, value);
     }
 
     public override void Draw(GameTime gameTime)

@@ -54,7 +54,7 @@ public class XNATrackbar : XNAPanel
             Height = ButtonTexture.Height;
     }
 
-    public override void ParseAttributeFromINI(IniFile iniFile, string key, string value)
+    protected override void ParseControlINIAttribute(IniFile iniFile, string key, string value)
     {
         switch (key)
         {
@@ -72,7 +72,7 @@ public class XNATrackbar : XNAPanel
                 return;
         }
 
-        base.ParseAttributeFromINI(iniFile, key, value);
+        base.ParseControlINIAttribute(iniFile, key, value);
     }
 
     /// <summary>

@@ -191,7 +191,7 @@ public class XNATextBox : XNAControl
     private TimeSpan timeSinceLastScroll = TimeSpan.Zero;
     private bool isScrollingQuickly = false;
 
-    public override void ParseAttributeFromINI(IniFile iniFile, string key, string value)
+    protected override void ParseControlINIAttribute(IniFile iniFile, string key, string value)
     {
         if (key == nameof(MaximumTextLength))
         {
@@ -199,7 +199,7 @@ public class XNATextBox : XNAControl
             return;
         }
 
-        base.ParseAttributeFromINI(iniFile, key, value);
+        base.ParseControlINIAttribute(iniFile, key, value);
     }
 
     /// <summary>

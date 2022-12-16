@@ -49,7 +49,7 @@ public class XNALinkLabel : XNALabel
     /// </summary>
     public bool DrawUnderline { get; set; } = true;
 
-    public override void ParseAttributeFromINI(IniFile iniFile, string key, string value)
+    protected override void ParseControlINIAttribute(IniFile iniFile, string key, string value)
     {
         switch (key)
         {
@@ -64,7 +64,7 @@ public class XNALinkLabel : XNALabel
                 return;
         }
 
-        base.ParseAttributeFromINI(iniFile, key, value);
+        base.ParseControlINIAttribute(iniFile, key, value);
     }
 
     public override void Initialize()

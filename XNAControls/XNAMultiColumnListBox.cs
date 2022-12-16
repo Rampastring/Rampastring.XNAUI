@@ -176,7 +176,7 @@ public class XNAMultiColumnListBox : XNAPanel
         set { listBoxes[listBoxes.Count - 1].DrawSelectionUnderScrollbar = value; }
     }
 
-    public override void ParseAttributeFromINI(IniFile iniFile, string key, string value)
+    protected override void ParseControlINIAttribute(IniFile iniFile, string key, string value)
     {
         switch (key)
         {
@@ -225,10 +225,10 @@ public class XNAMultiColumnListBox : XNAPanel
                 return;
 
             string attrName = key.Substring("ListBoxYAttribute:".Length);
-            listBoxes[listBoxId].ParseAttributeFromINI(iniFile, attrName, value);
+            listBoxes[listBoxId].ParseINIAttribute(iniFile, attrName, value);
         }
 
-        base.ParseAttributeFromINI(iniFile, key, value);
+        base.ParseControlINIAttribute(iniFile, key, value);
     }
 
     /// <summary>
