@@ -229,6 +229,9 @@ public class WindowManager : DrawableGameComponent
     /// </summary>
     public void CloseGame()
     {
+#if !WINFORMS
+        Game.Exiting -= GameWindowManager_GameWindowClosing;
+#endif
         GameClosing?.Invoke(this, EventArgs.Empty);
         Game.Exit();
     }
