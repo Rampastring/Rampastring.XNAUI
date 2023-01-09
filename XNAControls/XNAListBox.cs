@@ -126,7 +126,10 @@ public class XNAListBox : XNAPanel
         {
             if (value != _viewTop)
             {
-                _viewTop = value;
+                if (_viewTop < 0)
+                    _viewTop = 0;
+                else
+                    _viewTop = value;
                 TopIndexChanged?.Invoke(this, EventArgs.Empty);
                 ScrollBar.RefreshButtonY(_viewTop);
             }
@@ -138,21 +141,25 @@ public class XNAListBox : XNAPanel
         get
         {
             int h = 0;
+
             for (int i = 0; i < Items.Count; i++)
             {
                 h += Items[i].TextLines.Count * LineHeight;
                 if (h > ViewTop)
                     return i;
             }
+
             return Items.Count;
         }
         set
         {
             int h = 0;
+
             for (int i = 0; i < value && i < Items.Count; i++)
             {
                 h += Items[i].TextLines.Count * LineHeight;
             }
+
             ViewTop = h;
         }
     }
@@ -174,6 +181,24 @@ public class XNAListBox : XNAPanel
             }
 
             return Items.Count - 1;
+        }
+        set
+        {
+            int requiredHeight = MARGIN;
+
+            for (int i = 0; i < Items.Count; i++)
+            {
+                XNAListBoxItem lbItem = Items[i];
+
+                requiredHeight += lbItem.TextLines.Count * LineHeight;
+
+                if (i == value)
+                {
+                    break;
+                }
+            }
+
+            ViewTop = requiredHeight - Height;
         }
     }
 
