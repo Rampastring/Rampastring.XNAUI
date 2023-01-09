@@ -229,6 +229,12 @@ public class WindowManager : DrawableGameComponent
     /// </summary>
     public void CloseGame()
     {
+#if !WINFORMS
+        // When using UniversalGL both GameClosing and Game.Exiting trigger GameWindowManager_GameWindowClosing().
+        // To avoid executing shutdown code twice we unsubscribe here from Game.Exiting.
+        // The default double subscription needs to stay to handle the case of a forceful shutdown e.g. alt+F4.
+        Game.Exiting -= GameWindowManager_GameWindowClosing;
+#endif
         GameClosing?.Invoke(this, EventArgs.Empty);
         Game.Exit();
     }
