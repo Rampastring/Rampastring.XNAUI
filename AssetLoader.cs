@@ -41,6 +41,7 @@ public static class AssetLoader
     {
         if (IsInitialized)
             throw new InvalidOperationException("AssetLoader is already initialized.");
+
         IsInitialized = true;
 
         graphicsDevice = gd;

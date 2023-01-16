@@ -280,12 +280,14 @@ public class WindowManager : DrawableGameComponent
     {
         base.Initialize();
 
+        content.RootDirectory = SafePath.GetDirectory(contentPath).FullName;
+
         Cursor = new Input.Cursor(this);
         Cursor.Initialize();
         Keyboard = new RKeyboard(Game);
         if (!AssetLoader.IsInitialized)
             AssetLoader.Initialize(graphics.GraphicsDevice, content);
-        Renderer.Initialize(GraphicsDevice, content, contentPath);
+        Renderer.Initialize(GraphicsDevice, content);
         SoundPlayer = new SoundPlayer(Game);
 
         gameWindowManager = new WindowsGameWindowManager(Game);

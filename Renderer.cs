@@ -40,40 +40,51 @@ public static class Renderer
 
     private static Texture2D whitePixelTexture;
 
-    private static ContentManager contentManager;
-
     private static readonly LinkedList<SpriteBatchSettings> settingStack = new LinkedList<SpriteBatchSettings>();
 
     internal static SpriteBatchSettings CurrentSettings;
 
     public static SpriteBatchSettings GetCurrentSettings() => CurrentSettings;
 
-    public static void Initialize(GraphicsDevice gd, ContentManager content, string contentPath)
+    public static void Initialize(GraphicsDevice gd, ContentManager content)
     {
         spriteBatch = new SpriteBatch(gd);
         fonts = new List<SpriteFont>();
-
-        contentManager = content;
-
-        content.RootDirectory = SafePath.GetDirectory(contentPath).FullName;
-
-        int i = 0;
-        while (true)
-        {
-            string sfName = string.Format(CultureInfo.InvariantCulture, "SpriteFont{0}", i);
-
-            if (SafePath.GetFile(contentPath, FormattableString.Invariant($"{sfName}.xnb")).Exists)
-            {
-                fonts.Add(content.Load<SpriteFont>(sfName));
-                i++;
-                continue;
-            }
-
-            break;
-        }
+        LoadFonts(content);
 
         whitePixelTexture = AssetLoader.CreateTexture(Color.White, 1, 1);
     }
+
+    /// <summary>
+    /// Clears all potentially existing loaded fonts and then loads fonts from asset loader directories.
+    /// </summary>
+    /// <param name="contentManager">A XNA/MonoGame ContentManager instance.</param>
+    public static void LoadFonts(ContentManager contentManager)
+    {
+        if (fonts == null)
+            fonts = new List<SpriteFont>();
+        else
+            fonts.Clear();
+
+        string originalContentRoot = contentManager.RootDirectory;
+
+        foreach (string searchPath in AssetLoader.AssetSearchPaths)
+        {
+            while (true)
+            {
+                string sfName = string.Format(CultureInfo.InvariantCulture, "SpriteFont{0}", fonts.Count);
+
+                if (!SafePath.GetFile(searchPath, FormattableString.Invariant($"{sfName}.xnb")).Exists)
+                    break;
+
+                contentManager.RootDirectory = SafePath.GetDirectory(searchPath).FullName;
+                fonts.Add(contentManager.Load<SpriteFont>(sfName));
+            }
+        }
+
+        contentManager.RootDirectory = originalContentRoot;
+    }
+
 
     /// <summary>
     /// Allows direct access to the list of loaded fonts.
