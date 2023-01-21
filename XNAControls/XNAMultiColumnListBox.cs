@@ -48,8 +48,15 @@ public class XNAMultiColumnListBox : XNAPanel
         lastHeader.Width = lastColumnWidth;
     }
 
+    public delegate void HoveredIndexChangedEventHandler(object sender, EventArgs e);
+    public event HoveredIndexChangedEventHandler HoveredIndexChanged;
+
     public delegate void SelectedIndexChangedEventHandler(object sender, EventArgs e);
     public event SelectedIndexChangedEventHandler SelectedIndexChanged;
+
+    public delegate void TopIndexChangedEventHandler(object sender, EventArgs e);
+    public event TopIndexChangedEventHandler TopIndexChanged;
+    
     public int HeaderFontIndex { get; set; } = 1;
 
     public int FontIndex { get; set; }
@@ -79,6 +86,8 @@ public class XNAMultiColumnListBox : XNAPanel
             }
         }
     }
+
+    private bool hoveredIndexChangeBeingHandled;
 
     public int HoveredIndex
     {
@@ -111,6 +120,8 @@ public class XNAMultiColumnListBox : XNAPanel
                 lb.AllowKeyboardInput = value;
         }
     }
+
+    private bool topIndexChangeBeingHandled;
 
     /// <summary>
     /// Gets or sets the index of the first visible item in the list box.
@@ -317,6 +328,7 @@ public class XNAMultiColumnListBox : XNAPanel
         listBox.LineHeight = LineHeight;
         listBox.TopIndexChanged += ListBox_TopIndexChanged;
         listBox.SelectedIndexChanged += ListBox_SelectedIndexChanged;
+        listBox.HoveredIndexChanged += ListBox_HoveredIndexChanged;
         listBox.AllowMultiLineItems = false;
         listBox.AllowKeyboardInput = AllowKeyboardInput;
         listBox.AllowRightClickUnselect = AllowRightClickUnselect;
@@ -363,6 +375,21 @@ public class XNAMultiColumnListBox : XNAPanel
     /// </summary>
     public bool IsValidIndexSelected() => SelectedIndex > -1 && SelectedIndex < ItemCount;
 
+    private void ListBox_HoveredIndexChanged(object sender, EventArgs e)
+    {
+        if (hoveredIndexChangeBeingHandled)
+            return;
+
+        hoveredIndexChangeBeingHandled = true;
+
+        foreach (XNAListBox lb in listBoxes)
+            lb.HoveredIndex = ((XNAListBox)sender).HoveredIndex;
+
+        HoveredIndexChanged?.Invoke(this, EventArgs.Empty);
+
+        hoveredIndexChangeBeingHandled = false;
+    }
+
     private void ListBox_SelectedIndexChanged(object sender, EventArgs e)
     {
         if (!handleSelectedIndexChanged)
@@ -386,8 +413,17 @@ public class XNAMultiColumnListBox : XNAPanel
 
     private void ListBox_TopIndexChanged(object sender, EventArgs e)
     {
+        if (topIndexChangeBeingHandled)
+            return;
+
+        topIndexChangeBeingHandled = true;
+
         foreach (XNAListBox lb in listBoxes)
             lb.ViewTop = ((XNAListBox)sender).ViewTop;
+
+        TopIndexChanged?.Invoke(this, EventArgs.Empty);
+
+        topIndexChangeBeingHandled = false;
     }
 
     public void ClearItems()
