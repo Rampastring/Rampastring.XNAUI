@@ -48,14 +48,9 @@ public class XNAMultiColumnListBox : XNAPanel
         lastHeader.Width = lastColumnWidth;
     }
 
-    public delegate void HoveredIndexChangedEventHandler(object sender, EventArgs e);
-    public event HoveredIndexChangedEventHandler HoveredIndexChanged;
-
-    public delegate void SelectedIndexChangedEventHandler(object sender, EventArgs e);
-    public event SelectedIndexChangedEventHandler SelectedIndexChanged;
-
-    public delegate void TopIndexChangedEventHandler(object sender, EventArgs e);
-    public event TopIndexChangedEventHandler TopIndexChanged;
+    public event EventHandler HoveredIndexChanged;
+    public event EventHandler SelectedIndexChanged;
+    public event EventHandler TopIndexChanged;
     
     public int HeaderFontIndex { get; set; } = 1;
 
