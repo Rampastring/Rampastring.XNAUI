@@ -1,7 +1,7 @@
 ﻿namespace Rampastring.XNAUI.XNAControls;
 
 /// <summary>
-/// A text box that displays its characters as a different character 
+/// A text box that displays its characters as a different character
 /// (a star by default), regardless of what the characters actually are.
 /// In other words, a text box for inputting passwords.
 /// </summary>
@@ -16,7 +16,8 @@ public class XNAPasswordBox : XNATextBox
     /// Creates a new XNAPasswordBox.
     /// </summary>
     /// <param name="wm">The WindowManager.</param>
-    public XNAPasswordBox(WindowManager wm) : base(wm)
+    public XNAPasswordBox(WindowManager wm)
+        : base(wm)
     {
         VisibleChar = '*';
     }
@@ -26,14 +27,8 @@ public class XNAPasswordBox : XNATextBox
     /// </summary>
     public string Password
     {
-        get
-        {
-            return base.Text;
-        }
-        set
-        {
-            Text = value;
-        }
+        get => base.Text;
+        set => Text = value;
     }
 
     /// <summary>
@@ -42,14 +37,8 @@ public class XNAPasswordBox : XNATextBox
     /// </summary>
     public override string Text
     {
-        get
-        {
-            return new string(VisibleChar, base.Text.Length);
-        }
+        get => new(VisibleChar, base.Text.Length);
 
-        set
-        {
-            base.Text = value;
-        }
+        set => base.Text = value;
     }
 }

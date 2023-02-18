@@ -1,13 +1,15 @@
-﻿using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
+﻿namespace Rampastring.XNAUI.XNAControls;
+
 using System;
 using System.Collections.Generic;
-
-namespace Rampastring.XNAUI.XNAControls;
+using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 
 public class XNAListBoxItem
 {
-    public XNAListBoxItem() { }
+    public XNAListBoxItem()
+    {
+    }
 
     public XNAListBoxItem(string text)
     {
@@ -22,39 +24,29 @@ public class XNAListBoxItem
 
     public event EventHandler TextChanged;
 
-    private Color? _textColor;
+    private Color? textColor;
 
     public Color TextColor
     {
-        get
-        {
-            if (_textColor.HasValue)
-                return _textColor.Value;
+        get => textColor ?? (!Selectable ? UISettings.ActiveSettings.DisabledItemColor : UISettings.ActiveSettings.AltColor);
 
-            if (!Selectable)
-                return UISettings.ActiveSettings.DisabledItemColor;
-
-            return UISettings.ActiveSettings.AltColor;
-        }
-        set { _textColor = value; }
+        set => textColor = value;
     }
 
-    private Color? _backgroundColor;
+    private Color? backgroundColor;
 
     public Color BackgroundColor
     {
-        get
-        {
-            return _backgroundColor ?? UISettings.ActiveSettings.BackgroundColor;
-        }
-        set { _backgroundColor = value; }
+        get => backgroundColor ?? UISettings.ActiveSettings.BackgroundColor;
+
+        set => backgroundColor = value;
     }
 
     public Texture2D Texture { get; set; }
 
     public bool IsHeader { get; set; }
 
-    private string _text;
+    private string text;
 
     /// <summary>
     /// The text of the list box item prior to its parsing by the list box.
@@ -64,8 +56,12 @@ public class XNAListBoxItem
     /// </summary>
     public string Text
     {
-        get => _text;
-        set { _text = value; TextChanged?.Invoke(this, EventArgs.Empty); }
+        get => text;
+        set
+        {
+            text = value;
+            TextChanged?.Invoke(this, EventArgs.Empty);
+        }
     }
 
     /// <summary>
@@ -76,21 +72,16 @@ public class XNAListBoxItem
     public int TextYPadding { get; set; }
 
     public int TextXPadding { get; set; }
+
     public bool Selectable { get; set; } = true;
 
-    private float alpha = 0.0f;
+    private float alpha;
+
     public float Alpha
     {
-        get { return alpha; }
-        set
-        {
-            if (value < 0.0f)
-                alpha = 0.0f;
-            else if (value > 1.0f)
-                alpha = 1.0f;
-            else
-                alpha = value;
-        }
+        get => alpha;
+
+        set => alpha = value < 0.0f ? 0.0f : value > 1.0f ? 1.0f : value;
     }
 
     public List<string> TextLines;

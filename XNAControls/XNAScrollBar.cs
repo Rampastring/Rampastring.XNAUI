@@ -1,8 +1,8 @@
-﻿using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
-using System;
+﻿namespace Rampastring.XNAUI.XNAControls;
 
-namespace Rampastring.XNAUI.XNAControls;
+using System;
+using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 
 /// <summary>
 /// A vertical scroll bar, mainly for list boxes but it could also be utilized
@@ -16,36 +16,43 @@ public class XNAScrollBar : XNAControl
     /// Creates a new scroll bar.
     /// </summary>
     /// <param name="windowManager">The game window manager.</param>
-    public XNAScrollBar(WindowManager windowManager) : base(windowManager)
+    public XNAScrollBar(WindowManager windowManager)
+        : base(windowManager)
     {
         ExclusiveInputCapture = true;
 
-        var scrollUpTexture = AssetLoader.LoadTexture("sbUpArrow.png");
+        Texture2D scrollUpTexture = AssetLoader.LoadTexture("sbUpArrow.png");
 
-        btnScrollUp = new XNAButton(WindowManager);
-        btnScrollUp.ClientRectangle = new Rectangle(0, 0, scrollUpTexture.Width, scrollUpTexture.Height);
-        btnScrollUp.IdleTexture = scrollUpTexture;
+        btnScrollUp = new(WindowManager)
+        {
+            ClientRectangle = new(0, 0, scrollUpTexture.Width, scrollUpTexture.Height),
+            IdleTexture = scrollUpTexture
+        };
 
-        var scrollDownTexture = AssetLoader.LoadTexture("sbDownArrow.png");
+        Texture2D scrollDownTexture = AssetLoader.LoadTexture("sbDownArrow.png");
 
-        btnScrollDown = new XNAButton(WindowManager);
-        btnScrollDown.ClientRectangle = new Rectangle(0, Height - scrollDownTexture.Height,
-            scrollDownTexture.Width, scrollDownTexture.Height);
-        btnScrollDown.IdleTexture = scrollDownTexture;
+        btnScrollDown = new(WindowManager)
+        {
+            ClientRectangle = new(
+                0, Height - scrollDownTexture.Height, scrollDownTexture.Width, scrollDownTexture.Height),
+            IdleTexture = scrollDownTexture
+        };
 
         ClientRectangleUpdated += XNAScrollBar_ClientRectangleUpdated;
     }
 
     private void XNAScrollBar_ClientRectangleUpdated(object sender, EventArgs e)
     {
-        btnScrollDown.ClientRectangle = new Rectangle(0,
+        btnScrollDown.ClientRectangle = new(
+            0,
             Height - btnScrollDown.Height,
-            btnScrollDown.Width, btnScrollDown.Height);
+            btnScrollDown.Width,
+            btnScrollDown.Height);
         Refresh();
     }
 
     /// <summary>
-    /// Raised when the scroll bar is scrolled. 
+    /// Raised when the scroll bar is scrolled.
     /// </summary>
     public event EventHandler Scrolled;
 
@@ -68,7 +75,7 @@ public class XNAScrollBar : XNAControl
 
     /// <summary>
     /// The scroll bar's current position.
-    /// The parent of the scroll-bar has to keep the scrollbar up-to-date when the 
+    /// The parent of the scroll-bar has to keep the scrollbar up-to-date when the
     /// view of the parent changes.
     /// </summary>
     public int ViewTop { get; set; }
@@ -81,31 +88,28 @@ public class XNAScrollBar : XNAControl
     /// <summary>
     /// Returns the width of the scroll bar.
     /// </summary>
-    public int ScrollWidth
-    {
-        get { return btnScrollUp.IdleTexture.Width; }
-    }
+    public int ScrollWidth => btnScrollUp.IdleTexture.Width;
 
     private int thumbHeight;
 
     private int scrollablePixels;
 
-    private int buttonMinY = 0;
+    private int buttonMinY;
 
-    private int buttonMaxY = 0;
+    private int buttonMaxY;
 
-    private int buttonY = 0;
+    private int buttonY;
 
-    private XNAButton btnScrollUp;
+    private readonly XNAButton btnScrollUp;
 
-    private XNAButton btnScrollDown;
+    private readonly XNAButton btnScrollDown;
 
     private Texture2D background;
     private Texture2D thumbMiddle;
     private Texture2D thumbTop;
     private Texture2D thumbBottom;
 
-    private bool isHeldDown = false;
+    private bool isHeldDown;
 
     public override void Initialize()
     {
@@ -156,13 +160,10 @@ public class XNAScrollBar : XNAControl
     }
 
     /// <summary>
-    /// Returns a bool that tells whether there's enough items in a list for 
+    /// Returns a bool that tells whether there's enough items in a list for
     /// the scrollbar to be drawn.
     /// </summary>
-    public bool IsDrawn()
-    {
-        return scrollablePixels > 0;
-    }
+    public bool IsDrawn() => scrollablePixels > 0;
 
     /// <summary>
     /// Refreshes the scroll bar's thumb size.
@@ -183,7 +184,8 @@ public class XNAScrollBar : XNAControl
         }
         else
         {
-            thumbHeight = Math.Max(height - (int)(height * nonDisplayedLines / (double)Length),
+            thumbHeight = Math.Max(
+                height - (int)(height * nonDisplayedLines / (double)Length),
                 MIN_BUTTON_HEIGHT);
 
             scrollablePixels = height - thumbHeight;
@@ -192,7 +194,7 @@ public class XNAScrollBar : XNAControl
             btnScrollUp.Enable();
         }
 
-        buttonMinY = btnScrollUp.Bottom + thumbHeight / 2;
+        buttonMinY = btnScrollUp.Bottom + (thumbHeight / 2);
         buttonMaxY = Height - btnScrollDown.Height - (thumbHeight / 2);
 
         RefreshButtonY();
@@ -226,14 +228,13 @@ public class XNAScrollBar : XNAControl
 
     private void Scroll()
     {
-        var point = GetCursorPoint();
+        Point point = GetCursorPoint();
 
         if (point.Y < btnScrollUp.Height
             || point.Y > btnScrollDown.Y)
         {
             return;
         }
-
 
         if (point.Y <= buttonMinY)
         {
@@ -288,7 +289,7 @@ public class XNAScrollBar : XNAControl
         }
 
         buttonY = Math.Min(
-            buttonMinY + (int)(((ViewTop / (double)nonDisplayedLines) * scrollablePixels) - thumbHeight / 2),
+            buttonMinY + (int)((ViewTop / (double)nonDisplayedLines * scrollablePixels) - (thumbHeight / 2)),
             Height - btnScrollDown.Height - thumbHeight);
     }
 
@@ -327,10 +328,14 @@ public class XNAScrollBar : XNAControl
             DrawTexture(background, new Rectangle(0, 0, Width, Height), Color.White);
 
             DrawTexture(thumbTop, new Rectangle(0, buttonY, ScrollWidth, thumbTop.Height), RemapColor);
-            DrawTexture(thumbBottom, new Rectangle(0,
-                buttonY + thumbHeight - thumbBottom.Height, ScrollWidth, thumbBottom.Height), Color.White);
-            DrawTexture(thumbMiddle, new Rectangle(0,
-                buttonY + thumbTop.Height, ScrollWidth, thumbHeight - thumbTop.Height - thumbBottom.Height), Color.White);
+            DrawTexture(
+                thumbBottom,
+                new Rectangle(0, buttonY + thumbHeight - thumbBottom.Height, ScrollWidth, thumbBottom.Height),
+                Color.White);
+            DrawTexture(
+                thumbMiddle,
+                new Rectangle(0, buttonY + thumbTop.Height, ScrollWidth, thumbHeight - thumbTop.Height - thumbBottom.Height),
+                Color.White);
         }
 
         base.Draw(gameTime);

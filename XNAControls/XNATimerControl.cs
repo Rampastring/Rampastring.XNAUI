@@ -1,7 +1,6 @@
-﻿using System;
+﻿namespace Rampastring.XNAUI.XNAControls;
+using System;
 using Microsoft.Xna.Framework;
-
-namespace Rampastring.XNAUI.XNAControls;
 
 /// <summary>
 /// A control that acts as a timer.
@@ -17,7 +16,8 @@ public class XNATimerControl : XNAControl
     /// Creates a new timer.
     /// </summary>
     /// <param name="windowManager">The WindowManager associated with this control.</param>
-    public XNATimerControl(WindowManager windowManager) : base(windowManager)
+    public XNATimerControl(WindowManager windowManager)
+        : base(windowManager)
     {
         Visible = false;
     }
@@ -63,21 +63,15 @@ public class XNATimerControl : XNAControl
     /// <summary>
     /// Pauses the timer.
     /// </summary>
-    public void Pause()
-    {
-        timerEnabled = false;
-    }
+    public void Pause() => timerEnabled = false;
 
     /// <summary>
     /// Resumes a previously paused (with Pause()) timer.
     /// </summary>
-    public void Resume()
-    {
-        timerEnabled = true;
-    }
+    public void Resume() => timerEnabled = true;
 
     /// <summary>
-    /// Sets the timer to trigger after the time specified in the timer's Interval 
+    /// Sets the timer to trigger after the time specified in the timer's Interval
     /// and starts the timer.
     /// </summary>
     public void Start()
@@ -90,28 +84,19 @@ public class XNATimerControl : XNAControl
     /// Lowers the time until the next event by the specified amount of time.
     /// </summary>
     /// <param name="timeSpan">The time.</param>
-    public void Accelerate(TimeSpan timeSpan)
-    {
-        currentInterval -= timeSpan;
-    }
+    public void Accelerate(TimeSpan timeSpan) => currentInterval -= timeSpan;
 
     /// <summary>
     /// Sets the time until the next TimeElapsed event.
     /// </summary>
     /// <param name="timeSpan">The time.</param>
-    public void SetTime(TimeSpan timeSpan)
-    {
-        currentInterval = timeSpan;
-    }
+    public void SetTime(TimeSpan timeSpan) => currentInterval = timeSpan;
 
     /// <summary>
     /// Returns the current time until the next TimeElapsed event.
     /// </summary>
     /// <returns>The time until the next TimeElapsed event.</returns>
-    public TimeSpan GetTime()
-    {
-        return currentInterval;
-    }
+    public TimeSpan GetTime() => currentInterval;
 
     /// <summary>
     /// A dummy draw function. Doesn't actually do anything.

@@ -1,10 +1,10 @@
-﻿using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Input;
+﻿namespace Rampastring.XNAUI.Input;
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
-
-namespace Rampastring.XNAUI.Input;
+using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Input;
 
 /// <summary>
 /// A class for handling the keyboard.
@@ -14,15 +14,16 @@ public class RKeyboard : GameComponent
     public RKeyboard(Game game)
         : base(game)
     {
-        PressedKeys = new List<Keys>();
+        PressedKeys = new();
         KeyboardState = Keyboard.GetState();
     }
 
     public delegate void KeyPressedEventHandler(object sender, KeyPressEventArgs e);
+
     public event KeyPressedEventHandler OnKeyPressed;
 
     public KeyboardState KeyboardState;
-    private Keys[] DownKeys = new Keys[0];
+    private Keys[] downKeys = Array.Empty<Keys>();
 
     public List<Keys> PressedKeys;
 
@@ -31,7 +32,7 @@ public class RKeyboard : GameComponent
         KeyboardState = Keyboard.GetState();
         PressedKeys.Clear();
 
-        foreach (Keys key in DownKeys)
+        foreach (Keys key in downKeys)
         {
             if (key == Keys.None)
                 continue; // Work-around a MonoGame bug in OGL mode
@@ -43,7 +44,7 @@ public class RKeyboard : GameComponent
             }
         }
 
-        DownKeys = KeyboardState.GetPressedKeys();
+        downKeys = KeyboardState.GetPressedKeys();
     }
 
     private void DoKeyPress(Keys key)
@@ -61,36 +62,11 @@ public class RKeyboard : GameComponent
         }
     }
 
-    public bool IsKeyHeldDown(Keys key)
-    {
-        return DownKeys.Contains(key);
-    }
+    public bool IsKeyHeldDown(Keys key) => downKeys.Contains(key);
 
-    public bool IsCtrlHeldDown()
-    {
-        return IsKeyHeldDown(Keys.RightControl) || IsKeyHeldDown(Keys.LeftControl);
-    }
+    public bool IsCtrlHeldDown() => IsKeyHeldDown(Keys.RightControl) || IsKeyHeldDown(Keys.LeftControl);
 
-    public bool IsShiftHeldDown()
-    {
-        return IsKeyHeldDown(Keys.RightShift) || IsKeyHeldDown(Keys.LeftShift);
-    }
+    public bool IsShiftHeldDown() => IsKeyHeldDown(Keys.RightShift) || IsKeyHeldDown(Keys.LeftShift);
 
-    public bool IsAltHeldDown()
-    {
-        return IsKeyHeldDown(Keys.RightAlt) || IsKeyHeldDown(Keys.LeftAlt);
-    }
-}
-
-public class KeyPressEventArgs : EventArgs
-{
-    public KeyPressEventArgs(Keys key)
-    {
-        PressedKey = key;
-    }
-
-    public Keys PressedKey { get; set; }
-
-    // If set, the key press event won't be forwarded on to following subscribers.
-    public bool Handled { get; set; }
+    public bool IsAltHeldDown() => IsKeyHeldDown(Keys.RightAlt) || IsKeyHeldDown(Keys.LeftAlt);
 }

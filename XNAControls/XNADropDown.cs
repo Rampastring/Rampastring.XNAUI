@@ -1,17 +1,10 @@
-﻿using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
-using Rampastring.Tools;
+﻿namespace Rampastring.XNAUI.XNAControls;
+
 using System;
 using System.Collections.Generic;
-
-namespace Rampastring.XNAUI.XNAControls;
-
-public enum DropDownState
-{
-    CLOSED,
-    OPENED_DOWN,
-    OPENED_UP
-}
+using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
+using Rampastring.Tools;
 
 /// <summary>
 /// A drop-down control.
@@ -22,12 +15,14 @@ public class XNADropDown : XNAControl
     /// Creates a new drop-down control.
     /// </summary>
     /// <param name="windowManager">The WindowManager associated with this control.</param>
-    public XNADropDown(WindowManager windowManager) : base(windowManager)
+    public XNADropDown(WindowManager windowManager)
+        : base(windowManager)
     {
         Height = ItemHeight + 2;
     }
 
     public delegate void SelectedIndexChangedEventHandler(object sender, EventArgs e);
+
     public event SelectedIndexChangedEventHandler SelectedIndexChanged;
 
     /// <summary>
@@ -40,45 +35,45 @@ public class XNADropDown : XNAControl
     /// </summary>
     public int ItemHeight { get; set; } = 17;
 
-    public List<XNADropDownItem> Items = new List<XNADropDownItem>();
+    public List<XNADropDownItem> Items = new();
 
     /// <summary>
-    /// Gets or sets the dropped-down status of the drop-down control.
+    /// Gets the dropped-down status of the drop-down control.
     /// </summary>
     public DropDownState DropDownState { get; private set; }
 
-    private bool _allowDropDown = true;
+    private bool allowDropDown = true;
 
     /// <summary>
     /// Controls whether the drop-down control can be dropped down.
     /// </summary>
     public bool AllowDropDown
     {
-        get { return _allowDropDown; }
+        get => allowDropDown;
+
         set
         {
-            _allowDropDown = value;
-            if (!_allowDropDown && DropDownState != DropDownState.CLOSED)
+            allowDropDown = value;
+            if (!allowDropDown && DropDownState != DropDownState.CLOSED)
             {
                 CloseDropDown();
             }
         }
     }
 
-    private int _selectedIndex = -1;
+    private int selectedIndex = -1;
 
     /// <summary>
     /// Gets or sets the selected index of the drop-down control.
     /// </summary>
     public int SelectedIndex
     {
-        get { return _selectedIndex; }
+        get => selectedIndex;
+
         set
         {
-            int oldSelectedIndex = _selectedIndex;
-
-            _selectedIndex = value;
-
+            int oldSelectedIndex = selectedIndex;
+            selectedIndex = value;
             if (value != oldSelectedIndex)
                 SelectedIndexChanged?.Invoke(this, EventArgs.Empty);
             else
@@ -89,72 +84,54 @@ public class XNADropDown : XNAControl
     /// <summary>
     /// Gets the currently selected item of the drop-down control.
     /// </summary>
-    public XNADropDownItem SelectedItem
-    {
-        get
-        {
-            if (SelectedIndex < 0 || SelectedIndex >= Items.Count)
-                return null;
-
-            return Items[SelectedIndex];
-        }
-    }
+    public XNADropDownItem SelectedItem =>
+        SelectedIndex < 0 || SelectedIndex >= Items.Count ? null : Items[SelectedIndex];
 
     public int FontIndex { get; set; }
 
-    private Color? _borderColor;
+    private Color? borderColor;
 
     public Color BorderColor
     {
-        get
-        {
-            return _borderColor ?? UISettings.ActiveSettings.PanelBorderColor;
-        }
-        set { _borderColor = value; }
+        get => borderColor ?? UISettings.ActiveSettings.PanelBorderColor;
+
+        set => borderColor = value;
     }
 
-    private Color? _focusColor;
+    private Color? focusColor;
 
     public Color FocusColor
     {
-        get
-        {
-            return _focusColor ?? UISettings.ActiveSettings.FocusColor;
-        }
-        set { _focusColor = value; }
+        get => focusColor ?? UISettings.ActiveSettings.FocusColor;
+
+        set => focusColor = value;
     }
 
-    private Color? _backColor;
+    private Color? backColor;
 
     public Color BackColor
     {
-        get
-        {
-            return _backColor ?? UISettings.ActiveSettings.BackgroundColor;
-        }
-        set { _backColor = value; }
+        get => backColor ?? UISettings.ActiveSettings.BackgroundColor;
+
+        set => backColor = value;
     }
 
-    private Color? _textColor;
+    private Color? textColor;
 
     public Color TextColor
     {
-        get
-        {
-            return _textColor ?? UISettings.ActiveSettings.AltColor;
-        }
-        set { _textColor = value; }
+        get => textColor ?? UISettings.ActiveSettings.AltColor;
+
+        set => textColor = value;
     }
 
-    private Color? _disabledItemColor;
+    private Color? disabledItemColor;
 
     public Color DisabledItemColor
     {
-        get
-        {
-            return _disabledItemColor ?? UISettings.ActiveSettings.DisabledItemColor;
-        }
-        set { _disabledItemColor = value; }
+        get => disabledItemColor ?? UISettings.ActiveSettings.DisabledItemColor;
+
+        set => disabledItemColor = value;
     }
 
     /// <summary>
@@ -163,12 +140,13 @@ public class XNADropDown : XNAControl
     public bool OpenUp { get; set; }
 
     public Texture2D DropDownTexture { get; set; }
+
     public Texture2D DropDownOpenTexture { get; set; }
 
     public EnhancedSoundEffect ClickSoundEffect { get; set; }
 
-    private int hoveredIndex = 0;
-    private bool clickedAfterOpen = false;
+    private int hoveredIndex;
+    private bool clickedAfterOpen;
 
     #region AddItem methods
 
@@ -176,10 +154,7 @@ public class XNADropDown : XNAControl
     /// Adds an item into the drop-down.
     /// </summary>
     /// <param name="item">The item.</param>
-    public void AddItem(XNADropDownItem item)
-    {
-        Items.Add(item);
-    }
+    public void AddItem(XNADropDownItem item) => Items.Add(item);
 
     /// <summary>
     /// Generates and adds an item with the specified text into the drop-down.
@@ -187,8 +162,10 @@ public class XNADropDown : XNAControl
     /// <param name="text">The text of the item.</param>
     public void AddItem(string text)
     {
-        var item = new XNADropDownItem();
-        item.Text = text;
+        var item = new XNADropDownItem
+        {
+            Text = text
+        };
 
         Items.Add(item);
     }
@@ -201,9 +178,11 @@ public class XNADropDown : XNAControl
     /// <param name="texture">The item's texture.</param>
     public void AddItem(string text, Texture2D texture)
     {
-        var item = new XNADropDownItem();
-        item.Text = text;
-        item.Texture = texture;
+        var item = new XNADropDownItem
+        {
+            Text = text,
+            Texture = texture
+        };
 
         Items.Add(item);
     }
@@ -216,9 +195,11 @@ public class XNADropDown : XNAControl
     /// <param name="color">The color of the item's text.</param>
     public void AddItem(string text, Color color)
     {
-        var item = new XNADropDownItem();
-        item.Text = text;
-        item.TextColor = color;
+        var item = new XNADropDownItem
+        {
+            Text = text,
+            TextColor = color
+        };
 
         Items.Add(item);
     }
@@ -252,7 +233,7 @@ public class XNADropDown : XNAControl
                 ItemHeight = Conversions.IntFromString(value, ItemHeight);
                 return;
             case "ClickSoundEffect":
-                ClickSoundEffect = new EnhancedSoundEffect(value);
+                ClickSoundEffect = new(value);
                 return;
             case "FontIndex":
                 FontIndex = Conversions.IntFromString(value, FontIndex);
@@ -301,13 +282,9 @@ public class XNADropDown : XNAControl
             }
 
             // Update hovered index
-
             int itemIndexOnCursor = GetItemIndexOnCursor();
 
-            if (itemIndexOnCursor > -1 && Items[itemIndexOnCursor].Selectable)
-                hoveredIndex = itemIndexOnCursor;
-            else
-                hoveredIndex = -1;
+            hoveredIndex = itemIndexOnCursor > -1 && Items[itemIndexOnCursor].Selectable ? itemIndexOnCursor : -1;
         }
     }
 
@@ -328,13 +305,13 @@ public class XNADropDown : XNAControl
         if (!OpenUp)
         {
             DropDownState = DropDownState.OPENED_DOWN;
-            Height = DropDownTexture.Height + 2 + ItemHeight * Items.Count;
+            Height = DropDownTexture.Height + 2 + (ItemHeight * Items.Count);
         }
         else
         {
             DropDownState = DropDownState.OPENED_UP;
-            Y -= 1 + ItemHeight * Items.Count;
-            Height = DropDownTexture.Height + 1 + ItemHeight * Items.Count;
+            Y -= 1 + (ItemHeight * Items.Count);
+            Height = DropDownTexture.Height + 1 + (ItemHeight * Items.Count);
         }
 
         Detach();
@@ -433,7 +410,7 @@ public class XNADropDown : XNAControl
             int y = p.Y - DropDownTexture.Height - 1;
             itemIndex = y / ItemHeight;
         }
-        else // if (DropDownState == DropDownState.DROPPED_UP)
+        else
         {
             if (p.Y > ClientRectangle.Height - DropDownTexture.Height - 1)
                 return -1;
@@ -441,12 +418,7 @@ public class XNADropDown : XNAControl
             itemIndex = (p.Y - 1) / ItemHeight;
         }
 
-        if (itemIndex < Items.Count && itemIndex > -1)
-        {
-            return itemIndex;
-        }
-
-        return -1;
+        return itemIndex < Items.Count && itemIndex > -1 ? itemIndex : -1;
     }
 
     /// <summary>
@@ -454,16 +426,18 @@ public class XNADropDown : XNAControl
     /// </summary>
     public override void Draw(GameTime gameTime)
     {
-        Rectangle dropDownRect;
-        if (DropDownState == DropDownState.CLOSED)
-            dropDownRect = new Rectangle(0, 0, Width, Height);
-        else if (DropDownState == DropDownState.OPENED_DOWN)
-            dropDownRect = new Rectangle(0, 0, Width, DropDownTexture.Height);
-        else
-            dropDownRect = new Rectangle(0, Height - DropDownTexture.Height, Width, DropDownTexture.Height);
-
-        FillRectangle(new Rectangle(dropDownRect.X + 1, dropDownRect.Y + 1,
-            dropDownRect.Width - 2, dropDownRect.Height - 2), BackColor);
+        Rectangle dropDownRect = DropDownState == DropDownState.CLOSED
+            ? new(0, 0, Width, Height)
+            : DropDownState == DropDownState.OPENED_DOWN
+                ? new(0, 0, Width, DropDownTexture.Height)
+                : new(0, Height - DropDownTexture.Height, Width, DropDownTexture.Height);
+        FillRectangle(
+            new(
+                dropDownRect.X + 1,
+                dropDownRect.Y + 1,
+                dropDownRect.Width - 2,
+                dropDownRect.Height - 2),
+            BackColor);
         DrawRectangle(dropDownRect, BorderColor);
 
         if (SelectedIndex > -1 && SelectedIndex < Items.Count)
@@ -473,41 +447,44 @@ public class XNADropDown : XNAControl
             int textX = 3;
             if (item.Texture != null)
             {
-                DrawTexture(item.Texture,
-                    new Rectangle(1, dropDownRect.Y + 2,
-                    item.Texture.Width, item.Texture.Height), Color.White);
+                DrawTexture(
+                    item.Texture,
+                    new Rectangle(1, dropDownRect.Y + 2, item.Texture.Width, item.Texture.Height),
+                    Color.White);
                 textX += item.Texture.Width + 1;
             }
 
             if (item.Text != null)
             {
-                DrawStringWithShadow(item.Text, FontIndex,
-                    new Vector2(textX, dropDownRect.Y + 2), GetItemTextColor(item));
+                DrawStringWithShadow(
+                    item.Text,
+                    FontIndex,
+                    new(textX, dropDownRect.Y + 2),
+                    GetItemTextColor(item));
             }
         }
 
         if (AllowDropDown)
         {
-            var ddRectangle = new Rectangle(Width - DropDownTexture.Width,
-                dropDownRect.Y, DropDownTexture.Width, DropDownTexture.Height);
+            var ddRectangle = new Rectangle(
+                Width - DropDownTexture.Width,
+                dropDownRect.Y,
+                DropDownTexture.Width,
+                DropDownTexture.Height);
 
             if (DropDownState != DropDownState.CLOSED)
             {
-                DrawTexture(DropDownOpenTexture,
-                    ddRectangle, RemapColor);
+                DrawTexture(
+                    DropDownOpenTexture, ddRectangle, RemapColor);
 
-                Rectangle listRectangle;
-
-                if (DropDownState == DropDownState.OPENED_DOWN)
-                    listRectangle = new Rectangle(0, DropDownTexture.Height, Width, Height - DropDownTexture.Height);
-                else
-                    listRectangle = new Rectangle(0, 0, Width, Height - DropDownTexture.Height);
-
+                Rectangle listRectangle = DropDownState == DropDownState.OPENED_DOWN
+                    ? new(0, DropDownTexture.Height, Width, Height - DropDownTexture.Height)
+                    : new(0, 0, Width, Height - DropDownTexture.Height);
                 DrawRectangle(listRectangle, BorderColor);
 
                 for (int i = 0; i < Items.Count; i++)
                 {
-                    int y = listRectangle.Y + 1 + i * ItemHeight;
+                    int y = listRectangle.Y + 1 + (i * ItemHeight);
                     DrawItem(i, y);
                 }
             }
@@ -532,11 +509,11 @@ public class XNADropDown : XNAControl
 
         if (hoveredIndex == index)
         {
-            FillRectangle(new Rectangle(1, y, Width - 2, ItemHeight), FocusColor);
+            FillRectangle(new(1, y, Width - 2, ItemHeight), FocusColor);
         }
         else
         {
-            FillRectangle(new Rectangle(1, y, Width - 2, ItemHeight), BackColor);
+            FillRectangle(new(1, y, Width - 2, ItemHeight), BackColor);
         }
 
         int textX = 2;
@@ -546,14 +523,8 @@ public class XNADropDown : XNAControl
             textX += item.Texture.Width + 1;
         }
 
-        Color textColor;
-
-        if (item.Selectable)
-            textColor = GetItemTextColor(item);
-        else
-            textColor = DisabledItemColor;
-
+        Color textColor = item.Selectable ? GetItemTextColor(item) : DisabledItemColor;
         if (item.Text != null)
-            DrawStringWithShadow(item.Text, FontIndex, new Vector2(textX, y + 1), textColor);
+            DrawStringWithShadow(item.Text, FontIndex, new(textX, y + 1), textColor);
     }
 }

@@ -1,17 +1,17 @@
-﻿using System;
+﻿namespace Rampastring.XNAUI;
+
+using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using Microsoft.Xna.Framework.Audio;
-using Microsoft.Xna.Framework.Graphics;
-using Rampastring.Tools;
 using Microsoft.Xna.Framework.Content;
+using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Media;
+using Rampastring.Tools;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Formats.Png;
 using Color = Microsoft.Xna.Framework.Color;
-using System.Globalization;
-
-namespace Rampastring.XNAUI;
 
 /// <summary>
 /// A static class that provides easy-to-use methods
@@ -30,7 +30,7 @@ public static class AssetLoader
     private static List<Texture2D> textureCache;
     private static List<SoundEffect> soundCache;
 
-    public static bool IsInitialized { get; private set; } = false;
+    public static bool IsInitialized { get; private set; }
 
     /// <summary>
     /// Initializes the AssetLoader.
@@ -45,9 +45,9 @@ public static class AssetLoader
         IsInitialized = true;
 
         graphicsDevice = gd;
-        AssetSearchPaths = new List<string>();
-        textureCache = new List<Texture2D>();
-        soundCache = new List<SoundEffect>();
+        AssetSearchPaths = new();
+        textureCache = new();
+        soundCache = new();
         contentManager = content;
     }
 
@@ -59,12 +59,12 @@ public static class AssetLoader
     /// <returns>The texture if it was found and could be loaded, otherwise a dummy texture.</returns>
     public static Texture2D LoadTexture(string name)
     {
-        var cachedTexture = textureCache.Find(t => t.Name == name);
+        Texture2D cachedTexture = textureCache.Find(t => t.Name == name);
 
         if (cachedTexture != null)
             return cachedTexture;
 
-        var texture = LoadTextureInternal(name);
+        Texture2D texture = LoadTextureInternal(name);
         if (texture != null)
         {
             textureCache.Add(texture);
@@ -75,18 +75,15 @@ public static class AssetLoader
     }
 
     /// <summary>
-    /// Loads a texture with the specific name. Does not look at textures in 
+    /// Loads a texture with the specific name. Does not look at textures in
     /// the texture cache, and doesn't add loaded textures to the texture cache.
     /// </summary>
     /// <param name="name">The name of the texture.</param>
     /// <returns>The texture if it was found and could be loaded, otherwise a dummy texture.</returns>
     public static Texture2D LoadTextureUncached(string name)
     {
-        var texture = LoadTextureInternal(name);
-        if (texture != null)
-            return texture;
-
-        return CreateDummyTexture();
+        Texture2D texture = LoadTextureInternal(name);
+        return texture ?? CreateDummyTexture();
     }
 
     private static Texture2D LoadTextureInternal(string name)
@@ -134,16 +131,12 @@ public static class AssetLoader
     /// <summary>
     /// Creates and returns a 100x100 pink square.
     /// </summary>
-    private static Texture2D CreateDummyTexture()
-    {
-        return CreateTexture(new Color(255, 54, 244), 100, 100);
-    }
+    private static Texture2D CreateDummyTexture() => CreateTexture(new(255, 54, 244), 100, 100);
 
     /// <summary>
     /// Checks if a specified asset file exists.
     /// </summary>
     /// <param name="name">The name of the asset file.</param>
-    /// <returns></returns>
     public static bool AssetExists(string name)
     {
         foreach (string searchPath in AssetSearchPaths)

@@ -1,24 +1,25 @@
-﻿using System;
+﻿namespace Rampastring.XNAUI;
+
+using System;
 using System.Collections.Generic;
-using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
-using Rampastring.XNAUI.XNAControls;
-using Rampastring.Tools;
-using Microsoft.Xna.Framework.Content;
-using Color = Microsoft.Xna.Framework.Color;
-using Rectangle = Microsoft.Xna.Framework.Rectangle;
-using Rampastring.XNAUI.Input;
-using System.Diagnostics;
 using System.Linq;
+using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Content;
+using Microsoft.Xna.Framework.Graphics;
+using Rampastring.Tools;
+using Rampastring.XNAUI.Input;
 using Rampastring.XNAUI.PlatformSpecific;
+using Rampastring.XNAUI.XNAControls;
+using Color = Microsoft.Xna.Framework.Color;
+#if !XNA
+using System.Diagnostics;
 #if NETFRAMEWORK
 using System.Reflection;
+#endif
 #endif
 #if WINFORMS
 using System.Windows.Forms;
 #endif
-
-namespace Rampastring.XNAUI;
 
 /// <summary>
 /// Manages the game window and all of the game's controls
@@ -26,14 +27,19 @@ namespace Rampastring.XNAUI;
 /// </summary>
 public class WindowManager : DrawableGameComponent
 {
+#if XNA
     private const int XNA_MAX_TEXTURE_SIZE = 2048;
 
+#endif
+#pragma warning disable SA1514 // Element documentation header should be preceded by blank line
     /// <summary>
     /// Creates a new WindowManager.
     /// </summary>
     /// <param name="game">The game.</param>
     /// <param name="graphics">The game's GraphicsDeviceManager.</param>
-    public WindowManager(Game game, GraphicsDeviceManager graphics) : base(game)
+    public WindowManager(Game game, GraphicsDeviceManager graphics)
+#pragma warning restore SA1514 // Element documentation header should be preceded by blank line
+        : base(game)
     {
         this.graphics = graphics;
     }
@@ -58,11 +64,11 @@ public class WindowManager : DrawableGameComponent
     /// </summary>
     public SoundPlayer SoundPlayer { get; private set; }
 
-    private List<XNAControl> Controls = new List<XNAControl>();
+    private List<XNAControl> controls = new();
 
-    private List<Callback> Callbacks = new List<Callback>();
+    private List<Callback> callbacks = new();
 
-    private readonly object locker = new object();
+    private readonly object locker = new();
 
     /// <summary>
     /// Returns the width of the game window.
@@ -91,10 +97,11 @@ public class WindowManager : DrawableGameComponent
 
     public double ScaleRatio { get; private set; } = 1.0;
 
-    public int SceneXPosition { get; private set; } = 0;
-    public int SceneYPosition { get; private set; } = 0;
+    public int SceneXPosition { get; private set; }
 
-    private XNAControl _selectedControl;
+    public int SceneYPosition { get; private set; }
+
+    private XNAControl selectedControl;
 
     /// <summary>
     /// Gets or sets the control that is currently selected.
@@ -102,19 +109,17 @@ public class WindowManager : DrawableGameComponent
     /// </summary>
     public XNAControl SelectedControl
     {
-        get { return _selectedControl; }
+        get => selectedControl;
+
         set
         {
-            XNAControl oldSelectedControl = _selectedControl;
-            _selectedControl = value;
-
-            if (oldSelectedControl != _selectedControl)
+            XNAControl oldSelectedControl = selectedControl;
+            selectedControl = value;
+            if (oldSelectedControl != selectedControl)
             {
-                if (_selectedControl != null)
-                    _selectedControl.OnSelectedChanged();
+                selectedControl?.OnSelectedChanged();
 
-                if (oldSelectedControl != null)
-                    oldSelectedControl.OnSelectedChanged();
+                oldSelectedControl?.OnSelectedChanged();
             }
         }
     }
@@ -123,16 +128,16 @@ public class WindowManager : DrawableGameComponent
     /// Returns a bool that determines whether input is
     /// currently exclusively captured by the selected control.
     /// </summary>
-    public bool IsInputExclusivelyCaptured => SelectedControl != null && SelectedControl.ExclusiveInputCapture;
+    public bool IsInputExclusivelyCaptured => SelectedControl is { ExclusiveInputCapture: true };
 
     /// <summary>
     /// A list of custom control INI attribute parsers.
     /// Allows extending the control INI attribute parsing
     /// system with custom INI keys.
     /// </summary>
-    public List<IControlINIAttributeParser> ControlINIAttributeParsers { get; private set; } = new List<IControlINIAttributeParser>();
+    public List<IControlINIAttributeParser> ControlINIAttributeParsers { get; } = new();
 
-    private GraphicsDeviceManager graphics;
+    private readonly GraphicsDeviceManager graphics;
 
     private IGameWindowManager gameWindowManager;
     private RenderTarget2D renderTarget;
@@ -162,28 +167,24 @@ public class WindowManager : DrawableGameComponent
     /// </summary>
     private void RecalculateScaling()
     {
-        double xRatio = (WindowWidth) / (double)RenderResolutionX;
-        double yRatio = (WindowHeight) / (double)RenderResolutionY;
+        double xRatio = WindowWidth / (double)RenderResolutionX;
+        double yRatio = WindowHeight / (double)RenderResolutionY;
 
         double ratio;
 
         int texturePositionX = 0;
         int texturePositionY = 0;
-        int textureHeight = 0;
-        int textureWidth = 0;
 
         if (xRatio > yRatio)
         {
             ratio = yRatio;
-            textureHeight = WindowHeight;
-            textureWidth = (int)(RenderResolutionX * ratio);
+            int textureWidth = (int)(RenderResolutionX * ratio);
             texturePositionX = (WindowWidth - textureWidth) / 2;
         }
         else
         {
             ratio = xRatio;
-            textureWidth = WindowWidth;
-            textureHeight = (int)(RenderResolutionY * ratio);
+            int textureHeight = (int)(RenderResolutionY * ratio);
             texturePositionY = (WindowHeight - textureHeight) / 2;
         }
 
@@ -191,14 +192,21 @@ public class WindowManager : DrawableGameComponent
         SceneXPosition = texturePositionX;
         SceneYPosition = texturePositionY;
 
-        if (renderTarget != null && !renderTarget.IsDisposed)
+        if (renderTarget is { IsDisposed: false })
             renderTarget.Dispose();
 
-        if (doubledRenderTarget != null && !doubledRenderTarget.IsDisposed)
+        if (doubledRenderTarget is { IsDisposed: false })
             doubledRenderTarget.Dispose();
 
-        renderTarget = new RenderTarget2D(GraphicsDevice, RenderResolutionX, RenderResolutionY, false, SurfaceFormat.Color,
-            DepthFormat.None, 0, RenderTargetUsage.PreserveContents);
+        renderTarget = new(
+            GraphicsDevice,
+            RenderResolutionX,
+            RenderResolutionY,
+            false,
+            SurfaceFormat.Color,
+            DepthFormat.None,
+            0,
+            RenderTargetUsage.PreserveContents);
 
         RenderTargetStack.Initialize(renderTarget, GraphicsDevice);
         RenderTargetStack.InitDetachedScaledControlRenderTarget(RenderResolutionX, RenderResolutionY);
@@ -214,9 +222,15 @@ public class WindowManager : DrawableGameComponent
 #endif
 
             // Enable sharper scaling method
-            doubledRenderTarget = new RenderTarget2D(GraphicsDevice,
-                RenderResolutionX * 2, RenderResolutionY * 2, false, SurfaceFormat.Color,
-                DepthFormat.None, 0, RenderTargetUsage.PreserveContents);
+            doubledRenderTarget = new(
+                GraphicsDevice,
+                RenderResolutionX * 2,
+                RenderResolutionY * 2,
+                false,
+                SurfaceFormat.Color,
+                DepthFormat.None,
+                0,
+                RenderTargetUsage.PreserveContents);
         }
         else
         {
@@ -242,7 +256,9 @@ public class WindowManager : DrawableGameComponent
     /// <summary>
     /// Restarts the game.
     /// </summary>
+#pragma warning disable CA1822 // Mark members as static
     public void RestartGame()
+#pragma warning restore CA1822 // Mark members as static
     {
         Logger.Log("Restarting game.");
 
@@ -251,6 +267,7 @@ public class WindowManager : DrawableGameComponent
         // can take over 8 seconds while XNA takes only 1 second
         // This is a bit dirty, but at least it makes the MonoGame build exit quicker
         GameClosing?.Invoke(this, EventArgs.Empty);
+
         // TODO move Windows-specific functionality
 #if WINFORMS
         Application.DoEvents();
@@ -278,17 +295,17 @@ public class WindowManager : DrawableGameComponent
     /// <param name="contentPath">The path where the ContentManager should load files from (including SpriteFont files).</param>
     public void Initialize(ContentManager content, string contentPath)
     {
-        base.Initialize();
+        Initialize();
 
         content.RootDirectory = SafePath.GetDirectory(contentPath).FullName;
 
-        Cursor = new Input.Cursor(this);
+        Cursor = new(this);
         Cursor.Initialize();
-        Keyboard = new RKeyboard(Game);
+        Keyboard = new(Game);
         if (!AssetLoader.IsInitialized)
             AssetLoader.Initialize(graphics.GraphicsDevice, content);
         Renderer.Initialize(GraphicsDevice, content);
-        SoundPlayer = new SoundPlayer(Game);
+        SoundPlayer = new(Game);
 
         gameWindowManager = new WindowsGameWindowManager(Game);
 #if WINFORMS
@@ -297,21 +314,17 @@ public class WindowManager : DrawableGameComponent
         Game.Exiting += GameWindowManager_GameWindowClosing;
 #endif
 
-        if (UISettings.ActiveSettings == null)
-            UISettings.ActiveSettings = new UISettings();
+        UISettings.ActiveSettings ??= new();
 #if XNA
 
         KeyboardEventInput.Initialize(Game.Window);
 #endif
     }
 
-    private void GameWindowManager_GameWindowClosing(object sender, EventArgs e)
-    {
-        GameClosing?.Invoke(this, EventArgs.Empty);
-    }
+    private void GameWindowManager_GameWindowClosing(object sender, EventArgs e) => GameClosing?.Invoke(this, EventArgs.Empty);
 
     /// <summary>
-    /// Schedules a delegate to be executed on the next game loop frame, 
+    /// Schedules a delegate to be executed on the next game loop frame,
     /// on the main game thread.
     /// </summary>
     /// <param name="d">The delegate.</param>
@@ -319,7 +332,7 @@ public class WindowManager : DrawableGameComponent
     public void AddCallback(Delegate d, params object[] args)
     {
         lock (locker)
-            Callbacks.Add(new Callback(d, args));
+            callbacks.Add(new(d, args));
     }
 
     /// <summary>
@@ -329,13 +342,13 @@ public class WindowManager : DrawableGameComponent
     /// <param name="control">The control to add.</param>
     public void AddAndInitializeControl(XNAControl control)
     {
-        if (Controls.Contains(control))
+        if (controls.Contains(control))
         {
             throw new InvalidOperationException("WindowManager.AddAndInitializeControl: Control " + control.Name + " already exists!");
         }
 
         control.Initialize();
-        Controls.Add(control);
+        controls.Add(control);
         ReorderControls();
     }
 
@@ -347,12 +360,12 @@ public class WindowManager : DrawableGameComponent
     /// <param name="control">The control to add.</param>
     public void AddControl(XNAControl control)
     {
-        if (Controls.Contains(control))
+        if (controls.Contains(control))
         {
             throw new InvalidOperationException("WindowManager.AddControl: Control " + control.Name + " already exists!");
         }
 
-        Controls.Add(control);
+        controls.Add(control);
     }
 
     /// <summary>
@@ -362,12 +375,12 @@ public class WindowManager : DrawableGameComponent
     /// <param name="control">The control to insert.</param>
     public void InsertAndInitializeControl(XNAControl control)
     {
-        if (Controls.Contains(control))
+        if (controls.Contains(control))
         {
-            throw new Exception("WindowManager.InsertAndInitializeControl: Control " + control.Name + " already exists!");
+            throw new("WindowManager.InsertAndInitializeControl: Control " + control.Name + " already exists!");
         }
 
-        Controls.Insert(0, control);
+        controls.Insert(0, control);
     }
 
     /// <summary>
@@ -376,137 +389,89 @@ public class WindowManager : DrawableGameComponent
     /// <param name="control">The control to center.</param>
     public void CenterControlOnScreen(XNAControl control)
     {
-        control.ClientRectangle = new Rectangle((RenderResolutionX - control.Width) / 2,
-            (RenderResolutionY - control.Height) / 2, control.Width, control.Height);
+        control.ClientRectangle = new(
+            (RenderResolutionX - control.Width) / 2,
+            (RenderResolutionY - control.Height) / 2,
+            control.Width,
+            control.Height);
     }
 
     /// <summary>
     /// Centers the game window on the screen.
     /// </summary>
-    public void CenterOnScreen()
-    {
-        gameWindowManager.CenterOnScreen();
-    }
+    public void CenterOnScreen() => gameWindowManager.CenterOnScreen();
 
     /// <summary>
     /// Enables or disables borderless windowed mode.
     /// </summary>
     /// <param name="value">A boolean that determines whether borderless
     /// windowed mode should be enabled.</param>
-    public void SetBorderlessMode(bool value)
-    {
-        gameWindowManager.SetBorderlessMode(value);
-    }
-
+    public void SetBorderlessMode(bool value) => gameWindowManager.SetBorderlessMode(value);
 #if WINFORMS
-    public void MinimizeWindow()
-    {
-        gameWindowManager.MinimizeWindow();
-    }
 
-    public void MaximizeWindow()
-    {
-        gameWindowManager.MaximizeWindow();
-    }
+    public void MinimizeWindow() => gameWindowManager.MinimizeWindow();
 
-    public void HideWindow()
-    {
-        gameWindowManager.HideWindow();
-    }
+    public void MaximizeWindow() => gameWindowManager.MaximizeWindow();
 
-    public void ShowWindow()
-    {
-        gameWindowManager.ShowWindow();
-    }
+    public void HideWindow() => gameWindowManager.HideWindow();
+
+    public void ShowWindow() => gameWindowManager.ShowWindow();
 
     /// <summary>
     /// Flashes the game window on the taskbar.
     /// </summary>
-    public void FlashWindow()
-    {
-        gameWindowManager.FlashWindow();
-    }
+    public void FlashWindow() => gameWindowManager.FlashWindow();
 
     /// <summary>
     /// Sets the icon of the game window to an icon that exists on a specific
     /// file path.
     /// </summary>
     /// <param name="path">The path to the icon file.</param>
-    public void SetIcon(string path)
-    {
-        gameWindowManager.SetIcon(path);
-    }
+    public void SetIcon(string path) => gameWindowManager.SetIcon(path);
 
     /// <summary>
     /// Returns the IntPtr handle of the game window on Windows.
     /// On other platforms, returns IntPtr.Zero.
     /// </summary>
-    public IntPtr GetWindowHandle()
-    {
-        return gameWindowManager.GetWindowHandle();
-    }
+    public IntPtr GetWindowHandle() => gameWindowManager.GetWindowHandle();
 
     /// <summary>
     /// Enables or disables the "control box" (minimize/maximize/close buttons) for the game form.
     /// </summary>
     /// <param name="value">True to enable the control box, false to disable it.</param>
-    public void SetControlBox(bool value)
-    {
-        gameWindowManager.SetControlBox(value);
-    }
+    public void SetControlBox(bool value) => gameWindowManager.SetControlBox(value);
 
     /// <summary>
     /// Prevents the user from closing the game form by Alt-F4.
     /// </summary>
-    public void PreventClosing()
-    {
-        gameWindowManager.PreventClosing();
-    }
+    public void PreventClosing() => gameWindowManager.PreventClosing();
 
     /// <summary>
     /// Allows the user to close the game form by Alt-F4.
     /// </summary>
-    public void AllowClosing()
-    {
-        gameWindowManager.AllowClosing();
-    }
-
+    public void AllowClosing() => gameWindowManager.AllowClosing();
 #endif
+
     /// <summary>
     /// Removes a control from the window manager.
     /// </summary>
     /// <param name="control">The control to remove.</param>
-    public void RemoveControl(XNAControl control)
-    {
-        Controls.Remove(control);
-    }
+    public void RemoveControl(XNAControl control) => controls.Remove(control);
 
     /// <summary>
     /// Enables or disables VSync.
     /// </summary>
     /// <param name="value">A boolean that determines whether VSync should be enabled or disabled.</param>
-    public void SetVSync(bool value)
-    {
-        graphics.SynchronizeWithVerticalRetrace = value;
-    }
+    public void SetVSync(bool value) => graphics.SynchronizeWithVerticalRetrace = value;
 
-    public void SetFinalRenderTarget()
-    {
-        GraphicsDevice.SetRenderTarget(renderTarget);
-    }
+    public void SetFinalRenderTarget() => GraphicsDevice.SetRenderTarget(renderTarget);
 
-    public RenderTarget2D GetFinalRenderTarget()
-    {
-        return renderTarget;
-    }
+    public RenderTarget2D GetFinalRenderTarget() => renderTarget;
 
     /// <summary>
     /// Re-orders controls by their update order.
     /// </summary>
-    public void ReorderControls()
-    {
-        Controls = Controls.OrderBy(control => control.Detached).ThenBy(control => control.UpdateOrder).ToList();
-    }
+    public void ReorderControls() => controls = controls.OrderBy(control => control.Detached).ThenBy(control => control.UpdateOrder).ToList();
 
     /// <summary>
     /// Attempt to set the display mode to the desired resolution.  Itterates through the display
@@ -522,6 +487,7 @@ public class WindowManager : DrawableGameComponent
         Logger.Log("InitGraphicsMode: " + iWidth + "x" + iHeight);
         WindowWidth = iWidth;
         WindowHeight = iHeight;
+
         // If we aren't using a full screen mode, the height and width of the window can
         // be set to anything equal to or smaller than the actual screen size.
         if (bFullScreen == false)
@@ -541,7 +507,7 @@ public class WindowManager : DrawableGameComponent
         {
             // If we are using full screen mode, we should check to make sure that the display
             // adapter can handle the video mode we are trying to set.  To do this, we will
-            // iterate thorugh the display modes supported by the adapter and check them against
+            // iterate through the display modes supported by the adapter and check them against
             // the mode we want to set.
             foreach (DisplayMode dm in GraphicsAdapter.DefaultAdapter.SupportedDisplayModes)
             {
@@ -568,7 +534,7 @@ public class WindowManager : DrawableGameComponent
     public bool IsFullscreen => graphics.IsFullScreen;
 
     /// <summary>
-    /// Updates the WindowManager. Do not call manually; MonoGame will call 
+    /// Updates the WindowManager. Do not call manually; MonoGame will call
     /// this automatically on every game frame.
     /// </summary>
     /// <param name="gameTime">Provides a snapshot of timing values.</param>
@@ -578,12 +544,12 @@ public class WindowManager : DrawableGameComponent
 
         lock (locker)
         {
-            if (Callbacks.Count > 0)
+            if (callbacks.Count > 0)
             {
-                List<Callback> callbacks = Callbacks;
-                Callbacks = new List<Callback>();
+                List<Callback> callbacksCopy = callbacks;
+                callbacks = new();
 
-                foreach (Callback c in callbacks)
+                foreach (Callback c in callbacksCopy)
                     c.Invoke();
             }
         }
@@ -598,12 +564,12 @@ public class WindowManager : DrawableGameComponent
 
         SoundPlayer.Update(gameTime);
 
-        for (int i = Controls.Count - 1; i > -1; i--)
+        for (int i = controls.Count - 1; i > -1; i--)
         {
-            XNAControl control = Controls[i];
+            XNAControl control = controls[i];
 
             if (HasFocus && control.InputEnabled && control.Enabled &&
-                (activeControl == null && control.GetWindowRectangle().Contains(Cursor.Location) || control.Focused))
+                ((activeControl == null && control.GetWindowRectangle().Contains(Cursor.Location)) || control.Focused))
             {
                 control.IsActive = true;
                 activeControl = control;
@@ -631,7 +597,7 @@ public class WindowManager : DrawableGameComponent
         // 1) a mouse button is held down
         // 2) the control that is capturing the input is visible and enabled
         // If either of these conditions is not true, then release the exclusively captured input.
-        if (SelectedControl != null && SelectedControl.ExclusiveInputCapture)
+        if (SelectedControl is { ExclusiveInputCapture: true })
         {
             if ((!Cursor.RightDown && !Cursor.LeftDown) ||
                 !SelectedControl.AppliesToSelfAndAllParents(p => p.Enabled && p.InputEnabled))
@@ -657,13 +623,13 @@ public class WindowManager : DrawableGameComponent
         GraphicsDevice.Clear(Color.Black);
 
         Renderer.ClearStack();
-        Renderer.CurrentSettings = new SpriteBatchSettings(
+        Renderer.CurrentSettings = new(
             SpriteSortMode.Deferred, BlendState.AlphaBlend, null, null, null, null);
         Renderer.BeginDraw();
 
-        for (int i = 0; i < Controls.Count; i++)
+        for (int i = 0; i < controls.Count; i++)
         {
-            var control = Controls[i];
+            XNAControl control = controls[i];
 
             if (control.Visible)
                 control.DrawInternal(gameTime);
@@ -675,40 +641,43 @@ public class WindowManager : DrawableGameComponent
         {
             GraphicsDevice.SetRenderTarget(doubledRenderTarget);
             GraphicsDevice.Clear(Color.Black);
-            Renderer.CurrentSettings = new SpriteBatchSettings(SpriteSortMode.Deferred,
-                BlendState.NonPremultiplied, SamplerState.PointWrap, null, null, null);
+            Renderer.CurrentSettings = new(
+                SpriteSortMode.Deferred,
+                BlendState.NonPremultiplied,
+                SamplerState.PointWrap,
+                null,
+                null,
+                null);
             Renderer.BeginDraw();
-            Renderer.DrawTexture(renderTarget, new Rectangle(0, 0,
-                RenderResolutionX * 2, RenderResolutionY * 2), Color.White);
+            Renderer.DrawTexture(
+                renderTarget, new(0, 0, RenderResolutionX * 2, RenderResolutionY * 2), Color.White);
             Renderer.EndDraw();
         }
 
         GraphicsDevice.SetRenderTarget(null);
-
-        //if (Keyboard.PressedKeys.Contains(Microsoft.Xna.Framework.Input.Keys.F12))
-        //{
-        //    FileStream fs = File.Create(Environment.CurrentDirectory + "\\image.png");
-        //    renderTarget.SaveAsPng(fs, renderTarget.Width, renderTarget.Height);
-        //    fs.Close();
-        //}
-
         GraphicsDevice.Clear(Color.Black);
 
         SamplerState scalingSamplerState = SamplerState.LinearClamp;
         if (ScaleRatio % 1.0 == 0)
             scalingSamplerState = SamplerState.PointClamp;
 
-        Renderer.CurrentSettings = new SpriteBatchSettings(SpriteSortMode.Deferred,
-                BlendState.NonPremultiplied, scalingSamplerState, null, null, null);
+        Renderer.CurrentSettings = new(
+            SpriteSortMode.Deferred, BlendState.NonPremultiplied, scalingSamplerState, null, null, null);
         Renderer.BeginDraw();
 
         RenderTarget2D renderTargetToDraw = doubledRenderTarget ?? renderTarget;
 
-        Renderer.DrawTexture(renderTargetToDraw, new Rectangle(SceneXPosition, SceneYPosition,
-            WindowWidth - (SceneXPosition * 2), WindowHeight - (SceneYPosition * 2)), Color.White);
+        Renderer.DrawTexture(
+            renderTargetToDraw,
+            new(
+                SceneXPosition,
+                SceneYPosition,
+                WindowWidth - (SceneXPosition * 2),
+                WindowHeight - (SceneYPosition * 2)),
+            Color.White);
 
 #if DEBUG
-        Renderer.DrawString("Active control " + activeControlName, 0, Vector2.Zero, Color.Red, 1.0f);
+        Renderer.DrawString("Active control " + activeControlName, 0, Vector2.Zero, Color.Red);
 
 #endif
         if (Cursor.Visible)

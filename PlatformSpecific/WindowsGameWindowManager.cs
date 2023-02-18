@@ -1,18 +1,18 @@
-﻿using Microsoft.Xna.Framework;
+﻿namespace Rampastring.XNAUI.PlatformSpecific;
+
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 #if WINFORMS
-using Rampastring.Tools;
 using System;
 using System.Drawing;
 using System.Windows.Forms;
+using Rampastring.Tools;
 #endif
-
-namespace Rampastring.XNAUI.PlatformSpecific;
 
 /// <summary>
 /// Manages the game window on Windows.
 /// </summary>
-internal class WindowsGameWindowManager : IGameWindowManager
+internal sealed class WindowsGameWindowManager : IGameWindowManager
 {
     public WindowsGameWindowManager(Game game)
     {
@@ -28,20 +28,17 @@ internal class WindowsGameWindowManager : IGameWindowManager
     }
 
 #if WINFORMS
-    private Form gameForm;
+    private readonly Form gameForm;
 
-    private bool closingPrevented = false;
+    private bool closingPrevented;
 
     public event EventHandler GameWindowClosing;
 
 #endif
-    private Game game;
+    private readonly Game game;
 #if WINFORMS
 
-    private void GameForm_FormClosing_Event(object sender, FormClosingEventArgs e)
-    {
-        GameWindowClosing?.Invoke(this, EventArgs.Empty);
-    }
+    private void GameForm_FormClosing_Event(object sender, FormClosingEventArgs e) => GameWindowClosing?.Invoke(this, EventArgs.Empty);
 #endif
 
     /// <summary>
@@ -58,28 +55,23 @@ internal class WindowsGameWindowManager : IGameWindowManager
         if (gameForm == null)
             return;
 
-        gameForm.DesktopLocation = new System.Drawing.Point(x, y);
+        gameForm.DesktopLocation = new(x, y);
 #else
-        game.Window.Position = new Microsoft.Xna.Framework.Point(x, y);
+        game.Window.Position = new(x, y);
 #endif
     }
 
     /// <summary>
     /// Enables or disables borderless windowed mode.
     /// </summary>
-    /// <param name="value">A boolean that determines whether borderless 
+    /// <param name="value">A boolean that determines whether borderless
     /// windowed mode should be enabled.</param>
     public void SetBorderlessMode(bool value)
-    {
 #if !XNA
-        game.Window.IsBorderless = value;
+        => game.Window.IsBorderless = value;
 #else
-        if (value)
-            gameForm.FormBorderStyle = FormBorderStyle.None;
-        else
-            gameForm.FormBorderStyle = FormBorderStyle.FixedSingle;
+        => gameForm.FormBorderStyle = value ? FormBorderStyle.None : FormBorderStyle.FixedSingle;
 #endif
-    }
 
 #if WINFORMS
     /// <summary>
@@ -157,13 +149,7 @@ internal class WindowsGameWindowManager : IGameWindowManager
     /// Returns the IntPtr handle of the game window on Windows.
     /// On other platforms, returns IntPtr.Zero.
     /// </summary>
-    public IntPtr GetWindowHandle()
-    {
-        if (gameForm == null)
-            return IntPtr.Zero;
-
-        return gameForm.Handle;
-    }
+    public IntPtr GetWindowHandle() => gameForm?.Handle ?? IntPtr.Zero;
 
     /// <summary>
     /// Enables or disables the "control box" (minimize/maximize/close buttons) for the game form.
@@ -190,10 +176,7 @@ internal class WindowsGameWindowManager : IGameWindowManager
         closingPrevented = true;
     }
 
-    private void GameForm_FormClosing(object sender, FormClosingEventArgs e)
-    {
-        e.Cancel = true;
-    }
+    private void GameForm_FormClosing(object sender, FormClosingEventArgs e) => e.Cancel = true;
 
     /// <summary>
     /// Allows the user to close the game form by Alt-F4.
@@ -207,17 +190,8 @@ internal class WindowsGameWindowManager : IGameWindowManager
         closingPrevented = false;
     }
 
-    public bool HasFocus()
-    {
-        if (gameForm == null)
-            return game.IsActive;
-
-        return Form.ActiveForm != null;
-    }
+    public bool HasFocus() => gameForm == null ? game.IsActive : Form.ActiveForm != null;
 #else
-    public bool HasFocus()
-    {
-        return game.IsActive;
-    }
+    public bool HasFocus() => game.IsActive;
 #endif
 }

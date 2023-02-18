@@ -1,14 +1,14 @@
-﻿using Microsoft.Xna.Framework;
+﻿namespace Rampastring.XNAUI.Input;
+
+using System;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
-using System;
 #if WINFORMS
 using System.IO;
 using Rampastring.Tools;
 using Windows.Win32;
 #endif
-
-namespace Rampastring.XNAUI.Input;
 
 public class Cursor : DrawableGameComponent
 {
@@ -23,9 +23,11 @@ public class Cursor : DrawableGameComponent
     public event EventHandler LeftClickEvent;
 
     public Point Location { get; set; }
+
     private Point DrawnLocation { get; set; }
 
     public bool HasMoved { get; private set; }
+
     public bool IsOnScreen { get; private set; }
 
     public Texture2D[] Textures;
@@ -68,7 +70,7 @@ public class Cursor : DrawableGameComponent
 
     public Color RemapColor { get; set; }
 
-    private WindowManager windowManager;
+    private readonly WindowManager windowManager;
     private MouseState previousMouseState;
 #if WINFORMS
 
@@ -87,7 +89,9 @@ public class Cursor : DrawableGameComponent
         if (!fileInfo.Exists)
             return;
 
+#pragma warning disable CA2000 // Dispose objects before losing scope
         DestroyCursorSafeHandle cursorPointer = PInvoke.LoadCursorFromFile(fileInfo.FullName);
+#pragma warning restore CA2000 // Dispose objects before losing scope
 
         var form = (System.Windows.Forms.Form)System.Windows.Forms.Control.FromHandle(Game.Window.Handle);
         bool success = false;
@@ -95,11 +99,11 @@ public class Cursor : DrawableGameComponent
         cursorPointer.DangerousAddRef(ref success);
 
         if (!success)
-            throw new Exception(FormattableString.Invariant($"{nameof(DestroyCursorSafeHandle)}.{nameof(DestroyCursorSafeHandle.DangerousAddRef)}"));
+            throw new(FormattableString.Invariant($"{nameof(DestroyCursorSafeHandle)}.{nameof(DestroyCursorSafeHandle.DangerousAddRef)}"));
 
         if (form != null)
         {
-            form.Cursor = new System.Windows.Forms.Cursor(cursorPointer.DangerousGetHandle());
+            form.Cursor = new(cursorPointer.DangerousGetHandle());
             Visible = false;
             Game.IsMouseVisible = true;
         }
@@ -120,7 +124,7 @@ public class Cursor : DrawableGameComponent
     {
         MouseState ms = Mouse.GetState();
 
-        DrawnLocation = new Point(ms.X, ms.Y);
+        DrawnLocation = new(ms.X, ms.Y);
 
         if (!windowManager.HasFocus || Disabled)
         {
@@ -136,10 +140,10 @@ public class Cursor : DrawableGameComponent
             location.X > windowManager.WindowWidth ||
             location.Y > windowManager.WindowHeight);
 
-        location = new Point(location.X - windowManager.SceneXPosition, location.Y - windowManager.SceneYPosition);
-        location = new Point((int)(location.X / windowManager.ScaleRatio), (int)(location.Y / windowManager.ScaleRatio));
+        location = new(location.X - windowManager.SceneXPosition, location.Y - windowManager.SceneYPosition);
+        location = new((int)(location.X / windowManager.ScaleRatio), (int)(location.Y / windowManager.ScaleRatio));
 
-        HasMoved = (location != Location);
+        HasMoved = location != Location;
 
         Location = location;
 
@@ -167,7 +171,9 @@ public class Cursor : DrawableGameComponent
 
         Texture2D texture = Textures[TextureIndex];
 
-        Renderer.DrawTexture(texture,
-            new Rectangle(DrawnLocation.X, DrawnLocation.Y, texture.Width, texture.Height), RemapColor);
+        Renderer.DrawTexture(
+            texture,
+            new(DrawnLocation.X, DrawnLocation.Y, texture.Width, texture.Height),
+            RemapColor);
     }
 }

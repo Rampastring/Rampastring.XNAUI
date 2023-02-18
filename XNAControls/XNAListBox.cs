@@ -1,4 +1,6 @@
-﻿using Microsoft.Xna.Framework;
+﻿namespace Rampastring.XNAUI.XNAControls;
+
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 #if WINFORMS
@@ -7,10 +9,8 @@ using TextCopy;
 #endif
 using System;
 using System.Collections.Generic;
-using Rampastring.Tools;
 using System.Globalization;
-
-namespace Rampastring.XNAUI.XNAControls;
+using Rampastring.Tools;
 
 /// <summary>
 /// A list box.
@@ -25,29 +25,36 @@ public class XNAListBox : XNAPanel
     /// <summary>
     /// Creates a new list box instance.
     /// </summary>
-    /// <param name="windowManager"></param>
-    public XNAListBox(WindowManager windowManager) : base(windowManager)
+    public XNAListBox(WindowManager windowManager)
+        : base(windowManager)
     {
         DrawMode = ControlDrawMode.UNIQUE_RENDER_TARGET;
-        ScrollBar = new XNAScrollBar(WindowManager);
-        ScrollBar.Name = "XNAListBoxScrollBar";
-        ScrollBar.ScrollStep = LineHeight;
+        scrollBar = new(WindowManager)
+        {
+            Name = "XNAListBoxScrollBar",
+            ScrollStep = LineHeight
+        };
         ClientRectangleUpdated += XNAListBox_ClientRectangleUpdated;
     }
 
     private void XNAListBox_ClientRectangleUpdated(object sender, EventArgs e)
     {
-        if (ScrollBar != null)
+        if (scrollBar != null)
         {
-            ScrollBar.ClientRectangle = new Rectangle(Width - ScrollBar.ScrollWidth - 1,
-                1, ScrollBar.ScrollWidth, Height - 2);
-            ScrollBar.DisplayedPixelCount = Height - MARGIN * 2;
-            ScrollBar.Refresh();
+            scrollBar.ClientRectangle = new(
+                Width - scrollBar.ScrollWidth - 1,
+                1,
+                scrollBar.ScrollWidth,
+                Height - 2);
+            scrollBar.DisplayedPixelCount = Height - (MARGIN * 2);
+            scrollBar.Refresh();
         }
     }
 
     public event EventHandler HoveredIndexChanged;
+
     public event EventHandler SelectedIndexChanged;
+
     public event EventHandler TopIndexChanged;
 
     #region Public members
@@ -59,35 +66,39 @@ public class XNAListBox : XNAPanel
     /// !!! DO NOT remove items directly, use <see cref="Clear"/> or
     /// one of the <see cref="RemoveItem(int)"/> overloads instead
     /// or you risk leaking memory.
-    /// TODO change to ObservableCollection?
+    /// TODO change to ObservableCollection?.
     /// </summary>
-    public List<XNAListBoxItem> Items = new List<XNAListBoxItem>();
+    public List<XNAListBoxItem> Items = new();
 
-    private Color? _focusColor;
+    private Color? focusColor;
 
     public Color FocusColor
     {
-        get => _focusColor ?? UISettings.ActiveSettings.FocusColor;
-        set { _focusColor = value; }
+        get => focusColor ?? UISettings.ActiveSettings.FocusColor;
+        set => focusColor = value;
     }
 
-    private Color? _defaultItemColor;
+    private Color? defaultItemColor;
 
     public Color DefaultItemColor
     {
-        get => _defaultItemColor ?? UISettings.ActiveSettings.AltColor;
-        set { _defaultItemColor = value; }
+        get => defaultItemColor ?? UISettings.ActiveSettings.AltColor;
+        set => defaultItemColor = value;
     }
 
-    private int _lineHeight = 15;
+    private int lineHeight = 15;
 
     /// <summary>
     /// Gets or sets the height of a single line of text in the list box.
     /// </summary>
     public int LineHeight
     {
-        get => _lineHeight;
-        set { _lineHeight = value; ScrollBar.ScrollStep = value; }
+        get => lineHeight;
+        set
+        {
+            lineHeight = value;
+            scrollBar.ScrollStep = value;
+        }
     }
 
     public int FontIndex { get; set; }
@@ -96,7 +107,7 @@ public class XNAListBox : XNAPanel
     /// If set to false, only the first line will be displayed from items
     /// that are long enough to cover more than one line. Changing this
     /// only affects new items in the list box; existing items are not
-    /// truncated!
+    /// truncated!.
     /// </summary>
     public bool AllowMultiLineItems { get; set; } = true;
 
@@ -112,21 +123,18 @@ public class XNAListBox : XNAPanel
     /// </summary>
     public int TextBorderDistance { get; set; } = 3;
 
-    private int _viewTop;
+    private int viewTop;
 
     public int ViewTop
     {
-        get => _viewTop;
+        get => viewTop;
         set
         {
-            if (value != _viewTop)
+            if (value != viewTop)
             {
-                if (_viewTop < 0)
-                    _viewTop = 0;
-                else
-                    _viewTop = value;
+                viewTop = viewTop < 0 ? 0 : value;
                 TopIndexChanged?.Invoke(this, EventArgs.Empty);
-                ScrollBar.RefreshButtonY(_viewTop);
+                scrollBar.RefreshButtonY(viewTop);
             }
         }
     }
@@ -146,6 +154,7 @@ public class XNAListBox : XNAPanel
 
             return Items.Count;
         }
+
         set
         {
             int h = 0;
@@ -163,7 +172,7 @@ public class XNAListBox : XNAPanel
     {
         get
         {
-            int height = 1 - ViewTop % LineHeight;
+            int height = 1 - (ViewTop % LineHeight);
 
             for (int i = TopIndex; i < Items.Count; i++)
             {
@@ -177,6 +186,7 @@ public class XNAListBox : XNAPanel
 
             return Items.Count - 1;
         }
+
         set
         {
             int requiredHeight = MARGIN;
@@ -200,15 +210,15 @@ public class XNAListBox : XNAPanel
     public float ItemAlphaRate { get; set; } = 0.01f;
 
     private int selectedIndex = -1;
+
     public int SelectedIndex
     {
-        get { return selectedIndex; }
+        get => selectedIndex;
+
         set
         {
             int oldSelectedIndex = selectedIndex;
-
             selectedIndex = value;
-
             if (value != oldSelectedIndex && SelectedIndexChanged != null)
                 SelectedIndexChanged(this, EventArgs.Empty);
         }
@@ -218,23 +228,13 @@ public class XNAListBox : XNAPanel
     /// Gets the currently selected list box item.
     /// </summary>
     public XNAListBoxItem SelectedItem
-    {
-        get
-        {
-            if (SelectedIndex < 0 || SelectedIndex >= Items.Count)
-                return null;
-
-            return Items[SelectedIndex];
-        }
-    }
+        => SelectedIndex < 0 || SelectedIndex >= Items.Count ? null : Items[SelectedIndex];
 
     private int hoveredIndex = -1;
+
     public int HoveredIndex
     {
-        get
-        {
-            return hoveredIndex;
-        }
+        get => hoveredIndex;
         set
         {
             int oldHoveredIndex = hoveredIndex;
@@ -246,39 +246,27 @@ public class XNAListBox : XNAPanel
         }
     }
 
-    public XNAListBoxItem HoveredItem
-    {
-        get
-        {
-            if (HoveredIndex < 0 || HoveredIndex >= Items.Count)
-                return null;
-
-            return Items[HoveredIndex];
-        }
-    }
+    public XNAListBoxItem HoveredItem => HoveredIndex < 0 || HoveredIndex >= Items.Count ? null : Items[HoveredIndex];
 
     /// <summary>
     /// Returns the number of text lines that can fit on the list box at a time.
     /// </summary>
-    public int NumberOfLinesOnList
-    {
-        get { return (ClientRectangle.Height - 4) / LineHeight; }
-    }
+    public int NumberOfLinesOnList => (ClientRectangle.Height - 4) / LineHeight;
 
-    private bool _enableScrollbar = true;
+    private bool enableScrollbar = true;
 
     /// <summary>
     /// Controls whether the integrated listbox scrollbar is used.
     /// </summary>
     public bool EnableScrollbar
     {
-        get { return _enableScrollbar; }
+        get => enableScrollbar;
+
         set
         {
-            _enableScrollbar = value;
-
-            ScrollBar.Visible = _enableScrollbar;
-            ScrollBar.Enabled = _enableScrollbar;
+            enableScrollbar = value;
+            scrollBar.Visible = enableScrollbar;
+            scrollBar.Enabled = enableScrollbar;
         }
     }
 
@@ -292,16 +280,16 @@ public class XNAListBox : XNAPanel
     /// Controls whether the highlighted background of the selected item should
     /// be drawn under the scrollbar area.
     /// </summary>
-    public bool DrawSelectionUnderScrollbar { get; set; } = false;
+    public bool DrawSelectionUnderScrollbar { get; set; }
 
     #endregion
 
-    protected XNAScrollBar ScrollBar;
+    protected XNAScrollBar scrollBar;
 
     private TimeSpan scrollKeyTime = TimeSpan.Zero;
     private TimeSpan timeSinceLastScroll = TimeSpan.Zero;
-    private bool isScrollingQuickly = false;
-    private bool selectedIndexChanged = false;
+    private bool isScrollingQuickly;
+    private bool selectedIndexChanged;
 
     protected override void ParseControlINIAttribute(IniFile iniFile, string key, string value)
     {
@@ -338,30 +326,15 @@ public class XNAListBox : XNAPanel
     /// Adds a selectable item to the list box with the default item color.
     /// </summary>
     /// <param name="text">The text of the item.</param>
-    public void AddItem(string text)
-    {
-        AddItem(text, null, true);
-    }
+    public void AddItem(string text) => AddItem(text, null, true);
 
-    public void AddItem(string text, bool selectable)
-    {
-        AddItem(text, null, selectable);
-    }
+    public void AddItem(string text, bool selectable) => AddItem(text, null, selectable);
 
-    public void AddItem(string text, Texture2D texture)
-    {
-        AddItem(text, texture, true, null);
-    }
+    public void AddItem(string text, Texture2D texture) => AddItem(text, texture, true);
 
-    public void AddItem(string text, Color textColor)
-    {
-        AddItem(text, textColor, true);
-    }
+    public void AddItem(string text, Color textColor) => AddItem(text, textColor, true);
 
-    public void AddItem(string text, Color? textColor, bool selectable)
-    {
-        AddItem(text, null, selectable, textColor);
-    }
+    public void AddItem(string text, Color? textColor, bool selectable) => AddItem(text, null, selectable, textColor);
 
     public void AddItem(string text, Texture2D texture, bool selectable, Color? textColor = null)
     {
@@ -393,10 +366,10 @@ public class XNAListBox : XNAPanel
 
     private void CheckItemTextForWordWrapAndExcessSize(XNAListBoxItem listBoxItem)
     {
-        int width = Width - TextBorderDistance * 2;
+        int width = Width - (TextBorderDistance * 2);
         if (EnableScrollbar)
         {
-            width -= ScrollBar.Width;
+            width -= scrollBar.Width;
         }
 
         if (listBoxItem.Texture != null)
@@ -440,7 +413,7 @@ public class XNAListBox : XNAPanel
     /// <param name="index">The zero-based index of the item to remove.</param>
     public void RemoveItem(int index)
     {
-        var item = Items[index];
+        XNAListBoxItem item = Items[index];
         item.TextChanged -= ListBoxItem_TextChanged;
         Items.RemoveAt(index);
     }
@@ -484,9 +457,9 @@ public class XNAListBox : XNAPanel
     /// </summary>
     public void RefreshScrollbar()
     {
-        ScrollBar.Length = GetTotalLineCount() * LineHeight;
-        ScrollBar.DisplayedPixelCount = Height - MARGIN * 2;
-        ScrollBar.Refresh();
+        scrollBar.Length = GetTotalLineCount() * LineHeight;
+        scrollBar.DisplayedPixelCount = Height - (MARGIN * 2);
+        scrollBar.Refresh();
     }
 
     /// <summary>
@@ -506,10 +479,7 @@ public class XNAListBox : XNAPanel
     /// Checks whether the list box is scrolled so that
     /// the last item in the list is entirely visible.
     /// </summary>
-    public bool IsScrolledToBottom()
-    {
-        return ViewTop + Height >= GetTotalLineCount() * LineHeight;
-    }
+    public bool IsScrolledToBottom() => ViewTop + Height >= GetTotalLineCount() * LineHeight;
 
     /// <summary>
     /// Scrolls the list box so that the last item is entirely visible.
@@ -522,7 +492,7 @@ public class XNAListBox : XNAPanel
             return;
         }
 
-        ViewTop = GetTotalLineCount() * LineHeight - Height + MARGIN * 2;
+        ViewTop = (GetTotalLineCount() * LineHeight) - Height + (MARGIN * 2);
     }
 
     /// <summary>
@@ -541,12 +511,14 @@ public class XNAListBox : XNAPanel
 #else
         KeyboardEventInput.CharEntered += KeyboardEventInput_CharEntered;
 #endif
-
-        ScrollBar.ClientRectangle = new Rectangle(Width - ScrollBar.ScrollWidth - 1,
-            1, ScrollBar.ScrollWidth, Height - 2);
-        ScrollBar.Scrolled += ScrollBar_Scrolled;
-        AddChild(ScrollBar);
-        ScrollBar.Refresh();
+        scrollBar.ClientRectangle = new(
+            Width - scrollBar.ScrollWidth - 1,
+            1,
+            scrollBar.ScrollWidth,
+            Height - 2);
+        scrollBar.Scrolled += ScrollBar_Scrolled;
+        AddChild(scrollBar);
+        scrollBar.Refresh();
 
         ParentChanged += Parent_ClientRectangleUpdated;
 
@@ -574,23 +546,14 @@ public class XNAListBox : XNAPanel
         base.Kill();
     }
 
-    private void Parent_ClientRectangleUpdated(object sender, EventArgs e)
-    {
-        ScrollBar.Refresh();
-    }
+    private void Parent_ClientRectangleUpdated(object sender, EventArgs e) => scrollBar.Refresh();
 
     /// <summary>
     /// Returns the width of the list box's scroll bar.
     /// </summary>
-    public int GetScrollBarWidth()
-    {
-        return ScrollBar.Width;
-    }
+    public int GetScrollBarWidth() => scrollBar.Width;
 
-    private void ScrollBar_Scrolled(object sender, EventArgs e)
-    {
-        ViewTop = ScrollBar.ViewTop;
-    }
+    private void ScrollBar_Scrolled(object sender, EventArgs e) => ViewTop = scrollBar.ViewTop;
 
 #if WINFORMS
     /// <summary>
@@ -607,15 +570,9 @@ public class XNAListBox : XNAPanel
 #endif
 
 #if XNA
-    private void KeyboardEventInput_CharEntered(object sender, KeyboardEventArgs e)
-    {
-        HandleCharInput(e.Character);
-    }
+    private void KeyboardEventInput_CharEntered(object sender, KeyboardEventArgs e) => HandleCharInput(e.Character);
 #else
-    private void Window_TextInput(object sender, TextInputEventArgs e)
-    {
-        HandleCharInput(e.Character);
-    }
+    private void Window_TextInput(object sender, TextInputEventArgs e) => HandleCharInput(e.Character);
 #endif
 
     /// <summary>
@@ -625,14 +582,14 @@ public class XNAListBox : XNAPanel
     /// <param name="character">The entered character.</param>
     private void HandleCharInput(char character)
     {
-        if (WindowManager.SelectedControl != this || !Enabled || (Parent != null && !Parent.Enabled) || !WindowManager.HasFocus || !AllowKeyboardInput)
+        if (WindowManager.SelectedControl != this || !Enabled || Parent is { Enabled: false } || !WindowManager.HasFocus || !AllowKeyboardInput)
             return;
 
         string charString = character.ToString();
 
         for (int i = SelectedIndex + 1; i < Items.Count; i++)
         {
-            var item = Items[i];
+            XNAListBoxItem item = Items[i];
 
             if (!item.Selectable)
                 return;
@@ -734,12 +691,12 @@ public class XNAListBox : XNAPanel
                 if (TopIndex > i)
                     TopIndex = i;
 
-                ScrollBar.RefreshButtonY(ViewTop);
+                scrollBar.RefreshButtonY(ViewTop);
                 return;
             }
         }
 
-        ScrollBar.RefreshButtonY(ViewTop);
+        scrollBar.RefreshButtonY(ViewTop);
     }
 
     /// <summary>
@@ -756,13 +713,14 @@ public class XNAListBox : XNAPanel
                 while (LastIndex < i)
                     TopIndex++;
 
-                ScrollBar.RefreshButtonY(ViewTop);
+                scrollBar.RefreshButtonY(ViewTop);
                 return;
             }
+
             scrollLineCount++;
         }
 
-        ScrollBar.RefreshButtonY(ViewTop);
+        scrollBar.RefreshButtonY(ViewTop);
     }
 
     /// <summary>
@@ -776,7 +734,7 @@ public class XNAListBox : XNAPanel
             return;
         }
 
-        ViewTop -= Cursor.ScrollWheelValue * ScrollBar.ScrollStep;
+        ViewTop -= Cursor.ScrollWheelValue * scrollBar.ScrollStep;
 
         if (ViewTop < 0)
         {
@@ -859,7 +817,7 @@ public class XNAListBox : XNAPanel
     /// currently pointing at, or -1 if the cursor doesn't point at any item
     /// of this list box.
     /// </summary>
-    /// <param name="mouseLocation">The location of the cursor relative 
+    /// <param name="mouseLocation">The location of the cursor relative
     /// to this control.</param>
     private int GetItemIndexOnCursor(Point mouseLocation)
     {
@@ -868,7 +826,7 @@ public class XNAListBox : XNAPanel
 
         if (EnableScrollbar)
         {
-            if (mouseLocation.X > Width - ScrollBar.ScrollWidth)
+            if (mouseLocation.X > Width - scrollBar.ScrollWidth)
                 return -1;
         }
         else if (mouseLocation.X > Width)
@@ -876,7 +834,7 @@ public class XNAListBox : XNAPanel
             return -1;
         }
 
-        var drawInfo = GetTopIndexAndDrawOffset();
+        ListBoxItemDrawInfo drawInfo = GetTopIndexAndDrawOffset();
         int height = MARGIN + drawInfo.YDrawOffset;
 
         for (int i = drawInfo.TopIndex; i < Items.Count; i++)
@@ -918,11 +876,11 @@ public class XNAListBox : XNAPanel
         {
             int heightIncrease = Items[i].TextLines.Count * LineHeight;
             if (h + heightIncrease > ViewTop)
-                return new ListBoxItemDrawInfo(i, h - ViewTop);
+                return new(i, h - ViewTop);
             h += heightIncrease;
         }
 
-        return new ListBoxItemDrawInfo(Items.Count, 0);
+        return new(Items.Count, 0);
     }
 
     protected virtual void DrawListBoxItem(int index, int y)
@@ -933,19 +891,11 @@ public class XNAListBox : XNAPanel
 
         if (index == SelectedIndex)
         {
-            int drawnWidth;
-
-            if (DrawSelectionUnderScrollbar || !ScrollBar.IsDrawn() || !EnableScrollbar)
-            {
-                drawnWidth = Width - 2;
-            }
-            else
-            {
-                drawnWidth = Width - 2 - ScrollBar.Width;
-            }
-
-            FillRectangle(new Rectangle(1, y, drawnWidth,
-                lbItem.TextLines.Count * LineHeight),
+            int drawnWidth = DrawSelectionUnderScrollbar
+                || !scrollBar.IsDrawn()
+                || !EnableScrollbar ? Width - 2 : Width - 2 - scrollBar.Width;
+            FillRectangle(
+                new(1, y, drawnWidth, lbItem.TextLines.Count * LineHeight),
                 FocusColor);
         }
 
@@ -966,9 +916,10 @@ public class XNAListBox : XNAPanel
                 textureYPosition = (LineHeight - textureHeight) / 2;
             }
 
-            DrawTexture(lbItem.Texture,
-                new Rectangle(x, y + textureYPosition,
-                textureWidth, textureHeight), Color.White);
+            DrawTexture(
+                lbItem.Texture,
+                new Rectangle(x, y + textureYPosition, textureWidth, textureHeight),
+                Color.White);
 
             x += textureWidth + ITEM_TEXT_TEXTURE_MARGIN;
         }
@@ -977,8 +928,10 @@ public class XNAListBox : XNAPanel
 
         for (int j = 0; j < lbItem.TextLines.Count; j++)
         {
-            DrawStringWithShadow(lbItem.TextLines[j], FontIndex,
-                new Vector2(x, y + j * LineHeight + lbItem.TextYPadding),
+            DrawStringWithShadow(
+                lbItem.TextLines[j],
+                FontIndex,
+                new(x, y + (j * LineHeight) + lbItem.TextYPadding),
                 lbItem.TextColor);
         }
     }
@@ -991,7 +944,7 @@ public class XNAListBox : XNAPanel
     {
         DrawPanel();
 
-        var drawInfo = GetTopIndexAndDrawOffset();
+        ListBoxItemDrawInfo drawInfo = GetTopIndexAndDrawOffset();
         int height = MARGIN + drawInfo.YDrawOffset;
 
         for (int i = drawInfo.TopIndex; i < Items.Count; i++)

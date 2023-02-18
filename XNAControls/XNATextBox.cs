@@ -1,31 +1,32 @@
-﻿using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Input;
-using Rampastring.Tools;
-using Rampastring.XNAUI.Input;
+﻿namespace Rampastring.XNAUI.XNAControls;
+
 using System;
 using System.Text;
 using System.Text.RegularExpressions;
+using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Input;
+using Rampastring.Tools;
+using Rampastring.XNAUI.Input;
 using TextCopy;
-
-namespace Rampastring.XNAUI.XNAControls;
 
 /// <summary>
 /// A text input control.
 /// </summary>
 public class XNATextBox : XNAControl
 {
-    protected const int TEXT_HORIZONTAL_MARGIN = 3;
-    protected const int TEXT_VERTICAL_MARGIN = 2;
-    protected const double SCROLL_REPEAT_TIME = 0.03;
-    protected const double FAST_SCROLL_TRIGGER_TIME = 0.4;
-    protected const double BAR_ON_TIME = 0.5;
-    protected const double BAR_OFF_TIME = 0.5;
+    private const int TEXT_HORIZONTAL_MARGIN = 3;
+    private const int TEXT_VERTICAL_MARGIN = 2;
+    private const double SCROLL_REPEAT_TIME = 0.03;
+    private const double FAST_SCROLL_TRIGGER_TIME = 0.4;
+    private const double BAR_ON_TIME = 0.5;
+    private const double BAR_OFF_TIME = 0.5;
 
     /// <summary>
     /// Creates a new text box.
     /// </summary>
     /// <param name="windowManager">The WindowManager that will be associated with this control.</param>
-    public XNATextBox(WindowManager windowManager) : base(windowManager)
+    public XNATextBox(WindowManager windowManager)
+        : base(windowManager)
     {
     }
 
@@ -46,60 +47,52 @@ public class XNATextBox : XNAControl
     /// </summary>
     public event EventHandler TextChanged;
 
-    private Color? _textColor;
+    private Color? textColor;
 
     /// <summary>
     /// The color of the text in the text box.
     /// </summary>
     public virtual Color TextColor
     {
-        get
-        {
-            return _textColor ?? UISettings.ActiveSettings.AltColor;
-        }
-        set { _textColor = value; }
+        get => textColor ?? UISettings.ActiveSettings.AltColor;
+
+        set => textColor = value;
     }
 
-    private Color? _idleBorderColor;
+    private Color? idleBorderColor;
 
     /// <summary>
     /// The color of the text box border when the text box is inactive.
     /// </summary>
     public virtual Color IdleBorderColor
     {
-        get
-        {
-            return _idleBorderColor ?? UISettings.ActiveSettings.PanelBorderColor;
-        }
-        set { _idleBorderColor = value; }
+        get => idleBorderColor ?? UISettings.ActiveSettings.PanelBorderColor;
+
+        set => idleBorderColor = value;
     }
 
-    private Color? _activeBorderColor;
+    private Color? activeBorderColor;
 
     /// <summary>
     /// The color of the text box border when the text box is selected.
     /// </summary>
     public Color ActiveBorderColor
     {
-        get
-        {
-            return _activeBorderColor ?? UISettings.ActiveSettings.AltColor;
-        }
-        set { _activeBorderColor = value; }
+        get => activeBorderColor ?? UISettings.ActiveSettings.AltColor;
+
+        set => activeBorderColor = value;
     }
 
-    private Color? _backColor;
+    private Color? backColor;
 
     /// <summary>
     /// The color of the text box background.
     /// </summary>
     public Color BackColor
     {
-        get
-        {
-            return _backColor ?? UISettings.ActiveSettings.BackgroundColor;
-        }
-        set { _backColor = value; }
+        get => backColor ?? UISettings.ActiveSettings.BackgroundColor;
+
+        set => backColor = value;
     }
 
     /// <summary>
@@ -117,10 +110,7 @@ public class XNATextBox : XNAControl
     /// </summary>
     public override string Text
     {
-        get
-        {
-            return text;
-        }
+        get => text;
 
         set
         {
@@ -149,7 +139,6 @@ public class XNATextBox : XNAControl
     }
 
     private string text = string.Empty;
-    private string savedText = string.Empty;
 
     /// <summary>
     /// The input character index inside the textbox text.
@@ -189,7 +178,7 @@ public class XNATextBox : XNAControl
 
     private TimeSpan scrollKeyTime = TimeSpan.Zero;
     private TimeSpan timeSinceLastScroll = TimeSpan.Zero;
-    private bool isScrollingQuickly = false;
+    private bool isScrollingQuickly;
 
     protected override void ParseControlINIAttribute(IniFile iniFile, string key, string value)
     {
@@ -230,15 +219,9 @@ public class XNATextBox : XNAControl
     }
 
 #if XNA
-    private void KeyboardEventInput_CharEntered(object sender, KeyboardEventArgs e)
-    {
-        HandleCharInput(e.Character);
-    }
+    private void KeyboardEventInput_CharEntered(object sender, KeyboardEventArgs e) => HandleCharInput(e.Character);
 #else
-    private void Window_TextInput(object sender, TextInputEventArgs e)
-    {
-        HandleCharInput(e.Character);
-    }
+    private void Window_TextInput(object sender, TextInputEventArgs e) => HandleCharInput(e.Character);
 #endif
 
     private void HandleCharInput(char character)
@@ -251,14 +234,14 @@ public class XNATextBox : XNAControl
             /*/ There are a bunch of keys that are detected as text input on
              * Windows builds of MonoGame, but not on WindowsGL or Linux builds of MonoGame.
              * We already handle these keys (enter, tab, backspace, escape) by other means,
-             * so we don't want to handle them also as text input on Windows to avoid 
+             * so we don't want to handle them also as text input on Windows to avoid
              * potentially harmful extra triggering of the InputReceived event.
              * So, we detect that input here and return on these keys.
             /*/
-            case '\r':      // Enter / return
-            case '\x0009':  // Tab
-            case '\b':      // Backspace
-            case '\x001b':  // ESC
+            case '\r': // Enter / return
+            case '\x0009': // Tab
+            case '\b': // Backspace
+            case '\x001b': // ESC
                 return;
             default:
                 if (text.Length == MaximumTextLength)
@@ -298,11 +281,10 @@ public class XNATextBox : XNAControl
     /// Determines if the user is allowed to type a specific character into the textbox.
     /// </summary>
     /// <param name="character">The character.</param>
-    protected virtual bool AllowCharacterInput(char character)
-    {
+    protected virtual bool AllowCharacterInput(char character) =>
+
         // Allow all characters by default
-        return true;
-    }
+        true;
 
     private void Keyboard_OnKeyPressed(object sender, KeyPressEventArgs e)
     {
@@ -389,7 +371,7 @@ public class XNATextBox : XNAControl
                 // Replace newlines with spaces
                 // https://stackoverflow.com/questions/238002/replace-line-breaks-in-a-string-c-sharp
                 string textToAdd = Regex.Replace(clipboardText, @"\r\n?|\n", " ");
-                Text = Text + Renderer.GetSafeString(textToAdd, FontIndex);
+                Text += Renderer.GetSafeString(textToAdd, FontIndex);
                 InputReceived?.Invoke(this, EventArgs.Empty);
 
                 goto case Keys.End;
@@ -428,12 +410,9 @@ public class XNATextBox : XNAControl
 
     private bool TextFitsBox()
     {
-        if (string.IsNullOrEmpty(text))
-            return true;
-
-        return Renderer.GetTextDimensions(
-                    text.Substring(TextStartPosition, TextEndPosition - TextStartPosition),
-                    FontIndex).X < Width - TEXT_HORIZONTAL_MARGIN * 2;
+        return string.IsNullOrEmpty(text) || Renderer.GetTextDimensions(
+            text.Substring(TextStartPosition, TextEndPosition - TextStartPosition),
+            FontIndex).X < Width - (TEXT_HORIZONTAL_MARGIN * 2);
     }
 
     public override void OnLeftClick()
@@ -599,12 +578,14 @@ public class XNATextBox : XNAControl
         FillControlArea(BackColor);
 
         if (WindowManager.SelectedControl == this && Enabled && WindowManager.HasFocus)
-            DrawRectangle(new Rectangle(0, 0, Width, Height), ActiveBorderColor);
+            DrawRectangle(new(0, 0, Width, Height), ActiveBorderColor);
         else
-            DrawRectangle(new Rectangle(0, 0, Width, Height), IdleBorderColor);
+            DrawRectangle(new(0, 0, Width, Height), IdleBorderColor);
 
-        DrawStringWithShadow(Text.Substring(TextStartPosition, TextEndPosition - TextStartPosition),
-            FontIndex, new Vector2(TEXT_HORIZONTAL_MARGIN, TEXT_VERTICAL_MARGIN),
+        DrawStringWithShadow(
+            Text.Substring(TextStartPosition, TextEndPosition - TextStartPosition),
+            FontIndex,
+            new(TEXT_HORIZONTAL_MARGIN, TEXT_VERTICAL_MARGIN),
             TextColor);
 
         if (WindowManager.SelectedControl == this && Enabled && WindowManager.HasFocus && barTimer.TotalSeconds < BAR_ON_TIME)
@@ -614,7 +595,7 @@ public class XNATextBox : XNAControl
             string inputText = Text.Substring(TextStartPosition, InputPosition - TextStartPosition);
             barLocationX += (int)Renderer.GetTextDimensions(inputText, FontIndex).X;
 
-            FillRectangle(new Rectangle(barLocationX, 2, 1, Height - 4), Color.White);
+            FillRectangle(new(barLocationX, 2, 1, Height - 4), Color.White);
         }
 
         base.Draw(gameTime);

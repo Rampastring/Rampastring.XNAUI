@@ -1,34 +1,33 @@
-﻿using Microsoft.Xna.Framework;
-using Rampastring.Tools;
-using System;
+﻿namespace Rampastring.XNAUI.XNAControls;
 
-namespace Rampastring.XNAUI.XNAControls;
+using System;
+using Microsoft.Xna.Framework;
+using Rampastring.Tools;
 
 /// <summary>
 /// A static label control.
 /// </summary>
 public class XNALabel : XNAControl
 {
-    public XNALabel(WindowManager windowManager) : base(windowManager)
+    public XNALabel(WindowManager windowManager)
+        : base(windowManager)
     {
     }
 
-    private Color? _textColor;
+    private Color? textColor;
 
     public Color TextColor
     {
-        get
-        {
-            return _textColor ?? UISettings.ActiveSettings.TextColor;
-        }
-        set { _textColor = value; }
+        get => textColor ?? UISettings.ActiveSettings.TextColor;
+
+        set => textColor = value;
     }
 
     public int FontIndex { get; set; }
 
     public float TextShadowDistance { get; set; } = UISettings.ActiveSettings.TextShadowDistance;
 
-    private Vector2 _anchorPoint = Vector2.Zero;
+    private Vector2 anchorPoint = Vector2.Zero;
 
     /// <summary>
     /// Determines the point that the text is placed around
@@ -36,10 +35,10 @@ public class XNALabel : XNAControl
     /// </summary>
     public Vector2 AnchorPoint
     {
-        get => _anchorPoint;
+        get => anchorPoint;
         set
         {
-            _anchorPoint = value;
+            anchorPoint = value;
             RefreshClientRectangle();
         }
     }
@@ -51,10 +50,7 @@ public class XNALabel : XNAControl
 
     public override string Text
     {
-        get
-        {
-            return base.Text;
-        }
+        get => base.Text;
 
         set
         {
@@ -79,7 +75,7 @@ public class XNALabel : XNAControl
 
                 if ((TextAnchor & LabelTextAnchorInfo.HORIZONTAL_CENTER) == LabelTextAnchorInfo.HORIZONTAL_CENTER)
                 {
-                    X = (int)(AnchorPoint.X - textSize.X / 2);
+                    X = (int)(AnchorPoint.X - (textSize.X / 2));
                 }
                 else if ((TextAnchor & LabelTextAnchorInfo.RIGHT) == LabelTextAnchorInfo.RIGHT)
                 {
@@ -92,7 +88,7 @@ public class XNALabel : XNAControl
 
                 if ((TextAnchor & LabelTextAnchorInfo.VERTICAL_CENTER) == LabelTextAnchorInfo.VERTICAL_CENTER)
                 {
-                    Y = (int)(AnchorPoint.Y - textSize.Y / 2);
+                    Y = (int)(AnchorPoint.Y - (textSize.Y / 2));
                 }
                 else if ((TextAnchor & LabelTextAnchorInfo.TOP) == LabelTextAnchorInfo.TOP)
                 {
@@ -106,10 +102,7 @@ public class XNALabel : XNAControl
         }
     }
 
-    public override void Initialize()
-    {
-        base.Initialize();
-    }
+    public override void Initialize() => base.Initialize();
 
     protected override void ParseControlINIAttribute(IniFile iniFile, string key, string value)
     {
@@ -127,7 +120,8 @@ public class XNALabel : XNAControl
 
                 if (point.Length == 2)
                 {
-                    AnchorPoint = new Vector2(Conversions.FloatFromString(point[0], 0f),
+                    AnchorPoint = new(
+                        Conversions.FloatFromString(point[0], 0f),
                         Conversions.FloatFromString(point[1], 0f));
                 }
 
@@ -160,47 +154,4 @@ public class XNALabel : XNAControl
         if (!string.IsNullOrEmpty(Text))
             DrawStringWithShadow(Text, FontIndex, Vector2.Zero, TextColor, 1.0f, TextShadowDistance);
     }
-}
-
-/// <summary>
-/// An enum for determining which part of a text is anchored to a specific point.
-/// </summary>
-public enum LabelTextAnchorInfo
-{
-    NONE = 0,
-
-    /// <summary>
-    /// The text is anchored to be to the left of the given point.
-    /// </summary>
-    LEFT = 1,
-
-    /// <summary>
-    /// The text is anchored to be to the right of the given point.
-    /// </summary>
-    RIGHT = 2,
-
-    /// <summary>
-    /// The text is horizontally centered on the given point.
-    /// </summary>
-    HORIZONTAL_CENTER = 4,
-
-    /// <summary>
-    /// The text is anchored to be just above the given point.
-    /// </summary>
-    TOP = 8,
-
-    /// <summary>
-    /// The text is anchored to be just below the given point.
-    /// </summary>
-    BOTTOM = 16,
-
-    /// <summary>
-    /// The text is vertical centered on the given point.
-    /// </summary>
-    VERTICAL_CENTER = 32,
-
-    /// <summary>
-    /// The text is both horizontally and vertically centered on the given point.
-    /// </summary>
-    CENTER = HORIZONTAL_CENTER | VERTICAL_CENTER
 }

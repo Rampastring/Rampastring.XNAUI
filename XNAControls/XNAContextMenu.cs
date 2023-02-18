@@ -1,100 +1,9 @@
-﻿using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
+﻿namespace Rampastring.XNAUI.XNAControls;
+
 using System;
 using System.Collections.Generic;
-
-namespace Rampastring.XNAUI.XNAControls;
-
-public class ContextMenuItemSelectedEventArgs : EventArgs
-{
-    public ContextMenuItemSelectedEventArgs(int itemIndex)
-    {
-        ItemIndex = itemIndex;
-    }
-
-    public int ItemIndex { get; }
-}
-
-/// <summary>
-/// A context menu item.
-/// </summary>
-public class XNAContextMenuItem
-{
-    /// <summary>
-    /// The text of the context menu item.
-    /// </summary>
-    public string Text { get; set; }
-
-    /// <summary>
-    /// The hint text of the context menu item.
-    /// Drawn in the end of the item.
-    /// </summary>
-    public string HintText { get; set; }
-
-    /// <summary>
-    /// Determines whether the context menu item is enabled
-    /// (can be clicked on).
-    /// </summary>
-    public bool Selectable { get; set; } = true;
-
-    /// <summary>
-    /// Determines whether the context menu item is visible.
-    /// </summary>
-    public bool Visible { get; set; } = true;
-
-    /// <summary>
-    /// The height of the context menu item.
-    /// If null, the common item height is used.
-    /// </summary>
-    public int? Height { get; set; }
-
-    /// <summary>
-    /// The font index of the context menu item.
-    /// If null, the common font index is used.
-    /// </summary>
-    public int? FontIndex { get; set; }
-
-    /// <summary>
-    /// The texture of the context menu item.
-    /// </summary>
-    public Texture2D Texture { get; set; }
-
-    /// <summary>
-    /// The background color of the context menu item.
-    /// If null, the common background color is used.
-    /// </summary>
-    public Color? BackgroundColor { get; set; }
-
-    /// <summary>
-    /// The color of the context menu item's text.
-    /// If null, the common text color is used.
-    /// </summary>
-    public Color? TextColor { get; set; }
-
-    /// <summary>
-    /// The method that is called when the item is selected.
-    /// </summary>
-    public Action SelectAction { get; set; }
-
-    /// <summary>
-    /// When the context menu is shown, this function is called
-    /// to determine whether this item should be selectable. 
-    /// If null, the value of the Enabled property is not changed.
-    /// </summary>
-    public Func<bool> SelectableChecker { get; set; }
-
-    /// <summary>
-    /// When the context menu is shown, this function is called
-    /// to determine whether this item should be visible.
-    /// If null, the value of the Visible property is not changed.
-    /// </summary>
-    public Func<bool> VisibilityChecker { get; set; }
-
-    /// <summary>
-    /// The Y position of the item's text.
-    /// </summary>
-    public float TextY { get; set; }
-}
+using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 
 /// <summary>
 /// A context menu.
@@ -108,7 +17,8 @@ public class XNAContextMenu : XNAControl
     /// Creates a new context menu.
     /// </summary>
     /// <param name="windowManager">The WindowManager associated with this context menu.</param>
-    public XNAContextMenu(WindowManager windowManager) : base(windowManager)
+    public XNAContextMenu(WindowManager windowManager)
+        : base(windowManager)
     {
         Height = BORDER_WIDTH * 2;
         DisabledItemColor = Color.Gray;
@@ -119,62 +29,64 @@ public class XNAContextMenu : XNAControl
 
     public int ItemHeight { get; set; } = 17;
 
-    public List<XNAContextMenuItem> Items = new List<XNAContextMenuItem>();
+    public List<XNAContextMenuItem> Items = new();
 
-    private Color? _borderColor;
+    private Color? borderColor;
 
     public Color BorderColor
     {
-        get => _borderColor ?? UISettings.ActiveSettings.PanelBorderColor;
-        set => _borderColor = value;
+        get => borderColor ?? UISettings.ActiveSettings.PanelBorderColor;
+        set => borderColor = value;
     }
 
-    private Color? _focusColor;
+    private Color? focusColor;
 
     public Color FocusColor
     {
-        get => _focusColor ?? UISettings.ActiveSettings.FocusColor;
-        set => _focusColor = value;
+        get => focusColor ?? UISettings.ActiveSettings.FocusColor;
+        set => focusColor = value;
     }
 
-    private Color? _backColor;
+    private Color? backColor;
 
     public Color BackColor
     {
-        get => _backColor ?? UISettings.ActiveSettings.BackgroundColor;
-        set => _backColor = value;
+        get => backColor ?? UISettings.ActiveSettings.BackgroundColor;
+        set => backColor = value;
     }
 
-    private Color? _itemColor;
+    private Color? itemColor;
 
     public Color ItemColor
     {
-        get => _itemColor ?? UISettings.ActiveSettings.AltColor;
-        set => _itemColor = value;
+        get => itemColor ?? UISettings.ActiveSettings.AltColor;
+        set => itemColor = value;
     }
 
-    private Color? _disabledItemColor;
+    private Color? disabledItemColor;
 
     public Color DisabledItemColor
     {
-        get => _disabledItemColor ?? UISettings.ActiveSettings.DisabledItemColor;
-        set => _disabledItemColor = value;
+        get => disabledItemColor ?? UISettings.ActiveSettings.DisabledItemColor;
+        set => disabledItemColor = value;
     }
 
     public int FontIndex { get; set; }
+
     public int HintFontIndex { get; set; }
 
     public int TextHorizontalPadding { get; set; } = 1;
+
     public int TextVerticalPadding { get; set; } = 1;
 
     /// <summary>
-    /// The index of the context menu item that 
+    /// The index of the context menu item that
     /// the user's cursor is hovering on. -1 for none.
     /// </summary>
     public int HoveredIndex { get; private set; } = -1;
 
-    private bool leftClickHandled = false;
-    private bool openedOnThisFrame = false;
+    private bool leftClickHandled;
+    private bool openedOnThisFrame;
 
     #region AddItem methods
 
@@ -182,10 +94,7 @@ public class XNAContextMenu : XNAControl
     /// Adds an item into the context menu.
     /// </summary>
     /// <param name="item">The item.</param>
-    public void AddItem(XNAContextMenuItem item)
-    {
-        Items.Add(item);
-    }
+    public void AddItem(XNAContextMenuItem item) => Items.Add(item);
 
     /// <summary>
     /// Generates and adds an item with the specified text into the context menu.
@@ -193,8 +102,10 @@ public class XNAContextMenu : XNAControl
     /// <param name="text">The text of the item.</param>
     public void AddItem(string text)
     {
-        var item = new XNAContextMenuItem();
-        item.Text = text;
+        var item = new XNAContextMenuItem
+        {
+            Text = text
+        };
 
         AddItem(item);
     }
@@ -230,7 +141,7 @@ public class XNAContextMenu : XNAControl
 
         for (int i = 0; i < Items.Count; i++)
         {
-            var item = Items[i];
+            XNAContextMenuItem item = Items[i];
             if (item.VisibilityChecker != null)
                 item.Visible = item.VisibilityChecker();
 
@@ -283,13 +194,9 @@ public class XNAContextMenu : XNAControl
             openedOnThisFrame = false;
 
             // Update hovered index
-
             int itemIndexOnCursor = GetItemIndexOnCursor();
 
-            if (itemIndexOnCursor > -1 && Items[itemIndexOnCursor].Selectable)
-                HoveredIndex = itemIndexOnCursor;
-            else
-                HoveredIndex = -1;
+            HoveredIndex = itemIndexOnCursor > -1 && Items[itemIndexOnCursor].Selectable ? itemIndexOnCursor : -1;
         }
     }
 
@@ -306,7 +213,7 @@ public class XNAContextMenu : XNAControl
             if (Items[itemIndexOnCursor].Selectable)
             {
                 Items[itemIndexOnCursor].SelectAction?.Invoke();
-                OptionSelected?.Invoke(this, new ContextMenuItemSelectedEventArgs(itemIndexOnCursor));
+                OptionSelected?.Invoke(this, new(itemIndexOnCursor));
 
                 if (Detached)
                     Attach();
@@ -327,8 +234,6 @@ public class XNAContextMenu : XNAControl
     {
         Point p = GetCursorPoint();
 
-        Rectangle rect = GetWindowRectangle();
-
         if (p.X < 0 || p.X > Width ||
             p.Y > Height ||
             p.Y < 0)
@@ -341,7 +246,7 @@ public class XNAContextMenu : XNAControl
 
         for (int i = 0; i < Items.Count; i++)
         {
-            var item = Items[i];
+            XNAContextMenuItem item = Items[i];
 
             if (!item.Visible)
                 continue;
@@ -375,15 +280,14 @@ public class XNAContextMenu : XNAControl
 
     public override void Draw(GameTime gameTime)
     {
-        //Renderer.FillRectangle(new Rectangle(wr.X + 1, wr.Y + 1, wr.Width - 2, wr.Height - 2), BackColor);
-        DrawRectangle(new Rectangle(0, 0, Width, Height), BorderColor);
+        DrawRectangle(new(0, 0, Width, Height), BorderColor);
 
         int y = BORDER_WIDTH;
 
         for (int i = 0; i < Items.Count; i++)
         {
             if (Items[i].Visible)
-                y += DrawItem(i, new Point(BORDER_WIDTH, y));
+                y += DrawItem(i, new(BORDER_WIDTH, y));
         }
 
         base.Draw(gameTime);
@@ -405,28 +309,30 @@ public class XNAContextMenu : XNAControl
 
         if (HoveredIndex == index)
         {
-            FillRectangle(new Rectangle(point.X, point.Y, Width - BORDER_WIDTH * 2, itemHeight), FocusColor);
+            FillRectangle(new(point.X, point.Y, Width - (BORDER_WIDTH * 2), itemHeight), FocusColor);
         }
         else
         {
-            FillRectangle(new Rectangle(point.X, point.Y, Width - BORDER_WIDTH * 2, itemHeight), BackColor);
+            FillRectangle(new(point.X, point.Y, Width - (BORDER_WIDTH * 2), itemHeight), BackColor);
         }
 
         int textX = point.X + TextHorizontalPadding;
         if (item.Texture != null)
         {
-            Renderer.DrawTexture(item.Texture, new Rectangle(point.X + TEXTURE_PADDING, point.Y + TEXTURE_PADDING,
-                item.Texture.Width, item.Texture.Height), Color.White);
-            textX += item.Texture.Width + TEXTURE_PADDING * 2;
+            Renderer.DrawTexture(
+                item.Texture,
+                new(point.X + TEXTURE_PADDING, point.Y + TEXTURE_PADDING, item.Texture.Width, item.Texture.Height),
+                Color.White);
+            textX += item.Texture.Width + (TEXTURE_PADDING * 2);
         }
 
         Color textColor = item.Selectable ? GetItemTextColor(item) : DisabledItemColor;
 
-        DrawStringWithShadow(item.Text, FontIndex, new Vector2(textX, point.Y + TextVerticalPadding), textColor);
+        DrawStringWithShadow(item.Text, FontIndex, new(textX, point.Y + TextVerticalPadding), textColor);
         if (item.HintText != null)
         {
             int hintTextX = Width - TextHorizontalPadding - (int)Renderer.GetTextDimensions(item.HintText, HintFontIndex).X;
-            DrawStringWithShadow(item.HintText, HintFontIndex, new Vector2(hintTextX, point.Y + TextVerticalPadding), textColor);
+            DrawStringWithShadow(item.HintText, HintFontIndex, new(hintTextX, point.Y + TextVerticalPadding), textColor);
         }
 
         return itemHeight;

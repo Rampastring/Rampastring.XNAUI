@@ -1,17 +1,18 @@
-﻿using Microsoft.Xna.Framework;
+﻿namespace Rampastring.XNAUI.XNAControls;
+
+using System;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Rampastring.Tools;
-using System;
-
-namespace Rampastring.XNAUI.XNAControls;
 
 /// <summary>
 /// A basic button.
 /// </summary>
 public class XNAButton : XNAControl
 {
-    public XNAButton(WindowManager windowManager) : base(windowManager)
+    public XNAButton(WindowManager windowManager)
+        : base(windowManager)
     {
         AlphaRate = UISettings.ActiveSettings.DefaultAlphaRate;
     }
@@ -25,8 +26,10 @@ public class XNAButton : XNAControl
     public EnhancedSoundEffect ClickSoundEffect { get; set; }
 
     public float AlphaRate { get; set; }
+
     public float IdleTextureAlpha { get; private set; } = 1.0f;
-    public float HoverTextureAlpha { get; private set; } = 0.0f;
+
+    public float HoverTextureAlpha { get; private set; }
 
     public Keys HotKey { get; set; }
 
@@ -34,27 +37,27 @@ public class XNAButton : XNAControl
 
     public float TextShadowDistance { get; set; } = UISettings.ActiveSettings.TextShadowDistance;
 
-    private bool _allowClick = true;
+    private bool allowClick = true;
+
     public bool AllowClick
     {
-        get => _allowClick;
+        get => allowClick;
         set
         {
-            _allowClick = value;
-            if (_allowClick && cursorOnControl)
-                AnimationMode = ButtonAnimationMode.HIGHLIGHT;
-            else
-                AnimationMode = ButtonAnimationMode.RETURN;
+            allowClick = value;
+            AnimationMode = allowClick && cursorOnControl ? ButtonAnimationMode.HIGHLIGHT : ButtonAnimationMode.RETURN;
         }
     }
 
-    private string _text = String.Empty;
+    private string text = string.Empty;
+
     public override string Text
     {
-        get { return _text; }
+        get => text;
+
         set
         {
-            _text = value;
+            text = value;
             if (AdaptiveText)
             {
                 CalculateTextPosition();
@@ -63,36 +66,37 @@ public class XNAButton : XNAControl
     }
 
     public int TextXPosition { get; set; }
+
     public int TextYPosition { get; set; }
 
-    private Color? _textColorIdle;
+    private Color? textColorIdle;
 
     public Color TextColorIdle
     {
-        get => _textColorIdle ?? UISettings.ActiveSettings.ButtonTextColor;
+        get => textColorIdle ?? UISettings.ActiveSettings.ButtonTextColor;
         set
         {
-            _textColorIdle = value;
+            textColorIdle = value;
 
             if (!IsActive)
                 textColor = value;
         }
     }
 
-    private Color? _textColorHover;
+    private Color? textColorHover;
 
     public Color TextColorHover
     {
-        get => _textColorHover ?? UISettings.ActiveSettings.ButtonHoverColor;
-        set => _textColorHover = value;
+        get => textColorHover ?? UISettings.ActiveSettings.ButtonHoverColor;
+        set => textColorHover = value;
     }
 
-    private Color? _textColorDisabled;
+    private Color? textColorDisabled;
 
     public Color TextColorDisabled
     {
-        get => _textColorDisabled ?? UISettings.ActiveSettings.DisabledItemColor;
-        set => _textColorDisabled = value;
+        get => textColorDisabled ?? UISettings.ActiveSettings.DisabledItemColor;
+        set => textColorDisabled = value;
     }
 
     public bool AdaptiveText { get; set; } = true;
@@ -104,7 +108,7 @@ public class XNAButton : XNAControl
 
     private ButtonAnimationMode AnimationMode { get; set; }
 
-    private bool cursorOnControl = false;
+    private bool cursorOnControl;
 
     public override void OnMouseEnter()
     {
@@ -164,8 +168,7 @@ public class XNAButton : XNAControl
 
         if (IdleTexture != null && Width == 0 && Height == 0)
         {
-            ClientRectangle = new Rectangle(X, Y,
-                IdleTexture.Width, IdleTexture.Height);
+            ClientRectangle = new(X, Y, IdleTexture.Width, IdleTexture.Height);
         }
 
         textColor = TextColorIdle;
@@ -183,7 +186,7 @@ public class XNAButton : XNAControl
 
     private void CalculateTextPosition()
     {
-        Vector2 textSize = Renderer.GetTextDimensions(_text, FontIndex);
+        Vector2 textSize = Renderer.GetTextDimensions(text, FontIndex);
 
         if (textSize.X < Width)
         {
@@ -216,10 +219,10 @@ public class XNAButton : XNAControl
                 TextColorHover = AssetLoader.GetColorFromString(value);
                 return;
             case "HoverSoundEffect":
-                HoverSoundEffect = new EnhancedSoundEffect(value);
+                HoverSoundEffect = new(value);
                 return;
             case "ClickSoundEffect":
-                ClickSoundEffect = new EnhancedSoundEffect(value);
+                ClickSoundEffect = new(value);
                 return;
             case "AdaptiveText":
                 AdaptiveText = Conversions.BooleanFromString(value, true);
@@ -234,8 +237,7 @@ public class XNAButton : XNAControl
                 return;
             case "IdleTexture":
                 IdleTexture = AssetLoader.LoadTexture(value);
-                ClientRectangle = new Rectangle(X, Y,
-                    IdleTexture.Width, IdleTexture.Height);
+                ClientRectangle = new(X, Y, IdleTexture.Width, IdleTexture.Height);
                 if (AdaptiveText)
                     CalculateTextPosition();
                 return;
@@ -254,17 +256,13 @@ public class XNAButton : XNAControl
     {
         base.Kill();
 
-        if (IdleTexture != null)
-            IdleTexture.Dispose();
+        IdleTexture?.Dispose();
 
-        if (HoverTexture != null)
-            HoverTexture.Dispose();
+        HoverTexture?.Dispose();
 
-        if (HoverSoundEffect != null)
-            HoverSoundEffect.Dispose();
+        HoverSoundEffect?.Dispose();
 
-        if (ClickSoundEffect != null)
-            ClickSoundEffect.Dispose();
+        ClickSoundEffect?.Dispose();
     }
 
     public override void Update(GameTime gameTime)
@@ -302,7 +300,7 @@ public class XNAButton : XNAControl
             }
         }
 
-        if (Parent != null && Parent.IsActive && Keyboard.PressedKeys.Contains(HotKey))
+        if (Parent is { IsActive: true } && Keyboard.PressedKeys.Contains(HotKey))
             OnLeftClick();
     }
 
@@ -312,13 +310,17 @@ public class XNAButton : XNAControl
         {
             if (IdleTextureAlpha > 0f)
             {
-                DrawTexture(IdleTexture, new Rectangle(0, 0, Width, Height),
+                DrawTexture(
+                    IdleTexture,
+                    new Rectangle(0, 0, Width, Height),
                     RemapColor * IdleTextureAlpha * Alpha);
             }
 
             if (HoverTexture != null && HoverTextureAlpha > 0f)
             {
-                DrawTexture(HoverTexture, new Rectangle(0, 0, Width, Height),
+                DrawTexture(
+                    HoverTexture,
+                    new Rectangle(0, 0, Width, Height),
                     RemapColor * HoverTextureAlpha * Alpha);
             }
         }
@@ -326,17 +328,10 @@ public class XNAButton : XNAControl
         var textPosition = new Vector2(TextXPosition, TextYPosition);
 
         if (!Enabled || !AllowClick)
-            DrawStringWithShadow(_text, FontIndex, textPosition, TextColorDisabled, 1.0f, TextShadowDistance);
+            DrawStringWithShadow(text, FontIndex, textPosition, TextColorDisabled, 1.0f, TextShadowDistance);
         else
-            DrawStringWithShadow(_text, FontIndex, textPosition, textColor, 1.0f, TextShadowDistance);
+            DrawStringWithShadow(text, FontIndex, textPosition, textColor, 1.0f, TextShadowDistance);
 
         base.Draw(gameTime);
     }
-}
-
-internal enum ButtonAnimationMode
-{
-    NONE,
-    HIGHLIGHT,
-    RETURN
 }

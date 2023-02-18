@@ -1,14 +1,14 @@
-using Microsoft.Xna.Framework;
+﻿namespace Rampastring.XNAUI.XNAControls;
+
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Globalization;
+using System.Linq;
+using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 using Rampastring.Tools;
 using Rampastring.XNAUI.Input;
-using System.Collections.ObjectModel;
-using System.Linq;
-using Microsoft.Xna.Framework.Graphics;
-using System.Globalization;
-
-namespace Rampastring.XNAUI.XNAControls;
 
 /// <summary>
 /// The base class for a XNA-based UI control.
@@ -21,7 +21,8 @@ public class XNAControl : DrawableGameComponent
     /// Creates a new control instance.
     /// </summary>
     /// <param name="windowManager">The WindowManager associated with this control.</param>
-    public XNAControl(WindowManager windowManager) : base(windowManager.Game)
+    public XNAControl(WindowManager windowManager)
+        : base(windowManager.Game)
     {
         WindowManager = windowManager ?? throw new ArgumentNullException(nameof(windowManager));
     }
@@ -29,7 +30,7 @@ public class XNAControl : DrawableGameComponent
     /// <summary>
     /// Gets the window manager associated with this control.
     /// </summary>
-    public WindowManager WindowManager { get; private set; }
+    public WindowManager WindowManager { get; }
 
     #region Events
 
@@ -113,7 +114,8 @@ public class XNAControl : DrawableGameComponent
     /// </summary>
     public XNAControl Parent
     {
-        get { return parent; }
+        get => parent;
+
         set
         {
             parent = value;
@@ -142,70 +144,60 @@ public class XNAControl : DrawableGameComponent
     /// from its parent, ie. it can grow beyond its parent's area
     /// rectangle and still handle input correctly.
     /// </summary>
-    public bool Detached { get; private set; } = false;
+    public bool Detached { get; private set; }
 
     /// <summary>
     /// Holds a reference to the cursor.
     /// </summary>
-    protected Cursor Cursor
-    {
-        get { return WindowManager.Cursor; }
-    }
+    protected Cursor Cursor => WindowManager.Cursor;
 
     /// <summary>
     /// Holds a reference to the keyboard.
     /// </summary>
-    protected RKeyboard Keyboard
-    {
-        get { return WindowManager.Keyboard; }
-    }
+    protected RKeyboard Keyboard => WindowManager.Keyboard;
 
     /// <summary>
     /// A list of the control's children. Don't add children to this list directly;
     /// call the AddChild method instead.
     /// </summary>
-    private List<XNAControl> _children = new List<XNAControl>();
+    private readonly List<XNAControl> children = new();
 
-    private List<XNAControl> updateList = new List<XNAControl>();
-    private List<XNAControl> drawList = new List<XNAControl>();
+    private List<XNAControl> updateList = new();
+    private List<XNAControl> drawList = new();
 
-    private List<XNAControl> childAddQueue = new List<XNAControl>();
-    private List<XNAControl> childRemoveQueue = new List<XNAControl>();
+    private readonly List<XNAControl> childAddQueue = new();
+    private readonly List<XNAControl> childRemoveQueue = new();
 
     /// <summary>
-    /// A read-only list of the control's children. 
+    /// A read-only list of the control's children.
     /// Call the AddChild method to add children to the control.
     /// </summary>
-    public ReadOnlyCollection<XNAControl> Children
-    {
-        get { return new ReadOnlyCollection<XNAControl>(_children); }
-    }
-
+    public ReadOnlyCollection<XNAControl> Children => new(children);
 
     #region Location and size
 
-    private int _x, _y, _width, _height;
-    private int _scaling = 1;
-    private int _initScaling;
+    private int x;
+    private int y;
+    private int width;
+    private int height;
+    private int scaling = 1;
+    private int initScaling;
 
     /// <summary>
     /// The non-scaled display rectangle of the control inside its parent.
     /// </summary>
     public Rectangle ClientRectangle
     {
-        get
-        {
-            return new Rectangle(_x, _y, _width, _height);
-        }
+        get => new(x, y, width, height);
         set
         {
-            _x = value.X;
-            _y = value.Y;
-            bool isSizeChanged = value.Width != _width || value.Height != _height;
+            x = value.X;
+            y = value.Y;
+            bool isSizeChanged = value.Width != width || value.Height != height;
             if (isSizeChanged)
             {
-                _width = value.Width;
-                _height = value.Height;
+                width = value.Width;
+                height = value.Height;
                 OnSizeChanged();
             }
 
@@ -227,10 +219,7 @@ public class XNAControl : DrawableGameComponent
     /// <summary>
     /// Called when the control's client rectangle is changed.
     /// </summary>
-    protected virtual void OnClientRectangleUpdated()
-    {
-        ClientRectangleUpdated?.Invoke(this, EventArgs.Empty);
-    }
+    protected virtual void OnClientRectangleUpdated() => ClientRectangleUpdated?.Invoke(this, EventArgs.Empty);
 
     private void CheckForRenderAreaChange()
     {
@@ -242,7 +231,7 @@ public class XNAControl : DrawableGameComponent
             RefreshRenderTarget();
         }
 
-        _children.ForEach(c => c.CheckForRenderAreaChange());
+        children.ForEach(c => c.CheckForRenderAreaChange());
     }
 
     /// <summary>
@@ -250,10 +239,10 @@ public class XNAControl : DrawableGameComponent
     /// </summary>
     public int X
     {
-        get => _x;
+        get => x;
         set
         {
-            _x = value;
+            x = value;
             OnClientRectangleUpdated();
         }
     }
@@ -263,10 +252,10 @@ public class XNAControl : DrawableGameComponent
     /// </summary>
     public int Y
     {
-        get => _y;
+        get => y;
         set
         {
-            _y = value;
+            y = value;
             OnClientRectangleUpdated();
         }
     }
@@ -276,10 +265,10 @@ public class XNAControl : DrawableGameComponent
     /// </summary>
     public int Width
     {
-        get => _width;
+        get => width;
         set
         {
-            _width = value;
+            width = value;
             OnSizeChanged();
             OnClientRectangleUpdated();
         }
@@ -292,10 +281,10 @@ public class XNAControl : DrawableGameComponent
     /// </summary>
     public int Height
     {
-        get => _height;
+        get => height;
         set
         {
-            _height = value;
+            height = value;
             OnSizeChanged();
             OnClientRectangleUpdated();
         }
@@ -322,6 +311,7 @@ public class XNAControl : DrawableGameComponent
     /// and does not affect functionality.
     /// </summary>
     public string Name { get; set; }
+
     public Color RemapColor { get; set; } = Color.White;
 
     /// <summary>
@@ -331,25 +321,15 @@ public class XNAControl : DrawableGameComponent
     /// even if the cursor left the scroll bar's area.
     /// NOTE: controls using this should give up their selected control status when they've figured out they don't need it anymore.
     /// </summary>
-    public bool ExclusiveInputCapture { get; protected set; } = false;
+    public bool ExclusiveInputCapture { get; protected set; }
 
-    private bool CursorOnControl = false;
+    private bool cursorOnControl;
     private float alpha = 1.0f;
+
     public virtual float Alpha
     {
-        get
-        {
-            return alpha;
-        }
-        set
-        {
-            if (value > 1.0f)
-                alpha = 1.0f;
-            else if (value < 0.0)
-                alpha = 0.0f;
-            else
-                alpha = value;
-        }
+        get => alpha;
+        set => alpha = value > 1.0f ? 1.0f : value < 0.0 ? 0.0f : value;
     }
 
     public int CursorTextureIndex;
@@ -372,38 +352,24 @@ public class XNAControl : DrawableGameComponent
     /// </summary>
     public bool InputEnabled { get; set; } = true;
 
-    private bool isActive = false;
+    private bool isActive;
 
     /// <summary>
     /// Gets or sets a bool that determines whether this control is the current focus of the mouse cursor.
     /// </summary>
     public bool IsActive
     {
-        get
-        {
-            if (Parent != null && !Detached)
-                return Parent.IsActive && isActive;
+        get => Parent != null && !Detached ? Parent.IsActive && isActive : isActive;
 
-            return isActive;
-        }
-        set { isActive = value; }
+        set => isActive = value;
     }
 
-    private bool _ignoreInputOnFrame = false;
+    private bool ignoreInputOnFrame;
 
     public bool IgnoreInputOnFrame
     {
-        get
-        {
-            if (Parent == null)
-                return _ignoreInputOnFrame;
-            else
-                return _ignoreInputOnFrame || Parent.IgnoreInputOnFrame;
-        }
-        set
-        {
-            _ignoreInputOnFrame = true;
-        }
+        get => Parent == null ? ignoreInputOnFrame : ignoreInputOnFrame || Parent.IgnoreInputOnFrame;
+        set => ignoreInputOnFrame = true;
     }
 
     private ControlDrawMode drawMode = ControlDrawMode.NORMAL;
@@ -415,7 +381,8 @@ public class XNAControl : DrawableGameComponent
     /// </summary>
     public ControlDrawMode DrawMode
     {
-        get { return drawMode; }
+        get => drawMode;
+
         set
         {
             if (Initialized)
@@ -428,27 +395,27 @@ public class XNAControl : DrawableGameComponent
         }
     }
 
-    private bool _isChangingSize = false;
+    private bool isChangingSize;
 
     /// <summary>
-    /// If set to true and the control has 
+    /// If set to true and the control has
     /// <see cref="DrawMode"/> == <see cref="ControlDrawMode.UNIQUE_RENDER_TARGET"/>,
     /// the control won't try to update its render target when its size is changed.
     /// </summary>
     public bool IsChangingSize
     {
-        get => _isChangingSize || (Parent != null && Parent.IsChangingSize);
+        get => isChangingSize || Parent is { IsChangingSize: true };
         set
         {
-            _isChangingSize = value;
-            if (!_isChangingSize)
+            isChangingSize = value;
+            if (!isChangingSize)
                 CheckForRenderAreaChange();
         }
     }
 
     public int Scaling
     {
-        get => _scaling;
+        get => scaling;
         set
         {
             if (DrawMode != ControlDrawMode.UNIQUE_RENDER_TARGET)
@@ -457,7 +424,7 @@ public class XNAControl : DrawableGameComponent
                     "used when the control has no unique render target.");
             }
 
-            if (Initialized && value < _initScaling)
+            if (Initialized && value < initScaling)
             {
                 throw new InvalidOperationException("Scaling cannot be " +
                     "lowered below the initial scaling multiplier after control initialization.");
@@ -468,7 +435,7 @@ public class XNAControl : DrawableGameComponent
                 throw new InvalidOperationException("Scale factor cannot be below one.");
             }
 
-            _scaling = value;
+            scaling = value;
         }
     }
 
@@ -478,21 +445,21 @@ public class XNAControl : DrawableGameComponent
     /// itself is the focus of input, but none of its children are.
     /// Useful for controls that act as composite for other controls.
     /// </summary>
-    public bool InputPassthrough { get; protected set; } = false;
+    public bool InputPassthrough { get; protected set; }
 
     #endregion
 
     private TimeSpan timeSinceLastLeftClick = TimeSpan.Zero;
-    private bool isLeftPressedOn = false;
-    private bool isRightPressedOn = false;
+    private bool isLeftPressedOn;
+    private bool isRightPressedOn;
 
-    private bool isIteratingChildren = false;
+    private bool isIteratingChildren;
 
     /// <summary>
     /// Whether a child of this control handled input during the ongoing frame.
     /// Used for input pass-through.
     /// </summary>
-    internal bool ChildHandledInput = false;
+    internal bool ChildHandledInput;
 
     /// <summary>
     /// Gets a value that can be used to check whether a child of this control is active on the current frame.
@@ -503,7 +470,7 @@ public class XNAControl : DrawableGameComponent
     /// <summary>
     /// Determines whether the control will automatically update the order of children
     /// when their DrawOrder or UpdateOrder is changed.
-    /// 
+    ///
     /// It is recommended to set this to false prior to performing large Update/DrawOrder changes
     /// for children in performance-critical points, and set it back to true afterwards.
     /// </summary>
@@ -519,27 +486,18 @@ public class XNAControl : DrawableGameComponent
     /// Determines whether the control's <see cref="Initialize"/> method
     /// has been called yet.
     /// </summary>
-    protected bool Initialized { get; private set; } = false;
+    protected bool Initialized { get; private set; }
 
     /// <summary>
     /// Checks if the last parent of this control is active.
     /// </summary>
-    public bool IsLastParentActive()
-    {
-        if (Parent != null)
-            return Parent.IsLastParentActive();
-
-        return isActive;
-    }
+    public bool IsLastParentActive() => Parent?.IsLastParentActive() ?? isActive;
 
     /// <summary>
     /// Checks whether a condition applies to this control and all of its parents.
     /// </summary>
     /// <param name="func">The condition.</param>
-    public bool AppliesToSelfAndAllParents(Func<XNAControl, bool> func)
-    {
-        return func(this) && (Parent == null || Parent.AppliesToSelfAndAllParents(func));
-    }
+    public bool AppliesToSelfAndAllParents(Func<XNAControl, bool> func) => func(this) && (Parent == null || Parent.AppliesToSelfAndAllParents(func));
 
     /// <summary>
     /// Gets the cursor's location relative to this control's location.
@@ -549,7 +507,7 @@ public class XNAControl : DrawableGameComponent
     {
         Point windowPoint = GetWindowPoint();
         int totalScaling = GetTotalScalingRecursive();
-        return new Point((Cursor.Location.X - windowPoint.X) / totalScaling, (Cursor.Location.Y - windowPoint.Y) / totalScaling);
+        return new((Cursor.Location.X - windowPoint.X) / totalScaling, (Cursor.Location.Y - windowPoint.Y) / totalScaling);
     }
 
     /// <summary>
@@ -563,10 +521,10 @@ public class XNAControl : DrawableGameComponent
         if (Parent != null)
         {
             int parentTotalScaling = Parent.GetTotalScalingRecursive();
-            p = new Point(p.X * parentTotalScaling, p.Y * parentTotalScaling);
+            p = new(p.X * parentTotalScaling, p.Y * parentTotalScaling);
 
 #if XNA
-            return SumPoints(p, parent.GetWindowPoint());
+            return XNAControl.SumPoints(p, parent.GetWindowPoint());
 #else
             return p + parent.GetWindowPoint();
 #endif
@@ -577,25 +535,16 @@ public class XNAControl : DrawableGameComponent
 
 #if XNA
     // XNA's Point is too dumb to know the plus operator
-    private Point SumPoints(Point p1, Point p2)
-    {
-        return new Point(p1.X + p2.X, p1.Y + p2.Y);
-    }
+    private static Point SumPoints(Point p1, Point p2) => new(p1.X + p2.X, p1.Y + p2.Y);
 
 #endif
     public Point GetSizePoint()
     {
         int totalScaling = GetTotalScalingRecursive();
-        return new Point(Width * totalScaling, Height * totalScaling);
+        return new(Width * totalScaling, Height * totalScaling);
     }
 
-    public int GetTotalScalingRecursive()
-    {
-        if (Parent != null)
-            return Scaling * Parent.GetTotalScalingRecursive();
-
-        return Scaling;
-    }
+    public int GetTotalScalingRecursive() => Parent != null ? Scaling * Parent.GetTotalScalingRecursive() : Scaling;
 
     /// <summary>
     /// Gets the control's client area within the game window.
@@ -605,7 +554,7 @@ public class XNAControl : DrawableGameComponent
     {
         Point p = GetWindowPoint();
         Point size = GetSizePoint();
-        return new Rectangle(p.X, p.Y, size.X, size.Y);
+        return new(p.X, p.Y, size.X, size.Y);
     }
 
     /// <summary>
@@ -614,7 +563,7 @@ public class XNAControl : DrawableGameComponent
     public Rectangle RenderRectangle()
     {
         Point p = GetRenderPoint();
-        return new Rectangle(p.X, p.Y, Width, Height);
+        return new(p.X, p.Y, Width, Height);
     }
 
     /// <summary>
@@ -633,7 +582,7 @@ public class XNAControl : DrawableGameComponent
                 return p;
 
 #if XNA
-            return SumPoints(p, Parent.GetRenderPoint());
+            return XNAControl.SumPoints(p, Parent.GetRenderPoint());
 #else
             return p + Parent.GetRenderPoint();
 #endif
@@ -653,8 +602,11 @@ public class XNAControl : DrawableGameComponent
             return;
         }
 
-        ClientRectangle = new Rectangle((Parent.Width - ScaledWidth) / 2,
-            (Parent.Height - ScaledHeight) / 2, Width, Height);
+        ClientRectangle = new(
+            (Parent.Width - ScaledWidth) / 2,
+            (Parent.Height - ScaledHeight) / 2,
+            Width,
+            Height);
     }
 
     /// <summary>
@@ -668,8 +620,8 @@ public class XNAControl : DrawableGameComponent
             return;
         }
 
-        ClientRectangle = new Rectangle((Parent.Width - ScaledWidth) / 2,
-            Y, Width, Height);
+        ClientRectangle = new(
+            (Parent.Width - ScaledWidth) / 2, Y, Width, Height);
     }
 
     /// <summary>
@@ -677,10 +629,7 @@ public class XNAControl : DrawableGameComponent
     /// Assumes that this control and the other control share the same parent control.
     /// </summary>
     /// <param name="control">The other control.</param>
-    public void CenterOnControlVertically(XNAControl control)
-    {
-        Y = control.Y - (Height - control.Height) / 2;
-    }
+    public void CenterOnControlVertically(XNAControl control) => Y = control.Y - ((Height - control.Height) / 2);
 
     /// <summary>
     /// Detaches the control from its parent.
@@ -704,12 +653,12 @@ public class XNAControl : DrawableGameComponent
         WindowManager.RemoveControl(this);
     }
 
-    private readonly object locker = new object();
+    private readonly object locker = new();
 
-    private List<Callback> Callbacks = new List<Callback>();
+    private readonly List<Callback> callbacks = new();
 
     /// <summary>
-    /// Schedules a delegate to be executed on the next game loop frame, 
+    /// Schedules a delegate to be executed on the next game loop frame,
     /// on the main game thread.
     /// </summary>
     /// <param name="d">The delegate.</param>
@@ -717,7 +666,7 @@ public class XNAControl : DrawableGameComponent
     public void AddCallback(Delegate d, params object[] args)
     {
         lock (locker)
-            Callbacks.Add(new Callback(d, args));
+            callbacks.Add(new(d, args));
     }
 
     #region Child control management
@@ -769,7 +718,7 @@ public class XNAControl : DrawableGameComponent
     {
         InitChild(child);
         child.Initialize();
-        _children.Add(child);
+        children.Add(child);
         ReorderControls();
     }
 
@@ -780,20 +729,7 @@ public class XNAControl : DrawableGameComponent
     private void AddChildImmediateWithoutInitialize(XNAControl child)
     {
         InitChild(child);
-        _children.Add(child);
-        ReorderControls();
-    }
-
-    /// <summary>
-    /// Adds a child control to the control, making the added child
-    /// the "first child" of this control.
-    /// </summary>
-    /// <param name="child">The child control.</param>
-    private void AddChildToFirstIndexImmediate(XNAControl child)
-    {
-        InitChild(child);
-        child.Initialize();
-        _children.Insert(0, child);
+        children.Add(child);
         ReorderControls();
     }
 
@@ -819,19 +755,15 @@ public class XNAControl : DrawableGameComponent
             UpdateChildUpdateList();
     }
 
-    private void UpdateChildDrawList()
-    {
+    private void UpdateChildDrawList() =>
+
         // Controls that are updated first should be drawn last
         // (on top of the other controls).
         // It's weird for the updateorder and draworder to behave differently,
         // but at this point we don't have a choice because of backwards compatibility.
-        drawList = _children.OrderBy(c => c.DrawOrder).ToList();
-    }
+        drawList = children.OrderBy(c => c.DrawOrder).ToList();
 
-    private void UpdateChildUpdateList()
-    {
-        updateList = _children.OrderBy(c => c.UpdateOrder).Reverse().ToList();
-    }
+    private void UpdateChildUpdateList() => updateList = children.OrderBy(c => c.UpdateOrder).Reverse().ToList();
 
     /// <summary>
     /// Removes a child from the control.
@@ -851,7 +783,7 @@ public class XNAControl : DrawableGameComponent
     /// <param name="child">The child control to remove.</param>
     private void RemoveChildImmediate(XNAControl child)
     {
-        if (_children.Remove(child))
+        if (children.Remove(child))
         {
             child.UpdateOrderChanged -= Child_UpdateOrderChanged;
             child.DrawOrderChanged -= Child_DrawOrderChanged;
@@ -881,7 +813,7 @@ public class XNAControl : DrawableGameComponent
         base.Initialize();
 
         Initialized = true;
-        _initScaling = _scaling;
+        initScaling = scaling;
     }
 
     protected override void OnVisibleChanged(object sender, EventArgs args)
@@ -905,10 +837,7 @@ public class XNAControl : DrawableGameComponent
     /// Can be used to free up the render target in derived classes.
     /// Returns true if the render target should be cleared after this call, false otherwise.
     /// </summary>
-    protected virtual bool FreeRenderTarget()
-    {
-        return false;
-    }
+    protected virtual bool FreeRenderTarget() => false;
 
     private void RefreshRenderTarget()
     {
@@ -927,9 +856,15 @@ public class XNAControl : DrawableGameComponent
 
     protected virtual RenderTarget2D GetRenderTarget()
     {
-        return new RenderTarget2D(GraphicsDevice,
-            GetRenderTargetWidth(), GetRenderTargetHeight(), false,
-            SurfaceFormat.Color, DepthFormat.None, 0, RenderTargetUsage.PreserveContents);
+        return new(
+            GraphicsDevice,
+            GetRenderTargetWidth(),
+            GetRenderTargetHeight(),
+            false,
+            SurfaceFormat.Color,
+            DepthFormat.None,
+            0,
+            RenderTargetUsage.PreserveContents);
     }
 
     protected virtual int GetRenderTargetWidth() => Width <= 0 ? 2 : Width;
@@ -995,7 +930,9 @@ public class XNAControl : DrawableGameComponent
                 return;
             case "Size":
                 string[] size = value.Split(',');
-                ClientRectangle = new Rectangle(X, Y,
+                ClientRectangle = new(
+                    X,
+                    Y,
                     int.Parse(size[0], CultureInfo.InvariantCulture),
                     int.Parse(size[1], CultureInfo.InvariantCulture));
                 return;
@@ -1007,10 +944,11 @@ public class XNAControl : DrawableGameComponent
                 return;
             case "Location":
                 string[] location = value.Split(',');
-                ClientRectangle = new Rectangle(
+                ClientRectangle = new(
                     int.Parse(location[0], CultureInfo.InvariantCulture),
                     int.Parse(location[1], CultureInfo.InvariantCulture),
-                    Width, Height);
+                    Width,
+                    Height);
                 return;
             case "X":
                 X = int.Parse(value, CultureInfo.InvariantCulture);
@@ -1034,41 +972,52 @@ public class XNAControl : DrawableGameComponent
             case "DistanceFromRightBorder":
                 if (Parent != null)
                 {
-                    ClientRectangle = new Rectangle(Parent.Width - Width - Conversions.IntFromString(value, 0), Y,
-                        Width, Height);
+                    ClientRectangle = new(
+                        Parent.Width - Width - Conversions.IntFromString(value, 0),
+                        Y,
+                        Width,
+                        Height);
                 }
+
                 return;
             case "DistanceFromBottomBorder":
                 if (Parent != null)
                 {
-                    ClientRectangle = new Rectangle(X, Parent.Height - Height - Conversions.IntFromString(value, 0),
-                        Width, Height);
-                }
-                return;
-            case "FillWidth":
-                if (Parent != null)
-                {
-                    ClientRectangle = new Rectangle(X, Y,
-                        Parent.Width - X - Conversions.IntFromString(value, 0), Height);
-                }
-                else
-                {
-                    ClientRectangle = new Rectangle(X, Y,
-                        WindowManager.RenderResolutionX - X - Conversions.IntFromString(value, 0),
+                    ClientRectangle = new(
+                        X,
+                        Parent.Height - Height - Conversions.IntFromString(value, 0),
+                        Width,
                         Height);
                 }
+
+                return;
+            case "FillWidth":
+                ClientRectangle = Parent != null
+                    ? new(
+                        X,
+                        Y,
+                        Parent.Width - X - Conversions.IntFromString(value, 0),
+                        Height)
+                    : new(
+                        X,
+                        Y,
+                        WindowManager.RenderResolutionX - X - Conversions.IntFromString(value, 0),
+                        Height);
+
                 return;
             case "FillHeight":
-                if (Parent != null)
-                {
-                    ClientRectangle = new Rectangle(X, Y,
-                        Width, Parent.Height - Y - Conversions.IntFromString(value, 0));
-                }
-                else
-                {
-                    ClientRectangle = new Rectangle(X, Y,
-                        Width, WindowManager.RenderResolutionY - Y - Conversions.IntFromString(value, 0));
-                }
+                ClientRectangle = Parent != null
+                    ? new(
+                        X,
+                        Y,
+                        Width,
+                        Parent.Height - Y - Conversions.IntFromString(value, 0))
+                    : new(
+                        X,
+                        Y,
+                        Width,
+                        WindowManager.RenderResolutionY - Y - Conversions.IntFromString(value, 0));
+
                 return;
             case "ControlDrawMode":
                 if (value == "UniqueRenderTarget")
@@ -1126,24 +1075,24 @@ public class XNAControl : DrawableGameComponent
 
         timeSinceLastLeftClick += gameTime.ElapsedGameTime;
 
-        int callbackCount = Callbacks.Count;
+        int callbackCount = callbacks.Count;
 
         if (callbackCount > 0)
         {
             lock (locker)
             {
                 for (int i = 0; i < callbackCount; i++)
-                    Callbacks[i].Invoke();
+                    callbacks[i].Invoke();
 
                 // Do not clear the list; another thread could theoretically add an
                 // item after we get the callback count, but before we lock
-                Callbacks.RemoveRange(0, callbackCount);
+                callbacks.RemoveRange(0, callbackCount);
             }
         }
 
         if (IgnoreInputOnFrame)
         {
-            _ignoreInputOnFrame = false;
+            ignoreInputOnFrame = false;
             return;
         }
 
@@ -1153,22 +1102,22 @@ public class XNAControl : DrawableGameComponent
 
         if (Cursor.IsOnScreen && IsActive && rectangle.Contains(Cursor.Location))
         {
-            if (!CursorOnControl)
+            if (!cursorOnControl)
             {
-                CursorOnControl = true;
+                cursorOnControl = true;
                 OnMouseEnter();
             }
 
             isIteratingChildren = true;
 
-            var activeChildEnumerator = updateList.GetEnumerator();
+            List<XNAControl>.Enumerator activeChildEnumerator = updateList.GetEnumerator();
 
             while (activeChildEnumerator.MoveNext())
             {
                 XNAControl child = activeChildEnumerator.Current;
 
                 if (child.Visible && !child.Detached && (child.Focused || (child.InputEnabled &&
-                    child.GetWindowRectangle().Contains(Cursor.Location) && activeChild == null)))
+                    child.GetWindowRectangle().Contains(Cursor.Location))))
                 {
                     child.IsActive = true;
                     activeChild = child;
@@ -1229,12 +1178,12 @@ public class XNAControl : DrawableGameComponent
                     OnMouseScrolled();
             }
         }
-        else if (CursorOnControl)
+        else if (cursorOnControl)
         {
             if (!isInputCaptured)
                 OnMouseLeave();
 
-            CursorOnControl = false;
+            cursorOnControl = false;
             isRightPressedOn = false;
         }
         else
@@ -1248,11 +1197,11 @@ public class XNAControl : DrawableGameComponent
 
         isIteratingChildren = true;
 
-        var enumerator = updateList.GetEnumerator();
+        List<XNAControl>.Enumerator enumerator = updateList.GetEnumerator();
 
         while (enumerator.MoveNext())
         {
-            var child = enumerator.Current;
+            XNAControl child = enumerator.Current;
 
             if (child != activeChild && !child.Detached)
                 child.IsActive = false;
@@ -1265,12 +1214,12 @@ public class XNAControl : DrawableGameComponent
 
         isIteratingChildren = false;
 
-        foreach (var child in childAddQueue)
+        foreach (XNAControl child in childAddQueue)
             AddChildImmediate(child);
 
         childAddQueue.Clear();
 
-        foreach (var child in childRemoveQueue)
+        foreach (XNAControl child in childRemoveQueue)
             RemoveChildImmediate(child);
 
         childRemoveQueue.Clear();
@@ -1320,7 +1269,7 @@ public class XNAControl : DrawableGameComponent
         Rectangle rect = RenderRectangle();
         if (Scaling > 1 && Renderer.CurrentSettings.SamplerState != SamplerState.PointClamp)
         {
-            Renderer.PushSettings(new SpriteBatchSettings(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp, null, null, null));
+            Renderer.PushSettings(new(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp, null, null, null));
             DrawUniqueRenderTarget(rect);
             Renderer.PopSettings();
         }
@@ -1345,7 +1294,7 @@ public class XNAControl : DrawableGameComponent
             Rectangle renderRectangle = RenderRectangle();
             if (Renderer.CurrentSettings.SamplerState != SamplerState.PointClamp)
             {
-                Renderer.PushSettings(new SpriteBatchSettings(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp, null, null, null));
+                Renderer.PushSettings(new(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp, null, null, null));
                 DrawDetachedScaledTexture(renderRectangle, totalScaling);
                 Renderer.PopSettings();
             }
@@ -1362,36 +1311,38 @@ public class XNAControl : DrawableGameComponent
 
     private void DrawUniqueRenderTarget(Rectangle renderRectangle)
     {
-        Renderer.DrawTexture(RenderTarget, new Rectangle(0, 0, Width, Height),
-            new Rectangle(renderRectangle.X, renderRectangle.Y, ScaledWidth, ScaledHeight), Color.White * Alpha);
+        Renderer.DrawTexture(
+            RenderTarget,
+            new(0, 0, Width, Height),
+            new(renderRectangle.X, renderRectangle.Y, ScaledWidth, ScaledHeight),
+            Color.White * Alpha);
     }
 
     private void DrawDetachedScaledTexture(Rectangle renderRectangle, int totalScaling)
     {
-        Renderer.DrawTexture(RenderTargetStack.DetachedScaledControlRenderTarget,
-        renderRectangle,
-        new Rectangle(renderRectangle.X, renderRectangle.Y, Width * totalScaling, Height * totalScaling), Color.White * Alpha);
+        Renderer.DrawTexture(
+            RenderTargetStack.DetachedScaledControlRenderTarget,
+            renderRectangle,
+            new(renderRectangle.X, renderRectangle.Y, Width * totalScaling, Height * totalScaling),
+            Color.White * Alpha);
     }
 
     /// <summary>
     /// Draws the control and its child controls.
     /// </summary>
     /// <param name="gameTime">Provides a snapshot of timing values.</param>
-    public override void Draw(GameTime gameTime)
-    {
-        DrawChildren(gameTime);
-    }
+    public override void Draw(GameTime gameTime) => DrawChildren(gameTime);
 
     /// <summary>
     /// Draws the control's child controls.
     /// </summary>
     protected void DrawChildren(GameTime gameTime)
     {
-        var enumerator = drawList.GetEnumerator();
+        List<XNAControl>.Enumerator enumerator = drawList.GetEnumerator();
 
         while (enumerator.MoveNext())
         {
-            var current = enumerator.Current;
+            XNAControl current = enumerator.Current;
 
             if (current.Visible && !current.Detached)
                 current.DrawInternal(gameTime);
@@ -1411,8 +1362,14 @@ public class XNAControl : DrawableGameComponent
     /// <param name="color">The remap color.</param>
     public void DrawTexture(Texture2D texture, Rectangle rectangle, Color color)
     {
-        Renderer.DrawTexture(texture, new Rectangle(drawPoint.X + rectangle.X,
-            drawPoint.Y + rectangle.Y, rectangle.Width, rectangle.Height), color);
+        Renderer.DrawTexture(
+            texture,
+            new(
+                drawPoint.X + rectangle.X,
+                drawPoint.Y + rectangle.Y,
+                rectangle.Width,
+                rectangle.Height),
+            color);
     }
 
     /// <summary>
@@ -1423,7 +1380,7 @@ public class XNAControl : DrawableGameComponent
     /// relative to the control.</param>
     /// <param name="color">The remap color.</param>
     public void DrawTexture(Texture2D texture, Point point, Color color) =>
-        Renderer.DrawTexture(texture, new Rectangle(drawPoint.X + point.X, drawPoint.Y + point.Y, texture.Width, texture.Height), color);
+        Renderer.DrawTexture(texture, new(drawPoint.X + point.X, drawPoint.Y + point.Y, texture.Width, texture.Height), color);
 
     /// <summary>
     /// Draws a texture relative to the control's location
@@ -1431,7 +1388,8 @@ public class XNAControl : DrawableGameComponent
     /// </summary>
     public void DrawTexture(Texture2D texture, Rectangle sourceRectangle, Rectangle destinationRectangle, Color color)
     {
-        var destRect = new Rectangle(drawPoint.X + destinationRectangle.X,
+        var destRect = new Rectangle(
+            drawPoint.X + destinationRectangle.X,
             drawPoint.Y + destinationRectangle.Y,
             destinationRectangle.Width,
             destinationRectangle.Height);
@@ -1443,18 +1401,15 @@ public class XNAControl : DrawableGameComponent
     /// Draws a texture relative to the control's location.
     /// </summary>
     public void DrawTexture(Texture2D texture, Vector2 location, float rotation, Vector2 origin, Vector2 scale, Color color, float layerDepth)
-    {
-        Renderer.DrawTexture(texture,
-            new Vector2(location.X + drawPoint.X, location.Y + drawPoint.Y),
-            rotation, origin, scale, color, layerDepth);
-    }
+        => Renderer.DrawTexture(texture, new(location.X + drawPoint.X, location.Y + drawPoint.Y), rotation, origin, scale, color, layerDepth);
 
     /// <summary>
     /// Draws a texture relative to the control's location.
     /// </summary>
     public void DrawTexture(Texture2D texture, Rectangle destinationRectangle, Rectangle? sourceRectangle, Color color, float rotation, Vector2 origin, SpriteEffects effects, float layerDepth)
     {
-        var destRect = new Rectangle(drawPoint.X + destinationRectangle.X,
+        var destRect = new Rectangle(
+            drawPoint.X + destinationRectangle.X,
             drawPoint.Y + destinationRectangle.Y,
             destinationRectangle.Width,
             destinationRectangle.Height);
@@ -1466,10 +1421,7 @@ public class XNAControl : DrawableGameComponent
     /// Draws a string relative to the control's location.
     /// </summary>
     public void DrawString(string text, int fontIndex, Vector2 location, Color color, float scale = 1.0f)
-    {
-        Renderer.DrawString(text, fontIndex,
-            new Vector2(location.X + drawPoint.X, location.Y + drawPoint.Y), color, scale);
-    }
+        => Renderer.DrawString(text, fontIndex, new(location.X + drawPoint.X, location.Y + drawPoint.Y), color, scale);
 
     /// <summary>
     /// Draws a string with a shadow, relative to the control's location.
@@ -1481,10 +1433,7 @@ public class XNAControl : DrawableGameComponent
     /// <param name="scale">The scale of the text.</param>
     /// <param name="shadowDistance">How many distance units (typically pixels) the text shadow is offset from the text.</param>
     public void DrawStringWithShadow(string text, int fontIndex, Vector2 location, Color color, float scale = 1.0f, float shadowDistance = 1.0f)
-    {
-        Renderer.DrawStringWithShadow(text, fontIndex,
-            new Vector2(location.X + drawPoint.X, location.Y + drawPoint.Y), color, scale, shadowDistance);
-    }
+        => Renderer.DrawStringWithShadow(text, fontIndex, new(location.X + drawPoint.X, location.Y + drawPoint.Y), color, scale, shadowDistance);
 
     /// <summary>
     /// Draws a rectangle's borders relative to the control's location
@@ -1494,19 +1443,13 @@ public class XNAControl : DrawableGameComponent
     /// <param name="color">The color.</param>
     /// <param name="thickness">The thickness of the rectangle's borders.</param>
     public void DrawRectangle(Rectangle rect, Color color, int thickness = 1)
-    {
-        Renderer.DrawRectangle(new Rectangle(rect.X + drawPoint.X,
-            rect.Y + drawPoint.Y, rect.Width, rect.Height), color, thickness);
-    }
+        => Renderer.DrawRectangle(new(rect.X + drawPoint.X, rect.Y + drawPoint.Y, rect.Width, rect.Height), color, thickness);
 
     /// <summary>
     /// Fills the control's drawing area with the given color.
     /// </summary>
     /// <param name="color">The color to fill the area with.</param>
-    public void FillControlArea(Color color)
-    {
-        FillRectangle(new Rectangle(0, 0, Width, Height), color);
-    }
+    public void FillControlArea(Color color) => FillRectangle(new(0, 0, Width, Height), color);
 
     /// <summary>
     /// Fills a rectangle relative to the control's location with the given color.
@@ -1514,10 +1457,7 @@ public class XNAControl : DrawableGameComponent
     /// <param name="rect">The rectangle.</param>
     /// <param name="color">The color to fill the rectangle with.</param>
     public void FillRectangle(Rectangle rect, Color color)
-    {
-        Renderer.FillRectangle(new Rectangle(rect.X + drawPoint.X,
-            rect.Y + drawPoint.Y, rect.Width, rect.Height), color);
-    }
+        => Renderer.FillRectangle(new(rect.X + drawPoint.X, rect.Y + drawPoint.Y, rect.Width, rect.Height), color);
 
     /// <summary>
     /// Draws a line relative to the control's location.
@@ -1528,49 +1468,34 @@ public class XNAControl : DrawableGameComponent
     /// <param name="thickness">The thickness of the line.</param>
     /// <param name="depth">The depth of the line for the depth buffer.</param>
     public void DrawLine(Vector2 start, Vector2 end, Color color, int thickness = 1, float depth = 0f)
-    {
-        Renderer.DrawLine(new Vector2(start.X + drawPoint.X, start.Y + drawPoint.Y),
-            new Vector2(end.X + drawPoint.X, end.Y + drawPoint.Y), color, thickness, depth);
-    }
+        => Renderer.DrawLine(new(start.X + drawPoint.X, start.Y + drawPoint.Y), new(end.X + drawPoint.X, end.Y + drawPoint.Y), color, thickness, depth);
 
     #endregion
 
     /// <summary>
     /// Called when the mouse cursor enters the control's client rectangle.
     /// </summary>
-    public virtual void OnMouseEnter()
-    {
-        MouseEnter?.Invoke(this, EventArgs.Empty);
-    }
+    public virtual void OnMouseEnter() => MouseEnter?.Invoke(this, EventArgs.Empty);
 
     /// <summary>
     /// Called when the mouse cursor leaves the control's client rectangle.
     /// </summary>
-    public virtual void OnMouseLeave()
-    {
-        MouseLeave?.Invoke(this, EventArgs.Empty);
-    }
+    public virtual void OnMouseLeave() => MouseLeave?.Invoke(this, EventArgs.Empty);
 
     /// <summary>
     /// Called once when the left mouse button is pressed down while the cursor
     /// is on the control.
     /// </summary>
-    public virtual void OnMouseLeftDown()
-    {
-        MouseLeftDown?.Invoke(this, EventArgs.Empty);
-    }
+    public virtual void OnMouseLeftDown() => MouseLeftDown?.Invoke(this, EventArgs.Empty);
 
     /// <summary>
     /// Called once when the right mouse button is pressed down while the cursor
     /// is on the control.
     /// </summary>
-    public virtual void OnMouseRightDown()
-    {
-        MouseRightDown?.Invoke(this, EventArgs.Empty);
-    }
+    public virtual void OnMouseRightDown() => MouseRightDown?.Invoke(this, EventArgs.Empty);
 
     /// <summary>
-    /// Called when the left mouse button has been 
+    /// Called when the left mouse button has been
     /// clicked on the control's client rectangle.
     /// </summary>
     public virtual void OnLeftClick()
@@ -1589,55 +1514,37 @@ public class XNAControl : DrawableGameComponent
     }
 
     /// <summary>
-    /// Called when the left mouse button has been 
+    /// Called when the left mouse button has been
     /// clicked twice on the control's client rectangle.
     /// </summary>
-    public virtual void OnDoubleLeftClick()
-    {
-        DoubleLeftClick?.Invoke(this, EventArgs.Empty);
-    }
+    public virtual void OnDoubleLeftClick() => DoubleLeftClick?.Invoke(this, EventArgs.Empty);
 
     /// <summary>
-    /// Called when the right mouse button has been 
+    /// Called when the right mouse button has been
     /// clicked on the control's client rectangle.
     /// </summary>
-    public virtual void OnRightClick()
-    {
-        RightClick?.Invoke(this, EventArgs.Empty);
-    }
+    public virtual void OnRightClick() => RightClick?.Invoke(this, EventArgs.Empty);
 
     /// <summary>
     /// Called when the mouse moves on the control's client rectangle.
     /// </summary>
-    public virtual void OnMouseMove()
-    {
-        MouseMove?.Invoke(this, EventArgs.Empty);
-    }
+    public virtual void OnMouseMove() => MouseMove?.Invoke(this, EventArgs.Empty);
 
     /// <summary>
     /// Called on each frame while the mouse is on the control's
     /// client rectangle.
     /// </summary>
-    public virtual void OnMouseOnControl()
-    {
-        MouseOnControl?.Invoke(this, EventArgs.Empty);
-    }
+    public virtual void OnMouseOnControl() => MouseOnControl?.Invoke(this, EventArgs.Empty);
 
     /// <summary>
-    /// Called when the scroll wheel has been scrolled on the 
+    /// Called when the scroll wheel has been scrolled on the
     /// control's client rectangle.
     /// </summary>
-    public virtual void OnMouseScrolled()
-    {
-        MouseScrolled?.Invoke(this, EventArgs.Empty);
-    }
+    public virtual void OnMouseScrolled() => MouseScrolled?.Invoke(this, EventArgs.Empty);
 
     /// <summary>
     /// Called when the control's status as the selected (last-clicked)
     /// control has been changed.
     /// </summary>
-    public virtual void OnSelectedChanged()
-    {
-        SelectedChanged?.Invoke(this, EventArgs.Empty);
-    }
+    public virtual void OnSelectedChanged() => SelectedChanged?.Invoke(this, EventArgs.Empty);
 }

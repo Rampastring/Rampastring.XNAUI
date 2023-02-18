@@ -1,9 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using Microsoft.Xna.Framework.Graphics;
-using System.Text;
+﻿namespace Rampastring.XNAUI;
 
-namespace Rampastring.XNAUI;
+using System;
+using System.Collections.Generic;
+using System.Text;
+using Microsoft.Xna.Framework.Graphics;
 
 public class TextParseReturnValue
 {
@@ -35,14 +35,14 @@ public class TextParseReturnValue
             line = line + word + " ";
         }
 
-        processedText = processedText + line;
-        return new TextParseReturnValue(processedText, lineCount);
+        processedText += line;
+        return new(processedText, lineCount);
     }
 
     public static List<string> GetFixedTextLines(SpriteFont spriteFont, int width, string text, bool splitWords = true)
     {
         if (string.IsNullOrEmpty(text))
-            return new List<string>(0);
+            return new(0);
 
         var returnValue = new List<string>();
         string[] lineArray = text.Split(new char[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries);

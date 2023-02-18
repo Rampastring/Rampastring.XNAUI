@@ -1,7 +1,6 @@
+﻿namespace Rampastring.XNAUI;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-
-namespace Rampastring.XNAUI;
 
 /// <summary>
 /// A class that contains UI-related settings, like default UI colors.
@@ -14,15 +13,16 @@ public class UISettings
     public static UISettings ActiveSettings { get; set; }
 
     public float TextShadowDistance { get; set; } = 1.0f;
+
     public Color TextShadowColor { get; set; } = Color.Black;
 
-    public Color TextColor { get; set; } = new Color(196, 196, 196);
+    public Color TextColor { get; set; } = new(196, 196, 196);
 
     public Color SubtleTextColor { get; set; } = Color.Gray;
 
     public Color AltColor { get; set; } = Color.White;
 
-    public Color ButtonTextColor { get; set; } = new Color(196, 196, 196);
+    public Color ButtonTextColor { get; set; } = new(196, 196, 196);
 
     public Color DisabledItemColor { get; set; } = Color.Gray;
 
@@ -30,11 +30,11 @@ public class UISettings
 
     public Color BackgroundColor { get; set; } = Color.Black;
 
-    public Color FocusColor { get; set; } = new Color(64, 64, 64);
+    public Color FocusColor { get; set; } = new(64, 64, 64);
 
-    public Color PanelBackgroundColor { get; set; } = new Color(32, 32, 32);
+    public Color PanelBackgroundColor { get; set; } = new(32, 32, 32);
 
-    public Color PanelBorderColor { get; set; } = new Color(196, 196, 196);
+    public Color PanelBorderColor { get; set; } = new(196, 196, 196);
 
     public Texture2D CheckBoxCheckedTexture { get; set; }
 

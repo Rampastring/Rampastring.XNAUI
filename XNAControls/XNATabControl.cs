@@ -1,35 +1,37 @@
-﻿using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
-using Rampastring.Tools;
+﻿namespace Rampastring.XNAUI.XNAControls;
+
 using System;
 using System.Collections.Generic;
 using System.Globalization;
-
-namespace Rampastring.XNAUI.XNAControls;
+using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
+using Rampastring.Tools;
 
 /// <summary>
 /// A control that has multiple tabs, of which only one can be selected at a time.
 /// </summary>
 public class XNATabControl : XNAControl
 {
-    public XNATabControl(WindowManager windowManager) : base(windowManager)
+    public XNATabControl(WindowManager windowManager)
+        : base(windowManager)
     {
     }
 
     public delegate void SelectedIndexChangedEventHandler(object sender, EventArgs e);
+
     public event SelectedIndexChangedEventHandler SelectedIndexChanged;
 
-    private int _selectedTab = 0;
+    private int selectedTab;
+
     public int SelectedTab
     {
-        get { return _selectedTab; }
+        get => selectedTab;
+
         set
         {
-            if (_selectedTab == value)
+            if (selectedTab == value)
                 return;
-
-            _selectedTab = value;
-
+            selectedTab = value;
             SelectedIndexChanged?.Invoke(this, EventArgs.Empty);
         }
     }
@@ -38,68 +40,56 @@ public class XNATabControl : XNAControl
 
     public bool DisposeTexturesOnTabRemove { get; set; }
 
-    private Color? _textColor;
+    private Color? textColor;
 
     public Color TextColor
     {
-        get => _textColor ?? UISettings.ActiveSettings.AltColor;
-        set { _textColor = value; }
+        get => textColor ?? UISettings.ActiveSettings.AltColor;
+        set => textColor = value;
     }
 
-    private Color? _textColorDisabled;
+    private Color? textColorDisabled;
 
     public Color TextColorDisabled
     {
-        get => _textColorDisabled ?? UISettings.ActiveSettings.DisabledItemColor;
-        set { _textColorDisabled = value; }
+        get => textColorDisabled ?? UISettings.ActiveSettings.DisabledItemColor;
+        set => textColorDisabled = value;
     }
 
-    private List<Tab> Tabs = new List<Tab>();
+    private readonly List<Tab> tabs = new();
 
     public EnhancedSoundEffect ClickSound { get; set; }
 
-    public override void Initialize()
-    {
-        base.Initialize();
-    }
+    public override void Initialize() => base.Initialize();
 
-    public void MakeSelectable(int index)
-    {
-        Tabs[index].Selectable = true;
-    }
+    public void MakeSelectable(int index) => tabs[index].Selectable = true;
 
-    public void MakeUnselectable(int index)
-    {
-        Tabs[index].Selectable = false;
-    }
+    public void MakeUnselectable(int index) => tabs[index].Selectable = false;
 
     public void RemoveTab(int index)
     {
         if (DisposeTexturesOnTabRemove)
         {
-            Tabs[index].DefaultTexture.Dispose();
-            Tabs[index].PressedTexture.Dispose();
+            tabs[index].DefaultTexture.Dispose();
+            tabs[index].PressedTexture.Dispose();
         }
 
-        Tabs.RemoveAt(index);
+        tabs.RemoveAt(index);
     }
 
     public void RemoveTab(string text)
     {
-        int index = Tabs.FindIndex(t => t.Text == text);
+        int index = tabs.FindIndex(t => t.Text == text);
 
-        Tabs.RemoveAt(index);
+        tabs.RemoveAt(index);
     }
 
-    public void AddTab(string text, Texture2D defaultTexture, Texture2D pressedTexture)
-    {
-        AddTab(text, defaultTexture, pressedTexture, true);
-    }
+    public void AddTab(string text, Texture2D defaultTexture, Texture2D pressedTexture) => AddTab(text, defaultTexture, pressedTexture, true);
 
     public void AddTab(string text, Texture2D defaultTexture, Texture2D pressedTexture, bool selectable)
     {
         var tab = new Tab(text, defaultTexture, pressedTexture, selectable);
-        Tabs.Add(tab);
+        tabs.Add(tab);
 
         Vector2 textSize = Renderer.GetTextDimensions(text, FontIndex);
         tab.TextXPosition = (defaultTexture.Width - (int)textSize.X) / 2;
@@ -141,7 +131,7 @@ public class XNATabControl : XNAControl
 
         int w = 0;
         int i = 0;
-        foreach (Tab tab in Tabs)
+        foreach (Tab tab in tabs)
         {
             w += tab.DefaultTexture.Width;
 
@@ -165,44 +155,21 @@ public class XNATabControl : XNAControl
     {
         int x = 0;
 
-        for (int i = 0; i < Tabs.Count; i++)
+        for (int i = 0; i < tabs.Count; i++)
         {
-            Tab tab = Tabs[i];
+            Tab tab = tabs[i];
 
             Texture2D texture = i == SelectedTab ? tab.PressedTexture : tab.DefaultTexture;
 
             DrawTexture(texture, new Point(x, 0), RemapColor);
 
-            DrawStringWithShadow(tab.Text, FontIndex,
-                new Vector2(x + tab.TextXPosition, tab.TextYPosition),
+            DrawStringWithShadow(
+                tab.Text,
+                FontIndex,
+                new(x + tab.TextXPosition, tab.TextYPosition),
                 tab.Selectable && Enabled ? TextColor : TextColorDisabled);
 
             x += tab.DefaultTexture.Width;
         }
     }
-}
-
-internal class Tab
-{
-    public Tab() { }
-
-    public Tab(string text, Texture2D defaultTexture, Texture2D pressedTexture, bool selectable)
-    {
-        Text = text;
-        DefaultTexture = defaultTexture;
-        PressedTexture = pressedTexture;
-        Selectable = selectable;
-    }
-
-    public Texture2D DefaultTexture { get; set; }
-
-    public Texture2D PressedTexture { get; set; }
-
-    public string Text { get; set; }
-
-    public bool Selectable { get; set; }
-
-    public int TextXPosition { get; set; }
-
-    public int TextYPosition { get; set; }
 }

@@ -1,16 +1,17 @@
-﻿using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
-using Rampastring.Tools;
+﻿namespace Rampastring.XNAUI.XNAControls;
+
 using System;
 using System.Collections.Generic;
-
-namespace Rampastring.XNAUI.XNAControls;
+using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
+using Rampastring.Tools;
 
 /// <summary>
 /// An indicator with dynamic textures pool.
 /// </summary>
 /// <typeparam name="T">The type of the enum that specifies the possible indicator states.</typeparam>
-public class XNAIndicator<T> : XNAControl where T : Enum
+public class XNAIndicator<T> : XNAControl
+    where T : Enum
 {
     private const int TEXT_PADDING_DEFAULT = 5;
 
@@ -18,32 +19,38 @@ public class XNAIndicator<T> : XNAControl where T : Enum
     /// Creates a new indicator.
     /// </summary>
     /// <param name="windowManager">The window manager.</param>
-    public XNAIndicator(WindowManager windowManager) : base(windowManager) =>
+    public XNAIndicator(WindowManager windowManager)
+        : base(windowManager)
+    {
         AlphaRate = UISettings.ActiveSettings.IndicatorAlphaRate * 2.0;
+    }
 
-    public XNAIndicator(WindowManager windowManager, Dictionary<T, Texture2D> textures) : this(windowManager) =>
+    public XNAIndicator(WindowManager windowManager, Dictionary<T, Texture2D> textures)
+        : this(windowManager)
+    {
         Textures = textures;
+    }
 
     /// <summary>
     /// Contains a pool of textures for indicator.
     /// </summary>
     public Dictionary<T, Texture2D> Textures { get; set; }
 
-    private Texture2D _oldTexture = null;
-    private Texture2D _currentTexture = null;
+    private Texture2D oldTexture;
+    private Texture2D currentTexture;
 
     /// <summary>
     /// Determines the currently displayed texture.
     /// </summary>
     protected virtual Texture2D CurrentTexture
     {
-        get => _currentTexture;
+        get => currentTexture;
         set
         {
-            if (value != _currentTexture)
+            if (value != currentTexture)
             {
-                _oldTexture = _currentTexture;
-                _currentTexture = value;
+                oldTexture = currentTexture;
+                currentTexture = value;
                 textureAlpha = 0.0;
             }
         }
@@ -59,26 +66,26 @@ public class XNAIndicator<T> : XNAControl where T : Enum
     /// </summary>
     public int TextPadding { get; set; } = TEXT_PADDING_DEFAULT;
 
-    private Color? _idleColor;
+    private Color? idleColor;
 
     /// <summary>
     /// The color of the indicator's text when it's not hovered on.
     /// </summary>
     public Color IdleColor
     {
-        get => _idleColor ?? UISettings.ActiveSettings.TextColor;
-        set => _idleColor = value;
+        get => idleColor ?? UISettings.ActiveSettings.TextColor;
+        set => idleColor = value;
     }
 
-    private Color? _highlightColor;
+    private Color? highlightColor;
 
     /// <summary>
     /// The color of the indicator's text when it's hovered on.
     /// </summary>
     public Color HighlightColor
     {
-        get => _highlightColor ?? UISettings.ActiveSettings.AltColor;
-        set => _highlightColor = value;
+        get => highlightColor ?? UISettings.ActiveSettings.AltColor;
+        set => highlightColor = value;
     }
 
     public double AlphaRate { get; set; }
@@ -110,11 +117,9 @@ public class XNAIndicator<T> : XNAControl where T : Enum
         if (Textures == null || Textures.Count == 0)
             throw new InvalidOperationException($"{nameof(XNAIndicator<T>)}: No textures specified!");
 
-        if (_oldTexture == null)
-            _oldTexture = Textures[default];
+        oldTexture ??= Textures[default];
 
-        if (_currentTexture == null)
-            _currentTexture = Textures[default];
+        currentTexture ??= Textures[default];
 
         SetTextPositionAndSize();
 
@@ -159,7 +164,7 @@ public class XNAIndicator<T> : XNAControl where T : Enum
         if (Textures == null || Textures.Count == 0)
             return;
 
-        var enumerator = Textures.Values.GetEnumerator();
+        Dictionary<T, Texture2D>.ValueCollection.Enumerator enumerator = Textures.Values.GetEnumerator();
         enumerator.MoveNext();
         Texture2D texture2D = enumerator.Current;
 
@@ -167,7 +172,7 @@ public class XNAIndicator<T> : XNAControl where T : Enum
         {
             Vector2 textDimensions = Renderer.GetTextDimensions(Text, FontIndex);
 
-            TextLocationY = (texture2D.Height - (int)textDimensions.Y) / 2 - 1;
+            TextLocationY = ((texture2D.Height - (int)textDimensions.Y) / 2) - 1;
 
             Width = (int)textDimensions.X + TEXT_PADDING_DEFAULT + texture2D.Width;
             Height = Math.Max((int)textDimensions.Y, texture2D.Height);
@@ -201,8 +206,8 @@ public class XNAIndicator<T> : XNAControl where T : Enum
         if (TextLocationY < 0)
         {
             // If the text is higher than the indicator texture
-            // (textLocationY < 0), let's draw the text at the top of 
-            // the client rectangle and the indicator in the middle of 
+            // (textLocationY < 0), let's draw the text at the top of
+            // the client rectangle and the indicator in the middle of
             // the text. This is necessary for input to work properly.
             indicatorYPosition -= TextLocationY;
             textYPosition = 0;
@@ -212,26 +217,28 @@ public class XNAIndicator<T> : XNAControl where T : Enum
         {
             Color textColor = IsActive ? HighlightColor : IdleColor;
 
-            DrawStringWithShadow(Text, FontIndex,
-                new Vector2(CurrentTexture.Width + TextPadding, textYPosition),
+            DrawStringWithShadow(
+                Text,
+                FontIndex,
+                new(CurrentTexture.Width + TextPadding, textYPosition),
                 textColor);
         }
 
         // Don't draw old texture if new one is fully opaque
         if (textureAlpha < 1.0)
         {
-            DrawTexture(_oldTexture,
-                new Rectangle(0, indicatorYPosition,
-                _oldTexture.Width, _oldTexture.Height),
+            DrawTexture(
+                oldTexture,
+                new Rectangle(0, indicatorYPosition, oldTexture.Width, oldTexture.Height),
                 Color.White);
         }
 
         // Don't draw new texture if it's fully invisible
         if (textureAlpha > 0.0)
         {
-            DrawTexture(_currentTexture,
-                new Rectangle(0, indicatorYPosition,
-                _currentTexture.Width, _currentTexture.Height),
+            DrawTexture(
+                currentTexture,
+                new Rectangle(0, indicatorYPosition, currentTexture.Width, currentTexture.Height),
                 Color.White * (float)textureAlpha);
         }
 

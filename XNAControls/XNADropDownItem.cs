@@ -1,7 +1,6 @@
-﻿using Microsoft.Xna.Framework;
+﻿namespace Rampastring.XNAUI.XNAControls;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-
-namespace Rampastring.XNAUI.XNAControls;
 
 /// <summary>
 /// A drop-down / context menu item.
@@ -18,20 +17,15 @@ public class XNADropDownItem
     /// An object for containing custom info in the drop down item.
     /// </summary>
     public object Tag { get; set; }
+
     public bool Selectable { get; set; } = true;
 
     private float alpha = 1.0f;
+
     public float Alpha
     {
-        get { return alpha; }
-        set
-        {
-            if (value < 0.0f)
-                alpha = 0.0f;
-            else if (value > 1.0f)
-                alpha = 1.0f;
-            else
-                alpha = value;
-        }
+        get => alpha;
+
+        set => alpha = value < 0.0f ? 0.0f : value > 1.0f ? 1.0f : value;
     }
 }

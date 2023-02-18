@@ -1,28 +1,17 @@
-﻿using Rampastring.XNAUI.XNAControls;
+﻿namespace Rampastring.XNAUI;
+
 using System;
 using System.Collections.Generic;
 using System.Reflection;
-
-namespace Rampastring.XNAUI;
-
-/// <summary>
-/// The exception that is thrown when the <see cref="GUICreator"/> fails to find a matching
-/// constructor for a GUI control type.
-/// </summary>
-public class ConstructorNotFoundException : Exception
-{
-    public ConstructorNotFoundException(string message) : base(message)
-    {
-    }
-}
+using Rampastring.XNAUI.XNAControls;
 
 /// <summary>
-/// Allows creating controls based on their internal names with the help 
+/// Allows creating controls based on their internal names with the help
 /// of reflection.
 /// </summary>
 public class GUICreator
 {
-    private List<Type> controlTypes = new List<Type>()
+    private readonly List<Type> controlTypes = new()
     {
         typeof(XNAControl),
         typeof(XNAButton),
@@ -71,16 +60,11 @@ public class GUICreator
         if (controlTypeName == null)
             throw new ArgumentNullException(nameof(controlTypeName));
 
-        Type type = controlTypes.Find(c => c.Name == controlTypeName);
-
-        if (type == null)
-            throw new ArgumentException("GUICreator.CreateControl: Cannot find control type " + controlTypeName);
-
+        Type type = controlTypes.Find(c => c.Name == controlTypeName) ?? throw new ArgumentException("GUICreator.CreateControl: Cannot find control type " + controlTypeName);
         ConstructorInfo constructor = type.GetConstructor(new Type[] { typeof(WindowManager) });
 
-        if (constructor == null)
-            throw new ConstructorNotFoundException("GUICreator.CreateControl: Cannot find constructor accepting only WindowManager for control type " + controlTypeName);
-
-        return (XNAControl)constructor.Invoke(new object[] { windowManager });
+        return constructor == null
+            ? throw new ConstructorNotFoundException("GUICreator.CreateControl: Cannot find constructor accepting only WindowManager for control type " + controlTypeName)
+            : (XNAControl)constructor.Invoke(new object[] { windowManager });
     }
 }

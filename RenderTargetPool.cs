@@ -1,8 +1,8 @@
-﻿using Microsoft.Xna.Framework.Graphics;
-using Rampastring.Tools;
-using System.Collections.Generic;
+﻿namespace Rampastring.XNAUI;
 
-namespace Rampastring.XNAUI;
+using System.Collections.Generic;
+using Microsoft.Xna.Framework.Graphics;
+using Rampastring.Tools;
 
 /// <summary>
 /// A pool for render targets. Safe for multithreaded use.
@@ -11,9 +11,9 @@ public class RenderTargetPool
 {
     private readonly GraphicsDevice graphicsDevice;
 
-    private static readonly object locker = new object();
+    private static readonly object locker = new();
 
-    private List<RenderTarget2D> renderTargets = new List<RenderTarget2D>();
+    private readonly List<RenderTarget2D> renderTargets = new();
 
     public RenderTargetPool(GraphicsDevice graphicsDevice)
     {
@@ -66,7 +66,7 @@ public class RenderTargetPool
 
             for (int i = 0; i < renderTargets.Count; i++)
             {
-                var renderTarget = renderTargets[i];
+                RenderTarget2D renderTarget = renderTargets[i];
                 if (renderTarget.Width < width || renderTarget.Height < height)
                     continue;
 
@@ -83,8 +83,15 @@ public class RenderTargetPool
             if (bestRenderTarget == null)
             {
                 Logger.Log($"RenderTargetPool.Get: Creating new render target of size {width}x{height}");
-                bestRenderTarget = new RenderTarget2D(graphicsDevice, width, height,
-                    false, SurfaceFormat.Color, DepthFormat.None, 0, RenderTargetUsage.PreserveContents);
+                bestRenderTarget = new(
+                    graphicsDevice,
+                    width,
+                    height,
+                    false,
+                    SurfaceFormat.Color,
+                    DepthFormat.None,
+                    0,
+                    RenderTargetUsage.PreserveContents);
             }
             else
             {
@@ -97,8 +104,8 @@ public class RenderTargetPool
 
     /// <summary>
     /// Removes a render target from the pool.
-    /// Returns a value that determines whether 
-    /// the given render target was found and 
+    /// Returns a value that determines whether
+    /// the given render target was found and
     /// removed from the pool.
     /// Does NOT call Dispose on the render target,
     /// so do it after calling this if you're not using the render

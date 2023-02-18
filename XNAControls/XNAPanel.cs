@@ -1,13 +1,14 @@
-﻿using Microsoft.Xna.Framework;
+﻿namespace Rampastring.XNAUI.XNAControls;
+
+using System.Globalization;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Rampastring.Tools;
-using System.Globalization;
-
-namespace Rampastring.XNAUI.XNAControls;
 
 public class XNAPanel : XNAControl
 {
-    public XNAPanel(WindowManager windowManager) : base(windowManager)
+    public XNAPanel(WindowManager windowManager)
+        : base(windowManager)
     {
     }
 
@@ -15,39 +16,22 @@ public class XNAPanel : XNAControl
 
     public virtual Texture2D BackgroundTexture { get; set; }
 
-    private Color? _borderColor;
+    private Color? borderColor;
 
     public Color BorderColor
     {
-        get
-        {
-            if (_borderColor.HasValue)
-                return _borderColor.Value;
+        get => borderColor ?? UISettings.ActiveSettings.PanelBorderColor;
 
-            return UISettings.ActiveSettings.PanelBorderColor;
-        }
-        set { _borderColor = value; }
+        set => borderColor = value;
     }
 
     public bool DrawBorders { get; set; } = true;
-
-    //RenderTarget2D renderTarget;
-
-    // TODO implement custom border texture
-    // Texture2D BorderTexture { get; set; }
 
     /// <summary>
     /// The panel's transparency changing rate per 100 milliseconds.
     /// If the panel is transparent, it'll become non-transparent at this rate.
     /// </summary>
-    public float AlphaRate = 0.0f;
-
-    public override void Initialize()
-    {
-        base.Initialize();
-
-        // BorderTexture = AssetLoader.CreateTexture(Color.White, 1, 1);
-    }
+    public float AlphaRate;
 
     protected override void ParseControlINIAttribute(IniFile iniFile, string key, string value)
     {
@@ -57,12 +41,9 @@ public class XNAPanel : XNAControl
                 BorderColor = AssetLoader.GetColorFromString(value);
                 return;
             case "DrawMode":
-                if (value == "Tiled")
-                    PanelBackgroundDrawMode = PanelBackgroundImageDrawMode.TILED;
-                else if (value == "Centered")
-                    PanelBackgroundDrawMode = PanelBackgroundImageDrawMode.CENTERED;
-                else
-                    PanelBackgroundDrawMode = PanelBackgroundImageDrawMode.STRETCHED;
+                PanelBackgroundDrawMode = value == "Tiled"
+                    ? PanelBackgroundImageDrawMode.TILED
+                    : value == "Centered" ? PanelBackgroundImageDrawMode.CENTERED : PanelBackgroundImageDrawMode.STRETCHED;
                 return;
             case "AlphaRate":
                 AlphaRate = Conversions.FloatFromString(value, 0.01f);
@@ -83,13 +64,14 @@ public class XNAPanel : XNAControl
                 int top = int.Parse(parts[1], CultureInfo.InvariantCulture);
                 int right = int.Parse(parts[2], CultureInfo.InvariantCulture);
                 int bottom = int.Parse(parts[3], CultureInfo.InvariantCulture);
-                ClientRectangle = new Rectangle(X - left, Y - top,
-                    Width + left + right, Height + top + bottom);
+                ClientRectangle = new(
+                    X - left, Y - top, Width + left + right, Height + top + bottom);
                 foreach (XNAControl child in Children)
                 {
-                    child.ClientRectangle = new Rectangle(child.X + left,
-                        child.Y + top, child.Width, child.Height);
+                    child.ClientRectangle = new(
+                        child.X + left, child.Y + top, child.Width, child.Height);
                 }
+
                 return;
         }
 
@@ -112,16 +94,13 @@ public class XNAPanel : XNAControl
                 if (Renderer.CurrentSettings.SamplerState != SamplerState.LinearWrap &&
                     Renderer.CurrentSettings.SamplerState != SamplerState.PointWrap)
                 {
-                    //Renderer.PushSettings(new SpriteBatchSettings(Renderer.CurrentSettings.SpriteSortMode,
+                    // Renderer.PushSettings(new SpriteBatchSettings(Renderer.CurrentSettings.SpriteSortMode,
                     //    Renderer.CurrentSettings.BlendState, SamplerState.LinearWrap));
-
-                    //DrawTexture(texture, new Rectangle(0, 0, Width, Height), color);
-
-                    //Renderer.PopSettings();
+                    // DrawTexture(texture, new Rectangle(0, 0, Width, Height), color);
+                    // Renderer.PopSettings();
                     // ^ the above should work, but actually doesn't for some reason -
                     // the texture is just scaled instead
                     // it should have much higher performance than repeating the texture manually
-
                     for (int x = 0; x < Width; x += texture.Width)
                     {
                         for (int y = 0; y < Height; y += texture.Height)
@@ -130,30 +109,35 @@ public class XNAPanel : XNAControl
                             {
                                 if (y + texture.Height < Height)
                                 {
-                                    DrawTexture(texture, new Rectangle(x, y,
-                                        texture.Width, texture.Height), color);
+                                    DrawTexture(
+                                        texture,
+                                        new Rectangle(x, y, texture.Width, texture.Height),
+                                        color);
                                 }
                                 else
                                 {
-                                    DrawTexture(texture,
-                                        new Rectangle(0, 0, texture.Width, Height - y),
-                                        new Rectangle(x, y,
-                                        texture.Width, Height - y), color);
+                                    DrawTexture(
+                                        texture,
+                                        new(0, 0, texture.Width, Height - y),
+                                        new(x, y, texture.Width, Height - y),
+                                        color);
                                 }
                             }
                             else if (y + texture.Height < Height)
                             {
-                                DrawTexture(texture,
-                                    new Rectangle(0, 0, Width - x, texture.Height),
-                                    new Rectangle(x, y,
-                                    Width - x, texture.Height), color);
+                                DrawTexture(
+                                    texture,
+                                    new(0, 0, Width - x, texture.Height),
+                                    new(x, y, Width - x, texture.Height),
+                                    color);
                             }
                             else
                             {
-                                DrawTexture(texture,
-                                    new Rectangle(0, 0, Width - x, Height - y),
-                                    new Rectangle(x, y,
-                                    Width - x, Height - y), color);
+                                DrawTexture(
+                                    texture,
+                                    new(0, 0, Width - x, Height - y),
+                                    new(x, y, Width - x, Height - y),
+                                    color);
                             }
                         }
                     }
@@ -180,26 +164,22 @@ public class XNAPanel : XNAControl
                 int drawWidth = x >= 0 ? texture.Width : Width;
                 int drawHeight = y >= 0 ? texture.Height : Height;
 
-                DrawTexture(texture,
-                    new Rectangle(sourceBeginX, sourceBeginY, drawWidth, drawHeight),
-                    new Rectangle(destBeginX, destBeginY, drawWidth, drawHeight), color);
+                DrawTexture(
+                    texture,
+                    new(sourceBeginX, sourceBeginY, drawWidth, drawHeight),
+                    new(destBeginX, destBeginY, drawWidth, drawHeight),
+                    color);
             }
-            else // if (PanelBackgroundDrawMode == PanelBackgroundImageDrawMode.STRECHED)
+            else
             {
                 DrawTexture(texture, new Rectangle(0, 0, Width, Height), color);
             }
         }
     }
 
-    protected void DrawPanel()
-    {
-        DrawBackgroundTexture(BackgroundTexture, RemapColor);
-    }
+    protected void DrawPanel() => DrawBackgroundTexture(BackgroundTexture, RemapColor);
 
-    protected void DrawPanelBorders()
-    {
-        DrawRectangle(new Rectangle(0, 0, Width, Height), BorderColor);
-    }
+    protected void DrawPanelBorders() => DrawRectangle(new(0, 0, Width, Height), BorderColor);
 
     public override void Draw(GameTime gameTime)
     {
@@ -210,24 +190,4 @@ public class XNAPanel : XNAControl
         if (DrawBorders)
             DrawPanelBorders();
     }
-}
-
-public enum PanelBackgroundImageDrawMode
-{
-    /// <summary>
-    /// The texture is tiled to fill the whole surface of the panel.
-    /// </summary>
-    TILED,
-
-    /// <summary>
-    /// The texture is stretched to fill the whole surface of the panel.
-    /// </summary>
-    STRETCHED,
-
-    /// <summary>
-    /// The texture is drawn once, centered on the panel.
-    /// If the texture is too large for the panel, parts
-    /// that would end up outside of the panel are cut off.
-    /// </summary>
-    CENTERED
 }

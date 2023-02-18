@@ -14,7 +14,7 @@
     <Description>Rampastring XNA/MonoGame UI Library</Description>
     <Company>Rampastring</Company>
     <Product>Rampastring.XNAUI</Product>
-    <Copyright>Copyright © Rami 'Rampastring' Pasanen 2016-2022</Copyright>
+    <Copyright>Copyright © Rami 'Rampastring' Pasanen 2016-2023</Copyright>
     <Trademark></Trademark>
     <AssemblyName Condition="'$(Configuration)' == 'WindowsDXRelease'">Rampastring.XNAUI.WindowsDX</AssemblyName>
     <AssemblyName Condition="'$(Configuration)' == 'WindowsGLRelease'">Rampastring.XNAUI.WindowsGL</AssemblyName>
@@ -146,9 +146,13 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Rampastring.Tools" Version="2.0.4" />
-    <PackageReference Include="Microsoft.Windows.CsWin32" Version="0.2.164-beta" PrivateAssets="All" />
+    <PackageReference Include="Microsoft.Windows.CsWin32" Version="0.2.188-beta" PrivateAssets="All" />
     <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1" PrivateAssets="All" />
     <PackageReference Include="SixLabors.ImageSharp" Version="2.1.3" />
     <PackageReference Include="TextCopy" Version="6.2.1" />
+    <PackageReference Include="StyleCop.Analyzers" Version="1.2.0-beta.435">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
   </ItemGroup>
 </Project>

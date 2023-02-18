@@ -1,42 +1,32 @@
-﻿using Microsoft.Xna.Framework;
-using Rampastring.Tools;
+﻿namespace Rampastring.XNAUI.XNAControls;
 
-namespace Rampastring.XNAUI.XNAControls;
+using Microsoft.Xna.Framework;
+using Rampastring.Tools;
 
 /// <summary>
 /// A panel with text.
 /// </summary>
 public class XNATextBlock : XNAPanel
 {
-    public XNATextBlock(WindowManager windowManager) : base(windowManager)
+    public XNATextBlock(WindowManager windowManager)
+        : base(windowManager)
     {
     }
 
     public override string Text
     {
-        get
-        {
-            return base.Text;
-        }
+        get => base.Text;
 
-        set
-        {
-            base.Text = Renderer.FixText(value, FontIndex, Width - TextXMargin * 2).Text;
-        }
+        set => base.Text = Renderer.FixText(value, FontIndex, Width - (TextXMargin * 2)).Text;
     }
 
-    private Color? _textColor;
+    private Color? textColor;
 
     public Color TextColor
     {
-        get
-        {
-            if (_textColor.HasValue)
-                return _textColor.Value;
+        get => textColor ?? UISettings.ActiveSettings.TextColor;
 
-            return UISettings.ActiveSettings.TextColor;
-        }
-        set { _textColor = value; }
+        set => textColor = value;
     }
 
     public int FontIndex { get; set; }
@@ -63,8 +53,8 @@ public class XNATextBlock : XNAPanel
 
         if (!string.IsNullOrEmpty(Text))
         {
-            DrawStringWithShadow(Text, FontIndex,
-                new Vector2(TextXMargin, TextYPosition), TextColor);
+            DrawStringWithShadow(
+                Text, FontIndex, new(TextXMargin, TextYPosition), TextColor);
         }
 
         if (DrawBorders)

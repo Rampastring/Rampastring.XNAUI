@@ -1,8 +1,7 @@
-﻿using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Audio;
-using System;
+﻿namespace Rampastring.XNAUI;
 
-namespace Rampastring.XNAUI;
+using System;
+using Microsoft.Xna.Framework.Audio;
 
 /// <summary>
 /// A toggleable sound effect that can also have a defined priority
@@ -32,11 +31,12 @@ public class EnhancedSoundEffect : IDisposable
     /// Creates a new enhanced sound. Loads the specified sound asset.
     /// </summary>
     /// <param name="assetName">The asset name of the sound file to load.</param>
-    /// <param name="priority">The priority of this sound</param>
+    /// <param name="priority">The priority of this sound.</param>
     /// <param name="priorityDecayRate">The priority decay rate of this sound.</param>
     /// <param name="repeatPrevention">If set above zero, will prevent the sound from being played again
     /// for the specified number of seconds after it has been played.</param>
-    public EnhancedSoundEffect(string assetName, double priority, double priorityDecayRate, float repeatPrevention) : this(assetName)
+    public EnhancedSoundEffect(string assetName, double priority, double priorityDecayRate, float repeatPrevention)
+        : this(assetName)
     {
         Priority = priority;
         PriorityDecayRate = priorityDecayRate;
@@ -85,7 +85,7 @@ public class EnhancedSoundEffect : IDisposable
 
         if (RepeatPrevention > 0f)
         {
-            var dtn = DateTime.Now;
+            DateTime dtn = DateTime.Now;
 
             if ((dtn - lastPlayTime).TotalSeconds < RepeatPrevention)
                 return;
@@ -96,13 +96,7 @@ public class EnhancedSoundEffect : IDisposable
         SoundPlayer.Play(this);
     }
 
-    internal SoundEffectInstance CreateSoundInstance()
-    {
-        if (soundEffect == null)
-            return null;
-
-        return soundEffect.CreateInstance();
-    }
+    internal SoundEffectInstance CreateSoundInstance() => soundEffect?.CreateInstance();
 
     /// <summary>
     /// Disposes the sound effect.
@@ -120,43 +114,5 @@ public class EnhancedSoundEffect : IDisposable
             soundEffect?.Dispose();
             soundEffect = null;
         }
-    }
-}
-
-internal sealed class PrioritizedSoundInstance : IDisposable
-{
-    public PrioritizedSoundInstance(SoundEffectInstance soundInstance,
-        double priority, double priorityDecayRate)
-    {
-        SoundInstance = soundInstance;
-        Priority = priority;
-        PriorityDecayRate = priorityDecayRate;
-    }
-
-    public SoundEffectInstance SoundInstance { get; private set; }
-
-    public double Priority { get; private set; }
-
-    public double PriorityDecayRate { get; private set; }
-
-    /// <summary>
-    /// Updates the priority of the sound. Returns true if the sound effect is
-    /// still playing, otherwise false.
-    /// </summary>
-    /// <param name="gameTime">Tells how much time has passed since the previous frame.</param>
-    /// <returns>True if the sound effect is still playing, otherwise false.</returns>
-    public bool Update(GameTime gameTime)
-    {
-        Priority = Priority - PriorityDecayRate * gameTime.ElapsedGameTime.TotalSeconds;
-
-        if (SoundInstance.State != SoundState.Playing)
-            return false;
-
-        return true;
-    }
-
-    public void Dispose()
-    {
-        SoundInstance.Dispose();
     }
 }

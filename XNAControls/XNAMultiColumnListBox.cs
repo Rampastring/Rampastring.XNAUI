@@ -1,9 +1,8 @@
-﻿using Microsoft.Xna.Framework;
-using Rampastring.Tools;
+﻿namespace Rampastring.XNAUI.XNAControls;
+
 using System;
 using System.Collections.Generic;
-
-namespace Rampastring.XNAUI.XNAControls;
+using Rampastring.Tools;
 
 /// <summary>
 /// A list box with multiple columns.
@@ -14,7 +13,8 @@ public class XNAMultiColumnListBox : XNAPanel
     /// Creates a new multi-column list box.
     /// </summary>
     /// <param name="windowManager">The WindowManager.</param>
-    public XNAMultiColumnListBox(WindowManager windowManager) : base(windowManager)
+    public XNAMultiColumnListBox(WindowManager windowManager)
+        : base(windowManager)
     {
         DrawMode = ControlDrawMode.UNIQUE_RENDER_TARGET;
         ClientRectangleUpdated += XNAMultiColumnListBox_ClientRectangleUpdated;
@@ -24,15 +24,12 @@ public class XNAMultiColumnListBox : XNAPanel
     /// Adjusts the positions and sizes of the columns
     /// when the size of the list box is changed.
     /// </summary>
-    /// <param name="sender"></param>
-    /// <param name="e"></param>
     private void XNAMultiColumnListBox_ClientRectangleUpdated(object sender, EventArgs e)
     {
         if (listBoxes.Count == 0)
             return;
 
         // Adjust size of columns
-
         foreach (XNAListBox lb in listBoxes)
         {
             lb.Height = Height - lb.Y;
@@ -49,18 +46,21 @@ public class XNAMultiColumnListBox : XNAPanel
     }
 
     public event EventHandler HoveredIndexChanged;
+
     public event EventHandler SelectedIndexChanged;
+
     public event EventHandler TopIndexChanged;
-    
+
     public int HeaderFontIndex { get; set; } = 1;
 
     public int FontIndex { get; set; }
+
     public int LineHeight { get; set; } = 15;
 
     public bool DrawListBoxBorders { get; set; }
 
-    private List<XNAListBox> listBoxes = new List<XNAListBox>();
-    private List<XNAPanel> headers = new List<XNAPanel>();
+    private readonly List<XNAListBox> listBoxes = new();
+    private readonly List<XNAPanel> headers = new();
     private bool handleSelectedIndexChanged = true;
 
     /// <summary>
@@ -68,10 +68,7 @@ public class XNAMultiColumnListBox : XNAPanel
     /// </summary>
     public int SelectedIndex
     {
-        get
-        {
-            return listBoxes[0].SelectedIndex;
-        }
+        get => listBoxes[0].SelectedIndex;
         set
         {
             if (handleSelectedIndexChanged)
@@ -88,7 +85,7 @@ public class XNAMultiColumnListBox : XNAPanel
     {
         get
         {
-            foreach (var listBox in listBoxes)
+            foreach (XNAListBox listBox in listBoxes)
             {
                 if (listBox.HoveredIndex > -1 && listBox.HoveredIndex < listBox.Items.Count)
                     return listBox.HoveredIndex;
@@ -98,7 +95,7 @@ public class XNAMultiColumnListBox : XNAPanel
         }
     }
 
-    private bool _allowKeyboardInput = false;
+    private bool allowKeyboardInput;
 
     /// <summary>
     /// If set to true, the user is able to scroll the listbox items
@@ -106,11 +103,11 @@ public class XNAMultiColumnListBox : XNAPanel
     /// </summary>
     public bool AllowKeyboardInput
     {
-        get { return _allowKeyboardInput; }
+        get => allowKeyboardInput;
+
         set
         {
-            _allowKeyboardInput = value;
-
+            allowKeyboardInput = value;
             foreach (XNAListBox lb in listBoxes)
                 lb.AllowKeyboardInput = value;
         }
@@ -123,36 +120,22 @@ public class XNAMultiColumnListBox : XNAPanel
     /// </summary>
     public int TopIndex
     {
-        get { return listBoxes[0].TopIndex; }
-        set
-        {
-            listBoxes[0].TopIndex = value;
-        }
+        get => listBoxes[0].TopIndex;
+
+        set => listBoxes[0].TopIndex = value;
     }
 
     /// <summary>
     /// Gets the index of the last visible item in the list box.
     /// </summary>
-    public int LastIndex
-    {
-        get { return listBoxes[0].LastIndex; }
-    }
+    public int LastIndex => listBoxes[0].LastIndex;
 
     /// <summary>
     /// Gets the number of items on the list box.
     /// </summary>
-    public int ItemCount
-    {
-        get
-        {
-            if (listBoxes.Count == 0)
-                return 0;
+    public int ItemCount => listBoxes.Count == 0 ? 0 : listBoxes[0].Items.Count;
 
-            return listBoxes[0].Items.Count;
-        }
-    }
-
-    private bool _allowRightClickUnselect = true;
+    private bool allowRightClickUnselect = true;
 
     /// <summary>
     /// Gets or sets a bool that determines whether the user is able to un-select
@@ -160,14 +143,14 @@ public class XNAMultiColumnListBox : XNAPanel
     /// </summary>
     public bool AllowRightClickUnselect
     {
-        get { return _allowRightClickUnselect; }
+        get => allowRightClickUnselect;
+
         set
         {
-            _allowRightClickUnselect = value;
-
+            allowRightClickUnselect = value;
             foreach (XNAListBox lb in listBoxes)
             {
-                lb.AllowRightClickUnselect = _allowRightClickUnselect;
+                lb.AllowRightClickUnselect = allowRightClickUnselect;
             }
         }
     }
@@ -178,8 +161,8 @@ public class XNAMultiColumnListBox : XNAPanel
     /// </summary>
     public bool DrawSelectionUnderScrollbar
     {
-        get { return listBoxes[listBoxes.Count - 1].DrawSelectionUnderScrollbar; }
-        set { listBoxes[listBoxes.Count - 1].DrawSelectionUnderScrollbar = value; }
+        get => listBoxes[listBoxes.Count - 1].DrawSelectionUnderScrollbar;
+        set => listBoxes[listBoxes.Count - 1].DrawSelectionUnderScrollbar = value;
     }
 
     protected override void ParseControlINIAttribute(IniFile iniFile, string key, string value)
@@ -266,22 +249,21 @@ public class XNAMultiColumnListBox : XNAPanel
     /// <summary>
     /// Creates a column with the given header text and width.
     /// </summary>
-    /// <param name="headerText"></param>
-    /// <param name="width"></param>
     public void AddColumn(string headerText, int width)
     {
-        var headerLabel = new XNALabel(WindowManager);
-        headerLabel.FontIndex = HeaderFontIndex;
-        headerLabel.X = 3;
-        headerLabel.Y = 2;
-        headerLabel.Text = headerText;
+        var headerLabel = new XNALabel(WindowManager)
+        {
+            FontIndex = HeaderFontIndex,
+            X = 3,
+            Y = 2,
+            Text = headerText
+        };
 
-        var headerPanel = new XNAPanel(WindowManager);
-        headerPanel.Height = headerLabel.Height + 3;
-        if (DrawListBoxBorders)
-            headerPanel.Width = width + 1;
-        else
-            headerPanel.Width = width;
+        var headerPanel = new XNAPanel(WindowManager)
+        {
+            Height = headerLabel.Height + 3,
+            Width = DrawListBoxBorders ? width + 1 : width
+        };
         headerPanel.AddChild(headerLabel);
 
         AddColumn(headerPanel);
@@ -294,9 +276,11 @@ public class XNAMultiColumnListBox : XNAPanel
     /// <param name="header">The header panel.</param>
     public void AddColumn(XNAPanel header)
     {
-        var listBox = new XNAListBox(WindowManager);
-        listBox.FontIndex = FontIndex;
-        listBox.TextBorderDistance = 5;
+        var listBox = new XNAListBox(WindowManager)
+        {
+            FontIndex = FontIndex,
+            TextBorderDistance = 5
+        };
 
         AddColumn(header, listBox);
     }
@@ -312,13 +296,13 @@ public class XNAMultiColumnListBox : XNAPanel
 
         int width = GetExistingWidth();
 
-        header.ClientRectangle = new Rectangle(width, 0, header.Width, header.Height);
+        header.ClientRectangle = new(width, 0, header.Width, header.Height);
 
         headers.Add(header);
 
         listBox.Name = Name + "_lb" + listBoxes.Count;
-        listBox.ClientRectangle = new Rectangle(width, header.Bottom - 1,
-            header.Width, Height - header.Bottom + 1);
+        listBox.ClientRectangle = new(
+            width, header.Bottom - 1, header.Width, Height - header.Bottom + 1);
         listBox.DrawBorders = DrawListBoxBorders;
         listBox.LineHeight = LineHeight;
         listBox.TopIndexChanged += ListBox_TopIndexChanged;
@@ -334,10 +318,7 @@ public class XNAMultiColumnListBox : XNAPanel
         AddChild(header);
     }
 
-    private void ListBox_RightClick(object sender, EventArgs e)
-    {
-        OnRightClick();
-    }
+    private void ListBox_RightClick(object sender, EventArgs e) => OnRightClick();
 
     private void AdjustExistingListBoxes()
     {
@@ -392,14 +373,14 @@ public class XNAMultiColumnListBox : XNAPanel
 
         handleSelectedIndexChanged = false;
 
-        var lbSender = (XNAListBox)sender;
+        var xnaListBox = (XNAListBox)sender;
 
         foreach (XNAListBox lb in listBoxes)
         {
-            lb.SelectedIndex = lbSender.SelectedIndex;
+            lb.SelectedIndex = xnaListBox.SelectedIndex;
         }
 
-        SelectedIndex = lbSender.SelectedIndex;
+        SelectedIndex = xnaListBox.SelectedIndex;
 
         SelectedIndexChanged?.Invoke(this, EventArgs.Empty);
 
@@ -443,10 +424,7 @@ public class XNAMultiColumnListBox : XNAPanel
         listBoxes[0].ScrollToBottom();
     }
 
-    public void AddItem(List<string> info, bool selectable)
-    {
-        AddItem(info.ToArray(), selectable);
-    }
+    public void AddItem(List<string> info, bool selectable) => AddItem(info.ToArray(), selectable);
 
     public void AddItem(string[] info, bool selectable)
     {
@@ -459,10 +437,7 @@ public class XNAMultiColumnListBox : XNAPanel
         }
     }
 
-    public void AddItem(List<XNAListBoxItem> items)
-    {
-        AddItem(items.ToArray());
-    }
+    public void AddItem(List<XNAListBoxItem> items) => AddItem(items.ToArray());
 
     public void AddItem(XNAListBoxItem[] items)
     {
@@ -473,8 +448,5 @@ public class XNAMultiColumnListBox : XNAPanel
             listBoxes[i].AddItem(items[i]);
     }
 
-    public XNAListBoxItem GetItem(int columnIndex, int itemIndex)
-    {
-        return listBoxes[columnIndex].Items[itemIndex];
-    }
+    public XNAListBoxItem GetItem(int columnIndex, int itemIndex) => listBoxes[columnIndex].Items[itemIndex];
 }

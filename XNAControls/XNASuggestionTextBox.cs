@@ -1,25 +1,25 @@
-﻿using Microsoft.Xna.Framework;
+﻿namespace Rampastring.XNAUI.XNAControls;
+using Microsoft.Xna.Framework;
 using Rampastring.Tools;
-
-namespace Rampastring.XNAUI.XNAControls;
 
 /// <summary>
 /// A text box that displays a "suggestion" text when it's not active.
 /// </summary>
 public class XNASuggestionTextBox : XNATextBox
 {
-    public XNASuggestionTextBox(WindowManager windowManager) : base(windowManager)
+    public XNASuggestionTextBox(WindowManager windowManager)
+        : base(windowManager)
     {
     }
 
     public string Suggestion { get; set; }
 
-    private Color? _suggestedTextColor;
+    private Color? suggestedTextColor;
 
     public Color SuggestedTextColor
     {
-        get => _suggestedTextColor ?? UISettings.ActiveSettings.SubtleTextColor;
-        set => _suggestedTextColor = value;
+        get => suggestedTextColor ?? UISettings.ActiveSettings.SubtleTextColor;
+        set => suggestedTextColor = value;
     }
 
     public override void Initialize()

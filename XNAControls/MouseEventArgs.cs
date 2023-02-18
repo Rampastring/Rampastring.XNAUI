@@ -1,7 +1,7 @@
-﻿using Microsoft.Xna.Framework;
-using System;
+﻿namespace Rampastring.XNAUI.XNAControls;
 
-namespace Rampastring.XNAUI.XNAControls;
+using System;
+using Microsoft.Xna.Framework;
 
 public class MouseEventArgs : EventArgs
 {

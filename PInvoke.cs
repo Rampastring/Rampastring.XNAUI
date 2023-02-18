@@ -20,6 +20,7 @@ namespace Windows.Win32
     using global::System.Runtime.CompilerServices;
     using global::System.Runtime.InteropServices;
     using global::System.Runtime.Versioning;
+    using Rampastring.XNAUI;
     using winmdroot = global::Windows.Win32;
 
 
@@ -106,14 +107,13 @@ namespace Windows.Win32
 #if !NETFRAMEWORK
         [SupportedOSPlatform("windows5.0")]
 #endif
-        internal static extern IntPtr CallWindowProc(UI.WindowsAndMessaging.WndProcDelegate lpPrevWndFunc, IntPtr hWnd, uint Msg, IntPtr wParam, IntPtr lParam);
-    }
 
-    namespace UI.WindowsAndMessaging
-    {
-        // Microsoft.Xna.Framework.Input.WindowMessageHooker.Hook.WndProcDelegate:
-        // private delegate IntPtr WndProcDelegate(IntPtr hWnd, uint msg, IntPtr wParam, IntPtr lParam);
-        [UnmanagedFunctionPointerAttribute(CallingConvention.Winapi)]
-        internal unsafe delegate IntPtr WndProcDelegate(IntPtr hWnd, uint msg, IntPtr wParam, IntPtr lParam);
+/* Unmerged change from project 'Rampastring.XNAUI (net48)'
+Before:
+        internal static extern IntPtr CallWindowProc(UI.WindowsAndMessaging.WndProcDelegate lpPrevWndFunc, IntPtr hWnd, uint Msg, IntPtr wParam, IntPtr lParam);
+After:
+        internal static extern IntPtr CallWindowProc(WndProcDelegate lpPrevWndFunc, IntPtr hWnd, uint Msg, IntPtr wParam, IntPtr lParam);
+*/
+        internal static extern IntPtr CallWindowProc(Rampastring.XNAUI.WndProcDelegate lpPrevWndFunc, IntPtr hWnd, uint Msg, IntPtr wParam, IntPtr lParam);
     }
 }

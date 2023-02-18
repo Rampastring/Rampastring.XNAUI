@@ -1,13 +1,14 @@
-﻿using Microsoft.Xna.Framework;
+﻿namespace Rampastring.XNAUI.XNAControls;
+
+using System;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Rampastring.Tools;
-using System;
-
-namespace Rampastring.XNAUI.XNAControls;
 
 public class XNATrackbar : XNAPanel
 {
-    public XNATrackbar(WindowManager windowManager) : base(windowManager)
+    public XNATrackbar(WindowManager windowManager)
+        : base(windowManager)
     {
     }
 
@@ -17,21 +18,16 @@ public class XNATrackbar : XNAPanel
 
     public int MaxValue { get; set; }
 
-    private int value = 0;
+    private int value;
+
     public int Value
     {
-        get { return value; }
+        get => value;
+
         set
         {
             int oldValue = this.value;
-
-            if (value > MaxValue)
-                this.value = MaxValue;
-            else if (value < MinValue)
-                this.value = MinValue;
-            else
-                this.value = value;
-
+            this.value = value > MaxValue ? MaxValue : value < MinValue ? MinValue : value;
             if (oldValue != this.value)
                 ValueChanged?.Invoke(this, EventArgs.Empty);
         }
@@ -41,14 +37,13 @@ public class XNATrackbar : XNAPanel
 
     public Texture2D ButtonTexture { get; set; }
 
-    private bool isHeldDown = false;
+    private bool isHeldDown;
 
     public override void Initialize()
     {
         base.Initialize();
 
-        if (ButtonTexture == null)
-            ButtonTexture = AssetLoader.LoadTexture("trackbarButton.png");
+        ButtonTexture ??= AssetLoader.LoadTexture("trackbarButton.png");
 
         if (Height == 0)
             Height = ButtonTexture.Height;
@@ -68,7 +63,7 @@ public class XNATrackbar : XNAPanel
                 Value = iniFile.GetIntValue(Name, "Value", 0);
                 return;
             case "ClickSound":
-                ClickSound = new EnhancedSoundEffect(value);
+                ClickSound = new(value);
                 return;
         }
 
@@ -86,6 +81,7 @@ public class XNATrackbar : XNAPanel
         if (Cursor.LeftPressedDown)
         {
             isHeldDown = true;
+
             // It's fair to assume that dragged trackbars are selected
             WindowManager.SelectedControl = this;
         }
@@ -162,13 +158,9 @@ public class XNATrackbar : XNAPanel
 
         double tabLocationX = tabIndex * pixelsPerTab;
 
-        //if (tabIndex == 0)
-        //    tabLocationX += ButtonTexture.Width / 2;
-        //else if (tabIndex == tabCount)
-        //    tabLocationX -= ButtonTexture.Width / 2;
-
-        DrawTexture(ButtonTexture,
-            new Rectangle((int)(tabLocationX), 0, ButtonTexture.Width, Height),
+        DrawTexture(
+            ButtonTexture,
+            new Rectangle((int)tabLocationX, 0, ButtonTexture.Width, Height),
             Color.White);
     }
 }

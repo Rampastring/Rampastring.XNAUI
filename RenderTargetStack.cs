@@ -1,32 +1,33 @@
-﻿using Microsoft.Xna.Framework.Graphics;
-using System;
+﻿namespace Rampastring.XNAUI;
 
-namespace Rampastring.XNAUI;
+using System;
+using Microsoft.Xna.Framework.Graphics;
 
 /// <summary>
 /// Handles render targets.
 /// </summary>
 internal static class RenderTargetStack
 {
-    public static void Initialize(RenderTarget2D finalRenderTarget, GraphicsDevice _graphicsDevice)
+    public static void Initialize(RenderTarget2D finalRenderTarget, GraphicsDevice graphicsDevice)
     {
         FinalRenderTarget = finalRenderTarget;
-        graphicsDevice = _graphicsDevice;
+        RenderTargetStack.graphicsDevice = graphicsDevice;
 
-        currentContext = new RenderContext(finalRenderTarget, null);
+        currentContext = new(finalRenderTarget, null);
     }
 
     internal static void InitDetachedScaledControlRenderTarget(int renderWidth, int renderHeight)
     {
-        if (DetachedScaledControlRenderTarget != null)
-        {
-            DetachedScaledControlRenderTarget.Dispose();
-        }
+        DetachedScaledControlRenderTarget?.Dispose();
 
-        DetachedScaledControlRenderTarget = new RenderTarget2D(graphicsDevice,
-            renderWidth, renderHeight,
-            false, SurfaceFormat.Color,
-            DepthFormat.None, 0,
+        DetachedScaledControlRenderTarget = new(
+            graphicsDevice,
+            renderWidth,
+            renderHeight,
+            false,
+            SurfaceFormat.Color,
+            DepthFormat.None,
+            0,
             RenderTargetUsage.DiscardContents);
     }
 
@@ -36,7 +37,7 @@ internal static class RenderTargetStack
     /// A render target for controls that
     /// are detached and have scaling applied to them.
     /// </summary>
-    public static RenderTarget2D DetachedScaledControlRenderTarget { get; internal set; }
+    public static RenderTarget2D DetachedScaledControlRenderTarget { get; private set; }
 
     private static RenderContext currentContext;
 
@@ -69,16 +70,4 @@ internal static class RenderTargetStack
         graphicsDevice.SetRenderTarget(currentContext.RenderTarget);
         Renderer.BeginDraw();
     }
-}
-
-internal class RenderContext
-{
-    public RenderContext(RenderTarget2D renderTarget, RenderContext previousContext)
-    {
-        RenderTarget = renderTarget;
-        PreviousContext = previousContext;
-    }
-
-    public RenderTarget2D RenderTarget { get; }
-    public RenderContext PreviousContext { get; }
 }

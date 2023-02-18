@@ -1,9 +1,9 @@
-﻿using Microsoft.Xna.Framework;
+﻿namespace Rampastring.XNAUI.XNAControls;
+
+using System;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Rampastring.Tools;
-using System;
-
-namespace Rampastring.XNAUI.XNAControls;
 
 /// <summary>
 /// A check-box.
@@ -16,7 +16,8 @@ public class XNACheckBox : XNAControl
     /// Creates a new check box.
     /// </summary>
     /// <param name="windowManager">The window manager.</param>
-    public XNACheckBox(WindowManager windowManager) : base(windowManager)
+    public XNACheckBox(WindowManager windowManager)
+        : base(windowManager)
     {
         AlphaRate = UISettings.ActiveSettings.CheckBoxAlphaRate * 2.0;
     }
@@ -24,9 +25,11 @@ public class XNACheckBox : XNAControl
     public event EventHandler CheckedChanged;
 
     public Texture2D CheckedTexture { get; set; }
+
     public Texture2D ClearTexture { get; set; }
 
     public Texture2D DisabledCheckedTexture { get; set; }
+
     public Texture2D DisabledClearTexture { get; set; }
 
     /// <summary>
@@ -39,20 +42,20 @@ public class XNACheckBox : XNAControl
     /// </summary>
     public EnhancedSoundEffect HoverSoundEffect { get; set; }
 
-    private bool _checked = false;
+    private bool @checked;
 
     /// <summary>
     /// Determines whether the check box is currently checked.
     /// </summary>
     public bool Checked
     {
-        get { return _checked; }
+        get => @checked;
+
         set
         {
-            bool originalValue = _checked;
-            _checked = value;
-
-            if (_checked != originalValue)
+            bool originalValue = @checked;
+            @checked = value;
+            if (@checked != originalValue)
                 CheckedChanged?.Invoke(this, EventArgs.Empty);
         }
     }
@@ -72,27 +75,26 @@ public class XNACheckBox : XNAControl
     /// </summary>
     public int TextPadding { get; set; } = TEXT_PADDING_DEFAULT;
 
-    private Color? _idleColor;
+    private Color? idleColor;
 
     /// <summary>
     /// The color of the check box's text when it's not hovered on.
     /// </summary>
     public Color IdleColor
     {
-        get => _idleColor ?? UISettings.ActiveSettings.TextColor;
-        set { _idleColor = value; }
+        get => idleColor ?? UISettings.ActiveSettings.TextColor;
+        set => idleColor = value;
     }
 
-    private Color? _highlightColor;
+    private Color? highlightColor;
 
     /// <summary>
     /// The color of the check box's text when it's hovered on.
     /// </summary>
     public Color HighlightColor
     {
-        get => _highlightColor ?? UISettings.ActiveSettings.AltColor;
-        set
-        { _highlightColor = value; }
+        get => highlightColor ?? UISettings.ActiveSettings.AltColor;
+        set => highlightColor = value;
     }
 
     public double AlphaRate { get; set; }
@@ -102,10 +104,7 @@ public class XNACheckBox : XNAControl
     /// </summary>
     public override string Text
     {
-        get
-        {
-            return base.Text;
-        }
+        get => base.Text;
 
         set
         {
@@ -120,23 +119,17 @@ public class XNACheckBox : XNAControl
     /// </summary>
     protected int TextLocationY { get; set; }
 
-
-    private double checkedAlpha = 0.0;
-
+    private double checkedAlpha;
 
     public override void Initialize()
     {
-        if (CheckedTexture == null)
-            CheckedTexture = UISettings.ActiveSettings.CheckBoxCheckedTexture;
+        CheckedTexture ??= UISettings.ActiveSettings.CheckBoxCheckedTexture;
 
-        if (ClearTexture == null)
-            ClearTexture = UISettings.ActiveSettings.CheckBoxClearTexture;
+        ClearTexture ??= UISettings.ActiveSettings.CheckBoxClearTexture;
 
-        if (DisabledCheckedTexture == null)
-            DisabledCheckedTexture = UISettings.ActiveSettings.CheckBoxDisabledCheckedTexture;
+        DisabledCheckedTexture ??= UISettings.ActiveSettings.CheckBoxDisabledCheckedTexture;
 
-        if (DisabledClearTexture == null)
-            DisabledClearTexture = UISettings.ActiveSettings.CheckBoxDisabledClearTexture;
+        DisabledClearTexture ??= UISettings.ActiveSettings.CheckBoxDisabledClearTexture;
 
         SetTextPositionAndSize();
 
@@ -187,7 +180,7 @@ public class XNACheckBox : XNAControl
         {
             Vector2 textDimensions = Renderer.GetTextDimensions(Text, FontIndex);
 
-            TextLocationY = (CheckedTexture.Height - (int)textDimensions.Y) / 2 - 1;
+            TextLocationY = ((CheckedTexture.Height - (int)textDimensions.Y) / 2) - 1;
 
             Width = (int)textDimensions.X + TEXT_PADDING_DEFAULT + CheckedTexture.Width;
             Height = Math.Max((int)textDimensions.Y, CheckedTexture.Height);
@@ -230,14 +223,7 @@ public class XNACheckBox : XNAControl
     {
         double alphaRate = AlphaRate * (gameTime.ElapsedGameTime.TotalMilliseconds / 10.0);
 
-        if (Checked)
-        {
-            checkedAlpha = Math.Min(checkedAlpha + alphaRate, 1.0);
-        }
-        else
-        {
-            checkedAlpha = Math.Max(0.0, checkedAlpha - alphaRate);
-        }
+        checkedAlpha = Checked ? Math.Min(checkedAlpha + alphaRate, 1.0) : Math.Max(0.0, checkedAlpha - alphaRate);
 
         base.Update(gameTime);
     }
@@ -266,7 +252,7 @@ public class XNACheckBox : XNAControl
 
         if (TextLocationY < 0)
         {
-            // If the text is higher than the checkbox texture (textLocationY < 0), 
+            // If the text is higher than the checkbox texture (textLocationY < 0),
             // let's draw the text at the top of the client
             // rectangle and the check-box in the middle of the text.
             // This is necessary for input to work properly.
@@ -276,41 +262,42 @@ public class XNACheckBox : XNAControl
 
         if (!string.IsNullOrEmpty(Text))
         {
-            Color textColor;
-            if (!AllowChecking)
-                textColor = Color.Gray;
-            else
-                textColor = IsActive ? HighlightColor : IdleColor;
-
-            DrawStringWithShadow(Text, FontIndex,
-                new Vector2(checkedTexture.Width + TextPadding, textYPosition),
-                textColor, 1.0f, UISettings.ActiveSettings.TextShadowDistance);
+            Color textColor = !AllowChecking ? Color.Gray : IsActive ? HighlightColor : IdleColor;
+            DrawStringWithShadow(
+                Text,
+                FontIndex,
+                new(checkedTexture.Width + TextPadding, textYPosition),
+                textColor,
+                1.0f,
+                UISettings.ActiveSettings.TextShadowDistance);
         }
 
         // Might not be worth it to save one draw-call per frame with a confusing
         // if-else routine, but oh well
         if (checkedAlpha == 0.0)
         {
-            DrawTexture(clearTexture,
-                new Rectangle(0, checkBoxYPosition,
-                clearTexture.Width, clearTexture.Height), Color.White);
+            DrawTexture(
+                clearTexture,
+                new Rectangle(0, checkBoxYPosition, clearTexture.Width, clearTexture.Height),
+                Color.White);
         }
         else if (checkedAlpha == 1.0)
         {
-            DrawTexture(checkedTexture,
-                new Rectangle(0, checkBoxYPosition,
-                clearTexture.Width, clearTexture.Height),
+            DrawTexture(
+                checkedTexture,
+                new Rectangle(0, checkBoxYPosition, clearTexture.Width, clearTexture.Height),
                 Color.White);
         }
         else
         {
-            DrawTexture(clearTexture,
-                new Rectangle(0, checkBoxYPosition,
-                clearTexture.Width, clearTexture.Height), Color.White);
+            DrawTexture(
+                clearTexture,
+                new Rectangle(0, checkBoxYPosition, clearTexture.Width, clearTexture.Height),
+                Color.White);
 
-            DrawTexture(checkedTexture,
-                new Rectangle(0, checkBoxYPosition,
-                clearTexture.Width, clearTexture.Height),
+            DrawTexture(
+                checkedTexture,
+                new Rectangle(0, checkBoxYPosition, clearTexture.Width, clearTexture.Height),
                 Color.White * (float)checkedAlpha);
         }
 

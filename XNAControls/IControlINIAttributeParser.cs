@@ -1,6 +1,6 @@
-using Rampastring.Tools;
+﻿namespace Rampastring.XNAUI.XNAControls;
 
-namespace Rampastring.XNAUI.XNAControls;
+using Rampastring.Tools;
 
 /// <summary>
 /// Provides an interface for an object that can parse

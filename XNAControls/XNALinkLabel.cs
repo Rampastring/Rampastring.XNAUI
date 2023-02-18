@@ -1,7 +1,6 @@
-﻿using Microsoft.Xna.Framework;
+﻿namespace Rampastring.XNAUI.XNAControls;
+using Microsoft.Xna.Framework;
 using Rampastring.Tools;
-
-namespace Rampastring.XNAUI.XNAControls;
 
 /// <summary>
 /// A label that is underlined and changes its color when hovered on.
@@ -12,36 +11,41 @@ public class XNALinkLabel : XNALabel
     /// Creates a new link label.
     /// </summary>
     /// <param name="windowManager">The window manager.</param>
-    public XNALinkLabel(WindowManager windowManager) : base(windowManager)
+    public XNALinkLabel(WindowManager windowManager)
+        : base(windowManager)
     {
     }
 
-    private Color? _idleColor;
+    private Color? idleColor;
 
     /// <summary>
     /// The color of the label when it's not hovered on.
     /// </summary>
     public Color IdleColor
     {
-        get
+        get => idleColor ?? UISettings.ActiveSettings.TextColor;
+
+        set
         {
-            return _idleColor ?? UISettings.ActiveSettings.TextColor;
+            idleColor = value;
+            if (!IsActive) RemapColor = value;
         }
-        set { _idleColor = value; if (!IsActive) RemapColor = value; }
     }
 
-    private Color? _hoverColor;
+    private Color? hoverColor;
 
     /// <summary>
     /// The color of the label when it's hovered on.
     /// </summary>
     public Color HoverColor
     {
-        get
+        get => hoverColor ?? UISettings.ActiveSettings.AltColor;
+
+        set
         {
-            return _hoverColor ?? UISettings.ActiveSettings.AltColor;
+            hoverColor = value;
+            if (IsActive) RemapColor = value;
         }
-        set { _hoverColor = value; if (IsActive) RemapColor = value; }
     }
 
     /// <summary>
@@ -92,11 +96,12 @@ public class XNALinkLabel : XNALabel
     {
         DrawLabel();
 
-        var displayRectangle = RenderRectangle();
+        Rectangle displayRectangle = RenderRectangle();
 
         if (Enabled && DrawUnderline)
         {
-            Renderer.FillRectangle(new Rectangle(
+            Renderer.FillRectangle(
+                new(
                 displayRectangle.X, displayRectangle.Bottom, displayRectangle.Width, 1),
                 RemapColor);
         }

@@ -1,10 +1,10 @@
-﻿using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Media;
-using Rampastring.Tools;
+﻿namespace Rampastring.XNAUI;
+
 using System;
 using System.Collections.Generic;
-
-namespace Rampastring.XNAUI;
+using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Media;
+using Rampastring.Tools;
 
 /// <summary>
 /// A sound player that manages prioritized sounds, with the aim of preventing
@@ -14,16 +14,17 @@ namespace Rampastring.XNAUI;
 /// </summary>
 public class SoundPlayer : GameComponent
 {
-    public SoundPlayer(Game game) : base(game)
+    public SoundPlayer(Game game)
+        : base(game)
     {
-        soundList = new List<PrioritizedSoundInstance>();
+        soundList = new();
     }
 
     private static List<PrioritizedSoundInstance> soundList;
 
     public static float Volume { get; private set; } = 1.0f;
 
-    public void SetVolume(float volume)
+    public static void SetVolume(float volume)
     {
         Volume = volume;
 
@@ -41,10 +42,7 @@ public class SoundPlayer : GameComponent
     /// Plays a sound.
     /// </summary>
     /// <param name="sound">The sound to play.</param>
-    public static void Play(EnhancedSoundEffect sound)
-    {
-        Play(sound.Volume * Volume, sound);
-    }
+    public static void Play(EnhancedSoundEffect sound) => Play(sound.Volume * Volume, sound);
 
     /// <summary>
     /// Plays a sound with the specified volume.
@@ -52,20 +50,17 @@ public class SoundPlayer : GameComponent
     /// </summary>
     /// <param name="volume">The volume that the sound will be played at.</param>
     /// <param name="sound">The sound to play.</param>
-    public static void PlayWithVolume(float volume, EnhancedSoundEffect sound)
-    {
-        Play(volume * Volume, sound);
-    }
+    public static void PlayWithVolume(float volume, EnhancedSoundEffect sound) => Play(volume * Volume, sound);
 
     private static void Play(float volume, EnhancedSoundEffect sound)
     {
-        foreach (var psi in soundList)
+        foreach (PrioritizedSoundInstance psi in soundList)
         {
             if (psi.Priority > sound.Priority)
                 return;
         }
 
-        var soundInstance = sound.CreateSoundInstance();
+        Microsoft.Xna.Framework.Audio.SoundEffectInstance soundInstance = sound.CreateSoundInstance();
 
         if (soundInstance == null)
             return;
@@ -84,7 +79,7 @@ public class SoundPlayer : GameComponent
     {
         for (int i = 0; i < soundList.Count; i++)
         {
-            var sound = soundList[i];
+            PrioritizedSoundInstance sound = soundList[i];
             if (!sound.Update(gameTime))
             {
                 sound.Dispose();
