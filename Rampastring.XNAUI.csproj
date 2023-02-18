@@ -30,7 +30,7 @@
     <AnalysisLevel>preview-all</AnalysisLevel>
     <LangVersion>preview</LangVersion>
     <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
-    <Platforms>AnyCPU</Platforms>
+    <Platforms>AnyCPU;x86</Platforms>
     <GenerateDocumentationFile>True</GenerateDocumentationFile>
     <Configurations>WindowsDXDebug;WindowsDXRelease;WindowsGLDebug;WindowsGLRelease;WindowsXNADebug;WindowsXNARelease;UniversalGLDebug;UniversalGLRelease</Configurations>
     <ComVisible>false</ComVisible>
@@ -39,6 +39,7 @@
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
     <EmbedUntrackedSources>true</EmbedUntrackedSources>
     <PackageReadmeFile>README.md</PackageReadmeFile>
+    <PackageLicenseFile>LICENSE.md</PackageLicenseFile>
     <TargetsForTfmSpecificBuildOutput>$(TargetsForTfmSpecificBuildOutput);IncludeXNAAssemblies</TargetsForTfmSpecificBuildOutput>
     <TargetsForTfmSpecificContentInPackage>$(TargetsForTfmSpecificContentInPackage);IncludeDesktopGLAssemblies</TargetsForTfmSpecificContentInPackage>
     <PackageId Condition="'$(Configuration)' == 'WindowsDXRelease'">Rampastring.XNAUI.WindowsDX</PackageId>
@@ -123,6 +124,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="README.md" Pack="true" PackagePath="\" />
+    <None Include="LICENSE.md" Pack="true" PackagePath="\" />
   </ItemGroup>
   <!--Switching between Configurations within VS IDE requires reloading the project file-->
   <ItemGroup Condition="$(DefineConstants.Contains('DX'))">
