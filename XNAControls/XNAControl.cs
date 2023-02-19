@@ -369,7 +369,7 @@ public class XNAControl : DrawableGameComponent
     public bool IgnoreInputOnFrame
     {
         get => Parent == null ? ignoreInputOnFrame : ignoreInputOnFrame || Parent.IgnoreInputOnFrame;
-        set => ignoreInputOnFrame = true;
+        set => ignoreInputOnFrame = value;
     }
 
     private ControlDrawMode drawMode = ControlDrawMode.NORMAL;
