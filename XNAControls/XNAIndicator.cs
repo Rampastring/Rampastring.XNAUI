@@ -132,8 +132,8 @@ public class XNAIndicator<T> : XNAControl
     /// <param name="key">The enum texture key.</param>
     public virtual void SwitchTexture(T key)
     {
-        if (Textures.ContainsKey(key))
-            CurrentTexture = Textures[key];
+        if (Textures.TryGetValue(key, out Texture2D texture))
+            CurrentTexture = texture;
         else
             Logger.Log($"{nameof(XNAIndicator<T>)}: Tried to switch to non-existing texture {key} at indicator {Name}!");
     }
@@ -164,7 +164,7 @@ public class XNAIndicator<T> : XNAControl
         if (Textures == null || Textures.Count == 0)
             return;
 
-        Dictionary<T, Texture2D>.ValueCollection.Enumerator enumerator = Textures.Values.GetEnumerator();
+        using Dictionary<T, Texture2D>.ValueCollection.Enumerator enumerator = Textures.Values.GetEnumerator();
         enumerator.MoveNext();
         Texture2D texture2D = enumerator.Current;
 

@@ -35,7 +35,7 @@ public class XNADropDown : XNAControl
     /// </summary>
     public int ItemHeight { get; set; } = 17;
 
-    public List<XNADropDownItem> Items = new();
+    public readonly List<XNADropDownItem> Items = new();
 
     /// <summary>
     /// Gets the dropped-down status of the drop-down control.
@@ -523,8 +523,8 @@ public class XNADropDown : XNAControl
             textX += item.Texture.Width + 1;
         }
 
-        Color textColor = item.Selectable ? GetItemTextColor(item) : DisabledItemColor;
+        Color color = item.Selectable ? GetItemTextColor(item) : DisabledItemColor;
         if (item.Text != null)
-            DrawStringWithShadow(item.Text, FontIndex, new(textX, y + 1), textColor);
+            DrawStringWithShadow(item.Text, FontIndex, new(textX, y + 1), color);
     }
 }

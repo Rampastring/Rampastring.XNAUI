@@ -24,7 +24,7 @@ public class XNAControl : DrawableGameComponent
     public XNAControl(WindowManager windowManager)
         : base(windowManager.Game)
     {
-        WindowManager = windowManager ?? throw new ArgumentNullException(nameof(windowManager));
+        WindowManager = windowManager;
     }
 
     /// <summary>
@@ -1110,7 +1110,7 @@ public class XNAControl : DrawableGameComponent
 
             isIteratingChildren = true;
 
-            List<XNAControl>.Enumerator activeChildEnumerator = updateList.GetEnumerator();
+            using List<XNAControl>.Enumerator activeChildEnumerator = updateList.GetEnumerator();
 
             while (activeChildEnumerator.MoveNext())
             {
@@ -1197,7 +1197,7 @@ public class XNAControl : DrawableGameComponent
 
         isIteratingChildren = true;
 
-        List<XNAControl>.Enumerator enumerator = updateList.GetEnumerator();
+        using List<XNAControl>.Enumerator enumerator = updateList.GetEnumerator();
 
         while (enumerator.MoveNext())
         {
@@ -1338,7 +1338,7 @@ public class XNAControl : DrawableGameComponent
     /// </summary>
     protected void DrawChildren(GameTime gameTime)
     {
-        List<XNAControl>.Enumerator enumerator = drawList.GetEnumerator();
+        using List<XNAControl>.Enumerator enumerator = drawList.GetEnumerator();
 
         while (enumerator.MoveNext())
         {

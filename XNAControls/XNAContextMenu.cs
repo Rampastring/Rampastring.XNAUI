@@ -29,7 +29,7 @@ public class XNAContextMenu : XNAControl
 
     public int ItemHeight { get; set; } = 17;
 
-    public List<XNAContextMenuItem> Items = new();
+    public readonly List<XNAContextMenuItem> Items = new();
 
     private Color? borderColor;
 

@@ -29,7 +29,7 @@ public class XNAListBox : XNAPanel
         : base(windowManager)
     {
         DrawMode = ControlDrawMode.UNIQUE_RENDER_TARGET;
-        scrollBar = new(WindowManager)
+        ScrollBar = new(WindowManager)
         {
             Name = "XNAListBoxScrollBar",
             ScrollStep = LineHeight
@@ -39,15 +39,15 @@ public class XNAListBox : XNAPanel
 
     private void XNAListBox_ClientRectangleUpdated(object sender, EventArgs e)
     {
-        if (scrollBar != null)
+        if (ScrollBar != null)
         {
-            scrollBar.ClientRectangle = new(
-                Width - scrollBar.ScrollWidth - 1,
+            ScrollBar.ClientRectangle = new(
+                Width - ScrollBar.ScrollWidth - 1,
                 1,
-                scrollBar.ScrollWidth,
+                ScrollBar.ScrollWidth,
                 Height - 2);
-            scrollBar.DisplayedPixelCount = Height - (MARGIN * 2);
-            scrollBar.Refresh();
+            ScrollBar.DisplayedPixelCount = Height - (MARGIN * 2);
+            ScrollBar.Refresh();
         }
     }
 
@@ -68,7 +68,7 @@ public class XNAListBox : XNAPanel
     /// or you risk leaking memory.
     /// TODO change to ObservableCollection?.
     /// </summary>
-    public List<XNAListBoxItem> Items = new();
+    public readonly List<XNAListBoxItem> Items = new();
 
     private Color? focusColor;
 
@@ -97,7 +97,7 @@ public class XNAListBox : XNAPanel
         set
         {
             lineHeight = value;
-            scrollBar.ScrollStep = value;
+            ScrollBar.ScrollStep = value;
         }
     }
 
@@ -134,7 +134,7 @@ public class XNAListBox : XNAPanel
             {
                 viewTop = viewTop < 0 ? 0 : value;
                 TopIndexChanged?.Invoke(this, EventArgs.Empty);
-                scrollBar.RefreshButtonY(viewTop);
+                ScrollBar.RefreshButtonY(viewTop);
             }
         }
     }
@@ -265,8 +265,8 @@ public class XNAListBox : XNAPanel
         set
         {
             enableScrollbar = value;
-            scrollBar.Visible = enableScrollbar;
-            scrollBar.Enabled = enableScrollbar;
+            ScrollBar.Visible = enableScrollbar;
+            ScrollBar.Enabled = enableScrollbar;
         }
     }
 
@@ -284,7 +284,7 @@ public class XNAListBox : XNAPanel
 
     #endregion
 
-    protected XNAScrollBar scrollBar;
+    protected readonly XNAScrollBar ScrollBar;
 
     private TimeSpan scrollKeyTime = TimeSpan.Zero;
     private TimeSpan timeSinceLastScroll = TimeSpan.Zero;
@@ -369,7 +369,7 @@ public class XNAListBox : XNAPanel
         int width = Width - (TextBorderDistance * 2);
         if (EnableScrollbar)
         {
-            width -= scrollBar.Width;
+            width -= ScrollBar.Width;
         }
 
         if (listBoxItem.Texture != null)
@@ -457,9 +457,9 @@ public class XNAListBox : XNAPanel
     /// </summary>
     public void RefreshScrollbar()
     {
-        scrollBar.Length = GetTotalLineCount() * LineHeight;
-        scrollBar.DisplayedPixelCount = Height - (MARGIN * 2);
-        scrollBar.Refresh();
+        ScrollBar.Length = GetTotalLineCount() * LineHeight;
+        ScrollBar.DisplayedPixelCount = Height - (MARGIN * 2);
+        ScrollBar.Refresh();
     }
 
     /// <summary>
@@ -511,14 +511,14 @@ public class XNAListBox : XNAPanel
 #else
         KeyboardEventInput.CharEntered += KeyboardEventInput_CharEntered;
 #endif
-        scrollBar.ClientRectangle = new(
-            Width - scrollBar.ScrollWidth - 1,
+        ScrollBar.ClientRectangle = new(
+            Width - ScrollBar.ScrollWidth - 1,
             1,
-            scrollBar.ScrollWidth,
+            ScrollBar.ScrollWidth,
             Height - 2);
-        scrollBar.Scrolled += ScrollBar_Scrolled;
-        AddChild(scrollBar);
-        scrollBar.Refresh();
+        ScrollBar.Scrolled += ScrollBar_Scrolled;
+        AddChild(ScrollBar);
+        ScrollBar.Refresh();
 
         ParentChanged += Parent_ClientRectangleUpdated;
 
@@ -546,12 +546,12 @@ public class XNAListBox : XNAPanel
         base.Kill();
     }
 
-    private void Parent_ClientRectangleUpdated(object sender, EventArgs e) => scrollBar.Refresh();
+    private void Parent_ClientRectangleUpdated(object sender, EventArgs e) => ScrollBar.Refresh();
 
     /// <summary>
     /// Returns the width of the list box's scroll bar.
     /// </summary>
-    public int GetScrollBarWidth() => scrollBar.Width;
+    public int GetScrollBarWidth() => ScrollBar.Width;
 
     private void ScrollBar_Scrolled(object sender, EventArgs e) => ViewTop = scrollBar.ViewTop;
 
@@ -691,12 +691,12 @@ public class XNAListBox : XNAPanel
                 if (TopIndex > i)
                     TopIndex = i;
 
-                scrollBar.RefreshButtonY(ViewTop);
+                ScrollBar.RefreshButtonY(ViewTop);
                 return;
             }
         }
 
-        scrollBar.RefreshButtonY(ViewTop);
+        ScrollBar.RefreshButtonY(ViewTop);
     }
 
     /// <summary>
@@ -704,7 +704,6 @@ public class XNAListBox : XNAPanel
     /// </summary>
     private void ScrollDown()
     {
-        int scrollLineCount = 1;
         for (int i = SelectedIndex + 1; i < Items.Count; i++)
         {
             if (Items[i].Selectable)
@@ -713,14 +712,12 @@ public class XNAListBox : XNAPanel
                 while (LastIndex < i)
                     TopIndex++;
 
-                scrollBar.RefreshButtonY(ViewTop);
+                ScrollBar.RefreshButtonY(ViewTop);
                 return;
             }
-
-            scrollLineCount++;
         }
 
-        scrollBar.RefreshButtonY(ViewTop);
+        ScrollBar.RefreshButtonY(ViewTop);
     }
 
     /// <summary>
@@ -734,7 +731,7 @@ public class XNAListBox : XNAPanel
             return;
         }
 
-        ViewTop -= Cursor.ScrollWheelValue * scrollBar.ScrollStep;
+        ViewTop -= Cursor.ScrollWheelValue * ScrollBar.ScrollStep;
 
         if (ViewTop < 0)
         {
@@ -826,7 +823,7 @@ public class XNAListBox : XNAPanel
 
         if (EnableScrollbar)
         {
-            if (mouseLocation.X > Width - scrollBar.ScrollWidth)
+            if (mouseLocation.X > Width - ScrollBar.ScrollWidth)
                 return -1;
         }
         else if (mouseLocation.X > Width)
@@ -892,8 +889,8 @@ public class XNAListBox : XNAPanel
         if (index == SelectedIndex)
         {
             int drawnWidth = DrawSelectionUnderScrollbar
-                || !scrollBar.IsDrawn()
-                || !EnableScrollbar ? Width - 2 : Width - 2 - scrollBar.Width;
+                || !ScrollBar.IsDrawn()
+                || !EnableScrollbar ? Width - 2 : Width - 2 - ScrollBar.Width;
             FillRectangle(
                 new(1, y, drawnWidth, lbItem.TextLines.Count * LineHeight),
                 FocusColor);

@@ -102,8 +102,6 @@ public class XNALabel : XNAControl
         }
     }
 
-    public override void Initialize() => base.Initialize();
-
     protected override void ParseControlINIAttribute(IniFile iniFile, string key, string value)
     {
         switch (key)

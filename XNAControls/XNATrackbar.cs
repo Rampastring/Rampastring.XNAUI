@@ -18,17 +18,17 @@ public class XNATrackbar : XNAPanel
 
     public int MaxValue { get; set; }
 
-    private int value;
+    private int currentValue;
 
     public int Value
     {
-        get => value;
+        get => currentValue;
 
         set
         {
-            int oldValue = this.value;
-            this.value = value > MaxValue ? MaxValue : value < MinValue ? MinValue : value;
-            if (oldValue != this.value)
+            int oldValue = currentValue;
+            currentValue = value > MaxValue ? MaxValue : value < MinValue ? MinValue : value;
+            if (oldValue != currentValue)
                 ValueChanged?.Invoke(this, EventArgs.Empty);
         }
     }

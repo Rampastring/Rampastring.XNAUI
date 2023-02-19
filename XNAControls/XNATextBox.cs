@@ -420,12 +420,12 @@ public class XNATextBox : XNAControl
         int x = GetCursorPoint().X;
         int inputPosition = TextEndPosition;
 
-        var text = new StringBuilder();
+        var stringBuilder = new StringBuilder();
 
         for (int i = TextStartPosition; i < TextEndPosition - TextStartPosition; i++)
         {
-            text.Append(Text[i]);
-            if (Renderer.GetTextDimensions(text.ToString(), FontIndex).X +
+            stringBuilder.Append(Text[i]);
+            if (Renderer.GetTextDimensions(stringBuilder.ToString(), FontIndex).X +
                 TEXT_HORIZONTAL_MARGIN > x)
             {
                 inputPosition = i;

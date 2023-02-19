@@ -490,14 +490,14 @@ public class WindowManager : DrawableGameComponent
 
         // If we aren't using a full screen mode, the height and width of the window can
         // be set to anything equal to or smaller than the actual screen size.
-        if (bFullScreen == false)
+        if (!bFullScreen)
         {
             if ((iWidth <= GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Width)
                 && (iHeight <= GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Height))
             {
                 graphics.PreferredBackBufferWidth = iWidth;
                 graphics.PreferredBackBufferHeight = iHeight;
-                graphics.IsFullScreen = bFullScreen;
+                graphics.IsFullScreen = false;
                 graphics.ApplyChanges();
                 RecalculateScaling();
                 return true;
@@ -517,7 +517,7 @@ public class WindowManager : DrawableGameComponent
                     // The mode is supported, so set the buffer formats, apply changes and return
                     graphics.PreferredBackBufferWidth = iWidth;
                     graphics.PreferredBackBufferHeight = iHeight;
-                    graphics.IsFullScreen = bFullScreen;
+                    graphics.IsFullScreen = true;
                     graphics.ApplyChanges();
                     RecalculateScaling();
                     return true;

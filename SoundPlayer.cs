@@ -24,7 +24,9 @@ public class SoundPlayer : GameComponent
 
     public static float Volume { get; private set; } = 1.0f;
 
-    public static void SetVolume(float volume)
+#pragma warning disable CA1822 // Mark members as static
+    public void SetVolume(float volume)
+#pragma warning restore CA1822 // Mark members as static
     {
         Volume = volume;
 

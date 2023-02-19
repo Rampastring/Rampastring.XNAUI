@@ -60,8 +60,6 @@ public class XNATabControl : XNAControl
 
     public EnhancedSoundEffect ClickSound { get; set; }
 
-    public override void Initialize() => base.Initialize();
-
     public void MakeSelectable(int index) => tabs[index].Selectable = true;
 
     public void MakeUnselectable(int index) => tabs[index].Selectable = false;

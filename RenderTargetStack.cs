@@ -11,7 +11,7 @@ internal static class RenderTargetStack
     public static void Initialize(RenderTarget2D finalRenderTarget, GraphicsDevice graphicsDevice)
     {
         FinalRenderTarget = finalRenderTarget;
-        RenderTargetStack.graphicsDevice = graphicsDevice;
+        currentGraphicsDevice = graphicsDevice;
 
         currentContext = new(finalRenderTarget, null);
     }
@@ -21,7 +21,7 @@ internal static class RenderTargetStack
         DetachedScaledControlRenderTarget?.Dispose();
 
         DetachedScaledControlRenderTarget = new(
-            graphicsDevice,
+            currentGraphicsDevice,
             renderWidth,
             renderHeight,
             false,
@@ -41,14 +41,14 @@ internal static class RenderTargetStack
 
     private static RenderContext currentContext;
 
-    private static GraphicsDevice graphicsDevice;
+    private static GraphicsDevice currentGraphicsDevice;
 
     public static void PushRenderTarget(RenderTarget2D renderTarget, SpriteBatchSettings newSettings)
     {
         Renderer.EndDraw();
         var context = new RenderContext(renderTarget, currentContext);
         currentContext = context;
-        graphicsDevice.SetRenderTarget(renderTarget);
+        currentGraphicsDevice.SetRenderTarget(renderTarget);
         Renderer.PushSettingsInternal();
         Renderer.CurrentSettings = newSettings;
         Renderer.BeginDraw();
@@ -67,7 +67,7 @@ internal static class RenderTargetStack
 
         Renderer.EndDraw();
         Renderer.PopSettingsInternal();
-        graphicsDevice.SetRenderTarget(currentContext.RenderTarget);
+        currentGraphicsDevice.SetRenderTarget(currentContext.RenderTarget);
         Renderer.BeginDraw();
     }
 }

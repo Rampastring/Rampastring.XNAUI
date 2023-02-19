@@ -8,7 +8,7 @@ using Microsoft.Xna.Framework.Graphics;
 public class TextParseReturnValue
 {
     public int LineCount;
-    public string Text;
+    public readonly string Text;
 
     public TextParseReturnValue(string text, int lineCount)
     {
@@ -45,13 +45,13 @@ public class TextParseReturnValue
             return new(0);
 
         var returnValue = new List<string>();
-        string[] lineArray = text.Split(new char[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries);
+        string[] lineArray = text.Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries);
 
         foreach (string originalTextLine in lineArray)
         {
             string line = string.Empty;
 
-            string[] wordArray = originalTextLine.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+            string[] wordArray = originalTextLine.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
 
             foreach (string word in wordArray)
             {
@@ -79,7 +79,7 @@ public class TextParseReturnValue
                         }
 
                         if (sb.Length > 0)
-                            line = sb.ToString() + " ";
+                            line = sb + " ";
 
                         continue;
                     }

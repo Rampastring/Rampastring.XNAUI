@@ -25,7 +25,7 @@ public class RKeyboard : GameComponent
     public KeyboardState KeyboardState;
     private Keys[] downKeys = Array.Empty<Keys>();
 
-    public List<Keys> PressedKeys;
+    public readonly List<Keys> PressedKeys;
 
     public override void Update(GameTime gameTime)
     {

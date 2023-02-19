@@ -61,7 +61,7 @@ public class GUICreator
             throw new ArgumentNullException(nameof(controlTypeName));
 
         Type type = controlTypes.Find(c => c.Name == controlTypeName) ?? throw new ArgumentException("GUICreator.CreateControl: Cannot find control type " + controlTypeName);
-        ConstructorInfo constructor = type.GetConstructor(new Type[] { typeof(WindowManager) });
+        ConstructorInfo constructor = type.GetConstructor(new[] { typeof(WindowManager) });
 
         return constructor == null
             ? throw new ConstructorNotFoundException("GUICreator.CreateControl: Cannot find constructor accepting only WindowManager for control type " + controlTypeName)
