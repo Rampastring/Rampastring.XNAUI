@@ -31,14 +31,14 @@ public class WindowManager : DrawableGameComponent
     private const int XNA_MAX_TEXTURE_SIZE = 2048;
 
 #endif
-#pragma warning disable SA1514 // Element documentation header should be preceded by blank line
+    private bool isDisposed;
+
     /// <summary>
     /// Creates a new WindowManager.
     /// </summary>
     /// <param name="game">The game.</param>
     /// <param name="graphics">The game's GraphicsDeviceManager.</param>
     public WindowManager(Game game, GraphicsDeviceManager graphics)
-#pragma warning restore SA1514 // Element documentation header should be preceded by blank line
         : base(game)
     {
         this.graphics = graphics;
@@ -167,23 +167,23 @@ public class WindowManager : DrawableGameComponent
     /// </summary>
     private void RecalculateScaling()
     {
-        double xRatio = WindowWidth / (double)RenderResolutionX;
-        double yRatio = WindowHeight / (double)RenderResolutionY;
+        double horizontalRatio = WindowWidth / (double)RenderResolutionX;
+        double verticalRatio = WindowHeight / (double)RenderResolutionY;
 
         double ratio;
 
         int texturePositionX = 0;
         int texturePositionY = 0;
 
-        if (xRatio > yRatio)
+        if (horizontalRatio > verticalRatio)
         {
-            ratio = yRatio;
+            ratio = verticalRatio;
             int textureWidth = (int)(RenderResolutionX * ratio);
             texturePositionX = (WindowWidth - textureWidth) / 2;
         }
         else
         {
-            ratio = xRatio;
+            ratio = horizontalRatio;
             int textureHeight = (int)(RenderResolutionY * ratio);
             texturePositionY = (WindowHeight - textureHeight) / 2;
         }
@@ -474,29 +474,29 @@ public class WindowManager : DrawableGameComponent
     public void ReorderControls() => controls = controls.OrderBy(control => control.Detached).ThenBy(control => control.UpdateOrder).ToList();
 
     /// <summary>
-    /// Attempt to set the display mode to the desired resolution.  Itterates through the display
+    /// Attempt to set the display mode to the desired resolution. Iterates through the display
     /// capabilities of the default graphics adapter to determine if the graphics adapter supports the
     /// requested resolution.  If so, the resolution is set and the function returns true.  If not,
     /// no change is made and the function returns false.
     /// </summary>
-    /// <param name="iWidth">Desired screen width.</param>
-    /// <param name="iHeight">Desired screen height.</param>
-    /// <param name="bFullScreen">True if you wish to go to Full Screen, false for Windowed Mode.</param>
-    public bool InitGraphicsMode(int iWidth, int iHeight, bool bFullScreen)
+    /// <param name="width">Desired screen width.</param>
+    /// <param name="height">Desired screen height.</param>
+    /// <param name="fullScreen">True if you wish to go to Full Screen, false for Windowed Mode.</param>
+    public bool InitGraphicsMode(int width, int height, bool fullScreen)
     {
-        Logger.Log("InitGraphicsMode: " + iWidth + "x" + iHeight);
-        WindowWidth = iWidth;
-        WindowHeight = iHeight;
+        Logger.Log("InitGraphicsMode: " + width + "x" + height);
+        WindowWidth = width;
+        WindowHeight = height;
 
         // If we aren't using a full screen mode, the height and width of the window can
         // be set to anything equal to or smaller than the actual screen size.
-        if (!bFullScreen)
+        if (!fullScreen)
         {
-            if ((iWidth <= GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Width)
-                && (iHeight <= GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Height))
+            if ((width <= GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Width)
+                && (height <= GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Height))
             {
-                graphics.PreferredBackBufferWidth = iWidth;
-                graphics.PreferredBackBufferHeight = iHeight;
+                graphics.PreferredBackBufferWidth = width;
+                graphics.PreferredBackBufferHeight = height;
                 graphics.IsFullScreen = false;
                 graphics.ApplyChanges();
                 RecalculateScaling();
@@ -512,11 +512,11 @@ public class WindowManager : DrawableGameComponent
             foreach (DisplayMode dm in GraphicsAdapter.DefaultAdapter.SupportedDisplayModes)
             {
                 // Check the width and height of each mode against the passed values
-                if ((dm.Width == iWidth) && (dm.Height == iHeight))
+                if ((dm.Width == width) && (dm.Height == height))
                 {
                     // The mode is supported, so set the buffer formats, apply changes and return
-                    graphics.PreferredBackBufferWidth = iWidth;
-                    graphics.PreferredBackBufferHeight = iHeight;
+                    graphics.PreferredBackBufferWidth = width;
+                    graphics.PreferredBackBufferHeight = height;
                     graphics.IsFullScreen = true;
                     graphics.ApplyChanges();
                     RecalculateScaling();
@@ -686,5 +686,21 @@ public class WindowManager : DrawableGameComponent
         Renderer.EndDraw();
 
         base.Draw(gameTime);
+    }
+
+    protected override void Dispose(bool disposing)
+    {
+        if (!isDisposed)
+        {
+            if (disposing)
+            {
+                renderTarget?.Dispose();
+                doubledRenderTarget?.Dispose();
+            }
+
+            isDisposed = true;
+        }
+
+        base.Dispose(disposing);
     }
 }

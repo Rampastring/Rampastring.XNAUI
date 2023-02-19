@@ -960,7 +960,7 @@ public class XNAControl : DrawableGameComponent
                 RemapColor = AssetLoader.GetColorFromString(value);
                 return;
             case "Text":
-                Text = value.Replace("@", Environment.NewLine);
+                Text = value.SafeReplace("@", Environment.NewLine);
                 return;
             case "Visible":
                 Visible = Conversions.BooleanFromString(value, true);

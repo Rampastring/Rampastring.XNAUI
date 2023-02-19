@@ -110,6 +110,7 @@ public class XNAScrollBar : XNAControl
     private Texture2D thumbBottom;
 
     private bool isHeldDown;
+    private bool isDisposed;
 
     public override void Initialize()
     {
@@ -339,5 +340,25 @@ public class XNAScrollBar : XNAControl
         }
 
         base.Draw(gameTime);
+    }
+
+    protected override void Dispose(bool disposing)
+    {
+        if (!isDisposed)
+        {
+            if (disposing)
+            {
+                thumbBottom?.Dispose();
+                background?.Dispose();
+                btnScrollUp?.Dispose();
+                thumbMiddle?.Dispose();
+                btnScrollDown?.Dispose();
+                thumbTop?.Dispose();
+            }
+
+            isDisposed = true;
+        }
+
+        base.Dispose(disposing);
     }
 }

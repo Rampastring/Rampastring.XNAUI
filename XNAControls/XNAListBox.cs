@@ -22,6 +22,8 @@ public class XNAListBox : XNAPanel
     private const double SCROLL_REPEAT_TIME = 0.03;
     private const double FAST_SCROLL_TRIGGER_TIME = 0.4;
 
+    private bool isDisposed;
+
     /// <summary>
     /// Creates a new list box instance.
     /// </summary>
@@ -176,9 +178,9 @@ public class XNAListBox : XNAPanel
 
             for (int i = TopIndex; i < Items.Count; i++)
             {
-                XNAListBoxItem lbItem = Items[i];
+                XNAListBoxItem item = Items[i];
 
-                height += lbItem.TextLines.Count * LineHeight;
+                height += item.TextLines.Count * LineHeight;
 
                 if (height >= Height)
                     return i;
@@ -193,9 +195,9 @@ public class XNAListBox : XNAPanel
 
             for (int i = 0; i < Items.Count; i++)
             {
-                XNAListBoxItem lbItem = Items[i];
+                XNAListBoxItem item = Items[i];
 
-                requiredHeight += lbItem.TextLines.Count * LineHeight;
+                requiredHeight += item.TextLines.Count * LineHeight;
 
                 if (i == value)
                 {
@@ -613,10 +615,10 @@ public class XNAListBox : XNAPanel
 
     public override void Update(GameTime gameTime)
     {
-        foreach (XNAListBoxItem lbItem in Items)
+        foreach (XNAListBoxItem item in Items)
         {
-            if (lbItem.Alpha < 1.0f)
-                lbItem.Alpha += ItemAlphaRate;
+            if (item.Alpha < 1.0f)
+                item.Alpha += ItemAlphaRate;
         }
 
         if (IsActive && AllowKeyboardInput)
@@ -836,9 +838,9 @@ public class XNAListBox : XNAPanel
 
         for (int i = drawInfo.TopIndex; i < Items.Count; i++)
         {
-            XNAListBoxItem lbItem = Items[i];
+            XNAListBoxItem item = Items[i];
 
-            height += lbItem.TextLines.Count * LineHeight;
+            height += item.TextLines.Count * LineHeight;
 
             if (height > mouseLocation.Y)
             {
@@ -856,10 +858,10 @@ public class XNAListBox : XNAPanel
 
     private struct ListBoxItemDrawInfo
     {
-        public ListBoxItemDrawInfo(int topIndex, int yDrawOffset)
+        public ListBoxItemDrawInfo(int topIndex, int verticalDrawOffset)
         {
             TopIndex = topIndex;
-            YDrawOffset = yDrawOffset;
+            YDrawOffset = verticalDrawOffset;
         }
 
         public int TopIndex;
@@ -882,7 +884,7 @@ public class XNAListBox : XNAPanel
 
     protected virtual void DrawListBoxItem(int index, int y)
     {
-        XNAListBoxItem lbItem = Items[index];
+        XNAListBoxItem item = Items[index];
 
         int x = TextBorderDistance;
 
@@ -892,17 +894,17 @@ public class XNAListBox : XNAPanel
                 || !ScrollBar.IsDrawn()
                 || !EnableScrollbar ? Width - 2 : Width - 2 - ScrollBar.Width;
             FillRectangle(
-                new(1, y, drawnWidth, lbItem.TextLines.Count * LineHeight),
+                new(1, y, drawnWidth, item.TextLines.Count * LineHeight),
                 FocusColor);
         }
 
-        if (lbItem.Texture != null)
+        if (item.Texture != null)
         {
-            int textureHeight = lbItem.Texture.Height;
-            int textureWidth = lbItem.Texture.Width;
+            int textureHeight = item.Texture.Height;
+            int textureWidth = item.Texture.Width;
             int textureYPosition = 0;
 
-            if (lbItem.Texture.Height > LineHeight)
+            if (item.Texture.Height > LineHeight)
             {
                 double scaleRatio = textureHeight / (double)LineHeight;
                 textureHeight = LineHeight;
@@ -914,22 +916,22 @@ public class XNAListBox : XNAPanel
             }
 
             DrawTexture(
-                lbItem.Texture,
+                item.Texture,
                 new Rectangle(x, y + textureYPosition, textureWidth, textureHeight),
                 Color.White);
 
             x += textureWidth + ITEM_TEXT_TEXTURE_MARGIN;
         }
 
-        x += lbItem.TextXPadding;
+        x += item.TextXPadding;
 
-        for (int j = 0; j < lbItem.TextLines.Count; j++)
+        for (int j = 0; j < item.TextLines.Count; j++)
         {
             DrawStringWithShadow(
-                lbItem.TextLines[j],
+                item.TextLines[j],
                 FontIndex,
-                new(x, y + (j * LineHeight) + lbItem.TextYPadding),
-                lbItem.TextColor);
+                new(x, y + (j * LineHeight) + item.TextYPadding),
+                item.TextColor);
         }
     }
 
@@ -946,11 +948,11 @@ public class XNAListBox : XNAPanel
 
         for (int i = drawInfo.TopIndex; i < Items.Count; i++)
         {
-            XNAListBoxItem lbItem = Items[i];
+            XNAListBoxItem item = Items[i];
 
             DrawListBoxItem(i, height);
 
-            height += lbItem.TextLines.Count * LineHeight;
+            height += item.TextLines.Count * LineHeight;
 
             if (height > Height)
                 break;
@@ -960,5 +962,18 @@ public class XNAListBox : XNAPanel
             DrawPanelBorders();
 
         DrawChildren(gameTime);
+    }
+
+    protected override void Dispose(bool disposing)
+    {
+        if (!isDisposed)
+        {
+            if (disposing)
+                ScrollBar?.Dispose();
+
+            isDisposed = true;
+        }
+
+        base.Dispose(disposing);
     }
 }

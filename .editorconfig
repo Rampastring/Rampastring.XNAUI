@@ -259,7 +259,7 @@ dotnet_diagnostic.IDE0054.severity = warning
 dotnet_diagnostic.IDE0055.severity = warning
 
 # IDE0056: Use index operator
-dotnet_diagnostic.IDE0056.severity = suggestion
+dotnet_diagnostic.IDE0056.severity = warning
 
 # IDE0058: Expression value is never used
 dotnet_diagnostic.IDE0058.severity = suggestion
@@ -490,7 +490,7 @@ dotnet_diagnostic.IDE0100.severity = warning
 dotnet_diagnostic.IDE0072.severity = warning
 
 # IDE0057: Use range operator
-dotnet_diagnostic.IDE0057.severity = suggestion
+dotnet_diagnostic.IDE0057.severity = warning
 
 # IDE0042: Deconstruct variable declaration
 dotnet_diagnostic.IDE0042.severity = warning
@@ -619,7 +619,7 @@ dotnet_diagnostic.CA1303.severity = warning
 dotnet_diagnostic.CA1304.severity = warning
 
 # CA1307: Specify StringComparison for clarity
-dotnet_diagnostic.CA1307.severity = suggestion
+dotnet_diagnostic.CA1307.severity = warning
 
 # CA1308: Normalize strings to uppercase
 dotnet_diagnostic.CA1308.severity = warning
@@ -757,7 +757,7 @@ dotnet_diagnostic.CA1842.severity = warning
 dotnet_diagnostic.CA1844.severity = warning
 
 # CA1846: Prefer 'AsSpan' over 'Substring'
-dotnet_diagnostic.CA1846.severity = suggestion
+dotnet_diagnostic.CA1846.severity = warning
 
 # CA1847: Use char literal for a single character lookup
 dotnet_diagnostic.CA1847.severity = warning
@@ -835,7 +835,7 @@ dotnet_diagnostic.CA1018.severity = warning
 dotnet_diagnostic.CA1044.severity = warning
 
 # CA1051: Do not declare visible instance fields
-dotnet_diagnostic.CA1051.severity = suggestion
+dotnet_diagnostic.CA1051.severity = warning
 
 # CA1062: Validate arguments of public methods
 dotnet_diagnostic.CA1062.severity = suggestion
@@ -901,7 +901,7 @@ dotnet_diagnostic.CA1852.severity = warning
 dotnet_diagnostic.CA2101.severity = warning
 
 # CA2201: Do not raise reserved exception types
-dotnet_diagnostic.CA2201.severity = suggestion
+dotnet_diagnostic.CA2201.severity = warning
 
 # CA2207: Initialize value type static fields inline
 dotnet_diagnostic.CA2207.severity = warning
@@ -1261,7 +1261,7 @@ csharp_style_var_when_type_is_apparent = true
 csharp_prefer_braces = when_multiline
 
 # SA1305: Field names should not use Hungarian notation
-dotnet_diagnostic.SA1305.severity = suggestion
+dotnet_diagnostic.SA1305.severity = warning
 
 # SA1412: Store files as UTF-8 with byte order mark
 dotnet_diagnostic.SA1412.severity = warning

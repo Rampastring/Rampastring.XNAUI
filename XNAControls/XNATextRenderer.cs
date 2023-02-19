@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Xna.Framework;
+using Rampastring.Tools;
 
 /// <summary>
 /// A text renderer, practically an enhanced label control.
@@ -66,11 +67,11 @@ public class XNATextRenderer : XNAControl
                 if (remainingText.StartsWith(Environment.NewLine, StringComparison.InvariantCulture))
                 {
                     string newLineText = string.Empty;
-                    if (remainingText.Substring(Environment.NewLine.Length).StartsWith(Environment.NewLine, StringComparison.InvariantCulture))
+                    if (remainingText.SafeSubstring(Environment.NewLine.Length).StartsWith(Environment.NewLine, StringComparison.InvariantCulture))
                         newLineText = " ";
                     line = new(new() { new(newLineText, textPart.FontIndex, textPart.Scale, textPart.Color, textPart.Underlined) });
                     renderedTextLines.Add(line);
-                    remainingText = remainingText.Substring(Environment.NewLine.Length);
+                    remainingText = remainingText.SafeSubstring(Environment.NewLine.Length);
                     remainingWidth = Width - (Padding * 2);
                     currentOutputPart = new(string.Empty, textPart.FontIndex, textPart.Scale, textPart.Color, textPart.Underlined);
                     continue;

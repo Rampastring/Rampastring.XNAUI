@@ -61,9 +61,9 @@ public static class Renderer
 
             while (true)
             {
-                string sfName = string.Format(CultureInfo.InvariantCulture, "SpriteFont{0}", fonts.Count);
+                string fontName = string.Format(CultureInfo.InvariantCulture, "SpriteFont{0}", fonts.Count);
 
-                if (!SafePath.GetFile(searchPath, FormattableString.Invariant($"{sfName}.xnb")).Exists)
+                if (!SafePath.GetFile(searchPath, FormattableString.Invariant($"{fontName}.xnb")).Exists)
                     break;
 
 #if !XNA
@@ -81,7 +81,7 @@ public static class Renderer
                 fullRootDirectoryField.SetValue(contentManager, newRootDirectory);
 #endif
 
-                fonts.Add(contentManager.Load<SpriteFont>(sfName));
+                fonts.Add(contentManager.Load<SpriteFont>(fontName));
             }
         }
 

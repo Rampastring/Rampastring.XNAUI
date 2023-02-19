@@ -113,7 +113,7 @@ public class XNATrackbar : XNAPanel
 
     private void Scroll()
     {
-        int xOffset = GetCursorPoint().X;
+        int horizontalOffset = GetCursorPoint().X;
 
         int tabCount = MaxValue - MinValue + 1;
 
@@ -123,7 +123,7 @@ public class XNATrackbar : XNAPanel
 
         for (int i = 0; i <= tabCount; i++)
         {
-            if (i * pixelsPerTab < xOffset)
+            if (i * pixelsPerTab < horizontalOffset)
             {
                 currentTab = i;
             }

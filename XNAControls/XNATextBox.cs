@@ -119,7 +119,7 @@ public class XNATextBox : XNAControl
             TextStartPosition = 0;
 
             if (text.Length > MaximumTextLength)
-                text = text.Substring(0, MaximumTextLength);
+                text = text.SafeSubstring(0, MaximumTextLength);
 
             TextEndPosition = text.Length;
 
@@ -411,7 +411,7 @@ public class XNATextBox : XNAControl
     private bool TextFitsBox()
     {
         return string.IsNullOrEmpty(text) || Renderer.GetTextDimensions(
-            text.Substring(TextStartPosition, TextEndPosition - TextStartPosition),
+            text.SafeSubstring(TextStartPosition, TextEndPosition - TextStartPosition),
             FontIndex).X < Width - (TEXT_HORIZONTAL_MARGIN * 2);
     }
 
@@ -583,7 +583,7 @@ public class XNATextBox : XNAControl
             DrawRectangle(new(0, 0, Width, Height), IdleBorderColor);
 
         DrawStringWithShadow(
-            Text.Substring(TextStartPosition, TextEndPosition - TextStartPosition),
+            Text.SafeSubstring(TextStartPosition, TextEndPosition - TextStartPosition),
             FontIndex,
             new(TEXT_HORIZONTAL_MARGIN, TEXT_VERTICAL_MARGIN),
             TextColor);
@@ -592,7 +592,7 @@ public class XNATextBox : XNAControl
         {
             int barLocationX = TEXT_HORIZONTAL_MARGIN;
 
-            string inputText = Text.Substring(TextStartPosition, InputPosition - TextStartPosition);
+            string inputText = Text.SafeSubstring(TextStartPosition, InputPosition - TextStartPosition);
             barLocationX += (int)Renderer.GetTextDimensions(inputText, FontIndex).X;
 
             FillRectangle(new(barLocationX, 2, 1, Height - 4), Color.White);

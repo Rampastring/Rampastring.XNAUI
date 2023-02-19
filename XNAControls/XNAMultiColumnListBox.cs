@@ -180,7 +180,7 @@ public class XNAMultiColumnListBox : XNAPanel
         const string columnWidthKeyStart = "ColumnWidth";
         if (key.StartsWith(columnWidthKeyStart, StringComparison.InvariantCulture))
         {
-            int headerIndex = Conversions.IntFromString(key.Substring(columnWidthKeyStart.Length), -1);
+            int headerIndex = Conversions.IntFromString(key.SafeSubstring(columnWidthKeyStart.Length), -1);
             if (headerIndex == -1 || headerIndex >= headers.Count)
                 return;
 
@@ -203,17 +203,17 @@ public class XNAMultiColumnListBox : XNAPanel
         // Allows setting list box attributes
         if (key.StartsWith("ListBox", StringComparison.InvariantCulture) && key.Length > "ListBoxYAttribute:".Length)
         {
-            int listBoxId = Conversions.IntFromString(key.Substring("ListBox".Length, 1), -1);
+            int listBoxId = Conversions.IntFromString(key.SafeSubstring("ListBox".Length, 1), -1);
             if (listBoxId == -1)
                 return;
 
             if (listBoxId >= listBoxes.Count)
                 return;
 
-            if (key.Substring("ListBoxY".Length, ":Attribute".Length) != ":Attribute")
+            if (key.SafeSubstring("ListBoxY".Length, ":Attribute".Length) != ":Attribute")
                 return;
 
-            string attrName = key.Substring("ListBoxYAttribute:".Length);
+            string attrName = key.SafeSubstring("ListBoxYAttribute:".Length);
             listBoxes[listBoxId].ParseINIAttribute(iniFile, attrName, value);
         }
 

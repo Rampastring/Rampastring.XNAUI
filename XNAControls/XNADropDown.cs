@@ -466,7 +466,7 @@ public class XNADropDown : XNAControl
 
         if (AllowDropDown)
         {
-            var ddRectangle = new Rectangle(
+            var rectangle = new Rectangle(
                 Width - DropDownTexture.Width,
                 dropDownRect.Y,
                 DropDownTexture.Width,
@@ -475,7 +475,7 @@ public class XNADropDown : XNAControl
             if (DropDownState != DropDownState.CLOSED)
             {
                 DrawTexture(
-                    DropDownOpenTexture, ddRectangle, RemapColor);
+                    DropDownOpenTexture, rectangle, RemapColor);
 
                 Rectangle listRectangle = DropDownState == DropDownState.OPENED_DOWN
                     ? new(0, DropDownTexture.Height, Width, Height - DropDownTexture.Height)
@@ -490,7 +490,7 @@ public class XNADropDown : XNAControl
             }
             else
             {
-                DrawTexture(DropDownTexture, ddRectangle, RemapColor);
+                DrawTexture(DropDownTexture, rectangle, RemapColor);
             }
         }
 
