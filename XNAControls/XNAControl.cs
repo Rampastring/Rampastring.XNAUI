@@ -1075,11 +1075,11 @@ public class XNAControl : DrawableGameComponent
 
         timeSinceLastLeftClick += gameTime.ElapsedGameTime;
 
-        int callbackCount = callbacks.Count;
-
-        if (callbackCount > 0)
+        lock (locker)
         {
-            lock (locker)
+            int callbackCount = callbacks.Count;
+
+            if (callbackCount > 0)
             {
                 for (int i = 0; i < callbackCount; i++)
                     callbacks[i].Invoke();
