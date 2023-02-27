@@ -6,6 +6,7 @@ using Microsoft.Xna.Framework.Content;
 using System.Text;
 using Rampastring.Tools;
 using System.Globalization;
+using System.Reflection;
 
 namespace Rampastring.XNAUI;
 
@@ -68,8 +69,16 @@ public static class Renderer
 
         string originalContentRoot = contentManager.RootDirectory;
 
+#if XNA
+        var contentManagerType = contentManager.GetType();
+        var rootDirectoryField = contentManagerType.GetField("rootDirectory", BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.SetField | BindingFlags.GetField);
+        var fullRootDirectoryField = contentManager.GetType().GetField("fullRootDirectory", BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.SetField | BindingFlags.GetField);
+#endif
+
         foreach (string searchPath in AssetLoader.AssetSearchPaths)
         {
+            string newRootDirectory = SafePath.GetDirectory(searchPath).FullName;
+
             while (true)
             {
                 string sfName = string.Format(CultureInfo.InvariantCulture, "SpriteFont{0}", fonts.Count);
@@ -77,12 +86,31 @@ public static class Renderer
                 if (!SafePath.GetFile(searchPath, FormattableString.Invariant($"{sfName}.xnb")).Exists)
                     break;
 
-                contentManager.RootDirectory = SafePath.GetDirectory(searchPath).FullName;
+#if !XNA
+                contentManager.RootDirectory = newRootDirectory;
+#else
+                // XNA does not allow changing the value of RootDirectory after the
+                // content manager has been used. However, it has some internal fields
+                // we can modify through reflection to achieve the same.
+
+                // This would be a very bad solution when using a library that
+                // is updated regularly, but since XNA has been EOL for over a decade
+                // by this point, its internal logic is never going to change.
+
+                rootDirectoryField.SetValue(contentManager, newRootDirectory);
+                fullRootDirectoryField.SetValue(contentManager, newRootDirectory);
+#endif
+
                 fonts.Add(contentManager.Load<SpriteFont>(sfName));
             }
         }
 
+#if !XNA
         contentManager.RootDirectory = originalContentRoot;
+#else
+        rootDirectoryField.SetValue(contentManager, originalContentRoot);
+        fullRootDirectoryField.SetValue(contentManager, originalContentRoot);
+#endif
     }
 
 
@@ -240,7 +268,7 @@ public static class Renderer
         settingStack.Clear();
     }
 
-    #region Rendering code
+#region Rendering code
 
     public static void DrawTexture(Texture2D texture, Rectangle rectangle, Color color)
     {
@@ -383,5 +411,5 @@ public static class Renderer
             null, color, (float)Math.Atan2(line.Y, line.X), new Vector2(0, 0), SpriteEffects.None, depth);
     }
 
-    #endregion
+#endregion
 }
