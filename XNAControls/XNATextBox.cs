@@ -217,6 +217,18 @@ public class XNATextBox : XNAControl
         Keyboard.OnKeyPressed += Keyboard_OnKeyPressed;
     }
 
+    public override void Kill()
+    {
+#if !XNA
+        Game.Window.TextInput -= Window_TextInput;
+#else
+        KeyboardEventInput.CharEntered -= KeyboardEventInput_CharEntered;
+#endif
+        Keyboard.OnKeyPressed -= Keyboard_OnKeyPressed;
+
+        base.Kill();
+    }
+
 #if XNA
     private void KeyboardEventInput_CharEntered(object sender, KeyboardEventArgs e)
     {

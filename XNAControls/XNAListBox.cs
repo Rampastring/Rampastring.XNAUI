@@ -534,14 +534,14 @@ public class XNAListBox : XNAPanel
 
 #if WINFORMS
         Keyboard.OnKeyPressed += Keyboard_OnKeyPressed;
-
 #endif
+
 #if !XNA
         Game.Window.TextInput += Window_TextInput;
 #else
         KeyboardEventInput.CharEntered += KeyboardEventInput_CharEntered;
-
 #endif
+
         ScrollBar.ClientRectangle = new Rectangle(Width - ScrollBar.ScrollWidth - 1,
             1, ScrollBar.ScrollWidth, Height - 2);
         ScrollBar.Scrolled += ScrollBar_Scrolled;
@@ -552,6 +552,26 @@ public class XNAListBox : XNAPanel
 
         if (Parent != null)
             Parent.ClientRectangleUpdated += Parent_ClientRectangleUpdated;
+    }
+
+    public override void Kill()
+    {
+#if WINFORMS
+        Keyboard.OnKeyPressed -= Keyboard_OnKeyPressed;
+#endif
+
+#if !XNA
+        Game.Window.TextInput -= Window_TextInput;
+#else
+        KeyboardEventInput.CharEntered -= KeyboardEventInput_CharEntered;
+#endif
+
+        ParentChanged -= Parent_ClientRectangleUpdated;
+
+        if (Parent != null)
+            Parent.ClientRectangleUpdated -= Parent_ClientRectangleUpdated;
+
+        base.Kill();
     }
 
     private void Parent_ClientRectangleUpdated(object sender, EventArgs e)
@@ -571,8 +591,8 @@ public class XNAListBox : XNAPanel
     {
         ViewTop = ScrollBar.ViewTop;
     }
-#if WINFORMS
 
+#if WINFORMS
     /// <summary>
     /// Allows copying items to the clipboard using Ctrl + C.
     /// </summary>
