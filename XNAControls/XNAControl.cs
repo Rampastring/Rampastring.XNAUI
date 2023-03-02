@@ -1100,6 +1100,9 @@ public class XNAControl : DrawableGameComponent
     /// </summary>
     public virtual void Kill()
     {
+        if (Detached)
+            Attach();
+
         var childrenCopy = new List<XNAControl>(Children);
         childrenCopy.ForEach(c => c.Kill());
         childrenCopy.ForEach(RemoveChild);
