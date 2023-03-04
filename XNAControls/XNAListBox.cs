@@ -856,7 +856,7 @@ public class XNAListBox : XNAPanel
         return -1;
     }
 
-    private struct ListBoxItemDrawInfo
+    private readonly struct ListBoxItemDrawInfo
     {
         public ListBoxItemDrawInfo(int topIndex, int verticalDrawOffset)
         {
