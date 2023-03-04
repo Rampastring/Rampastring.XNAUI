@@ -715,10 +715,8 @@ public class XNAControl : DrawableGameComponent
             throw new NotImplementedException("AddChildWithoutInitialize cannot currently be called" +
                 " while the control is iterating through its children.");
         }
-        else
-        {
-            AddChildImmediateWithoutInitialize(child);
-        }
+
+        AddChildImmediateWithoutInitialize(child);
     }
 
     /// <summary>

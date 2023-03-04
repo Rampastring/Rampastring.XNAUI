@@ -67,15 +67,15 @@ public class TextParseReturnValue
                     {
                         var sb = new StringBuilder();
 
-                        for (int i = 0; i < word.Length; i++)
+                        foreach (char character in word)
                         {
-                            if (spriteFont.MeasureString(sb.ToString() + word[i]).X > width)
+                            if (spriteFont.MeasureString(sb.ToString() + character).X > width)
                             {
                                 returnValue.Add(sb.ToString());
                                 sb.Clear();
                             }
 
-                            sb.Append(word[i]);
+                            sb.Append(character);
                         }
 
                         if (sb.Length > 0)

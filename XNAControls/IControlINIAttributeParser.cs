@@ -15,6 +15,6 @@ public interface IControlINIAttributeParser
     /// <param name="iniFile">The INI file that is being read from.</param>
     /// <param name="key">The key that is being read.</param>
     /// <param name="value">The key's value.</param>
-    /// <returns>Whether the parsing was succesful.</returns>
+    /// <returns>Whether the parsing was successful.</returns>
     bool ParseINIAttribute(XNAControl control, IniFile iniFile, string key, string value);
 }

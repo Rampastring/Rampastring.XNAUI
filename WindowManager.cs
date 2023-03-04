@@ -628,10 +628,8 @@ public class WindowManager : DrawableGameComponent
             SpriteSortMode.Deferred, BlendState.AlphaBlend, null, null, null, null);
         Renderer.BeginDraw();
 
-        for (int i = 0; i < controls.Count; i++)
+        foreach (XNAControl control in controls)
         {
-            XNAControl control = controls[i];
-
             if (control.Visible)
                 control.DrawInternal(gameTime);
         }

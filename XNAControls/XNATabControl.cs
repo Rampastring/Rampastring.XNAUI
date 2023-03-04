@@ -31,6 +31,7 @@ public class XNATabControl : XNAControl
         {
             if (selectedTab == value)
                 return;
+
             selectedTab = value;
             SelectedIndexChanged?.Invoke(this, EventArgs.Empty);
         }

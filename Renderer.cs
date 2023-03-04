@@ -112,10 +112,8 @@ public static class Renderer
 
         var sb = new StringBuilder(str);
 
-        for (int i = 0; i < str.Length; i++)
+        foreach (char c in str)
         {
-            char c = str[i];
-
             if (c != '\r' && c != '\n' && !sf.Characters.Contains(c))
                 sb.Replace(c, '?');
         }

@@ -53,9 +53,9 @@ public class RKeyboard : GameComponent
         {
             Delegate[] delegates = OnKeyPressed.GetInvocationList();
             var args = new KeyPressEventArgs(key);
-            for (int i = 0; i < delegates.Length; i++)
+            foreach (Delegate currentDelegate in delegates)
             {
-                delegates[i].DynamicInvoke(this, args);
+                currentDelegate.DynamicInvoke(this, args);
                 if (args.Handled)
                     return;
             }

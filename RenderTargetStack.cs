@@ -10,9 +10,7 @@ internal static class RenderTargetStack
 {
     public static void Initialize(RenderTarget2D finalRenderTarget, GraphicsDevice graphicsDevice)
     {
-        FinalRenderTarget = finalRenderTarget;
         currentGraphicsDevice = graphicsDevice;
-
         currentContext = new(finalRenderTarget, null);
     }
 
@@ -30,8 +28,6 @@ internal static class RenderTargetStack
             0,
             RenderTargetUsage.DiscardContents);
     }
-
-    public static RenderTarget2D FinalRenderTarget { get; internal set; }
 
     /// <summary>
     /// A render target for controls that

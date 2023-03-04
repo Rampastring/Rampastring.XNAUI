@@ -25,7 +25,7 @@ public class GUICreator
         typeof(XNAProgressBar),
         typeof(XNASuggestionTextBox),
         typeof(XNATextBox),
-        typeof(XNATrackbar),
+        typeof(XNATrackbar)
     };
 
     /// <summary>

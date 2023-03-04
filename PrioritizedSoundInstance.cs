@@ -16,11 +16,11 @@ internal sealed class PrioritizedSoundInstance : IDisposable
         PriorityDecayRate = priorityDecayRate;
     }
 
-    public SoundEffectInstance SoundInstance { get; }
+    private SoundEffectInstance SoundInstance { get; }
 
     public double Priority { get; private set; }
 
-    public double PriorityDecayRate { get; }
+    private double PriorityDecayRate { get; }
 
     /// <summary>
     /// Updates the priority of the sound. Returns true if the sound effect is

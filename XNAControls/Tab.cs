@@ -4,10 +4,6 @@ using Microsoft.Xna.Framework.Graphics;
 
 internal sealed class Tab
 {
-    public Tab()
-    {
-    }
-
     public Tab(string text, Texture2D defaultTexture, Texture2D pressedTexture, bool selectable)
     {
         Text = text;
@@ -16,11 +12,11 @@ internal sealed class Tab
         Selectable = selectable;
     }
 
-    public Texture2D DefaultTexture { get; set; }
+    public Texture2D DefaultTexture { get; }
 
-    public Texture2D PressedTexture { get; set; }
+    public Texture2D PressedTexture { get; }
 
-    public string Text { get; set; }
+    public string Text { get; }
 
     public bool Selectable { get; set; }
 

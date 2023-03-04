@@ -864,8 +864,8 @@ public class XNAListBox : XNAPanel
             YDrawOffset = verticalDrawOffset;
         }
 
-        public int TopIndex;
-        public int YDrawOffset;
+        public readonly int TopIndex;
+        public readonly int YDrawOffset;
     }
 
     private ListBoxItemDrawInfo GetTopIndexAndDrawOffset()
@@ -876,6 +876,7 @@ public class XNAListBox : XNAPanel
             int heightIncrease = Items[i].TextLines.Count * LineHeight;
             if (h + heightIncrease > ViewTop)
                 return new(i, h - ViewTop);
+
             h += heightIncrease;
         }
 

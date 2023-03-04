@@ -125,8 +125,7 @@ public class XNALabel : XNAControl
 
                 return;
             case "TextAnchor":
-                LabelTextAnchorInfo info;
-                bool success = Enum.TryParse(value, out info);
+                bool success = Enum.TryParse(value, out LabelTextAnchorInfo info);
 
                 if (success)
                     TextAnchor = info;

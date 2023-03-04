@@ -112,7 +112,7 @@ public class XNAContextMenu : XNAControl
 
     public void AddItem(string text, Action selectAction, Func<bool> selectableChecker = null, Func<bool> visibilityChecker = null, Texture2D texture = null, string hintText = null)
     {
-        var item = new XNAContextMenuItem()
+        var item = new XNAContextMenuItem
         {
             Text = text,
             SelectAction = selectAction,
@@ -232,16 +232,11 @@ public class XNAContextMenu : XNAControl
     /// </summary>
     private int GetItemIndexOnCursor()
     {
-        Point p = GetCursorPoint();
+        (int x, int y) = GetCursorPoint();
 
-        if (p.X < 0 || p.X > Width ||
-            p.Y > Height ||
-            p.Y < 0)
-        {
+        if (x < 0 || x > Width || y > Height || y < 0)
             return -1;
-        }
 
-        int y = p.Y;
         int currentHeight = BORDER_WIDTH;
 
         for (int i = 0; i < Items.Count; i++)
