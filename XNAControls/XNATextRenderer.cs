@@ -112,7 +112,8 @@ public class XNATextRenderer : XNAControl
         ClientRectangleUpdated += XNATextRenderer_ClientRectangleUpdated;
     }
 
-    private void XNATextRenderer_ClientRectangleUpdated(object sender, EventArgs e) => PrepareTextParts();
+    private void XNATextRenderer_ClientRectangleUpdated(object sender, EventArgs e)
+        => PrepareTextParts();
 
     public override void Draw(GameTime gameTime)
     {

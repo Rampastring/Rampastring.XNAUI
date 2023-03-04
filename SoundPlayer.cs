@@ -44,7 +44,8 @@ public class SoundPlayer : GameComponent
     /// Plays a sound.
     /// </summary>
     /// <param name="sound">The sound to play.</param>
-    public static void Play(EnhancedSoundEffect sound) => Play(sound.Volume * Volume, sound);
+    public static void Play(EnhancedSoundEffect sound)
+        => Play(sound.Volume * Volume, sound);
 
     /// <summary>
     /// Plays a sound with the specified volume.
@@ -52,7 +53,8 @@ public class SoundPlayer : GameComponent
     /// </summary>
     /// <param name="volume">The volume that the sound will be played at.</param>
     /// <param name="sound">The sound to play.</param>
-    public static void PlayWithVolume(float volume, EnhancedSoundEffect sound) => Play(volume * Volume, sound);
+    public static void PlayWithVolume(float volume, EnhancedSoundEffect sound)
+        => Play(volume * Volume, sound);
 
     private static void Play(float volume, EnhancedSoundEffect sound)
     {

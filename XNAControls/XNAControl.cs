@@ -497,7 +497,8 @@ public class XNAControl : DrawableGameComponent
     /// Checks whether a condition applies to this control and all of its parents.
     /// </summary>
     /// <param name="func">The condition.</param>
-    public bool AppliesToSelfAndAllParents(Func<XNAControl, bool> func) => func(this) && (Parent == null || Parent.AppliesToSelfAndAllParents(func));
+    public bool AppliesToSelfAndAllParents(Func<XNAControl, bool> func)
+        => func(this) && (Parent == null || Parent.AppliesToSelfAndAllParents(func));
 
     /// <summary>
     /// Gets the cursor's location relative to this control's location.
@@ -629,7 +630,8 @@ public class XNAControl : DrawableGameComponent
     /// Assumes that this control and the other control share the same parent control.
     /// </summary>
     /// <param name="control">The other control.</param>
-    public void CenterOnControlVertically(XNAControl control) => Y = control.Y - ((Height - control.Height) / 2);
+    public void CenterOnControlVertically(XNAControl control)
+        => Y = control.Y - ((Height - control.Height) / 2);
 
     /// <summary>
     /// Detaches the control from its parent.

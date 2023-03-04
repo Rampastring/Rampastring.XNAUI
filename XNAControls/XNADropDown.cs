@@ -84,8 +84,8 @@ public class XNADropDown : XNAControl
     /// <summary>
     /// Gets the currently selected item of the drop-down control.
     /// </summary>
-    public XNADropDownItem SelectedItem =>
-        SelectedIndex < 0 || SelectedIndex >= Items.Count ? null : Items[SelectedIndex];
+    public XNADropDownItem SelectedItem
+        => SelectedIndex < 0 || SelectedIndex >= Items.Count ? null : Items[SelectedIndex];
 
     public int FontIndex { get; set; }
 
@@ -265,8 +265,8 @@ public class XNADropDown : XNAControl
     /// Gets the text color of a drop-down item.
     /// </summary>
     /// <param name="item">The item.</param>
-    protected Color GetItemTextColor(XNADropDownItem item) =>
-        item.TextColor ?? TextColor;
+    protected Color GetItemTextColor(XNADropDownItem item)
+        => item.TextColor ?? TextColor;
 
     public override void Update(GameTime gameTime)
     {

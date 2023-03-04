@@ -265,18 +265,18 @@ public class XNAContextMenu : XNAControl
     /// Gets the height of a context menu item.
     /// </summary>
     /// <param name="item">The item.</param>
-    protected int GetItemHeight(XNAContextMenuItem item) =>
-         item.Height ?? ItemHeight;
+    protected int GetItemHeight(XNAContextMenuItem item)
+        => item.Height ?? ItemHeight;
 
     /// <summary>
     /// Gets the index of an item's font.
     /// </summary>
     /// <param name="item">The item.</param>
-    protected int GetItemFontIndex(XNAContextMenuItem item) =>
-        item.FontIndex ?? FontIndex;
+    protected int GetItemFontIndex(XNAContextMenuItem item)
+        => item.FontIndex ?? FontIndex;
 
-    protected Color GetItemTextColor(XNAContextMenuItem item) =>
-        item.TextColor ?? ItemColor;
+    protected Color GetItemTextColor(XNAContextMenuItem item)
+        => item.TextColor ?? ItemColor;
 
     public override void Draw(GameTime gameTime)
     {

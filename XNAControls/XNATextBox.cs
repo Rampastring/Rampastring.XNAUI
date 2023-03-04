@@ -219,10 +219,11 @@ public class XNATextBox : XNAControl
     }
 
 #if XNA
-    private void KeyboardEventInput_CharEntered(object sender, KeyboardEventArgs e) => HandleCharInput(e.Character);
+    private void KeyboardEventInput_CharEntered(object sender, KeyboardEventArgs e)
 #else
-    private void Window_TextInput(object sender, TextInputEventArgs e) => HandleCharInput(e.Character);
+    private void Window_TextInput(object sender, TextInputEventArgs e)
 #endif
+        => HandleCharInput(e.Character);
 
     private void HandleCharInput(char character)
     {
@@ -281,10 +282,7 @@ public class XNATextBox : XNAControl
     /// Determines if the user is allowed to type a specific character into the textbox.
     /// </summary>
     /// <param name="character">The character.</param>
-    protected virtual bool AllowCharacterInput(char character) =>
-
-        // Allow all characters by default
-        true;
+    protected virtual bool AllowCharacterInput(char character) => true; // Allow all characters by default
 
     private void Keyboard_OnKeyPressed(object sender, KeyPressEventArgs e)
     {

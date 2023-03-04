@@ -15,6 +15,5 @@ internal sealed class Callback
     private readonly Delegate d;
     private readonly object[] arguments;
 
-    public void Invoke() =>
-        d.DynamicInvoke(arguments);
+    public void Invoke() => d.DynamicInvoke(arguments);
 }

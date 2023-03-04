@@ -82,7 +82,8 @@ public class XNATabControl : XNAControl
         tabs.RemoveAt(index);
     }
 
-    public void AddTab(string text, Texture2D defaultTexture, Texture2D pressedTexture) => AddTab(text, defaultTexture, pressedTexture, true);
+    public void AddTab(string text, Texture2D defaultTexture, Texture2D pressedTexture)
+        => AddTab(text, defaultTexture, pressedTexture, true);
 
     public void AddTab(string text, Texture2D defaultTexture, Texture2D pressedTexture, bool selectable)
     {

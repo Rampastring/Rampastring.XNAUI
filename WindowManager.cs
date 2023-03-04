@@ -321,7 +321,8 @@ public class WindowManager : DrawableGameComponent
 #endif
     }
 
-    private void GameWindowManager_GameWindowClosing(object sender, EventArgs e) => GameClosing?.Invoke(this, EventArgs.Empty);
+    private void GameWindowManager_GameWindowClosing(object sender, EventArgs e)
+        => GameClosing?.Invoke(this, EventArgs.Empty);
 
     /// <summary>
     /// Schedules a delegate to be executed on the next game loop frame,

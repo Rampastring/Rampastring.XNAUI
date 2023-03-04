@@ -143,9 +143,11 @@ public static class Renderer
         return sb.ToString();
     }
 
-    public static TextParseReturnValue FixText(string text, int fontIndex, int width) => TextParseReturnValue.FixText(fonts[fontIndex], width, text);
+    public static TextParseReturnValue FixText(string text, int fontIndex, int width)
+        => TextParseReturnValue.FixText(fonts[fontIndex], width, text);
 
-    public static List<string> GetFixedTextLines(string text, int fontIndex, int width, bool splitWords = true) => TextParseReturnValue.GetFixedTextLines(fonts[fontIndex], width, text, splitWords);
+    public static List<string> GetFixedTextLines(string text, int fontIndex, int width, bool splitWords = true)
+        => TextParseReturnValue.GetFixedTextLines(fonts[fontIndex], width, text, splitWords);
 
     /// <summary>
     /// Pushes new settings into the renderer's internal stack and applies them.
@@ -199,18 +201,19 @@ public static class Renderer
         renderTarget,
         new(SpriteSortMode.Deferred, BlendState.AlphaBlend, null, null, null, null));
 
-    public static void PushRenderTarget(RenderTarget2D renderTarget, SpriteBatchSettings settings) => RenderTargetStack.PushRenderTarget(renderTarget, settings);
+    public static void PushRenderTarget(RenderTarget2D renderTarget, SpriteBatchSettings settings)
+        => RenderTargetStack.PushRenderTarget(renderTarget, settings);
 
     public static void PopRenderTarget() => RenderTargetStack.PopRenderTarget();
 
-    internal static void BeginDrawInternal(SpriteBatchSettings settings) =>
-        BeginDrawInternal(settings.SpriteSortMode, settings.BlendState, settings.SamplerState, settings.DepthStencilState, settings.RasterizerState, settings.Effect);
+    internal static void BeginDrawInternal(SpriteBatchSettings settings)
+        => BeginDrawInternal(settings.SpriteSortMode, settings.BlendState, settings.SamplerState, settings.DepthStencilState, settings.RasterizerState, settings.Effect);
 
-    internal static void BeginDrawInternal(SpriteSortMode ssm, BlendState bs, SamplerState ss, DepthStencilState dss, RasterizerState rs, Effect effect) =>
+    internal static void BeginDrawInternal(SpriteSortMode ssm, BlendState bs, SamplerState ss, DepthStencilState dss, RasterizerState rs, Effect effect)
 #if XNA
-        spriteBatch.Begin(ssm, bs, ss, DepthStencilState.Default, RasterizerState.CullNone);
+        => spriteBatch.Begin(ssm, bs, ss, DepthStencilState.Default, RasterizerState.CullNone);
 #else
-        spriteBatch.Begin(ssm, bs, ss, dss, rs, effect);
+        => spriteBatch.Begin(ssm, bs, ss, dss, rs, effect);
 #endif
 
     internal static void PushSettingsInternal() => settingStack.AddFirst(CurrentSettings);
@@ -241,14 +244,14 @@ public static class Renderer
         => spriteBatch.Draw(texture, location, null, color, rotation, origin, scale, SpriteEffects.None, layerDepth);
 
     /// <summary>
-    /// Draws a circle's perimiter.
+    /// Draws a circle's perimeter.
     /// </summary>
     /// <param name="position">The center point of the circle.</param>
     /// <param name="radius">The radius of the circle.</param>
     /// <param name="color">The color of the circle.</param>
-    /// <param name="precision">Defines how smooth the circle's perimiter is.
+    /// <param name="precision">Defines how smooth the circle's perimeter is.
     /// Larger values make the circle smoother, but have a larger effect on performance.</param>
-    /// <param name="thickness">The thickness of the perimiter.</param>
+    /// <param name="thickness">The thickness of the perimeter.</param>
     public static void DrawCircle(Vector2 position, float radius, Color color, int precision = 8, int thickness = 1)
     {
         float angle = 0f;
@@ -270,9 +273,9 @@ public static class Renderer
     /// </summary>
     /// <param name="position">The center point of the circle.</param>
     /// <param name="radius">The radius of the circle.</param>
-    /// <param name="texture">The texture to dot the circle's perimiter with.</param>
+    /// <param name="texture">The texture to dot the circle's perimeter with.</param>
     /// <param name="color">The remap color of the texture.</param>
-    /// <param name="precision">How many times the texture is drawn on the perimiter.</param>
+    /// <param name="precision">How many times the texture is drawn on the perimeter.</param>
     /// <param name="scale">The scale of the drawn texture compared to the size of the texture itself.</param>
     /// <param name="layerDepth">The depth of the texture.</param>
     public static void DrawCircleWithTexture(
