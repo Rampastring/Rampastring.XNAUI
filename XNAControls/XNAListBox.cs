@@ -555,7 +555,7 @@ public class XNAListBox : XNAPanel
     /// </summary>
     public int GetScrollBarWidth() => ScrollBar.Width;
 
-    private void ScrollBar_Scrolled(object sender, EventArgs e) => ViewTop = scrollBar.ViewTop;
+    private void ScrollBar_Scrolled(object sender, EventArgs e) => ViewTop = ScrollBar.ViewTop;
 
 #if WINFORMS
     /// <summary>

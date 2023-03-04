@@ -3,12 +3,14 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
+#if XNA
+using System.Reflection;
+#endif
 using System.Text;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using Rampastring.Tools;
-using System.Reflection;
 
 /// <summary>
 /// Provides static methods for drawing.
@@ -221,7 +223,7 @@ public static class Renderer
 
     internal static void ClearStack() => settingStack.Clear();
 
-#region Rendering code
+    #region Rendering code
 
     public static void DrawTexture(Texture2D texture, Rectangle rectangle, Color color)
         => spriteBatch.Draw(texture, rectangle, color);
@@ -365,5 +367,5 @@ public static class Renderer
             depth);
     }
 
-#endregion
+    #endregion
 }
