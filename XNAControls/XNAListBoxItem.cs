@@ -81,7 +81,15 @@ public class XNAListBoxItem
     {
         get => alpha;
 
-        set => alpha = value < 0.0f ? 0.0f : value > 1.0f ? 1.0f : value;
+        set
+        {
+            if (value < 0.0f)
+                alpha = 0.0f;
+            else if (value > 1.0f)
+                alpha = 1.0f;
+            else
+                alpha = value;
+        }
     }
 
     public List<string> TextLines;

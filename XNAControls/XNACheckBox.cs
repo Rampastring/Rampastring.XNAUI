@@ -262,7 +262,13 @@ public class XNACheckBox : XNAControl
 
         if (!string.IsNullOrEmpty(Text))
         {
-            Color textColor = !AllowChecking ? Color.Gray : IsActive ? HighlightColor : IdleColor;
+            Color textColor;
+
+            if (!AllowChecking)
+                textColor = Color.Gray;
+            else
+                textColor = IsActive ? HighlightColor : IdleColor;
+
             DrawStringWithShadow(
                 Text,
                 FontIndex,

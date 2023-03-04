@@ -329,7 +329,16 @@ public class XNAControl : DrawableGameComponent
     public virtual float Alpha
     {
         get => alpha;
-        set => alpha = value > 1.0f ? 1.0f : value < 0.0 ? 0.0f : value;
+
+        set
+        {
+            if (value > 1.0f)
+                alpha = 1.0f;
+            else if (value < 0.0)
+                alpha = 0.0f;
+            else
+                alpha = value;
+        }
     }
 
     public int CursorTextureIndex;
