@@ -232,11 +232,16 @@ public class XNAContextMenu : XNAControl
     /// </summary>
     private int GetItemIndexOnCursor()
     {
-        (int x, int y) = GetCursorPoint();
+        Point p = GetCursorPoint();
 
-        if (x < 0 || x > Width || y > Height || y < 0)
+        if (p.X < 0 || p.X > Width ||
+            p.Y > Height ||
+            p.Y < 0)
+        {
             return -1;
+        }
 
+        int y = p.Y;
         int currentHeight = BORDER_WIDTH;
 
         for (int i = 0; i < Items.Count; i++)
