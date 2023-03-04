@@ -239,10 +239,10 @@ public class XNATextBox : XNAControl
              * potentially harmful extra triggering of the InputReceived event.
              * So, we detect that input here and return on these keys.
             /*/
-            case '\r': // Enter / return
-            case '\x0009': // Tab
-            case '\b': // Backspace
-            case '\x001b': // ESC
+            case (char)Keys.Enter:
+            case (char)Keys.Tab:
+            case (char)Keys.Back:
+            case (char)Keys.Escape:
                 return;
             default:
                 if (text.Length == MaximumTextLength)
