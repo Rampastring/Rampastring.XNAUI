@@ -14,12 +14,12 @@ public class XNASuggestionTextBox : XNATextBox
 
     public string Suggestion { get; set; }
 
-    private Color? suggestedTextColor;
+    private Color? _suggestedTextColor;
 
     public Color SuggestedTextColor
     {
-        get => suggestedTextColor ?? UISettings.ActiveSettings.SubtleTextColor;
-        set => suggestedTextColor = value;
+        get => _suggestedTextColor ?? UISettings.ActiveSettings.SubtleTextColor;
+        set => _suggestedTextColor = value;
     }
 
     public override void Initialize()

@@ -42,38 +42,38 @@ public class XNADropDown : XNAControl
     /// </summary>
     public DropDownState DropDownState { get; private set; }
 
-    private bool allowDropDown = true;
+    private bool _allowDropDown = true;
 
     /// <summary>
     /// Controls whether the drop-down control can be dropped down.
     /// </summary>
     public bool AllowDropDown
     {
-        get => allowDropDown;
+        get => _allowDropDown;
 
         set
         {
-            allowDropDown = value;
-            if (!allowDropDown && DropDownState != DropDownState.CLOSED)
+            _allowDropDown = value;
+            if (!_allowDropDown && DropDownState != DropDownState.CLOSED)
             {
                 CloseDropDown();
             }
         }
     }
 
-    private int selectedIndex = -1;
+    private int _selectedIndex = -1;
 
     /// <summary>
     /// Gets or sets the selected index of the drop-down control.
     /// </summary>
     public int SelectedIndex
     {
-        get => selectedIndex;
+        get => _selectedIndex;
 
         set
         {
-            int oldSelectedIndex = selectedIndex;
-            selectedIndex = value;
+            int oldSelectedIndex = _selectedIndex;
+            _selectedIndex = value;
             if (value != oldSelectedIndex)
                 SelectedIndexChanged?.Invoke(this, EventArgs.Empty);
             else
@@ -89,49 +89,49 @@ public class XNADropDown : XNAControl
 
     public int FontIndex { get; set; }
 
-    private Color? borderColor;
+    private Color? _borderColor;
 
     public Color BorderColor
     {
-        get => borderColor ?? UISettings.ActiveSettings.PanelBorderColor;
+        get => _borderColor ?? UISettings.ActiveSettings.PanelBorderColor;
 
-        set => borderColor = value;
+        set => _borderColor = value;
     }
 
-    private Color? focusColor;
+    private Color? _focusColor;
 
     public Color FocusColor
     {
-        get => focusColor ?? UISettings.ActiveSettings.FocusColor;
+        get => _focusColor ?? UISettings.ActiveSettings.FocusColor;
 
-        set => focusColor = value;
+        set => _focusColor = value;
     }
 
-    private Color? backColor;
+    private Color? _backColor;
 
     public Color BackColor
     {
-        get => backColor ?? UISettings.ActiveSettings.BackgroundColor;
+        get => _backColor ?? UISettings.ActiveSettings.BackgroundColor;
 
-        set => backColor = value;
+        set => _backColor = value;
     }
 
-    private Color? textColor;
+    private Color? _textColor;
 
     public Color TextColor
     {
-        get => textColor ?? UISettings.ActiveSettings.AltColor;
+        get => _textColor ?? UISettings.ActiveSettings.AltColor;
 
-        set => textColor = value;
+        set => _textColor = value;
     }
 
-    private Color? disabledItemColor;
+    private Color? _disabledItemColor;
 
     public Color DisabledItemColor
     {
-        get => disabledItemColor ?? UISettings.ActiveSettings.DisabledItemColor;
+        get => _disabledItemColor ?? UISettings.ActiveSettings.DisabledItemColor;
 
-        set => disabledItemColor = value;
+        set => _disabledItemColor = value;
     }
 
     /// <summary>

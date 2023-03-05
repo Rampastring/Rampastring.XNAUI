@@ -16,34 +16,34 @@ public class XNALinkLabel : XNALabel
     {
     }
 
-    private Color? idleColor;
+    private Color? _idleColor;
 
     /// <summary>
     /// The color of the label when it's not hovered on.
     /// </summary>
     public Color IdleColor
     {
-        get => idleColor ?? UISettings.ActiveSettings.TextColor;
+        get => _idleColor ?? UISettings.ActiveSettings.TextColor;
 
         set
         {
-            idleColor = value;
+            _idleColor = value;
             if (!IsActive) RemapColor = value;
         }
     }
 
-    private Color? hoverColor;
+    private Color? _hoverColor;
 
     /// <summary>
     /// The color of the label when it's hovered on.
     /// </summary>
     public Color HoverColor
     {
-        get => hoverColor ?? UISettings.ActiveSettings.AltColor;
+        get => _hoverColor ?? UISettings.ActiveSettings.AltColor;
 
         set
         {
-            hoverColor = value;
+            _hoverColor = value;
             if (IsActive) RemapColor = value;
         }
     }

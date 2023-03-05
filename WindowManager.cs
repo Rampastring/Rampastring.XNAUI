@@ -101,7 +101,7 @@ public class WindowManager : DrawableGameComponent
 
     public int SceneYPosition { get; private set; }
 
-    private XNAControl selectedControl;
+    private XNAControl _selectedControl;
 
     /// <summary>
     /// Gets or sets the control that is currently selected.
@@ -109,15 +109,15 @@ public class WindowManager : DrawableGameComponent
     /// </summary>
     public XNAControl SelectedControl
     {
-        get => selectedControl;
+        get => _selectedControl;
 
         set
         {
-            XNAControl oldSelectedControl = selectedControl;
-            selectedControl = value;
-            if (oldSelectedControl != selectedControl)
+            XNAControl oldSelectedControl = _selectedControl;
+            _selectedControl = value;
+            if (oldSelectedControl != _selectedControl)
             {
-                selectedControl?.OnSelectedChanged();
+                _selectedControl?.OnSelectedChanged();
 
                 oldSelectedControl?.OnSelectedChanged();
             }

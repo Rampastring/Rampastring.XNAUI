@@ -47,52 +47,52 @@ public class XNATextBox : XNAControl
     /// </summary>
     public event EventHandler TextChanged;
 
-    private Color? textColor;
+    private Color? _textColor;
 
     /// <summary>
     /// The color of the text in the text box.
     /// </summary>
     public virtual Color TextColor
     {
-        get => textColor ?? UISettings.ActiveSettings.AltColor;
+        get => _textColor ?? UISettings.ActiveSettings.AltColor;
 
-        set => textColor = value;
+        set => _textColor = value;
     }
 
-    private Color? idleBorderColor;
+    private Color? _idleBorderColor;
 
     /// <summary>
     /// The color of the text box border when the text box is inactive.
     /// </summary>
     public virtual Color IdleBorderColor
     {
-        get => idleBorderColor ?? UISettings.ActiveSettings.PanelBorderColor;
+        get => _idleBorderColor ?? UISettings.ActiveSettings.PanelBorderColor;
 
-        set => idleBorderColor = value;
+        set => _idleBorderColor = value;
     }
 
-    private Color? activeBorderColor;
+    private Color? _activeBorderColor;
 
     /// <summary>
     /// The color of the text box border when the text box is selected.
     /// </summary>
     public Color ActiveBorderColor
     {
-        get => activeBorderColor ?? UISettings.ActiveSettings.AltColor;
+        get => _activeBorderColor ?? UISettings.ActiveSettings.AltColor;
 
-        set => activeBorderColor = value;
+        set => _activeBorderColor = value;
     }
 
-    private Color? backColor;
+    private Color? _backColor;
 
     /// <summary>
     /// The color of the text box background.
     /// </summary>
     public Color BackColor
     {
-        get => backColor ?? UISettings.ActiveSettings.BackgroundColor;
+        get => _backColor ?? UISettings.ActiveSettings.BackgroundColor;
 
-        set => backColor = value;
+        set => _backColor = value;
     }
 
     /// <summary>
@@ -110,18 +110,18 @@ public class XNATextBox : XNAControl
     /// </summary>
     public override string Text
     {
-        get => text;
+        get => _text;
 
         set
         {
-            text = value ?? throw new InvalidOperationException("XNATextBox text cannot be set to null.");
+            _text = value ?? throw new InvalidOperationException("XNATextBox text cannot be set to null.");
             InputPosition = 0;
             TextStartPosition = 0;
 
-            if (text.Length > MaximumTextLength)
-                text = text.SafeSubstring(0, MaximumTextLength);
+            if (_text.Length > MaximumTextLength)
+                _text = _text.SafeSubstring(0, MaximumTextLength);
 
-            TextEndPosition = text.Length;
+            TextEndPosition = _text.Length;
 
             while (!TextFitsBox())
             {
@@ -138,7 +138,7 @@ public class XNATextBox : XNAControl
         }
     }
 
-    private string text = string.Empty;
+    private string _text = string.Empty;
 
     /// <summary>
     /// The input character index inside the textbox text.
@@ -245,7 +245,7 @@ public class XNATextBox : XNAControl
             case (char)Keys.Escape:
                 return;
             default:
-                if (text.Length == MaximumTextLength)
+                if (_text.Length == MaximumTextLength)
                     break;
 
                 // Don't allow typing characters that don't exist in the spritefont
@@ -255,10 +255,10 @@ public class XNATextBox : XNAControl
                 if (!AllowCharacterInput(character))
                     break;
 
-                text = text.Insert(InputPosition, character.ToString());
+                _text = _text.Insert(InputPosition, character.ToString());
                 InputPosition++;
 
-                if (TextEndPosition >= text.Length - 1 ||
+                if (TextEndPosition >= _text.Length - 1 ||
                     InputPosition > TextEndPosition)
                 {
                     TextEndPosition++;
@@ -303,7 +303,7 @@ public class XNATextBox : XNAControl
         switch (key)
         {
             case Keys.Home:
-                if (text.Length != 0)
+                if (_text.Length != 0)
                 {
                     TextStartPosition = 0;
                     TextEndPosition = 0;
@@ -311,7 +311,7 @@ public class XNATextBox : XNAControl
 
                     while (true)
                     {
-                        if (TextEndPosition < text.Length)
+                        if (TextEndPosition < _text.Length)
                         {
                             TextEndPosition++;
 
@@ -330,8 +330,8 @@ public class XNATextBox : XNAControl
 
                 return true;
             case Keys.End:
-                TextEndPosition = text.Length;
-                InputPosition = text.Length;
+                TextEndPosition = _text.Length;
+                InputPosition = _text.Length;
                 TextStartPosition = 0;
 
                 while (true)
@@ -350,9 +350,9 @@ public class XNATextBox : XNAControl
                 if (!Keyboard.IsCtrlHeldDown())
                     break;
 
-                if (!string.IsNullOrEmpty(text))
+                if (!string.IsNullOrEmpty(_text))
                 {
-                    ClipboardService.SetText(text);
+                    ClipboardService.SetText(_text);
                     Text = string.Empty;
                     InputReceived?.Invoke(this, EventArgs.Empty);
                 }
@@ -377,8 +377,8 @@ public class XNATextBox : XNAControl
                 if (!Keyboard.IsCtrlHeldDown())
                     break;
 
-                if (!string.IsNullOrEmpty(text))
-                    ClipboardService.SetText(text);
+                if (!string.IsNullOrEmpty(_text))
+                    ClipboardService.SetText(_text);
 
                 return true;
             case Keys.Enter:
@@ -408,8 +408,8 @@ public class XNATextBox : XNAControl
 
     private bool TextFitsBox()
     {
-        return string.IsNullOrEmpty(text) || Renderer.GetTextDimensions(
-            text.SafeSubstring(TextStartPosition, TextEndPosition - TextStartPosition),
+        return string.IsNullOrEmpty(_text) || Renderer.GetTextDimensions(
+            _text.SafeSubstring(TextStartPosition, TextEndPosition - TextStartPosition),
             FontIndex).X < Width - (TEXT_HORIZONTAL_MARGIN * 2);
     }
 
@@ -491,7 +491,7 @@ public class XNATextBox : XNAControl
 
     private void ScrollRight()
     {
-        if (InputPosition >= text.Length)
+        if (InputPosition >= _text.Length)
             return;
 
         InputPosition++;
@@ -509,14 +509,14 @@ public class XNATextBox : XNAControl
 
     private void DeleteCharacter()
     {
-        if (text.Length > InputPosition)
+        if (_text.Length > InputPosition)
         {
-            text = text.Remove(InputPosition, 1);
+            _text = _text.Remove(InputPosition, 1);
 
             if (TextStartPosition > 0)
                 TextStartPosition--;
 
-            if (TextEndPosition > text.Length || !TextFitsBox())
+            if (TextEndPosition > _text.Length || !TextFitsBox())
                 TextEndPosition--;
 
             TextChanged?.Invoke(this, EventArgs.Empty);
@@ -527,15 +527,15 @@ public class XNATextBox : XNAControl
 
     private void Backspace()
     {
-        if (text.Length > 0 && InputPosition > 0)
+        if (_text.Length > 0 && InputPosition > 0)
         {
-            text = text.Remove(InputPosition - 1, 1);
+            _text = _text.Remove(InputPosition - 1, 1);
             InputPosition--;
 
             if (TextStartPosition > 0)
                 TextStartPosition--;
 
-            if (TextEndPosition > text.Length || !TextFitsBox())
+            if (TextEndPosition > _text.Length || !TextFitsBox())
                 TextEndPosition--;
 
             TextChanged?.Invoke(this, EventArgs.Empty);

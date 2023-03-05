@@ -31,44 +31,44 @@ public class XNAContextMenu : XNAControl
 
     public readonly List<XNAContextMenuItem> Items = new();
 
-    private Color? borderColor;
+    private Color? _borderColor;
 
     public Color BorderColor
     {
-        get => borderColor ?? UISettings.ActiveSettings.PanelBorderColor;
-        set => borderColor = value;
+        get => _borderColor ?? UISettings.ActiveSettings.PanelBorderColor;
+        set => _borderColor = value;
     }
 
-    private Color? focusColor;
+    private Color? _focusColor;
 
     public Color FocusColor
     {
-        get => focusColor ?? UISettings.ActiveSettings.FocusColor;
-        set => focusColor = value;
+        get => _focusColor ?? UISettings.ActiveSettings.FocusColor;
+        set => _focusColor = value;
     }
 
-    private Color? backColor;
+    private Color? _backColor;
 
     public Color BackColor
     {
-        get => backColor ?? UISettings.ActiveSettings.BackgroundColor;
-        set => backColor = value;
+        get => _backColor ?? UISettings.ActiveSettings.BackgroundColor;
+        set => _backColor = value;
     }
 
-    private Color? itemColor;
+    private Color? _itemColor;
 
     public Color ItemColor
     {
-        get => itemColor ?? UISettings.ActiveSettings.AltColor;
-        set => itemColor = value;
+        get => _itemColor ?? UISettings.ActiveSettings.AltColor;
+        set => _itemColor = value;
     }
 
-    private Color? disabledItemColor;
+    private Color? _disabledItemColor;
 
     public Color DisabledItemColor
     {
-        get => disabledItemColor ?? UISettings.ActiveSettings.DisabledItemColor;
-        set => disabledItemColor = value;
+        get => _disabledItemColor ?? UISettings.ActiveSettings.DisabledItemColor;
+        set => _disabledItemColor = value;
     }
 
     public int FontIndex { get; set; }

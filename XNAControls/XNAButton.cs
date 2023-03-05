@@ -37,27 +37,27 @@ public class XNAButton : XNAControl
 
     public float TextShadowDistance { get; set; } = UISettings.ActiveSettings.TextShadowDistance;
 
-    private bool allowClick = true;
+    private bool _allowClick = true;
 
     public bool AllowClick
     {
-        get => allowClick;
+        get => _allowClick;
         set
         {
-            allowClick = value;
-            AnimationMode = allowClick && cursorOnControl ? ButtonAnimationMode.HIGHLIGHT : ButtonAnimationMode.RETURN;
+            _allowClick = value;
+            AnimationMode = _allowClick && cursorOnControl ? ButtonAnimationMode.HIGHLIGHT : ButtonAnimationMode.RETURN;
         }
     }
 
-    private string text = string.Empty;
+    private string _text = string.Empty;
 
     public override string Text
     {
-        get => text;
+        get => _text;
 
         set
         {
-            text = value;
+            _text = value;
             if (AdaptiveText)
             {
                 CalculateTextPosition();
@@ -69,34 +69,34 @@ public class XNAButton : XNAControl
 
     public int TextYPosition { get; set; }
 
-    private Color? textColorIdle;
+    private Color? _textColorIdle;
 
     public Color TextColorIdle
     {
-        get => textColorIdle ?? UISettings.ActiveSettings.ButtonTextColor;
+        get => _textColorIdle ?? UISettings.ActiveSettings.ButtonTextColor;
         set
         {
-            textColorIdle = value;
+            _textColorIdle = value;
 
             if (!IsActive)
                 textColor = value;
         }
     }
 
-    private Color? textColorHover;
+    private Color? _textColorHover;
 
     public Color TextColorHover
     {
-        get => textColorHover ?? UISettings.ActiveSettings.ButtonHoverColor;
-        set => textColorHover = value;
+        get => _textColorHover ?? UISettings.ActiveSettings.ButtonHoverColor;
+        set => _textColorHover = value;
     }
 
-    private Color? textColorDisabled;
+    private Color? _textColorDisabled;
 
     public Color TextColorDisabled
     {
-        get => textColorDisabled ?? UISettings.ActiveSettings.DisabledItemColor;
-        set => textColorDisabled = value;
+        get => _textColorDisabled ?? UISettings.ActiveSettings.DisabledItemColor;
+        set => _textColorDisabled = value;
     }
 
     public bool AdaptiveText { get; set; } = true;
@@ -186,7 +186,7 @@ public class XNAButton : XNAControl
 
     private void CalculateTextPosition()
     {
-        Vector2 textSize = Renderer.GetTextDimensions(text, FontIndex);
+        Vector2 textSize = Renderer.GetTextDimensions(_text, FontIndex);
 
         if (textSize.X < Width)
         {
@@ -328,9 +328,9 @@ public class XNAButton : XNAControl
         var textPosition = new Vector2(TextXPosition, TextYPosition);
 
         if (!Enabled || !AllowClick)
-            DrawStringWithShadow(text, FontIndex, textPosition, TextColorDisabled, 1.0f, TextShadowDistance);
+            DrawStringWithShadow(_text, FontIndex, textPosition, TextColorDisabled, 1.0f, TextShadowDistance);
         else
-            DrawStringWithShadow(text, FontIndex, textPosition, textColor, 1.0f, TextShadowDistance);
+            DrawStringWithShadow(_text, FontIndex, textPosition, textColor, 1.0f, TextShadowDistance);
 
         base.Draw(gameTime);
     }

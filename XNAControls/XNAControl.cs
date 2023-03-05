@@ -107,18 +107,18 @@ public class XNAControl : DrawableGameComponent
 
     #endregion
 
-    private XNAControl parent;
+    private XNAControl _parent;
 
     /// <summary>
     /// Gets or sets the parent of this control.
     /// </summary>
     public XNAControl Parent
     {
-        get => parent;
+        get => _parent;
 
         set
         {
-            parent = value;
+            _parent = value;
             ParentChanged?.Invoke(this, EventArgs.Empty);
         }
     }
@@ -176,11 +176,11 @@ public class XNAControl : DrawableGameComponent
 
     #region Location and size
 
-    private int x;
-    private int y;
-    private int width;
-    private int height;
-    private int scaling = 1;
+    private int _x;
+    private int _y;
+    private int _width;
+    private int _height;
+    private int _scaling = 1;
     private int initScaling;
 
     /// <summary>
@@ -188,16 +188,16 @@ public class XNAControl : DrawableGameComponent
     /// </summary>
     public Rectangle ClientRectangle
     {
-        get => new(x, y, width, height);
+        get => new(_x, _y, _width, _height);
         set
         {
-            x = value.X;
-            y = value.Y;
-            bool isSizeChanged = value.Width != width || value.Height != height;
+            _x = value.X;
+            _y = value.Y;
+            bool isSizeChanged = value.Width != _width || value.Height != _height;
             if (isSizeChanged)
             {
-                width = value.Width;
-                height = value.Height;
+                _width = value.Width;
+                _height = value.Height;
                 OnSizeChanged();
             }
 
@@ -239,10 +239,10 @@ public class XNAControl : DrawableGameComponent
     /// </summary>
     public int X
     {
-        get => x;
+        get => _x;
         set
         {
-            x = value;
+            _x = value;
             OnClientRectangleUpdated();
         }
     }
@@ -252,10 +252,10 @@ public class XNAControl : DrawableGameComponent
     /// </summary>
     public int Y
     {
-        get => y;
+        get => _y;
         set
         {
-            y = value;
+            _y = value;
             OnClientRectangleUpdated();
         }
     }
@@ -265,10 +265,10 @@ public class XNAControl : DrawableGameComponent
     /// </summary>
     public int Width
     {
-        get => width;
+        get => _width;
         set
         {
-            width = value;
+            _width = value;
             OnSizeChanged();
             OnClientRectangleUpdated();
         }
@@ -281,10 +281,10 @@ public class XNAControl : DrawableGameComponent
     /// </summary>
     public int Height
     {
-        get => height;
+        get => _height;
         set
         {
-            height = value;
+            _height = value;
             OnSizeChanged();
             OnClientRectangleUpdated();
         }
@@ -324,20 +324,20 @@ public class XNAControl : DrawableGameComponent
     public bool ExclusiveInputCapture { get; protected set; }
 
     private bool cursorOnControl;
-    private float alpha = 1.0f;
+    private float _alpha = 1.0f;
 
     public virtual float Alpha
     {
-        get => alpha;
+        get => _alpha;
 
         set
         {
             if (value > 1.0f)
-                alpha = 1.0f;
+                _alpha = 1.0f;
             else if (value < 0.0)
-                alpha = 0.0f;
+                _alpha = 0.0f;
             else
-                alpha = value;
+                _alpha = value;
         }
     }
 
@@ -377,11 +377,11 @@ public class XNAControl : DrawableGameComponent
 
     public bool IgnoreInputOnFrame
     {
-        get => Parent == null ? ignoreInputOnFrame : ignoreInputOnFrame || Parent.IgnoreInputOnFrame;
+        get => ignoreInputOnFrame || AppliesToSelfAndAllParents(q => q.IgnoreInputOnFrame);
         set => ignoreInputOnFrame = value;
     }
 
-    private ControlDrawMode drawMode = ControlDrawMode.NORMAL;
+    private ControlDrawMode _drawMode = ControlDrawMode.NORMAL;
 
     /// <summary>
     /// The draw mode of the control.
@@ -390,7 +390,7 @@ public class XNAControl : DrawableGameComponent
     /// </summary>
     public ControlDrawMode DrawMode
     {
-        get => drawMode;
+        get => _drawMode;
 
         set
         {
@@ -400,11 +400,11 @@ public class XNAControl : DrawableGameComponent
                     "changed after a control has been initialized.");
             }
 
-            drawMode = value;
+            _drawMode = value;
         }
     }
 
-    private bool isChangingSize;
+    private bool _isChangingSize;
 
     /// <summary>
     /// If set to true and the control has
@@ -413,18 +413,18 @@ public class XNAControl : DrawableGameComponent
     /// </summary>
     public bool IsChangingSize
     {
-        get => isChangingSize || Parent is { IsChangingSize: true };
+        get => _isChangingSize || Parent is { IsChangingSize: true };
         set
         {
-            isChangingSize = value;
-            if (!isChangingSize)
+            _isChangingSize = value;
+            if (!_isChangingSize)
                 CheckForRenderAreaChange();
         }
     }
 
     public int Scaling
     {
-        get => scaling;
+        get => _scaling;
         set
         {
             if (DrawMode != ControlDrawMode.UNIQUE_RENDER_TARGET)
@@ -444,7 +444,7 @@ public class XNAControl : DrawableGameComponent
                 throw new InvalidOperationException("Scale factor cannot be below one.");
             }
 
-            scaling = value;
+            _scaling = value;
         }
     }
 
@@ -534,9 +534,9 @@ public class XNAControl : DrawableGameComponent
             p = new(p.X * parentTotalScaling, p.Y * parentTotalScaling);
 
 #if XNA
-            return XNAControl.SumPoints(p, parent.GetWindowPoint());
+            return XNAControl.SumPoints(p, _parent.GetWindowPoint());
 #else
-            return p + parent.GetWindowPoint();
+            return p + _parent.GetWindowPoint();
 #endif
         }
 
@@ -822,7 +822,7 @@ public class XNAControl : DrawableGameComponent
         base.Initialize();
 
         Initialized = true;
-        initScaling = scaling;
+        initScaling = _scaling;
     }
 
     protected override void OnVisibleChanged(object sender, EventArgs args)

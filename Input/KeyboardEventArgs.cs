@@ -1,12 +1,13 @@
 ﻿namespace Rampastring.XNAUI.Input;
+
 using System;
 
 public class KeyboardEventArgs : EventArgs
 {
-    public KeyboardEventArgs(char character, int lParam)
+    public KeyboardEventArgs(char character, int param)
     {
         Character = character;
-        Param = lParam;
+        Param = param;
     }
 
     public char Character { get; }

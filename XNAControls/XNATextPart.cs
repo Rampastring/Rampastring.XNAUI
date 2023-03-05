@@ -9,10 +9,10 @@ public struct XNATextPart
 {
     public XNATextPart(string text, int fontIndex, float scale, Color? color, bool underlined)
     {
-        this.text = text;
-        this.fontIndex = fontIndex;
-        this.scale = scale;
-        this.color = color;
+        _text = text;
+        _fontIndex = fontIndex;
+        _scale = scale;
+        _color = color;
         Underlined = underlined;
         Size = Point.Zero;
         UpdateSize();
@@ -28,48 +28,48 @@ public struct XNATextPart
     {
     }
 
-    private string text;
+    private string _text;
 
     public string Text
     {
-        get => text;
+        get => _text;
         set
         {
-            text = value;
+            _text = value;
             UpdateSize();
         }
     }
 
-    private int fontIndex;
+    private int _fontIndex;
 
     public int FontIndex
     {
-        get => fontIndex;
+        get => _fontIndex;
         set
         {
-            fontIndex = value;
+            _fontIndex = value;
             UpdateSize();
         }
     }
 
-    private float scale;
+    private float _scale;
 
     public float Scale
     {
-        get => scale;
+        get => _scale;
         set
         {
-            scale = value;
+            _scale = value;
             UpdateSize();
         }
     }
 
-    private Color? color;
+    private Color? _color;
 
     public Color Color
     {
-        get => color ?? UISettings.ActiveSettings.TextColor;
-        set => color = value;
+        get => _color ?? UISettings.ActiveSettings.TextColor;
+        set => _color = value;
     }
 
     public bool Underlined { get; set; }
@@ -78,7 +78,7 @@ public struct XNATextPart
 
     private void UpdateSize()
     {
-        Vector2 size = Renderer.GetTextDimensions(text, FontIndex) * Scale;
+        Vector2 size = Renderer.GetTextDimensions(_text, FontIndex) * Scale;
         Size = new((int)size.X, (int)size.Y);
     }
 

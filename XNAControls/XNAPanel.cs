@@ -16,13 +16,13 @@ public class XNAPanel : XNAControl
 
     public virtual Texture2D BackgroundTexture { get; set; }
 
-    private Color? borderColor;
+    private Color? _borderColor;
 
     public Color BorderColor
     {
-        get => borderColor ?? UISettings.ActiveSettings.PanelBorderColor;
+        get => _borderColor ?? UISettings.ActiveSettings.PanelBorderColor;
 
-        set => borderColor = value;
+        set => _borderColor = value;
     }
 
     public bool DrawBorders { get; set; } = true;

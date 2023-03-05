@@ -20,20 +20,20 @@ public class XNADropDownItem
 
     public bool Selectable { get; set; } = true;
 
-    private float alpha = 1.0f;
+    private float _alpha = 1.0f;
 
     public float Alpha
     {
-        get => alpha;
+        get => _alpha;
 
         set
         {
             if (value < 0.0f)
-                alpha = 0.0f;
+                _alpha = 0.0f;
             else if (value > 1.0f)
-                alpha = 1.0f;
+                _alpha = 1.0f;
             else
-                alpha = value;
+                _alpha = value;
         }
     }
 }

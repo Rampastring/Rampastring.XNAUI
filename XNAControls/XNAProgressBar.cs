@@ -12,28 +12,28 @@ public class XNAProgressBar : XNAControl
 
     public int BorderWidth { get; set; } = 1;
 
-    private Color? borderColor;
+    private Color? _borderColor;
 
     public Color BorderColor
     {
-        get => borderColor ?? UISettings.ActiveSettings.PanelBorderColor;
-        set => borderColor = value;
+        get => _borderColor ?? UISettings.ActiveSettings.PanelBorderColor;
+        set => _borderColor = value;
     }
 
-    private Color? filledColor;
+    private Color? _filledColor;
 
     public Color FilledColor
     {
-        get => filledColor ?? UISettings.ActiveSettings.AltColor;
-        set => filledColor = value;
+        get => _filledColor ?? UISettings.ActiveSettings.AltColor;
+        set => _filledColor = value;
     }
 
-    private Color? unfilledColor;
+    private Color? _unfilledColor;
 
     public Color UnfilledColor
     {
-        get => unfilledColor ?? new Color(FilledColor.R / 3, FilledColor.G / 3, FilledColor.B / 3, FilledColor.A);
-        set => unfilledColor = value;
+        get => _unfilledColor ?? new Color(FilledColor.R / 3, FilledColor.G / 3, FilledColor.B / 3, FilledColor.A);
+        set => _unfilledColor = value;
     }
 
     public int Maximum { get; set; }
@@ -44,26 +44,26 @@ public class XNAProgressBar : XNAControl
 
     public int SmoothTransitionRate { get; set; } = 1;
 
-    private int value;
+    private int _value;
 
     public int Value
     {
-        get => value;
+        get => _value;
 
-        set => this.value = value > Maximum ? Maximum : value;
+        set => _value = value > Maximum ? Maximum : value;
     }
 
     private int shownValue;
 
     public override void Update(GameTime gameTime)
     {
-        if (shownValue < value)
+        if (shownValue < _value)
         {
-            shownValue = SmoothForwardTransition ? Math.Min(shownValue + SmoothTransitionRate, value) : value;
+            shownValue = SmoothForwardTransition ? Math.Min(shownValue + SmoothTransitionRate, _value) : _value;
         }
-        else if (shownValue > value)
+        else if (shownValue > _value)
         {
-            shownValue = SmoothBackwardTransition ? Math.Max(0, shownValue - SmoothTransitionRate) : value;
+            shownValue = SmoothBackwardTransition ? Math.Max(0, shownValue - SmoothTransitionRate) : _value;
         }
     }
 

@@ -42,20 +42,20 @@ public class XNACheckBox : XNAControl
     /// </summary>
     public EnhancedSoundEffect HoverSoundEffect { get; set; }
 
-    private bool @checked;
+    private bool _checked;
 
     /// <summary>
     /// Determines whether the check box is currently checked.
     /// </summary>
     public bool Checked
     {
-        get => @checked;
+        get => _checked;
 
         set
         {
-            bool originalValue = @checked;
-            @checked = value;
-            if (@checked != originalValue)
+            bool originalValue = _checked;
+            _checked = value;
+            if (_checked != originalValue)
                 CheckedChanged?.Invoke(this, EventArgs.Empty);
         }
     }
@@ -75,26 +75,26 @@ public class XNACheckBox : XNAControl
     /// </summary>
     public int TextPadding { get; set; } = TEXT_PADDING_DEFAULT;
 
-    private Color? idleColor;
+    private Color? _idleColor;
 
     /// <summary>
     /// The color of the check box's text when it's not hovered on.
     /// </summary>
     public Color IdleColor
     {
-        get => idleColor ?? UISettings.ActiveSettings.TextColor;
-        set => idleColor = value;
+        get => _idleColor ?? UISettings.ActiveSettings.TextColor;
+        set => _idleColor = value;
     }
 
-    private Color? highlightColor;
+    private Color? _highlightColor;
 
     /// <summary>
     /// The color of the check box's text when it's hovered on.
     /// </summary>
     public Color HighlightColor
     {
-        get => highlightColor ?? UISettings.ActiveSettings.AltColor;
-        set => highlightColor = value;
+        get => _highlightColor ?? UISettings.ActiveSettings.AltColor;
+        set => _highlightColor = value;
     }
 
     public double AlphaRate { get; set; }

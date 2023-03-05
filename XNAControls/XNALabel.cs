@@ -14,20 +14,20 @@ public class XNALabel : XNAControl
     {
     }
 
-    private Color? textColor;
+    private Color? _textColor;
 
     public Color TextColor
     {
-        get => textColor ?? UISettings.ActiveSettings.TextColor;
+        get => _textColor ?? UISettings.ActiveSettings.TextColor;
 
-        set => textColor = value;
+        set => _textColor = value;
     }
 
     public int FontIndex { get; set; }
 
     public float TextShadowDistance { get; set; } = UISettings.ActiveSettings.TextShadowDistance;
 
-    private Vector2 anchorPoint = Vector2.Zero;
+    private Vector2 _anchorPoint = Vector2.Zero;
 
     /// <summary>
     /// Determines the point that the text is placed around
@@ -35,10 +35,10 @@ public class XNALabel : XNAControl
     /// </summary>
     public Vector2 AnchorPoint
     {
-        get => anchorPoint;
+        get => _anchorPoint;
         set
         {
-            anchorPoint = value;
+            _anchorPoint = value;
             RefreshClientRectangle();
         }
     }

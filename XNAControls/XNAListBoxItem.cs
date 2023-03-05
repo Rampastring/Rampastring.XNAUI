@@ -24,29 +24,29 @@ public class XNAListBoxItem
 
     public event EventHandler TextChanged;
 
-    private Color? textColor;
+    private Color? _textColor;
 
     public Color TextColor
     {
-        get => textColor ?? (!Selectable ? UISettings.ActiveSettings.DisabledItemColor : UISettings.ActiveSettings.AltColor);
+        get => _textColor ?? (!Selectable ? UISettings.ActiveSettings.DisabledItemColor : UISettings.ActiveSettings.AltColor);
 
-        set => textColor = value;
+        set => _textColor = value;
     }
 
-    private Color? backgroundColor;
+    private Color? _backgroundColor;
 
     public Color BackgroundColor
     {
-        get => backgroundColor ?? UISettings.ActiveSettings.BackgroundColor;
+        get => _backgroundColor ?? UISettings.ActiveSettings.BackgroundColor;
 
-        set => backgroundColor = value;
+        set => _backgroundColor = value;
     }
 
     public Texture2D Texture { get; set; }
 
     public bool IsHeader { get; set; }
 
-    private string text;
+    private string _text;
 
     /// <summary>
     /// The text of the list box item prior to its parsing by the list box.
@@ -56,10 +56,10 @@ public class XNAListBoxItem
     /// </summary>
     public string Text
     {
-        get => text;
+        get => _text;
         set
         {
-            text = value;
+            _text = value;
             TextChanged?.Invoke(this, EventArgs.Empty);
         }
     }
@@ -75,20 +75,20 @@ public class XNAListBoxItem
 
     public bool Selectable { get; set; } = true;
 
-    private float alpha;
+    private float _alpha;
 
     public float Alpha
     {
-        get => alpha;
+        get => _alpha;
 
         set
         {
             if (value < 0.0f)
-                alpha = 0.0f;
+                _alpha = 0.0f;
             else if (value > 1.0f)
-                alpha = 1.0f;
+                _alpha = 1.0f;
             else
-                alpha = value;
+                _alpha = value;
         }
     }
 

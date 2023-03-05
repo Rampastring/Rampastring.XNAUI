@@ -67,11 +67,11 @@ public static class KeyboardEventInput
         initialized = true;
     }
 
-    private static LRESULT HookProc(HWND hWnd, uint msg, WPARAM wParam, LPARAM lParam)
+    private static LRESULT HookProc(HWND windowHandle, uint msg, WPARAM param1, LPARAM param2)
     {
         Delegate xnaDelegate = Marshal.GetDelegateForFunctionPointer(prevWndProc, typeof(Action));
         var wndProcDelegate = (WndProcDelegate)Delegate.CreateDelegate(typeof(WndProcDelegate), xnaDelegate.Target, xnaDelegate.Method, false);
-        var returnCode = (LRESULT)PInvoke.CallWindowProc(wndProcDelegate, hWnd, msg, (nint)(nuint)wParam, lParam);
+        var returnCode = (LRESULT)PInvoke.CallWindowProc(wndProcDelegate, windowHandle, msg, (nint)(nuint)param1, param2);
 
         switch (msg)
         {
@@ -80,16 +80,16 @@ public static class KeyboardEventInput
                 break;
 
             case PInvoke.WM_CHAR:
-                CharEntered?.Invoke(null, new((char)wParam.Value, (int)lParam.Value));
+                CharEntered?.Invoke(null, new((char)param1.Value, (int)param2.Value));
                 break;
 
             case PInvoke.WM_IME_SETCONTEXT:
-                if (wParam == 1)
-                    PInvoke.ImmAssociateContext(hWnd, hIMC);
+                if (param1 == 1)
+                    PInvoke.ImmAssociateContext(windowHandle, hIMC);
                 break;
 
             case PInvoke.WM_INPUTLANGCHANGE:
-                PInvoke.ImmAssociateContext(hWnd, hIMC);
+                PInvoke.ImmAssociateContext(windowHandle, hIMC);
                 returnCode = (LRESULT)1;
                 break;
         }

@@ -52,9 +52,9 @@ public static class Renderer
         string originalContentRoot = contentManager.RootDirectory;
 
 #if XNA
-        var contentManagerType = contentManager.GetType();
-        var rootDirectoryField = contentManagerType.GetField("rootDirectory", BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.SetField | BindingFlags.GetField);
-        var fullRootDirectoryField = contentManager.GetType().GetField("fullRootDirectory", BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.SetField | BindingFlags.GetField);
+        Type contentManagerType = contentManager.GetType();
+        FieldInfo rootDirectoryField = contentManagerType.GetField("rootDirectory", BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.SetField | BindingFlags.GetField);
+        FieldInfo fullRootDirectoryField = contentManager.GetType().GetField("fullRootDirectory", BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.SetField | BindingFlags.GetField);
 #endif
 
         foreach (string searchPath in AssetLoader.AssetSearchPaths)

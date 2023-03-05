@@ -72,33 +72,33 @@ public class XNAListBox : XNAPanel
     /// </summary>
     public readonly List<XNAListBoxItem> Items = new();
 
-    private Color? focusColor;
+    private Color? _focusColor;
 
     public Color FocusColor
     {
-        get => focusColor ?? UISettings.ActiveSettings.FocusColor;
-        set => focusColor = value;
+        get => _focusColor ?? UISettings.ActiveSettings.FocusColor;
+        set => _focusColor = value;
     }
 
-    private Color? defaultItemColor;
+    private Color? _defaultItemColor;
 
     public Color DefaultItemColor
     {
-        get => defaultItemColor ?? UISettings.ActiveSettings.AltColor;
-        set => defaultItemColor = value;
+        get => _defaultItemColor ?? UISettings.ActiveSettings.AltColor;
+        set => _defaultItemColor = value;
     }
 
-    private int lineHeight = 15;
+    private int _lineHeight = 15;
 
     /// <summary>
     /// Gets or sets the height of a single line of text in the list box.
     /// </summary>
     public int LineHeight
     {
-        get => lineHeight;
+        get => _lineHeight;
         set
         {
-            lineHeight = value;
+            _lineHeight = value;
             ScrollBar.ScrollStep = value;
         }
     }
@@ -125,18 +125,18 @@ public class XNAListBox : XNAPanel
     /// </summary>
     public int TextBorderDistance { get; set; } = 3;
 
-    private int viewTop;
+    private int _viewTop;
 
     public int ViewTop
     {
-        get => viewTop;
+        get => _viewTop;
         set
         {
-            if (value != viewTop)
+            if (value != _viewTop)
             {
-                viewTop = viewTop < 0 ? 0 : value;
+                _viewTop = _viewTop < 0 ? 0 : value;
                 TopIndexChanged?.Invoke(this, EventArgs.Empty);
-                ScrollBar.RefreshButtonY(viewTop);
+                ScrollBar.RefreshButtonY(_viewTop);
             }
         }
     }
@@ -211,16 +211,16 @@ public class XNAListBox : XNAPanel
 
     public float ItemAlphaRate { get; set; } = 0.01f;
 
-    private int selectedIndex = -1;
+    private int _selectedIndex = -1;
 
     public int SelectedIndex
     {
-        get => selectedIndex;
+        get => _selectedIndex;
 
         set
         {
-            int oldSelectedIndex = selectedIndex;
-            selectedIndex = value;
+            int oldSelectedIndex = _selectedIndex;
+            _selectedIndex = value;
             if (value != oldSelectedIndex && SelectedIndexChanged != null)
                 SelectedIndexChanged(this, EventArgs.Empty);
         }
@@ -232,16 +232,16 @@ public class XNAListBox : XNAPanel
     public XNAListBoxItem SelectedItem
         => SelectedIndex < 0 || SelectedIndex >= Items.Count ? null : Items[SelectedIndex];
 
-    private int hoveredIndex = -1;
+    private int _hoveredIndex = -1;
 
     public int HoveredIndex
     {
-        get => hoveredIndex;
+        get => _hoveredIndex;
         set
         {
-            int oldHoveredIndex = hoveredIndex;
+            int oldHoveredIndex = _hoveredIndex;
 
-            hoveredIndex = value;
+            _hoveredIndex = value;
 
             if (value != oldHoveredIndex && HoveredIndexChanged != null)
                 HoveredIndexChanged(this, EventArgs.Empty);
@@ -255,20 +255,20 @@ public class XNAListBox : XNAPanel
     /// </summary>
     public int NumberOfLinesOnList => (ClientRectangle.Height - 4) / LineHeight;
 
-    private bool enableScrollbar = true;
+    private bool _enableScrollbar = true;
 
     /// <summary>
     /// Controls whether the integrated listbox scrollbar is used.
     /// </summary>
     public bool EnableScrollbar
     {
-        get => enableScrollbar;
+        get => _enableScrollbar;
 
         set
         {
-            enableScrollbar = value;
-            ScrollBar.Visible = enableScrollbar;
-            ScrollBar.Enabled = enableScrollbar;
+            _enableScrollbar = value;
+            ScrollBar.Visible = _enableScrollbar;
+            ScrollBar.Enabled = _enableScrollbar;
         }
     }
 

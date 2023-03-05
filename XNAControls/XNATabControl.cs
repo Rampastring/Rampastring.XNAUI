@@ -21,18 +21,18 @@ public class XNATabControl : XNAControl
 
     public event SelectedIndexChangedEventHandler SelectedIndexChanged;
 
-    private int selectedTab;
+    private int _selectedTab;
 
     public int SelectedTab
     {
-        get => selectedTab;
+        get => _selectedTab;
 
         set
         {
-            if (selectedTab == value)
+            if (_selectedTab == value)
                 return;
 
-            selectedTab = value;
+            _selectedTab = value;
             SelectedIndexChanged?.Invoke(this, EventArgs.Empty);
         }
     }
@@ -41,20 +41,20 @@ public class XNATabControl : XNAControl
 
     public bool DisposeTexturesOnTabRemove { get; set; }
 
-    private Color? textColor;
+    private Color? _textColor;
 
     public Color TextColor
     {
-        get => textColor ?? UISettings.ActiveSettings.AltColor;
-        set => textColor = value;
+        get => _textColor ?? UISettings.ActiveSettings.AltColor;
+        set => _textColor = value;
     }
 
-    private Color? textColorDisabled;
+    private Color? _textColorDisabled;
 
     public Color TextColorDisabled
     {
-        get => textColorDisabled ?? UISettings.ActiveSettings.DisabledItemColor;
-        set => textColorDisabled = value;
+        get => _textColorDisabled ?? UISettings.ActiveSettings.DisabledItemColor;
+        set => _textColorDisabled = value;
     }
 
     private readonly List<Tab> tabs = new();

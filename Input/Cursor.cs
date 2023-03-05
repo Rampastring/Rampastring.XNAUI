@@ -171,9 +171,6 @@ public class Cursor : DrawableGameComponent
 
         Texture2D texture = Textures[TextureIndex];
 
-        Renderer.DrawTexture(
-            texture,
-            new(DrawnLocation.X, DrawnLocation.Y, texture.Width, texture.Height),
-            RemapColor);
+        Renderer.DrawTexture(texture, new(DrawnLocation.X, DrawnLocation.Y, texture.Width, texture.Height), RemapColor);
     }
 }

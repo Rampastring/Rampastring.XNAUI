@@ -20,13 +20,13 @@ public class XNATextBlock : XNAPanel
         set => base.Text = Renderer.FixText(value, FontIndex, Width - (TextXMargin * 2)).Text;
     }
 
-    private Color? textColor;
+    private Color? _textColor;
 
     public Color TextColor
     {
-        get => textColor ?? UISettings.ActiveSettings.TextColor;
+        get => _textColor ?? UISettings.ActiveSettings.TextColor;
 
-        set => textColor = value;
+        set => _textColor = value;
     }
 
     public int FontIndex { get; set; }

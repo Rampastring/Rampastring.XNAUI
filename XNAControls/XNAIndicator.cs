@@ -37,20 +37,20 @@ public class XNAIndicator<T> : XNAControl
     public Dictionary<T, Texture2D> Textures { get; set; }
 
     private Texture2D oldTexture;
-    private Texture2D currentTexture;
+    private Texture2D _currentTexture;
 
     /// <summary>
     /// Determines the currently displayed texture.
     /// </summary>
     protected virtual Texture2D CurrentTexture
     {
-        get => currentTexture;
+        get => _currentTexture;
         set
         {
-            if (value != currentTexture)
+            if (value != _currentTexture)
             {
-                oldTexture = currentTexture;
-                currentTexture = value;
+                oldTexture = _currentTexture;
+                _currentTexture = value;
                 textureAlpha = 0.0;
             }
         }
@@ -66,26 +66,26 @@ public class XNAIndicator<T> : XNAControl
     /// </summary>
     public int TextPadding { get; set; } = TEXT_PADDING_DEFAULT;
 
-    private Color? idleColor;
+    private Color? _idleColor;
 
     /// <summary>
     /// The color of the indicator's text when it's not hovered on.
     /// </summary>
     public Color IdleColor
     {
-        get => idleColor ?? UISettings.ActiveSettings.TextColor;
-        set => idleColor = value;
+        get => _idleColor ?? UISettings.ActiveSettings.TextColor;
+        set => _idleColor = value;
     }
 
-    private Color? highlightColor;
+    private Color? _highlightColor;
 
     /// <summary>
     /// The color of the indicator's text when it's hovered on.
     /// </summary>
     public Color HighlightColor
     {
-        get => highlightColor ?? UISettings.ActiveSettings.AltColor;
-        set => highlightColor = value;
+        get => _highlightColor ?? UISettings.ActiveSettings.AltColor;
+        set => _highlightColor = value;
     }
 
     public double AlphaRate { get; set; }
@@ -119,7 +119,7 @@ public class XNAIndicator<T> : XNAControl
 
         oldTexture ??= Textures[default];
 
-        currentTexture ??= Textures[default];
+        _currentTexture ??= Textures[default];
 
         SetTextPositionAndSize();
 
@@ -237,8 +237,8 @@ public class XNAIndicator<T> : XNAControl
         if (textureAlpha > 0.0)
         {
             DrawTexture(
-                currentTexture,
-                new Rectangle(0, indicatorYPosition, currentTexture.Width, currentTexture.Height),
+                _currentTexture,
+                new Rectangle(0, indicatorYPosition, _currentTexture.Width, _currentTexture.Height),
                 Color.White * (float)textureAlpha);
         }
 
