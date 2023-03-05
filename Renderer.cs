@@ -196,18 +196,17 @@ public static class Renderer
     public static void EndDraw() => spriteBatch.End();
 
     public static void PushRenderTarget(RenderTarget2D renderTarget) => RenderTargetStack.PushRenderTarget(
-        renderTarget,
-        new(SpriteSortMode.Deferred, BlendState.AlphaBlend, null, null, null, null));
+        renderTarget, new(SpriteSortMode.Deferred, BlendState.AlphaBlend, null, null, null, null));
 
     public static void PushRenderTarget(RenderTarget2D renderTarget, SpriteBatchSettings settings)
         => RenderTargetStack.PushRenderTarget(renderTarget, settings);
 
     public static void PopRenderTarget() => RenderTargetStack.PopRenderTarget();
 
-    internal static void BeginDrawInternal(SpriteBatchSettings settings)
+    private static void BeginDrawInternal(SpriteBatchSettings settings)
         => BeginDrawInternal(settings.SpriteSortMode, settings.BlendState, settings.SamplerState, settings.DepthStencilState, settings.RasterizerState, settings.Effect);
 
-    internal static void BeginDrawInternal(SpriteSortMode ssm, BlendState bs, SamplerState ss, DepthStencilState dss, RasterizerState rs, Effect effect)
+    private static void BeginDrawInternal(SpriteSortMode ssm, BlendState bs, SamplerState ss, DepthStencilState dss, RasterizerState rs, Effect effect)
 #if XNA
         => spriteBatch.Begin(ssm, bs, ss, DepthStencilState.Default, RasterizerState.CullNone);
 #else

@@ -940,10 +940,7 @@ public class XNAControl : DrawableGameComponent
             case "Size":
                 string[] size = value.Split(',');
                 ClientRectangle = new(
-                    X,
-                    Y,
-                    int.Parse(size[0], CultureInfo.InvariantCulture),
-                    int.Parse(size[1], CultureInfo.InvariantCulture));
+                    X, Y, int.Parse(size[0], CultureInfo.InvariantCulture), int.Parse(size[1], CultureInfo.InvariantCulture));
                 return;
             case "Width":
                 Width = int.Parse(value, CultureInfo.InvariantCulture);
@@ -980,53 +977,21 @@ public class XNAControl : DrawableGameComponent
                 return;
             case "DistanceFromRightBorder":
                 if (Parent != null)
-                {
-                    ClientRectangle = new(
-                        Parent.Width - Width - Conversions.IntFromString(value, 0),
-                        Y,
-                        Width,
-                        Height);
-                }
-
+                    ClientRectangle = new(Parent.Width - Width - Conversions.IntFromString(value, 0), Y, Width, Height);
                 return;
             case "DistanceFromBottomBorder":
                 if (Parent != null)
-                {
-                    ClientRectangle = new(
-                        X,
-                        Parent.Height - Height - Conversions.IntFromString(value, 0),
-                        Width,
-                        Height);
-                }
-
+                    ClientRectangle = new(X, Parent.Height - Height - Conversions.IntFromString(value, 0), Width, Height);
                 return;
             case "FillWidth":
                 ClientRectangle = Parent != null
-                    ? new(
-                        X,
-                        Y,
-                        Parent.Width - X - Conversions.IntFromString(value, 0),
-                        Height)
-                    : new(
-                        X,
-                        Y,
-                        WindowManager.RenderResolutionX - X - Conversions.IntFromString(value, 0),
-                        Height);
-
+                    ? new(X, Y, Parent.Width - X - Conversions.IntFromString(value, 0), Height)
+                    : new(X, Y, WindowManager.RenderResolutionX - X - Conversions.IntFromString(value, 0), Height);
                 return;
             case "FillHeight":
                 ClientRectangle = Parent != null
-                    ? new(
-                        X,
-                        Y,
-                        Width,
-                        Parent.Height - Y - Conversions.IntFromString(value, 0))
-                    : new(
-                        X,
-                        Y,
-                        Width,
-                        WindowManager.RenderResolutionY - Y - Conversions.IntFromString(value, 0));
-
+                    ? new(X, Y, Width, Parent.Height - Y - Conversions.IntFromString(value, 0))
+                    : new(X, Y, Width, WindowManager.RenderResolutionY - Y - Conversions.IntFromString(value, 0));
                 return;
             case "ControlDrawMode":
                 if (value == "UniqueRenderTarget")
