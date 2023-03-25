@@ -361,24 +361,24 @@ public class XNAControl : DrawableGameComponent
     /// </summary>
     public bool InputEnabled { get; set; } = true;
 
-    private bool isActive;
+    private bool _isActive;
 
     /// <summary>
     /// Gets or sets a bool that determines whether this control is the current focus of the mouse cursor.
     /// </summary>
     public bool IsActive
     {
-        get => Parent != null && !Detached ? Parent.IsActive && isActive : isActive;
+        get => Parent != null && !Detached ? Parent.IsActive && _isActive : _isActive;
 
-        set => isActive = value;
+        set => _isActive = value;
     }
 
-    private bool ignoreInputOnFrame;
+    private bool _ignoreInputOnFrame;
 
     public bool IgnoreInputOnFrame
     {
-        get => ignoreInputOnFrame || AppliesToSelfAndAllParents(q => q.IgnoreInputOnFrame);
-        set => ignoreInputOnFrame = value;
+        get => _ignoreInputOnFrame || AppliesToAnyParent(q => q.IgnoreInputOnFrame);
+        set => _ignoreInputOnFrame = value;
     }
 
     private ControlDrawMode _drawMode = ControlDrawMode.NORMAL;
@@ -500,14 +500,21 @@ public class XNAControl : DrawableGameComponent
     /// <summary>
     /// Checks if the last parent of this control is active.
     /// </summary>
-    public bool IsLastParentActive() => Parent?.IsLastParentActive() ?? isActive;
+    public bool IsLastParentActive() => Parent?.IsLastParentActive() ?? _isActive;
 
     /// <summary>
     /// Checks whether a condition applies to this control and all of its parents.
     /// </summary>
     /// <param name="func">The condition.</param>
     public bool AppliesToSelfAndAllParents(Func<XNAControl, bool> func)
-        => func(this) && (Parent == null || Parent.AppliesToSelfAndAllParents(func));
+        => func(this) && (Parent is null || Parent.AppliesToSelfAndAllParents(func));
+
+    /// <summary>
+    /// Checks whether a condition applies to any of its parents.
+    /// </summary>
+    /// <param name="func">The condition.</param>
+    public bool AppliesToAnyParent(Func<XNAControl, bool> func)
+        => Parent?.AppliesToAnyParent(func) ?? false;
 
     /// <summary>
     /// Gets the cursor's location relative to this control's location.
@@ -1066,7 +1073,7 @@ public class XNAControl : DrawableGameComponent
 
         if (IgnoreInputOnFrame)
         {
-            ignoreInputOnFrame = false;
+            IgnoreInputOnFrame = false;
             return;
         }
 
