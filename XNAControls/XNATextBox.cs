@@ -537,9 +537,7 @@ public class XNATextBox : XNAControl
             text = text.Remove(InputPosition, 1);
 
             if (TextStartPosition > 0)
-            {
                 TextStartPosition--;
-            }
 
             if (TextEndPosition > text.Length || !TextFitsBox())
                 TextEndPosition--;
@@ -560,7 +558,7 @@ public class XNATextBox : XNAControl
             if (TextStartPosition > 0)
                 TextStartPosition--;
 
-            if (TextEndPosition > text.Length - 1)
+            if (TextEndPosition > text.Length || !TextFitsBox())
                 TextEndPosition--;
 
             TextChanged?.Invoke(this, EventArgs.Empty);
