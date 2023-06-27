@@ -36,6 +36,8 @@ public class Cursor : DrawableGameComponent
 
     public bool RightClicked { get; private set; }
 
+    public bool MiddleClicked { get; private set; }
+
     /// <summary>
     /// Gets a value that indicates whether the left mouse button is held down
     /// on the current frame.
@@ -61,6 +63,19 @@ public class Cursor : DrawableGameComponent
     /// on the previous frame).
     /// </summary>
     public bool RightPressedDown { get; private set; }
+
+    /// <summary>
+    /// Gets a value that indicates whether the middle mouse button is held down
+    /// on the current frame.
+    /// </summary>
+    public bool MiddleDown { get; private set; }
+
+    /// <summary>
+    /// Gets a value that indicates whether the middle mouse button was pressed
+    /// down on this frame (meaning it's down on the current frame, but wasn't down
+    /// on the previous frame).
+    /// </summary>
+    public bool MiddlePressedDown { get; private set; }
 
     public bool Disabled { get; set; }
 
@@ -126,6 +141,7 @@ public class Cursor : DrawableGameComponent
         {
             LeftClicked = false;
             RightClicked = false;
+            MiddleClicked = false;
             LeftDown = false;
             return;
         }
@@ -156,6 +172,10 @@ public class Cursor : DrawableGameComponent
         RightDown = ms.RightButton == ButtonState.Pressed;
         RightPressedDown = RightDown && previousMouseState.RightButton != ButtonState.Pressed;
         RightClicked = ms.RightButton == ButtonState.Released && previousMouseState.RightButton == ButtonState.Pressed;
+
+        MiddleDown = ms.MiddleButton == ButtonState.Pressed;
+        MiddlePressedDown = MiddleDown && previousMouseState.MiddleButton != ButtonState.Pressed;
+        MiddleClicked = ms.MiddleButton == ButtonState.Released && previousMouseState.MiddleButton == ButtonState.Pressed;
 
         previousMouseState = ms;
     }
