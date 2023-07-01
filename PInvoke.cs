@@ -7,113 +7,59 @@
 // </auto-generated>
 // ------------------------------------------------------------------------------
 
-/* SetWindowLongPtr only exists on 64bit Windows versions. The code generator only generates this method when the Platform is set to a 64bit Platform.
- * We copy the generated code here so we can build for AnyCPU.
- * By default SetWindowLongW is generated, XNA needs SetWindowLongA
- * CallWindowProc needs to use the XNA defined delegate */
-
 #pragma warning disable CS1591,CS1573,CS0465,CS0649,CS8019,CS1570,CS1584,CS1658,CS0436,CS8981
+using global::System;
+using global::System.Diagnostics;
+using global::System.Diagnostics.CodeAnalysis;
+using global::System.Runtime.CompilerServices;
+using global::System.Runtime.InteropServices;
+using global::System.Runtime.Versioning;
+using winmdroot = global::Windows.Win32;
 namespace Windows.Win32
 {
-    using global::System;
-    using global::System.Diagnostics;
-    using global::System.Runtime.CompilerServices;
-    using global::System.Runtime.InteropServices;
-    using global::System.Runtime.Versioning;
-    using Rampastring.XNAUI;
-    using winmdroot = global::Windows.Win32;
-
-
-    /// <content>
-    /// Contains extern methods from "User32.dll".
-    /// </content>
     internal static partial class PInvoke
     {
-        /// <summary>Changes an attribute of the specified window.</summary>
-        /// <param name="hWnd">
-        /// <para>Type: <b>HWND</b> A handle to the window and, indirectly, the class to which the window belongs. The <b>SetWindowLongPtr</b> function fails if the process that owns the window specified by the <i>hWnd</i> parameter is at a higher process privilege in the UIPI hierarchy than the process the calling thread resides in. <b>Windows XP/2000:  </b> The <b>SetWindowLongPtr</b> function fails if the window specified by the <i>hWnd</i> parameter does not belong to the same process as the calling thread.</para>
-        /// <para><see href="https://docs.microsoft.com/windows/win32/api//winuser/nf-winuser-setwindowlongptrw#parameters">Read more on docs.microsoft.com</see>.</para>
-        /// </param>
-        /// <param name="nIndex">Type: <b>int</b></param>
-        /// <param name="dwNewLong">
-        /// <para>Type: <b>LONG_PTR</b> The replacement value.</para>
-        /// <para><see href="https://docs.microsoft.com/windows/win32/api//winuser/nf-winuser-setwindowlongptrw#parameters">Read more on docs.microsoft.com</see>.</para>
-        /// </param>
-        /// <returns>
-        /// <para>Type: <b>LONG_PTR</b> If the function succeeds, the return value is the previous value of the specified offset. If the function fails, the return value is zero. To get extended error information, call <a href="/windows/desktop/api/errhandlingapi/nf-errhandlingapi-getlasterror">GetLastError</a>. If the previous value is zero and the function succeeds, the return value is zero, but the function does not clear the last error information. To determine success or failure, clear the last error information by calling <a href="/windows/desktop/api/errhandlingapi/nf-errhandlingapi-setlasterror">SetLastError</a> with 0, then call <b>SetWindowLongPtr</b>. Function failure will be indicated by a return value of zero and a <a href="/windows/desktop/api/errhandlingapi/nf-errhandlingapi-getlasterror">GetLastError</a> result that is nonzero.</para>
-        /// </returns>
-        /// <remarks>
-        /// <para><see href="https://docs.microsoft.com/windows/win32/api//winuser/nf-winuser-setwindowlongptrw">Learn more about this API from docs.microsoft.com</see>.</para>
-        /// </remarks>
-        [DllImport("User32", ExactSpelling = true, EntryPoint = "SetWindowLongPtrW", SetLastError = true)]
-        [DefaultDllImportSearchPaths(DllImportSearchPath.System32)]
-#if !NETFRAMEWORK
-        [SupportedOSPlatform("windows5.0")]
-#endif
-        internal static extern nint SetWindowLongPtr(winmdroot.Foundation.HWND hWnd, winmdroot.UI.WindowsAndMessaging.WINDOW_LONG_PTR_INDEX nIndex, nint dwNewLong);
-
-        /// <summary>Changes an attribute of the specified window. The function also sets the 32-bit (long) value at the specified offset into the extra window memory.</summary>
-        /// <param name="hWnd">
-        /// <para>Type: <b>HWND</b> A handle to the window and, indirectly, the class to which the window belongs.</para>
-        /// <para><see href="https://docs.microsoft.com/windows/win32/api//winuser/nf-winuser-setwindowlongw#parameters">Read more on docs.microsoft.com</see>.</para>
-        /// </param>
-        /// <param name="nIndex">Type: <b>int</b></param>
-        /// <param name="dwNewLong">
-        /// <para>Type: <b>LONG</b> The replacement value.</para>
-        /// <para><see href="https://docs.microsoft.com/windows/win32/api//winuser/nf-winuser-setwindowlongw#parameters">Read more on docs.microsoft.com</see>.</para>
-        /// </param>
-        /// <returns>
-        /// <para>Type: <b>LONG</b> If the function succeeds, the return value is the previous value of the specified 32-bit integer. If the function fails, the return value is zero. To get extended error information, call <a href="/windows/desktop/api/errhandlingapi/nf-errhandlingapi-getlasterror">GetLastError</a>. If the previous value of the specified 32-bit integer is zero, and the function succeeds, the return value is zero, but the function does not clear the last error information. This makes it difficult to determine success or failure. To deal with this, you should clear the last error information by calling <a href="/windows/desktop/api/errhandlingapi/nf-errhandlingapi-setlasterror">SetLastError</a> with 0 before calling <b>SetWindowLong</b>. Then, function failure will be indicated by a return value of zero and a <a href="/windows/desktop/api/errhandlingapi/nf-errhandlingapi-getlasterror">GetLastError</a> result that is nonzero.</para>
-        /// </returns>
-        /// <remarks>
-        /// <para><see href="https://docs.microsoft.com/windows/win32/api//winuser/nf-winuser-setwindowlongw">Learn more about this API from docs.microsoft.com</see>.</para>
-        /// </remarks>
-        [DllImport("User32", ExactSpelling = true, EntryPoint = "SetWindowLongA", SetLastError = true)]
-        [DefaultDllImportSearchPaths(DllImportSearchPath.System32)]
-#if !NETFRAMEWORK
-        [SupportedOSPlatform("windows5.0")]
-#endif
-        internal static extern int SetWindowLong(winmdroot.Foundation.HWND hWnd, winmdroot.UI.WindowsAndMessaging.WINDOW_LONG_PTR_INDEX nIndex, int dwNewLong);
-
-        /// <summary>Passes message information to the specified window procedure.</summary>
+        /// <summary>Passes message information to the specified window procedure. (Unicode)</summary>
         /// <param name="lpPrevWndFunc">
         /// <para>Type: <b>WNDPROC</b> The previous window procedure. If this value is obtained by calling the <a href="https://docs.microsoft.com/windows/desktop/api/winuser/nf-winuser-getwindowlonga">GetWindowLong</a> function with the <i>nIndex</i> parameter set to <b>GWL_WNDPROC</b> or <b>DWL_DLGPROC</b>, it is actually either the address of a window or dialog box procedure, or a special internal value meaningful only to <b>CallWindowProc</b>.</para>
-        /// <para><see href="https://docs.microsoft.com/windows/win32/api//winuser/nf-winuser-callwindowprocw#parameters">Read more on docs.microsoft.com</see>.</para>
+        /// <para><see href="https://docs.microsoft.com/windows/win32/api/winuser/nf-winuser-callwindowprocw#parameters">Read more on docs.microsoft.com</see>.</para>
         /// </param>
         /// <param name="hWnd">
         /// <para>Type: <b>HWND</b> A handle to the window procedure to receive the message.</para>
-        /// <para><see href="https://docs.microsoft.com/windows/win32/api//winuser/nf-winuser-callwindowprocw#parameters">Read more on docs.microsoft.com</see>.</para>
+        /// <para><see href="https://docs.microsoft.com/windows/win32/api/winuser/nf-winuser-callwindowprocw#parameters">Read more on docs.microsoft.com</see>.</para>
         /// </param>
         /// <param name="Msg">
         /// <para>Type: <b>UINT</b> The message.</para>
-        /// <para><see href="https://docs.microsoft.com/windows/win32/api//winuser/nf-winuser-callwindowprocw#parameters">Read more on docs.microsoft.com</see>.</para>
+        /// <para><see href="https://docs.microsoft.com/windows/win32/api/winuser/nf-winuser-callwindowprocw#parameters">Read more on docs.microsoft.com</see>.</para>
         /// </param>
         /// <param name="wParam">
         /// <para>Type: <b>WPARAM</b> Additional message-specific information. The contents of this parameter depend on the value of the <i>Msg</i> parameter.</para>
-        /// <para><see href="https://docs.microsoft.com/windows/win32/api//winuser/nf-winuser-callwindowprocw#parameters">Read more on docs.microsoft.com</see>.</para>
+        /// <para><see href="https://docs.microsoft.com/windows/win32/api/winuser/nf-winuser-callwindowprocw#parameters">Read more on docs.microsoft.com</see>.</para>
         /// </param>
         /// <param name="lParam">
         /// <para>Type: <b>LPARAM</b> Additional message-specific information. The contents of this parameter depend on the value of the <i>Msg</i> parameter.</para>
-        /// <para><see href="https://docs.microsoft.com/windows/win32/api//winuser/nf-winuser-callwindowprocw#parameters">Read more on docs.microsoft.com</see>.</para>
+        /// <para><see href="https://docs.microsoft.com/windows/win32/api/winuser/nf-winuser-callwindowprocw#parameters">Read more on docs.microsoft.com</see>.</para>
         /// </param>
         /// <returns>
         /// <para>Type: <b>LRESULT</b> The return value specifies the result of the message processing and depends on the message sent.</para>
         /// </returns>
         /// <remarks>
-        /// <para><see href="https://docs.microsoft.com/windows/win32/api//winuser/nf-winuser-callwindowprocw">Learn more about this API from docs.microsoft.com</see>.</para>
+        /// <para>Use the <b>CallWindowProc</b> function for window subclassing. Usually, all windows with the same class share one window procedure. A subclass is a window or set of windows with the same class whose messages are intercepted and processed by another window procedure (or procedures) before being passed to the window procedure of the class. The <a href="https://docs.microsoft.com/windows/desktop/api/winuser/nf-winuser-setwindowlonga">SetWindowLong</a> function creates the subclass by changing the window procedure associated with a particular window, causing the system to call the new window procedure instead of the previous one. An application must pass any messages not processed by the new window procedure to the previous window procedure by calling <b>CallWindowProc</b>. This allows the application to create a chain of window procedures. If <b>STRICT</b> is defined, the <i>lpPrevWndFunc</i> parameter has the data type <b>WNDPROC</b>. The <b>WNDPROC</b> type is declared as follows:</para>
+        /// <para></para>
+        /// <para>This doc was truncated.</para>
+        /// <para><see href="https://docs.microsoft.com/windows/win32/api/winuser/nf-winuser-callwindowprocw#">Read more on docs.microsoft.com</see>.</para>
         /// </remarks>
-        [DllImport("User32", ExactSpelling = true, EntryPoint = "CallWindowProcW")]
+        [DllImport("USER32.dll", ExactSpelling = true)]
         [DefaultDllImportSearchPaths(DllImportSearchPath.System32)]
 #if !NETFRAMEWORK
         [SupportedOSPlatform("windows5.0")]
 #endif
-
-/* Unmerged change from project 'Rampastring.XNAUI (net48)'
-Before:
-        internal static extern IntPtr CallWindowProc(UI.WindowsAndMessaging.WndProcDelegate lpPrevWndFunc, IntPtr hWnd, uint Msg, IntPtr wParam, IntPtr lParam);
-After:
-        internal static extern IntPtr CallWindowProc(WndProcDelegate lpPrevWndFunc, IntPtr hWnd, uint Msg, IntPtr wParam, IntPtr lParam);
-*/
-        internal static extern IntPtr CallWindowProc(Rampastring.XNAUI.WndProcDelegate lpPrevWndFunc, IntPtr hWnd, uint Msg, IntPtr wParam, IntPtr lParam);
+        /*
+         * We need to match the delegate used by XNA.
+         *
+         * CsWin32 Generated:
+         * internal static extern winmdroot.Foundation.LRESULT CallWindowProcW(winmdroot.UI.WindowsAndMessaging.WNDPROC lpPrevWndFunc, winmdroot.Foundation.HWND hWnd, uint Msg, winmdroot.Foundation.WPARAM wParam, winmdroot.Foundation.LPARAM lParam);
+        */
+        internal static extern winmdroot.Foundation.LRESULT CallWindowProcW(winmdroot.UI.WindowsAndMessaging.WndProcDelegate lpPrevWndFunc, winmdroot.Foundation.HWND hWnd, uint Msg, winmdroot.Foundation.WPARAM wParam, winmdroot.Foundation.LPARAM lParam);
     }
 }

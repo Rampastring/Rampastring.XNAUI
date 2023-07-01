@@ -90,7 +90,7 @@ public class Cursor : DrawableGameComponent
             return;
 
 #pragma warning disable CA2000 // Dispose objects before losing scope
-        DestroyCursorSafeHandle cursorPointer = PInvoke.LoadCursorFromFile(fileInfo.FullName);
+        DestroyCursorSafeHandle cursorPointer = PInvoke.LoadCursorFromFileW(fileInfo.FullName);
 #pragma warning restore CA2000 // Dispose objects before losing scope
 
         var form = (System.Windows.Forms.Form)System.Windows.Forms.Control.FromHandle(Game.Window.Handle);

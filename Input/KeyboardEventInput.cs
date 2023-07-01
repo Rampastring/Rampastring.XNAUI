@@ -4,7 +4,6 @@ using System;
 using System.ComponentModel;
 using System.Runtime.InteropServices;
 using Microsoft.Xna.Framework;
-using Rampastring.XNAUI;
 using Windows.Win32;
 using Windows.Win32.Foundation;
 using Windows.Win32.Globalization;
@@ -26,7 +25,7 @@ public static class KeyboardEventInput
     public static event CharEnteredHandler CharEntered;
 
     private static bool initialized;
-    private static IntPtr prevWndProc;
+    private static nint prevWndProc;
     private static WNDPROC hookProcDelegate;
     private static HIMC hIMC;
 
@@ -44,25 +43,12 @@ public static class KeyboardEventInput
 
         hookProcDelegate = HookProc;
 
-        if (Environment.Is64BitProcess)
-        {
-            nint result = PInvoke.SetWindowLongPtr((HWND)window.Handle, WINDOW_LONG_PTR_INDEX.GWL_WNDPROC, Marshal.GetFunctionPointerForDelegate(hookProcDelegate));
+        nint result = PInvoke.SetWindowLongA((HWND)window.Handle, WINDOW_LONG_PTR_INDEX.GWL_WNDPROC, (int)Marshal.GetFunctionPointerForDelegate(hookProcDelegate));
 
-            if (result == IntPtr.Zero)
-                throw new Win32Exception(Marshal.GetLastWin32Error());
+        if (result == IntPtr.Zero)
+            throw new Win32Exception(Marshal.GetLastWin32Error());
 
-            prevWndProc = result;
-        }
-        else
-        {
-            nint result = PInvoke.SetWindowLong((HWND)window.Handle, WINDOW_LONG_PTR_INDEX.GWL_WNDPROC, (int)Marshal.GetFunctionPointerForDelegate(hookProcDelegate));
-
-            if (result == IntPtr.Zero)
-                throw new Win32Exception(Marshal.GetLastWin32Error());
-
-            prevWndProc = result;
-        }
-
+        prevWndProc = result;
         hIMC = PInvoke.ImmGetContext((HWND)window.Handle);
         initialized = true;
     }
@@ -71,12 +57,12 @@ public static class KeyboardEventInput
     {
         Delegate xnaDelegate = Marshal.GetDelegateForFunctionPointer(prevWndProc, typeof(Action));
         var wndProcDelegate = (WndProcDelegate)Delegate.CreateDelegate(typeof(WndProcDelegate), xnaDelegate.Target, xnaDelegate.Method, false);
-        var returnCode = (LRESULT)PInvoke.CallWindowProc(wndProcDelegate, windowHandle, msg, (nint)(nuint)param1, param2);
+        LRESULT returnCode = PInvoke.CallWindowProcW(wndProcDelegate, windowHandle, msg, param1, param2);
 
         switch (msg)
         {
             case PInvoke.WM_GETDLGCODE:
-                returnCode = (LRESULT)(returnCode | (nint)PInvoke.DLGC_WANTALLKEYS);
+                returnCode = (LRESULT)(returnCode | PInvoke.DLGC_WANTALLKEYS);
                 break;
 
             case PInvoke.WM_CHAR:
