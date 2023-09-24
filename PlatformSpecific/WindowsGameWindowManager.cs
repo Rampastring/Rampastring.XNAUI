@@ -57,11 +57,22 @@ internal class WindowsGameWindowManager : IGameWindowManager
     /// </summary>
     public void CenterOnScreen()
     {
+#if WINFORMS
         var screen = System.Windows.Forms.Screen.FromHandle(gameForm.Handle);
         int currentWidth = screen.Bounds.Width;
         int currentHeight = screen.Bounds.Height;
         int x = (currentWidth - game.Window.ClientBounds.Width) / 2;
         int y = (currentHeight - game.Window.ClientBounds.Height) / 2;
+        int screenX = screen.Bounds.X;
+        int screenY = screen.Bounds.Y;
+#else
+        int currentWidth = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Width;
+        int currentHeight = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Height;
+        int x = (currentWidth - game.Window.ClientBounds.Width) / 2;
+        int y = (currentHeight - game.Window.ClientBounds.Height) / 2;
+        int screenX = 0;
+        int screenY = 0;
+#endif
 
 #if XNA
         if (gameForm == null)
@@ -69,7 +80,7 @@ internal class WindowsGameWindowManager : IGameWindowManager
 
         gameForm.DesktopLocation = new System.Drawing.Point(x, y);
 #else
-        game.Window.Position = new Microsoft.Xna.Framework.Point(screen.Bounds.X + x, screen.Bounds.Y + y);
+        game.Window.Position = new Microsoft.Xna.Framework.Point(screenX + x, screenY + y);
 #endif
     }
 
@@ -230,8 +241,10 @@ internal class WindowsGameWindowManager : IGameWindowManager
 
     public void SetFormBorderStyle(FormBorderStyle borderStyle)
     {
+#if !XNA
         if (borderStyle != FormBorderStyle.None && game.Window.IsBorderless)
             throw new ArgumentException("Cannot set form border style when game window has been set to borderless!");
+#endif
 
         gameForm.FormBorderStyle = borderStyle;
     }

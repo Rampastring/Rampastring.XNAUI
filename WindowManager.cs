@@ -320,6 +320,7 @@ public class WindowManager : DrawableGameComponent
 #endif
     }
 
+#if WINFORMS
     private void GameWindowManager_ClientSizeChanged(object sender, EventArgs e)
     {
         WindowWidth = gameWindowManager.GetWindowWidth();
@@ -327,6 +328,7 @@ public class WindowManager : DrawableGameComponent
         RecalculateScaling();
         WindowSizeChangedByUser?.Invoke(this, EventArgs.Empty);
     }
+#endif
 
     private void GameWindowManager_GameWindowClosing(object sender, EventArgs e)
     {
