@@ -23,7 +23,7 @@ internal class WindowsGameWindowManager : IGameWindowManager
         if (gameForm != null)
         {
             gameForm.FormClosing += GameForm_FormClosing_Event;
-            gameForm.ClientSizeChanged += GameForm_ClientSizeChanged;
+            gameForm.ResizeEnd += GameForm_ClientSizeChanged;
         }
 #endif
     }
