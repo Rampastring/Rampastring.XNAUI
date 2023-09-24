@@ -44,6 +44,19 @@ public class WindowManager : DrawableGameComponent
     public event EventHandler GameClosing;
 
     /// <summary>
+    /// Raised when the render resolution is changed.
+    /// </summary>
+    public event EventHandler RenderResolutionChanged;
+
+#if WINFORMS
+    /// <summary>
+    /// Raised when the size of the game window has been changed by the user or the operating system.
+    /// This event is not raised by calling <see cref="InitGraphicsMode(int, int, bool)"/>.
+    /// </summary>
+    public event EventHandler WindowSizeChangedByUser;
+#endif
+
+    /// <summary>
     /// The input cursor.
     /// </summary>
     public Input.Cursor Cursor { get; private set; }
@@ -155,6 +168,7 @@ public class WindowManager : DrawableGameComponent
         RenderResolutionY = y;
 
         RecalculateScaling();
+        RenderResolutionChanged?.Invoke(this, EventArgs.Empty);
     }
 
     /// <summary>
@@ -293,6 +307,7 @@ public class WindowManager : DrawableGameComponent
         gameWindowManager = new WindowsGameWindowManager(Game);
 #if WINFORMS
         gameWindowManager.GameWindowClosing += GameWindowManager_GameWindowClosing;
+        gameWindowManager.ClientSizeChanged += GameWindowManager_ClientSizeChanged;
 #else
         Game.Exiting += GameWindowManager_GameWindowClosing;
 #endif
@@ -305,10 +320,30 @@ public class WindowManager : DrawableGameComponent
 #endif
     }
 
+    private void GameWindowManager_ClientSizeChanged(object sender, EventArgs e)
+    {
+        WindowWidth = gameWindowManager.GetWindowWidth();
+        WindowHeight = gameWindowManager.GetWindowHeight();
+        RecalculateScaling();
+        WindowSizeChangedByUser?.Invoke(this, EventArgs.Empty);
+    }
+
     private void GameWindowManager_GameWindowClosing(object sender, EventArgs e)
     {
         GameClosing?.Invoke(this, EventArgs.Empty);
     }
+
+#if WINFORMS
+    /// <summary>
+    /// Sets the border style of the game form.
+    /// Throws an exception if the application is running in borderless mode.
+    /// </summary>
+    /// <param name="formBorderStyle">The form border style to apply.</param>
+    public void SetFormBorderStyle(FormBorderStyle formBorderStyle)
+    {
+        gameWindowManager.SetFormBorderStyle(formBorderStyle);
+    }
+#endif
 
     /// <summary>
     /// Schedules a delegate to be executed on the next game loop frame, 
@@ -529,11 +564,20 @@ public class WindowManager : DrawableGameComponent
             if ((iWidth <= GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Width)
                 && (iHeight <= GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Height))
             {
+#if WINFORMS
+                gameWindowManager.ClientSizeChanged -= GameWindowManager_ClientSizeChanged;
+#endif
+
                 graphics.PreferredBackBufferWidth = iWidth;
                 graphics.PreferredBackBufferHeight = iHeight;
                 graphics.IsFullScreen = bFullScreen;
                 graphics.ApplyChanges();
                 RecalculateScaling();
+
+#if WINFORMS
+                gameWindowManager.ClientSizeChanged += GameWindowManager_ClientSizeChanged;
+#endif
+
                 return true;
             }
         }
@@ -549,11 +593,21 @@ public class WindowManager : DrawableGameComponent
                 if ((dm.Width == iWidth) && (dm.Height == iHeight))
                 {
                     // The mode is supported, so set the buffer formats, apply changes and return
+
+#if WINFORMS
+                    gameWindowManager.ClientSizeChanged -= GameWindowManager_ClientSizeChanged;
+#endif
+
                     graphics.PreferredBackBufferWidth = iWidth;
                     graphics.PreferredBackBufferHeight = iHeight;
                     graphics.IsFullScreen = bFullScreen;
                     graphics.ApplyChanges();
                     RecalculateScaling();
+
+#if WINFORMS
+                    gameWindowManager.ClientSizeChanged += GameWindowManager_ClientSizeChanged;
+#endif
+
                     return true;
                 }
             }

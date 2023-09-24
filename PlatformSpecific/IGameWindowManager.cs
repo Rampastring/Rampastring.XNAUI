@@ -1,5 +1,6 @@
 ﻿#if WINFORMS
 using System;
+using System.Windows.Forms;
 
 #endif
 namespace Rampastring.XNAUI.PlatformSpecific;
@@ -8,6 +9,7 @@ internal interface IGameWindowManager
 {
 #if WINFORMS
     event EventHandler GameWindowClosing;
+    event EventHandler ClientSizeChanged;
     void AllowClosing();
 #if !NETFRAMEWORK
     [System.Runtime.Versioning.SupportedOSPlatform("windows5.1.2600")]
@@ -21,6 +23,9 @@ internal interface IGameWindowManager
     void SetControlBox(bool value);
     void SetIcon(string path);
     void ShowWindow();
+    int GetWindowWidth();
+    int GetWindowHeight();
+    void SetFormBorderStyle(FormBorderStyle borderStyle);
 #endif
     bool HasFocus();
     void CenterOnScreen();
