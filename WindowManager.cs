@@ -87,18 +87,6 @@ public class WindowManager : DrawableGameComponent
     /// </summary>
     public int WindowHeight { get; private set; } = 600;
 
-#if WINFORMS
-    /// <summary>
-    /// Returns the width of the client area / usable space inside the game window.
-    /// </summary>
-    public int ClientAreaWidth => gameWindowManager.ClientAreaWidth();
-
-    /// <summary>
-    /// Returns the width of the client area / usable space inside the game window.
-    /// </summary>
-    public int ClientAreaHeight => gameWindowManager.ClientAreaHeight();
-#endif
-
     /// <summary>
     /// Returns the width of the back buffer.
     /// </summary>
@@ -188,29 +176,28 @@ public class WindowManager : DrawableGameComponent
     /// </summary>
     private void RecalculateScaling()
     {
-        double xRatio = (WindowWidth) / (double)RenderResolutionX;
-        double yRatio = (WindowHeight) / (double)RenderResolutionY;
+        int clientAreaWidth = Game.Window.ClientBounds.Width;
+        int clientAreaHeight = Game.Window.ClientBounds.Height;
+
+        double xRatio = (clientAreaWidth) / (double)RenderResolutionX;
+        double yRatio = (clientAreaHeight) / (double)RenderResolutionY;
 
         double ratio;
 
         int texturePositionX = 0;
         int texturePositionY = 0;
-        int textureHeight = 0;
-        int textureWidth = 0;
 
         if (xRatio > yRatio)
         {
             ratio = yRatio;
-            textureHeight = WindowHeight;
-            textureWidth = (int)(RenderResolutionX * ratio);
-            texturePositionX = (WindowWidth - textureWidth) / 2;
+            int textureWidth = (int)(RenderResolutionX * ratio);
+            texturePositionX = (clientAreaWidth - textureWidth) / 2;
         }
         else
         {
             ratio = xRatio;
-            textureWidth = WindowWidth;
-            textureHeight = (int)(RenderResolutionY * ratio);
-            texturePositionY = (WindowHeight - textureHeight) / 2;
+            int textureHeight = (int)(RenderResolutionY * ratio);
+            texturePositionY = (clientAreaHeight - textureHeight) / 2;
         }
 
         ScaleRatio = ratio;

@@ -25,8 +25,6 @@ internal interface IGameWindowManager
     void ShowWindow();
     int GetWindowWidth();
     int GetWindowHeight();
-    int ClientAreaWidth();
-    int ClientAreaHeight();
     void SetFormBorderStyle(FormBorderStyle borderStyle);
 #endif
     bool HasFocus();
