@@ -760,7 +760,7 @@ public class WindowManager : DrawableGameComponent
         RenderTarget2D renderTargetToDraw = doubledRenderTarget ?? renderTarget;
 
         Renderer.DrawTexture(renderTargetToDraw, new Rectangle(SceneXPosition, SceneYPosition,
-            WindowWidth - (SceneXPosition * 2), WindowHeight - (SceneYPosition * 2)), Color.White);
+            Game.Window.ClientBounds.Width - (SceneXPosition * 2), Game.Window.ClientBounds.Height - (SceneYPosition * 2)), Color.White);
 
 #if DEBUG
         Renderer.DrawString("Active control " + activeControlName, 0, Vector2.Zero, Color.Red, 1.0f);

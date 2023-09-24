@@ -10,6 +10,7 @@ internal interface IGameWindowManager
 #if WINFORMS
     event EventHandler GameWindowClosing;
     event EventHandler ClientSizeChanged;
+
     void AllowClosing();
 #if !NETFRAMEWORK
     [System.Runtime.Versioning.SupportedOSPlatform("windows5.1.2600")]
