@@ -78,14 +78,26 @@ public class WindowManager : DrawableGameComponent
     private readonly object locker = new object();
 
     /// <summary>
-    /// Returns the width of the game window.
+    /// Returns the width of the game window, including the window borders.
     /// </summary>
     public int WindowWidth { get; private set; } = 800;
 
     /// <summary>
-    /// Returns the height of the game window.
+    /// Returns the height of the game window, including the window borders.
     /// </summary>
     public int WindowHeight { get; private set; } = 600;
+
+#if WINFORMS
+    /// <summary>
+    /// Returns the width of the client area / usable space inside the game window.
+    /// </summary>
+    public int ClientAreaWidth => gameWindowManager.ClientAreaWidth();
+
+    /// <summary>
+    /// Returns the width of the client area / usable space inside the game window.
+    /// </summary>
+    public int ClientAreaHeight => gameWindowManager.ClientAreaHeight();
+#endif
 
     /// <summary>
     /// Returns the width of the back buffer.

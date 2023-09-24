@@ -239,6 +239,10 @@ internal class WindowsGameWindowManager : IGameWindowManager
 
     public int GetWindowHeight() => gameForm.Height;
 
+    public int ClientAreaWidth() => gameForm.ClientSize.Width;
+
+    public int ClientAreaHeight() => gameForm.ClientSize.Height;
+
     public void SetFormBorderStyle(FormBorderStyle borderStyle)
     {
 #if !XNA
