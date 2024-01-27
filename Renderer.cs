@@ -6,7 +6,9 @@ using Microsoft.Xna.Framework.Content;
 using System.Text;
 using Rampastring.Tools;
 using System.Globalization;
+#if XNA
 using System.Reflection;
+#endif
 
 namespace Rampastring.XNAUI;
 

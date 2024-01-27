@@ -1,10 +1,11 @@
 ﻿using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
 using System;
 #if WINFORMS
 using Rampastring.Tools;
 using System.Drawing;
 using System.Windows.Forms;
+#else
+using Microsoft.Xna.Framework.Graphics;
 #endif
 
 namespace Rampastring.XNAUI.PlatformSpecific;
