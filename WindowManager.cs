@@ -483,6 +483,11 @@ public class WindowManager : DrawableGameComponent
     }
 
     /// <summary>
+    /// Enables or disables the "maximize box" for the game form.
+    /// </summary>
+    public void SetMaximizeBox(bool value) => gameWindowManager.SetMaximizeBox(value);
+
+    /// <summary>
     /// Enables or disables the "control box" (minimize/maximize/close buttons) for the game form.
     /// </summary>
     /// <param name="value">True to enable the control box, false to disable it.</param>

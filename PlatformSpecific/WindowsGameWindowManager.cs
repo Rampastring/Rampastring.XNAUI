@@ -16,6 +16,8 @@ internal class WindowsGameWindowManager : IGameWindowManager
 {
     public WindowsGameWindowManager(Game game)
     {
+        game.Window.ClientSizeChanged += GameForm_ClientSizeChanged;
+
         this.game = game;
 #if WINFORMS
         gameForm = (Form)Control.FromHandle(game.Window.Handle);
@@ -186,6 +188,15 @@ internal class WindowsGameWindowManager : IGameWindowManager
     }
 
     /// <summary>
+    /// Enables or disables the "maximize box" for the game form.
+    /// </summary>
+    public void SetMaximizeBox(bool value)
+    {
+        if (gameForm != null)
+            gameForm.MaximizeBox = value;
+    }
+
+    /// <summary>
     /// Enables or disables the "control box" (minimize/maximize/close buttons) for the game form.
     /// </summary>
     /// <param name="value">True to enable the control box, false to disable it.</param>
@@ -246,7 +257,8 @@ internal class WindowsGameWindowManager : IGameWindowManager
             throw new ArgumentException("Cannot set form border style when game window has been set to borderless!");
 #endif
 
-        gameForm.FormBorderStyle = borderStyle;
+        if (gameForm != null)
+            gameForm.FormBorderStyle = borderStyle;
     }
 #else
     public bool HasFocus()
