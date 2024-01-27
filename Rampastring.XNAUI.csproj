@@ -145,7 +145,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Rampastring.Tools" Version="2.0.4" />
+    <PackageReference Include="Rampastring.Tools" Version="2.0.5" />
     <PackageReference Include="Microsoft.Windows.CsWin32" Version="0.2.164-beta" PrivateAssets="All" />
     <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1" PrivateAssets="All" />
     <PackageReference Include="SixLabors.ImageSharp" Version="2.1.3" />

@@ -168,9 +168,9 @@ public static class Renderer
         return TextParseReturnValue.FixText(fonts[fontIndex], width, text);
     }
 
-    public static List<string> GetFixedTextLines(string text, int fontIndex, int width, bool splitWords = true)
+    public static List<string> GetFixedTextLines(string text, int fontIndex, int width, bool splitWords = true, bool keepBlankLines = false)
     {
-        return TextParseReturnValue.GetFixedTextLines(fonts[fontIndex], width, text, splitWords);
+        return TextParseReturnValue.GetFixedTextLines(fonts[fontIndex], width, text, splitWords, keepBlankLines);
     }
 
     /// <summary>

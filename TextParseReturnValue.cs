@@ -39,16 +39,21 @@ public class TextParseReturnValue
         return new TextParseReturnValue(processedText, lineCount);
     }
 
-    public static List<string> GetFixedTextLines(SpriteFont spriteFont, int width, string text, bool splitWords = true)
+    public static List<string> GetFixedTextLines(SpriteFont spriteFont, int width, string text, bool splitWords = true, bool keepBlankLines = false)
     {
         if (string.IsNullOrEmpty(text))
             return new List<string>(0);
 
         var returnValue = new List<string>();
-        string[] lineArray = text.Split(new char[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries);
+
+        // Remove '\r' characters so Windows newlines aren't counted twice
+        string[] lineArray = text.Replace("\r", "").Split(new char[] { '\n' }, StringSplitOptions.None);
 
         foreach (string originalTextLine in lineArray)
         {
+            if (keepBlankLines && originalTextLine == string.Empty)
+                returnValue.Add(string.Empty);
+
             string line = string.Empty;
 
             string[] wordArray = originalTextLine.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
