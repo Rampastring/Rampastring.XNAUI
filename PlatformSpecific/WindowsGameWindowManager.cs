@@ -16,9 +16,10 @@ internal class WindowsGameWindowManager : IGameWindowManager
 {
     public WindowsGameWindowManager(Game game)
     {
+        this.game = game;
+
         game.Window.ClientSizeChanged += GameForm_ClientSizeChanged;
 
-        this.game = game;
 #if WINFORMS
         gameForm = (Form)Control.FromHandle(game.Window.Handle);
 
@@ -30,29 +31,30 @@ internal class WindowsGameWindowManager : IGameWindowManager
 #endif
     }
 
+
 #if WINFORMS
     private Form gameForm;
 
     private bool closingPrevented = false;
 
     public event EventHandler GameWindowClosing;
+#endif
+
     public event EventHandler ClientSizeChanged;
 
-#endif
     private Game game;
 
 #if WINFORMS
-
     private void GameForm_FormClosing_Event(object sender, FormClosingEventArgs e)
     {
         GameWindowClosing?.Invoke(this, EventArgs.Empty);
     }
+#endif
 
     private void GameForm_ClientSizeChanged(object sender, EventArgs e)
     {
         ClientSizeChanged?.Invoke(this, EventArgs.Empty);
     }
-#endif
 
     /// <summary>
     /// Centers the game window on the screen.
