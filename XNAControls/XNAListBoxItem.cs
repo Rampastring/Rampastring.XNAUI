@@ -93,5 +93,11 @@ public class XNAListBoxItem
         }
     }
 
+    /// <summary>
+    /// Whether this list box item is visible.
+    /// Invisible list box items are not drawn and cannot be selected.
+    /// </summary>
+    public bool Visible { get; set; } = true;
+
     public List<string> TextLines;
 }
