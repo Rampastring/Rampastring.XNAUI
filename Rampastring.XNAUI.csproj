@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework Condition="'$(Configuration)' == 'UniversalGLDebug' Or '$(Configuration)' == 'UniversalGLRelease'">net7.0</TargetFramework>
-    <TargetFrameworks Condition="'$(Configuration)' != 'UniversalGLDebug' And '$(Configuration)' != 'UniversalGLRelease'">net7.0-windows;net48</TargetFrameworks>
+    <TargetFramework Condition="'$(Configuration)' == 'UniversalGLDebug' Or '$(Configuration)' == 'UniversalGLRelease'">net8.0</TargetFramework>
+    <TargetFrameworks Condition="'$(Configuration)' != 'UniversalGLDebug' And '$(Configuration)' != 'UniversalGLRelease'">net8.0-windows;net48</TargetFrameworks>
     <UseWindowsForms Condition="'$(Configuration)' != 'UniversalGLDebug' And '$(Configuration)' != 'UniversalGLRelease'">true</UseWindowsForms>
     <Title Condition="'$(Configuration)' == 'WindowsDXRelease'">Rampastring.XNAUI (WindowsDX)</Title>
     <Title Condition="'$(Configuration)' == 'WindowsGLRelease'">Rampastring.XNAUI (WindowsGL)</Title>
