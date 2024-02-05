@@ -43,7 +43,7 @@ namespace Rampastring.XNAUI.Input
         /// Initialize the TextInput with the given GameWindow.
         /// </summary>
         /// <param name="window">The XNA window to which text input should be linked.</param>
-#if !NETFRAMEWORK
+#if NET5_0_OR_GREATER
         [System.Runtime.Versioning.SupportedOSPlatform("windows5.1.2600")]
 #endif
         public static void Initialize(GameWindow window)

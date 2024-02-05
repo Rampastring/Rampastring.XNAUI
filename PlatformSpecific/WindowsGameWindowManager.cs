@@ -158,7 +158,7 @@ internal class WindowsGameWindowManager : IGameWindowManager
     /// <summary>
     /// Flashes the game window on the taskbar.
     /// </summary>
-#if !NETFRAMEWORK
+#if NET5_0_OR_GREATER
     [System.Runtime.Versioning.SupportedOSPlatform("windows5.1.2600")]
 #endif
     public void FlashWindow()

@@ -46,7 +46,7 @@ namespace Windows.Win32
         /// </remarks>
         [DllImport("User32", ExactSpelling = true, EntryPoint = "SetWindowLongPtrW", SetLastError = true)]
         [DefaultDllImportSearchPaths(DllImportSearchPath.System32)]
-#if !NETFRAMEWORK
+#if NET5_0_OR_GREATER
         [SupportedOSPlatform("windows5.0")]
 #endif
         internal static extern nint SetWindowLongPtr(winmdroot.Foundation.HWND hWnd, winmdroot.UI.WindowsAndMessaging.WINDOW_LONG_PTR_INDEX nIndex, nint dwNewLong);
@@ -69,7 +69,7 @@ namespace Windows.Win32
         /// </remarks>
         [DllImport("User32", ExactSpelling = true, EntryPoint = "SetWindowLongA", SetLastError = true)]
         [DefaultDllImportSearchPaths(DllImportSearchPath.System32)]
-#if !NETFRAMEWORK
+#if NET5_0_OR_GREATER
         [SupportedOSPlatform("windows5.0")]
 #endif
         internal static extern int SetWindowLong(winmdroot.Foundation.HWND hWnd, winmdroot.UI.WindowsAndMessaging.WINDOW_LONG_PTR_INDEX nIndex, int dwNewLong);
@@ -103,7 +103,7 @@ namespace Windows.Win32
         /// </remarks>
         [DllImport("User32", ExactSpelling = true, EntryPoint = "CallWindowProcW")]
         [DefaultDllImportSearchPaths(DllImportSearchPath.System32)]
-#if !NETFRAMEWORK
+#if NET5_0_OR_GREATER
         [SupportedOSPlatform("windows5.0")]
 #endif
         internal static extern IntPtr CallWindowProc(UI.WindowsAndMessaging.WndProcDelegate lpPrevWndFunc, IntPtr hWnd, uint Msg, IntPtr wParam, IntPtr lParam);
