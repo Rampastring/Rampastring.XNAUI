@@ -54,6 +54,10 @@ internal class WindowsGameWindowManager : IGameWindowManager
 
     private void GameForm_ClientSizeChanged(object sender, EventArgs e)
     {
+#if WINFORMS
+        if (gameForm == null)
+            return;
+#endif
         ClientSizeChanged?.Invoke(this, EventArgs.Empty);
     }
 
@@ -63,6 +67,9 @@ internal class WindowsGameWindowManager : IGameWindowManager
     public void CenterOnScreen()
     {
 #if WINFORMS
+        if (gameForm == null) 
+            return;
+
         var screen = System.Windows.Forms.Screen.FromHandle(gameForm.Handle);
         int currentWidth = screen.Bounds.Width;
         int currentHeight = screen.Bounds.Height;
@@ -80,9 +87,6 @@ internal class WindowsGameWindowManager : IGameWindowManager
 #endif
 
 #if XNA
-        if (gameForm == null)
-            return;
-
         gameForm.DesktopLocation = new System.Drawing.Point(x, y);
 #else
         game.Window.Position = new Microsoft.Xna.Framework.Point(screenX + x, screenY + y);
