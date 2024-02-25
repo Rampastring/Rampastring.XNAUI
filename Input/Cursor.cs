@@ -93,7 +93,7 @@ public class Cursor : DrawableGameComponent
     /// the cursor sprite is hidden, otherwise the cursor sprite remains visible.
     /// </summary>
     /// <param name="path">The path to the cursor (.cur) file.</param>
-#if !NETFRAMEWORK
+#if NET5_0_OR_GREATER
     [System.Runtime.Versioning.SupportedOSPlatform("windows5.0")]
 #endif
     public void LoadNativeCursor(string path)
