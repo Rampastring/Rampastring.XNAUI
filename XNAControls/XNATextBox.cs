@@ -20,7 +20,7 @@ public class XNATextBox : XNAControl
     protected const double FAST_SCROLL_TRIGGER_TIME = 0.4;
     protected const double BAR_ON_TIME = 0.5;
     protected const double BAR_OFF_TIME = 0.5;
-    private static volatile XNATextBox _IMEFocus;
+    private static volatile XNAControl _IMEFocus;
     private volatile bool _textCompositionDelay;
 
     /// <summary>
@@ -424,11 +424,15 @@ public class XNATextBox : XNAControl
                 if (Keyboard.IsShiftHeldDown())
                 {
                     if (PreviousControl != null)
-                        WindowManager.SelectedControl = PreviousControl;
+                    {
+                        _IMEFocus = WindowManager.SelectedControl = PreviousControl;
+                        WindowManager.IMEHandler.SetTextInputRect(_IMEFocus.RenderRectangle());
+                    }
                 }
                 else if (NextControl != null)
                 {
-                    WindowManager.SelectedControl = NextControl;
+                    _IMEFocus = WindowManager.SelectedControl = NextControl;
+                    WindowManager.IMEHandler.SetTextInputRect(_IMEFocus.RenderRectangle());
                 }
 
                 return true;
