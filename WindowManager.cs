@@ -11,6 +11,7 @@ using Rampastring.XNAUI.Input;
 using System.Diagnostics;
 using System.Linq;
 using Rampastring.XNAUI.PlatformSpecific;
+using Rampastring.XNAUI.Input.IME;
 #if NETFRAMEWORK
 using System.Reflection;
 #endif
@@ -27,6 +28,7 @@ namespace Rampastring.XNAUI;
 public class WindowManager : DrawableGameComponent
 {
     private const int XNA_MAX_TEXTURE_SIZE = 2048;
+    internal IMEHandler IMEHandler { get; }
 
     /// <summary>
     /// Creates a new WindowManager.
@@ -35,6 +37,7 @@ public class WindowManager : DrawableGameComponent
     /// <param name="graphics">The game's GraphicsDeviceManager.</param>
     public WindowManager(Game game, GraphicsDeviceManager graphics) : base(game)
     {
+        IMEHandler = IMEHandler.Create(game);
         this.graphics = graphics;
     }
 
@@ -768,8 +771,8 @@ public class WindowManager : DrawableGameComponent
             Game.Window.ClientBounds.Width - (SceneXPosition * 2), Game.Window.ClientBounds.Height - (SceneYPosition * 2)), Color.White);
 
 #if DEBUG
-        Renderer.DrawString("Active control " + activeControlName, 0, Vector2.Zero, Color.Red, 1.0f);
-
+        Renderer.DrawString("Active control: " + activeControlName, 0, Vector2.Zero, Color.Red, 1.0f);
+        Renderer.DrawString("IME Status: " + (IMEHandler.Enabled ? "Enabled" : "Disabled"), 0, new Vector2(0, 16), Color.Red, 1.0f);
 #endif
         if (Cursor.Visible)
             Cursor.Draw(gameTime);

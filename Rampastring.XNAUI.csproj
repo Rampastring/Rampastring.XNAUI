@@ -121,6 +121,17 @@
     <Compile Remove="Input\KeyboardEventArgs.cs" />
     <Compile Remove="Input\KeyboardEventInput.cs" />
   </ItemGroup>
+  <ItemGroup Condition="$(Configuration.Contains('GL'))">
+    <!--Remove WinForm-->
+    <Compile Remove="Input\IME\WinForms\*.cs" />
+    <None Include="Input\IME\WinForms\*.cs" />
+  </ItemGroup>
+  <ItemGroup Condition="!$(Configuration.Contains('GL'))">
+    <!--Remove SDL-->
+    <Compile Remove="Input\IME\Sdl\*.cs" />
+    <None Include="Input\IME\Sdl\*.cs" />
+    <PackageReference Include="ImeSharp" Version="1.2.5" />
+  </ItemGroup>
   <ItemGroup>
     <None Include="README.md" Pack="true" PackagePath="\" />
   </ItemGroup>
