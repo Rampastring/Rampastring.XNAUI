@@ -493,7 +493,10 @@ public class XNATextBox : XNAControl
             {
                 _IMEFocus = this;
                 WindowManager.IMEHandler.StartTextComposition();
-                WindowManager.IMEHandler.SetTextInputRect(RenderRectangle());
+                var rect = RenderRectangle();
+                rect.X += WindowManager.SceneXPosition;
+                rect.Y += WindowManager.SceneYPosition;
+                WindowManager.IMEHandler.SetTextInputRect(rect);
             }
 
             if (Keyboard.IsKeyHeldDown(Keys.Left))
