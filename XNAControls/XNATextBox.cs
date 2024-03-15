@@ -675,41 +675,27 @@ public class XNATextBox : XNAControl
             FontIndex, new Vector2(TEXT_HORIZONTAL_MARGIN, TEXT_VERTICAL_MARGIN),
             TextColor);
 
-        if ((DisableIME || _IMEFocus != this || string.IsNullOrEmpty(WindowManager.IMEHandler.Composition))
-            && WindowManager.SelectedControl == this
-            && Enabled && WindowManager.HasFocus
-            && barTimer.TotalSeconds < BAR_ON_TIME)
+        if (WindowManager.SelectedControl == this
+            && Enabled && WindowManager.HasFocus)
         {
             int barLocationX = TEXT_HORIZONTAL_MARGIN;
 
             string inputText = Text.Substring(TextStartPosition, InputPosition - TextStartPosition);
             barLocationX += (int)Renderer.GetTextDimensions(inputText, FontIndex).X;
 
-            FillRectangle(new Rectangle(barLocationX, 2, 1, Height - 4), Color.White);
+            if (!DisableIME && _IMEFocus == this && WindowManager.IMEHandler.Enabled && !string.IsNullOrEmpty(WindowManager.IMEHandler.Composition))
+            {
+                DrawString(WindowManager.IMEHandler.Composition, FontIndex, new(barLocationX, TEXT_VERTICAL_MARGIN), Color.Orange);
+                Vector2 measStr = Renderer.GetTextDimensions(WindowManager.IMEHandler.Composition.Substring(0, WindowManager.IMEHandler.CompositionCursorPos), FontIndex);
+                barLocationX += (int)measStr.X;
         }
 
-        if (!DisableIME && _IMEFocus == this && WindowManager.IMEHandler.Enabled)
+            if (barTimer.TotalSeconds < BAR_ON_TIME)
         {
-            var drawPos =
-                new Vector2(
-                    Renderer.GetTextDimensions(Text.Substring(TextStartPosition, InputPosition - TextStartPosition),
-                        FontIndex).X + 6, 2);
-
-            for (var i = 0; i < WindowManager.IMEHandler.Composition.Length; i++)
-            {
-                string val = WindowManager.IMEHandler.Composition[i].ToString();
-                DrawString(val, FontIndex, drawPos, Color.Orange);
-                Vector2 measStr = Renderer.GetTextDimensions(val, FontIndex);
-                drawPos += new Vector2(measStr.X, 0);
-                if (WindowManager.SelectedControl == this && Enabled && WindowManager.HasFocus &&
-                    barTimer.TotalSeconds < 0.5 &&
-                    i + 1 == WindowManager.IMEHandler.CompositionCursorPos)
-                {
-                    DrawRectangle(new Rectangle((int)drawPos.X, (int)drawPos.Y, 1, (int)measStr.Y),
-                        Color.White);
-                }
+                FillRectangle(new Rectangle(barLocationX, 2, 1, Height - 4), Color.White);
             }
         }
+
         base.Draw(gameTime);
     }
 
