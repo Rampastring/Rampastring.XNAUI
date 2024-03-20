@@ -425,14 +425,24 @@ public class XNATextBox : XNAControl
                 {
                     if (PreviousControl != null)
                     {
-                        _IMEFocus = WindowManager.SelectedControl = PreviousControl;
-                        WindowManager.IMEHandler.SetTextInputRect(_IMEFocus.RenderRectangle());
+                        WindowManager.SelectedControl = PreviousControl;
+                        _IMEFocus = null;
+                        if (PreviousControl is XNATextBox tb)
+                        {
+                            _IMEFocus = tb;
+                            tb.SetTextInputRect();
                     }
+                }
                 }
                 else if (NextControl != null)
                 {
-                    _IMEFocus = WindowManager.SelectedControl = NextControl;
-                    WindowManager.IMEHandler.SetTextInputRect(_IMEFocus.RenderRectangle());
+                    WindowManager.SelectedControl = NextControl;
+                    _IMEFocus = null;
+                    if (NextControl is XNATextBox tb)
+                    {
+                        _IMEFocus = tb;
+                        tb.SetTextInputRect();
+                    }
                 }
 
                 return true;
@@ -476,6 +486,14 @@ public class XNATextBox : XNAControl
         base.OnLeftClick();
     }
 
+    private void SetTextInputRect()
+    {
+        var rect = RenderRectangle();
+        rect.X += WindowManager.SceneXPosition;
+        rect.Y += WindowManager.SceneYPosition;
+        WindowManager.IMEHandler.SetTextInputRect(rect);
+    }
+
     public override void Update(GameTime gameTime)
     {
         base.Update(gameTime);
@@ -493,10 +511,7 @@ public class XNATextBox : XNAControl
             {
                 _IMEFocus = this;
                 WindowManager.IMEHandler.StartTextComposition();
-                var rect = RenderRectangle();
-                rect.X += WindowManager.SceneXPosition;
-                rect.Y += WindowManager.SceneYPosition;
-                WindowManager.IMEHandler.SetTextInputRect(rect);
+                SetTextInputRect();
             }
 
             if (Keyboard.IsKeyHeldDown(Keys.Left))
