@@ -123,13 +123,13 @@
   </ItemGroup>
   <ItemGroup Condition="$(Configuration.Contains('GL'))">
     <!--Remove WinForm-->
-    <Compile Remove="Input\IME\WinForms\*.cs" />
-    <None Include="Input\IME\WinForms\*.cs" />
+    <Compile Remove="PlatformSpecific\WinFormsIMEHandler.cs" />
+    <None Include="PlatformSpecific\WinFormsIMEHandler.cs" />
   </ItemGroup>
   <ItemGroup Condition="!$(Configuration.Contains('GL'))">
     <!--Remove SDL-->
-    <Compile Remove="Input\IME\Sdl\*.cs" />
-    <None Include="Input\IME\Sdl\*.cs" />
+    <Compile Remove="PlatformSpecific\SdlIMEHandler.cs" />
+    <None Include="PlatformSpecific\SdlIMEHandler.cs" />
     <PackageReference Include="ImeSharp" Version="1.2.5" />
   </ItemGroup>
   <ItemGroup>

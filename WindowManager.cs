@@ -11,7 +11,6 @@ using Rampastring.XNAUI.Input;
 using System.Diagnostics;
 using System.Linq;
 using Rampastring.XNAUI.PlatformSpecific;
-using Rampastring.XNAUI.Input.IME;
 #if NETFRAMEWORK
 using System.Reflection;
 #endif

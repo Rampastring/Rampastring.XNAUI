@@ -691,10 +691,10 @@ public class XNATextBox : XNAControl
                 DrawString(WindowManager.IMEHandler.Composition, FontIndex, new(barLocationX, TEXT_VERTICAL_MARGIN), Color.Orange);
                 Vector2 measStr = Renderer.GetTextDimensions(WindowManager.IMEHandler.Composition.Substring(0, WindowManager.IMEHandler.CompositionCursorPos), FontIndex);
                 barLocationX += (int)measStr.X;
-        }
+            }
 
             if (barTimer.TotalSeconds < BAR_ON_TIME)
-        {
+            {
                 FillRectangle(new Rectangle(barLocationX, 2, 1, Height - 4), Color.White);
             }
         }
