@@ -157,7 +157,8 @@ public class WindowManager : DrawableGameComponent
     /// </summary>
     /// <param name="x">The width of the back buffer.</param>
     /// <param name="y">The height of the back buffer.</param>
-    public void SetRenderResolution(int x, int y)
+    /// <param name="integerScale">Use integer scaling.</param>
+    public void SetRenderResolution(int x, int y, bool integerScale = false)
     {
 #if XNA
         x = Math.Min(x, XNA_MAX_TEXTURE_SIZE);
@@ -167,20 +168,27 @@ public class WindowManager : DrawableGameComponent
         RenderResolutionX = x;
         RenderResolutionY = y;
 
-        RecalculateScaling();
+        RecalculateScaling(integerScale);
         RenderResolutionChanged?.Invoke(this, EventArgs.Empty);
     }
 
     /// <summary>
     /// Re-calculates the scaling of the rendered screen to fill the window.
+    /// <param name="integerScale">Use integer scaling.</param>
     /// </summary>
-    private void RecalculateScaling()
+    private void RecalculateScaling(bool integerScale = false)
     {
         int clientAreaWidth = Game.Window.ClientBounds.Width;
         int clientAreaHeight = Game.Window.ClientBounds.Height;
 
         double xRatio = (clientAreaWidth) / (double)RenderResolutionX;
         double yRatio = (clientAreaHeight) / (double)RenderResolutionY;
+
+        if (integerScale && clientAreaWidth >= RenderResolutionX && clientAreaHeight >= RenderResolutionY)
+        {
+            xRatio = clientAreaWidth / RenderResolutionX;
+            yRatio = clientAreaHeight / RenderResolutionY;
+        }
 
         double ratio;
 
@@ -192,12 +200,22 @@ public class WindowManager : DrawableGameComponent
             ratio = yRatio;
             int textureWidth = (int)(RenderResolutionX * ratio);
             texturePositionX = (clientAreaWidth - textureWidth) / 2;
+            if (integerScale)
+            {
+                int textureHeight = (int)(RenderResolutionY * ratio);
+                texturePositionY = (clientAreaHeight - textureHeight) / 2;
+            }
         }
         else
         {
             ratio = xRatio;
             int textureHeight = (int)(RenderResolutionY * ratio);
             texturePositionY = (clientAreaHeight - textureHeight) / 2;
+            if (integerScale)
+            {
+                int textureWidth = (int)(RenderResolutionX * ratio);
+                texturePositionX = (clientAreaWidth - textureWidth) / 2;
+            }
         }
 
         ScaleRatio = ratio;
