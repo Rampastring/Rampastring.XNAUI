@@ -152,13 +152,17 @@ public class WindowManager : DrawableGameComponent
     private RenderTarget2D doubledRenderTarget;
 
     /// <summary>
+    /// If set, only scales the rendered screen by integer scaling factors. Unfilled space is filled with black.
+    /// </summary>
+    public bool IntegerScalingOnly { get; set; }
+
+    /// <summary>
     /// Sets the rendering (back buffer) resolution of the game.
     /// Does not affect the size of the actual game window.
     /// </summary>
     /// <param name="x">The width of the back buffer.</param>
     /// <param name="y">The height of the back buffer.</param>
-    /// <param name="integerScale">Use integer scaling.</param>
-    public void SetRenderResolution(int x, int y, bool integerScale = false)
+    public void SetRenderResolution(int x, int y)
     {
 #if XNA
         x = Math.Min(x, XNA_MAX_TEXTURE_SIZE);
@@ -168,15 +172,14 @@ public class WindowManager : DrawableGameComponent
         RenderResolutionX = x;
         RenderResolutionY = y;
 
-        RecalculateScaling(integerScale);
+        RecalculateScaling();
         RenderResolutionChanged?.Invoke(this, EventArgs.Empty);
     }
 
     /// <summary>
     /// Re-calculates the scaling of the rendered screen to fill the window.
-    /// <param name="integerScale">Use integer scaling.</param>
     /// </summary>
-    private void RecalculateScaling(bool integerScale = false)
+    private void RecalculateScaling()
     {
         int clientAreaWidth = Game.Window.ClientBounds.Width;
         int clientAreaHeight = Game.Window.ClientBounds.Height;
@@ -184,7 +187,7 @@ public class WindowManager : DrawableGameComponent
         double xRatio = (clientAreaWidth) / (double)RenderResolutionX;
         double yRatio = (clientAreaHeight) / (double)RenderResolutionY;
 
-        if (integerScale && clientAreaWidth >= RenderResolutionX && clientAreaHeight >= RenderResolutionY)
+        if (IntegerScalingOnly && clientAreaWidth >= RenderResolutionX && clientAreaHeight >= RenderResolutionY)
         {
             xRatio = clientAreaWidth / RenderResolutionX;
             yRatio = clientAreaHeight / RenderResolutionY;
@@ -200,7 +203,7 @@ public class WindowManager : DrawableGameComponent
             ratio = yRatio;
             int textureWidth = (int)(RenderResolutionX * ratio);
             texturePositionX = (clientAreaWidth - textureWidth) / 2;
-            if (integerScale)
+            if (IntegerScalingOnly)
             {
                 int textureHeight = (int)(RenderResolutionY * ratio);
                 texturePositionY = (clientAreaHeight - textureHeight) / 2;
@@ -211,7 +214,7 @@ public class WindowManager : DrawableGameComponent
             ratio = xRatio;
             int textureHeight = (int)(RenderResolutionY * ratio);
             texturePositionY = (clientAreaHeight - textureHeight) / 2;
-            if (integerScale)
+            if (IntegerScalingOnly)
             {
                 int textureWidth = (int)(RenderResolutionX * ratio);
                 texturePositionX = (clientAreaWidth - textureWidth) / 2;
