@@ -152,6 +152,11 @@ public class WindowManager : DrawableGameComponent
     private RenderTarget2D doubledRenderTarget;
 
     /// <summary>
+    /// If set, only scales the rendered screen by integer scaling factors. Unfilled space is filled with black.
+    /// </summary>
+    public bool IntegerScalingOnly { get; set; }
+
+    /// <summary>
     /// Sets the rendering (back buffer) resolution of the game.
     /// Does not affect the size of the actual game window.
     /// </summary>
@@ -182,6 +187,12 @@ public class WindowManager : DrawableGameComponent
         double xRatio = (clientAreaWidth) / (double)RenderResolutionX;
         double yRatio = (clientAreaHeight) / (double)RenderResolutionY;
 
+        if (IntegerScalingOnly && clientAreaWidth >= RenderResolutionX && clientAreaHeight >= RenderResolutionY)
+        {
+            xRatio = clientAreaWidth / RenderResolutionX;
+            yRatio = clientAreaHeight / RenderResolutionY;
+        }
+
         double ratio;
 
         int texturePositionX = 0;
@@ -192,12 +203,22 @@ public class WindowManager : DrawableGameComponent
             ratio = yRatio;
             int textureWidth = (int)(RenderResolutionX * ratio);
             texturePositionX = (clientAreaWidth - textureWidth) / 2;
+            if (IntegerScalingOnly)
+            {
+                int textureHeight = (int)(RenderResolutionY * ratio);
+                texturePositionY = (clientAreaHeight - textureHeight) / 2;
+            }
         }
         else
         {
             ratio = xRatio;
             int textureHeight = (int)(RenderResolutionY * ratio);
             texturePositionY = (clientAreaHeight - textureHeight) / 2;
+            if (IntegerScalingOnly)
+            {
+                int textureWidth = (int)(RenderResolutionX * ratio);
+                texturePositionX = (clientAreaWidth - textureWidth) / 2;
+            }
         }
 
         ScaleRatio = ratio;
