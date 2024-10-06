@@ -113,7 +113,7 @@ internal static class RenderTargetStack
 
         Renderer.EndDraw();
         Renderer.PopSettingsInternal();
-        graphicsDevice.SetRenderTarget(CurrentContext.RenderTarget);
+        SetRenderTargetsFromContext(CurrentContext);
         Renderer.BeginDraw();
     }
 }
