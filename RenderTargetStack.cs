@@ -3,6 +3,13 @@ using System;
 
 namespace Rampastring.XNAUI;
 
+public class RendererException : Exception
+{
+    public RendererException(string message) : base(message)
+    {
+    }
+}
+
 /// <summary>
 /// Handles render targets.
 /// </summary>
@@ -44,19 +51,59 @@ internal static class RenderTargetStack
 
     public static void PushRenderTarget(RenderTarget2D renderTarget, SpriteBatchSettings newSettings)
     {
-        Renderer.EndDraw();
         var context = new RenderContext(renderTarget, currentContext);
+        SetRenderContext(newSettings, context);
+    }
+
+    public static void PushRenderTargets(SpriteBatchSettings newSettings, RenderTarget2D renderTarget1, RenderTarget2D renderTarget2)
+    {
+        var context = new RenderContext(renderTarget1, renderTarget2, currentContext);
+        SetRenderContext(newSettings, context);
+    }
+
+    public static void PushRenderTargets(SpriteBatchSettings newSettings, RenderTarget2D renderTarget1, RenderTarget2D renderTarget2, RenderTarget2D renderTarget3)
+    {
+        var context = new RenderContext(renderTarget1, renderTarget2, renderTarget3, currentContext);
+        SetRenderContext(newSettings, context);
+    }
+
+    public static void PushRenderTargets(SpriteBatchSettings newSettings, RenderTarget2D renderTarget1,
+        RenderTarget2D renderTarget2, RenderTarget2D renderTarget3, RenderTarget2D renderTarget4)
+    {
+        var context = new RenderContext(renderTarget1, renderTarget2, renderTarget3, renderTarget4, currentContext);
+        SetRenderContext(newSettings, context);
+    }
+
+    private static void SetRenderContext(SpriteBatchSettings newSettings, RenderContext context)
+    {
+        Renderer.EndDraw();
         currentContext = context;
-        graphicsDevice.SetRenderTarget(renderTarget);
+        SetRenderTargetsFromContext(context);
         Renderer.PushSettingsInternal();
         Renderer.CurrentSettings = newSettings;
         Renderer.BeginDraw();
     }
 
+    private static void SetRenderTargetsFromContext(RenderContext context)
+    {
+        switch (context.RenderTargetCount)
+        {
+            case 1:
+                graphicsDevice.SetRenderTarget(context.RenderTarget); break;
+            case 2:
+                graphicsDevice.SetRenderTargets(context.RenderTarget, context.RenderTarget2); break;
+            case 3:
+                graphicsDevice.SetRenderTargets(context.RenderTarget, context.RenderTarget2, context.RenderTarget3, context.RenderTarget4); break;
+            case 4:
+                graphicsDevice.SetRenderTargets(context.RenderTarget, context.RenderTarget2, context.RenderTarget3, context.RenderTarget4); break;
+            default:
+                throw new RendererException($"Unable to process render context with {context.RenderTargetCount} render targets");
+        }
+    }
+
     public static void PopRenderTarget()
     {
         currentContext = currentContext.PreviousContext;
-
         if (currentContext == null)
         {
             throw new InvalidOperationException("No render context left! This usually " +
@@ -73,12 +120,47 @@ internal static class RenderTargetStack
 
 internal class RenderContext
 {
-    public RenderContext(RenderTarget2D renderTarget, RenderContext previousContext)
+    internal RenderContext(RenderTarget2D renderTarget, RenderContext previousContext)
     {
+        RenderTargetCount = 1;
         RenderTarget = renderTarget;
         PreviousContext = previousContext;
     }
 
+    internal RenderContext(RenderTarget2D renderTarget, RenderTarget2D renderTarget2, RenderContext previousContext)
+    {
+        RenderTargetCount = 2;
+        RenderTarget = renderTarget;
+        RenderTarget2 = renderTarget2;
+        PreviousContext = previousContext;
+    }
+
+    internal RenderContext(RenderTarget2D renderTarget, RenderTarget2D renderTarget2,
+        RenderTarget2D renderTarget3, RenderContext previousContext)
+    {
+        RenderTargetCount = 3;
+        RenderTarget = renderTarget;
+        RenderTarget2 = renderTarget2;
+        RenderTarget3 = renderTarget3;
+        PreviousContext = previousContext;
+    }
+
+    internal RenderContext(RenderTarget2D renderTarget, RenderTarget2D renderTarget2,
+        RenderTarget2D renderTarget3, RenderTarget2D renderTarget4, RenderContext previousContext)
+    {
+        RenderTargetCount = 4;
+        RenderTarget = renderTarget;
+        RenderTarget2 = renderTarget2;
+        RenderTarget3 = renderTarget3;
+        RenderTarget4 = renderTarget4;
+        PreviousContext = previousContext;
+    }
+
+    public int RenderTargetCount { get; }
+
     public RenderTarget2D RenderTarget { get; }
+    public RenderTarget2D RenderTarget2 { get; }
+    public RenderTarget2D RenderTarget3 { get; }
+    public RenderTarget2D RenderTarget4 { get; }
     public RenderContext PreviousContext { get; }
 }
