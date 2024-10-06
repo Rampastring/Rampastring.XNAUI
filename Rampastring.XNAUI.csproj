@@ -14,7 +14,7 @@
     <Description>Rampastring XNA/MonoGame UI Library</Description>
     <Company>Rampastring</Company>
     <Product>Rampastring.XNAUI</Product>
-    <Copyright>Copyright © Rami 'Rampastring' Pasanen 2016-2022</Copyright>
+    <Copyright>Copyright © Rami 'Rampastring' Pasanen 2016-2024</Copyright>
     <Trademark></Trademark>
     <AssemblyName Condition="'$(Configuration)' == 'WindowsDXRelease'">Rampastring.XNAUI.WindowsDX</AssemblyName>
     <AssemblyName Condition="'$(Configuration)' == 'WindowsGLRelease'">Rampastring.XNAUI.WindowsGL</AssemblyName>

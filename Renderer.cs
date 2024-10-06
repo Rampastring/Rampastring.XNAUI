@@ -232,6 +232,15 @@ public static class Renderer
     public static void PushRenderTarget(RenderTarget2D renderTarget) => RenderTargetStack.PushRenderTarget(renderTarget,
         new SpriteBatchSettings(SpriteSortMode.Deferred, BlendState.AlphaBlend, null, null, null, null));
 
+    public static void PushRenderTargets(RenderTarget2D renderTarget, RenderTarget2D renderTarget2) =>
+        RenderTargetStack.PushRenderTargets(CurrentSettings, renderTarget, renderTarget2);
+
+    public static void PushRenderTargets(RenderTarget2D renderTarget, RenderTarget2D renderTarget2, RenderTarget2D renderTarget3) =>
+        RenderTargetStack.PushRenderTargets(CurrentSettings, renderTarget, renderTarget2, renderTarget3);
+
+    public static void PushRenderTargets(RenderTarget2D renderTarget, RenderTarget2D renderTarget2, RenderTarget2D renderTarget3, RenderTarget2D renderTarget4) => 
+        RenderTargetStack.PushRenderTargets(CurrentSettings, renderTarget, renderTarget2, renderTarget3, renderTarget4);
+
     public static void PushRenderTarget(RenderTarget2D renderTarget, SpriteBatchSettings settings) => RenderTargetStack.PushRenderTarget(renderTarget, settings);
 
     public static void PopRenderTarget() => RenderTargetStack.PopRenderTarget();

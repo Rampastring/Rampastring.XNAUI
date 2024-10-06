@@ -20,7 +20,7 @@ internal static class RenderTargetStack
         FinalRenderTarget = finalRenderTarget;
         graphicsDevice = _graphicsDevice;
 
-        currentContext = new RenderContext(finalRenderTarget, null);
+        CurrentContext = new RenderContext(finalRenderTarget, null);
     }
 
     internal static void InitDetachedScaledControlRenderTarget(int renderWidth, int renderHeight)
@@ -45,39 +45,39 @@ internal static class RenderTargetStack
     /// </summary>
     public static RenderTarget2D DetachedScaledControlRenderTarget { get; internal set; }
 
-    private static RenderContext currentContext;
+    public static RenderContext CurrentContext;
 
     private static GraphicsDevice graphicsDevice;
 
     public static void PushRenderTarget(RenderTarget2D renderTarget, SpriteBatchSettings newSettings)
     {
-        var context = new RenderContext(renderTarget, currentContext);
+        var context = new RenderContext(renderTarget, CurrentContext);
         SetRenderContext(newSettings, context);
     }
 
     public static void PushRenderTargets(SpriteBatchSettings newSettings, RenderTarget2D renderTarget1, RenderTarget2D renderTarget2)
     {
-        var context = new RenderContext(renderTarget1, renderTarget2, currentContext);
+        var context = new RenderContext(renderTarget1, renderTarget2, CurrentContext);
         SetRenderContext(newSettings, context);
     }
 
     public static void PushRenderTargets(SpriteBatchSettings newSettings, RenderTarget2D renderTarget1, RenderTarget2D renderTarget2, RenderTarget2D renderTarget3)
     {
-        var context = new RenderContext(renderTarget1, renderTarget2, renderTarget3, currentContext);
+        var context = new RenderContext(renderTarget1, renderTarget2, renderTarget3, CurrentContext);
         SetRenderContext(newSettings, context);
     }
 
     public static void PushRenderTargets(SpriteBatchSettings newSettings, RenderTarget2D renderTarget1,
         RenderTarget2D renderTarget2, RenderTarget2D renderTarget3, RenderTarget2D renderTarget4)
     {
-        var context = new RenderContext(renderTarget1, renderTarget2, renderTarget3, renderTarget4, currentContext);
+        var context = new RenderContext(renderTarget1, renderTarget2, renderTarget3, renderTarget4, CurrentContext);
         SetRenderContext(newSettings, context);
     }
 
     private static void SetRenderContext(SpriteBatchSettings newSettings, RenderContext context)
     {
         Renderer.EndDraw();
-        currentContext = context;
+        CurrentContext = context;
         SetRenderTargetsFromContext(context);
         Renderer.PushSettingsInternal();
         Renderer.CurrentSettings = newSettings;
@@ -103,8 +103,8 @@ internal static class RenderTargetStack
 
     public static void PopRenderTarget()
     {
-        currentContext = currentContext.PreviousContext;
-        if (currentContext == null)
+        CurrentContext = CurrentContext.PreviousContext;
+        if (CurrentContext == null)
         {
             throw new InvalidOperationException("No render context left! This usually " +
                 "indicates that a control with an unique render target has " +
@@ -113,7 +113,7 @@ internal static class RenderTargetStack
 
         Renderer.EndDraw();
         Renderer.PopSettingsInternal();
-        graphicsDevice.SetRenderTarget(currentContext.RenderTarget);
+        graphicsDevice.SetRenderTarget(CurrentContext.RenderTarget);
         Renderer.BeginDraw();
     }
 }
