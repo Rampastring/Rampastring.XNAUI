@@ -529,6 +529,32 @@ public class XNAListBox : XNAPanel
     }
 
     /// <summary>
+    /// Scrolls the list box so that the selected element is made visible, if it is not visible already.
+    /// </summary>
+    public void ScrollToSelectedElement()
+    {
+        int totalHeight = 0;
+        int itemY = 0;
+
+        for (int i = 0; i < Items.Count; i++)
+        {
+            int elementHeight = Items[i].TextLines.Count * LineHeight;
+
+            totalHeight += elementHeight;
+
+            if (i < SelectedIndex)
+                itemY += elementHeight;
+        }
+
+        const int listBoxMargin = 2;
+
+        if (ViewTop > itemY + LineHeight)
+            ViewTop = itemY;
+        else if (ViewTop + Height <= itemY)
+            ViewTop = Math.Min(itemY, totalHeight - Height + (listBoxMargin * 2));
+    }
+
+    /// <summary>
     /// Initializes the list box.
     /// </summary>
     public override void Initialize()
