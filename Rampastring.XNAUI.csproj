@@ -27,7 +27,6 @@
     <RootNamespace>Rampastring.XNAUI</RootNamespace>
     <ComVisible>false</ComVisible>
     <CLSCompliant>false</CLSCompliant>
-    <AnalysisLevel>preview-all</AnalysisLevel>
     <LangVersion>preview</LangVersion>
     <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
     <Platforms>AnyCPU</Platforms>
