@@ -1,4 +1,4 @@
-﻿using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
 using Rampastring.Tools;
 using Rampastring.XNAUI.Input;
@@ -20,6 +20,8 @@ public class XNATextBox : XNAControl
     protected const double FAST_SCROLL_TRIGGER_TIME = 0.4;
     protected const double BAR_ON_TIME = 0.5;
     protected const double BAR_OFF_TIME = 0.5;
+    private static volatile XNAControl _IMEFocus;
+    private volatile bool _textCompositionDelay;
 
     /// <summary>
     /// Creates a new text box.
@@ -106,6 +108,11 @@ public class XNATextBox : XNAControl
     /// The index of the spritefont that this textbox uses.
     /// </summary>
     public int FontIndex { get; set; }
+
+    /// <summary>
+    /// Disable IME
+    /// </summary>
+    public bool DisableIME { get; set; }
 
     /// <summary>
     /// The maximum length of the text of this text box, in characters.
@@ -215,6 +222,8 @@ public class XNATextBox : XNAControl
         KeyboardEventInput.CharEntered += KeyboardEventInput_CharEntered;
 #endif
         Keyboard.OnKeyPressed += Keyboard_OnKeyPressed;
+
+        InitializeIMEHelper();
     }
 
     public override void Kill()
@@ -232,12 +241,14 @@ public class XNATextBox : XNAControl
 #if XNA
     private void KeyboardEventInput_CharEntered(object sender, KeyboardEventArgs e)
     {
-        HandleCharInput(e.Character);
+        if (DisableIME || !WindowManager.IMEHandler.Enabled)
+            HandleCharInput(e.Character);
     }
 #else
     private void Window_TextInput(object sender, TextInputEventArgs e)
     {
-        HandleCharInput(e.Character);
+        if (DisableIME || !WindowManager.IMEHandler.Enabled)
+            HandleCharInput(e.Character);
     }
 #endif
 
@@ -413,11 +424,25 @@ public class XNATextBox : XNAControl
                 if (Keyboard.IsShiftHeldDown())
                 {
                     if (PreviousControl != null)
+                    {
                         WindowManager.SelectedControl = PreviousControl;
+                        _IMEFocus = null;
+                        if (PreviousControl is XNATextBox tb)
+                        {
+                            _IMEFocus = tb;
+                            tb.SetTextInputRect();
+                    }
+                }
                 }
                 else if (NextControl != null)
                 {
                     WindowManager.SelectedControl = NextControl;
+                    _IMEFocus = null;
+                    if (NextControl is XNATextBox tb)
+                    {
+                        _IMEFocus = tb;
+                        tb.SetTextInputRect();
+                    }
                 }
 
                 return true;
@@ -461,6 +486,14 @@ public class XNATextBox : XNAControl
         base.OnLeftClick();
     }
 
+    private void SetTextInputRect()
+    {
+        var rect = RenderRectangle();
+        rect.X += WindowManager.SceneXPosition;
+        rect.Y += WindowManager.SceneYPosition;
+        WindowManager.IMEHandler.SetTextInputRect(rect);
+    }
+
     public override void Update(GameTime gameTime)
     {
         base.Update(gameTime);
@@ -472,6 +505,15 @@ public class XNATextBox : XNAControl
 
         if (WindowManager.SelectedControl == this)
         {
+            if (!DisableIME
+                && Enabled && Visible && IsActive
+                && !WindowManager.IMEHandler.Enabled)
+            {
+                _IMEFocus = this;
+                WindowManager.IMEHandler.StartTextComposition();
+                SetTextInputRect();
+            }
+
             if (Keyboard.IsKeyHeldDown(Keys.Left))
             {
                 HandleScrollKeyDown(gameTime, ScrollLeft);
@@ -495,10 +537,20 @@ public class XNATextBox : XNAControl
                 scrollKeyTime = TimeSpan.Zero;
             }
         }
+        else if (
+            _IMEFocus == this && !DisableIME
+            && Enabled && Visible && !IsActive
+            && WindowManager.IMEHandler.Enabled)
+        {
+            WindowManager.IMEHandler.StopTextComposition();
+        }
     }
 
     private void ScrollLeft()
     {
+        if (!DisableIME && !string.IsNullOrEmpty(WindowManager.IMEHandler.Composition))
+            return;
+
         if (InputPosition == 0)
             return;
 
@@ -514,6 +566,9 @@ public class XNATextBox : XNAControl
 
     private void ScrollRight()
     {
+        if (!DisableIME && !string.IsNullOrEmpty(WindowManager.IMEHandler.Composition))
+            return;
+
         if (InputPosition >= text.Length)
             return;
 
@@ -532,6 +587,21 @@ public class XNATextBox : XNAControl
 
     private void DeleteCharacter()
     {
+        if (!DisableIME)
+        {
+            if (!string.IsNullOrEmpty(WindowManager.IMEHandler.Composition))
+            {
+                _textCompositionDelay = false;
+                return;
+            }
+
+            if (!_textCompositionDelay)
+            {
+                _textCompositionDelay = true;
+                return;
+            }
+        }
+
         if (text.Length > InputPosition)
         {
             text = text.Remove(InputPosition, 1);
@@ -550,6 +620,22 @@ public class XNATextBox : XNAControl
 
     private void Backspace()
     {
+        if (!DisableIME)
+        {
+            if (!string.IsNullOrEmpty(WindowManager.IMEHandler.Composition))
+            {
+                _textCompositionDelay = false;
+                return;
+            }
+
+            if (!_textCompositionDelay)
+            {
+                _textCompositionDelay = true;
+                return;
+            }
+        }
+
+
         if (text.Length > 0 && InputPosition > 0)
         {
             text = text.Remove(InputPosition - 1, 1);
@@ -607,16 +693,42 @@ public class XNATextBox : XNAControl
             FontIndex, new Vector2(TEXT_HORIZONTAL_MARGIN, TEXT_VERTICAL_MARGIN),
             TextColor);
 
-        if (WindowManager.SelectedControl == this && Enabled && WindowManager.HasFocus && barTimer.TotalSeconds < BAR_ON_TIME)
+        if (WindowManager.SelectedControl == this
+            && Enabled && WindowManager.HasFocus)
         {
             int barLocationX = TEXT_HORIZONTAL_MARGIN;
 
             string inputText = Text.Substring(TextStartPosition, InputPosition - TextStartPosition);
             barLocationX += (int)Renderer.GetTextDimensions(inputText, FontIndex).X;
 
-            FillRectangle(new Rectangle(barLocationX, 2, 1, Height - 4), Color.White);
+            if (!DisableIME && _IMEFocus == this && WindowManager.IMEHandler.Enabled && !string.IsNullOrEmpty(WindowManager.IMEHandler.Composition))
+            {
+                DrawString(WindowManager.IMEHandler.Composition, FontIndex, new(barLocationX, TEXT_VERTICAL_MARGIN), Color.Orange);
+                Vector2 measStr = Renderer.GetTextDimensions(WindowManager.IMEHandler.Composition.Substring(0, WindowManager.IMEHandler.CompositionCursorPos), FontIndex);
+                barLocationX += (int)measStr.X;
+            }
+
+            if (barTimer.TotalSeconds < BAR_ON_TIME)
+            {
+                FillRectangle(new Rectangle(barLocationX, 2, 1, Height - 4), Color.White);
+            }
         }
 
         base.Draw(gameTime);
+    }
+
+
+    private void InitializeIMEHelper()
+    {
+        if (DisableIME)
+            return;
+
+        WindowManager.IMEHandler.TextInput += IMEHandler_TextInput;
+    }
+
+    private void IMEHandler_TextInput(object sender, char e)
+    {
+        if (WindowManager.IMEHandler.Enabled)
+            HandleCharInput(e);
     }
 }
