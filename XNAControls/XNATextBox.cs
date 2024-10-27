@@ -21,7 +21,7 @@ public class XNATextBox : XNAControl
     protected const double BAR_ON_TIME = 0.5;
     protected const double BAR_OFF_TIME = 0.5;
     private static volatile XNAControl _IMEFocus;
-    private volatile bool _textCompositionDelay;
+    private volatile bool _textCompositionDelay = true;
 
     /// <summary>
     /// Creates a new text box.
@@ -724,6 +724,13 @@ public class XNATextBox : XNAControl
             return;
 
         WindowManager.IMEHandler.TextInput += IMEHandler_TextInput;
+WindowManager.IMEHandler.CompositionChanged += IMEHandler_CompositionChanged;
+    }
+
+    private void IMEHandler_CompositionChanged(object sender, CompositionChangedEventArgs e)
+    {
+        if (_textCompositionDelay && !string.IsNullOrEmpty(e.OldValue) && string.IsNullOrEmpty(e.NewValue))
+            _textCompositionDelay = false;
     }
 
     private void IMEHandler_TextInput(object sender, char e)

@@ -11,6 +11,8 @@ namespace Rampastring.XNAUI.Input;
 
 internal abstract class IMEHandler
 {
+    private string composition = string.Empty;
+
     /// <summary>
     /// Check if text composition is enabled currently.
     /// </summary>
@@ -19,8 +21,16 @@ internal abstract class IMEHandler
     /// <summary>
     /// Composition String
     /// </summary>
-    public virtual string Composition { get; protected set; } = string.Empty;
-
+    public virtual string Composition
+    {
+        get => composition;
+        protected set
+        {
+            string old = composition;
+            composition = value;
+            CompositionChanged?.Invoke(null, new(old, value));
+        }
+    }
     /// <summary>
     /// Caret position of the composition
     /// </summary>
@@ -32,6 +42,7 @@ internal abstract class IMEHandler
     /// <seealso cref="StartTextComposition" />
     /// <seealso cref="StopTextComposition" />
     public event EventHandler<char> TextInput;
+    public event EventHandler<CompositionChangedEventArgs> CompositionChanged;
 
     public static IMEHandler Create(Game game)
     {
