@@ -158,59 +158,132 @@ public class XNATextRenderer : XNAControl
 
     public XNATextPart GetTextPart(int index) => originalTextParts[index];
 
+    /// <summary>
+    /// Processes the text parts fed to this text renderer.
+    /// </summary>
     public void PrepareTextParts()
     {
         renderedTextLines.Clear();
 
-        var line = new XNATextLine(new List<XNATextPart>());
-        renderedTextLines.Add(line);
+        var preparedTextLines = new List<XNATextLine>();
 
-        int remainingWidth = Width - (Padding * 2);
-
-        foreach (XNATextPart textPart in originalTextParts)
+        // Create a clone of the original text parts.
+        // Look for newlines and pre-process them by splitting parts
+        // that contain newlines.
+        var partsToProcess = new List<XNATextPart>(originalTextParts);
+        for (int i = 0; i < partsToProcess.Count; i++)
         {
-            string remainingText = textPart.Text;
-            var currentOutputPart = new XNATextPart("", textPart.FontIndex, textPart.Scale, textPart.Color, textPart.Underlined);
+            var part = partsToProcess[i];
 
-            while (true)
+            int newLineIndex = part.Text.IndexOf(Environment.NewLine);
+            if (newLineIndex == -1)
             {
-                if (remainingText.StartsWith(Environment.NewLine, StringComparison.InvariantCulture))
+                // There is no newline. Simply add this part to the existing line, or if
+                // no line exists, create one.
+
+                if (preparedTextLines.Count == 0)
+                    preparedTextLines.Add(new XNATextLine(new List<XNATextPart>() { part }));
+                else
+                    preparedTextLines[preparedTextLines.Count - 1].AddPart(part);
+
+                continue;
+            }
+
+            // There is a newline in this text part. Split this part from the index of the newline.
+
+            string postNewlineText = part.Text.Substring(newLineIndex + Environment.NewLine.Length);
+            string remainingTextForThisPart = part.Text.Substring(0, newLineIndex);
+
+            // Process the part before the newline as part of an existing line. If no line exists, create one.
+            var textPart = new XNATextPart(remainingTextForThisPart, part.FontIndex, part.Scale, part.Color, part.Underlined);
+            if (preparedTextLines.Count == 0)
+                preparedTextLines.Add(new XNATextLine(new List<XNATextPart>() { textPart }));
+            else
+                preparedTextLines[preparedTextLines.Count - 1].AddPart(textPart);
+
+            var newTextPart = new XNATextPart(postNewlineText, part.FontIndex, part.Scale, part.Color, part.Underlined);
+            partsToProcess.Insert(i + 1, newTextPart);
+            preparedTextLines.Add(new XNATextLine(new List<XNATextPart>(1)));
+        }
+
+        // Look for lines that contain no text parts, or only empty text parts.
+        // If ones exist, add a space to them so they still contain some height.
+        // If there are empty text parts in a line that otherwise contains text,
+        // remove the empty parts.
+        for (int i = 0; i < preparedTextLines.Count; i++)
+        {
+            if (preparedTextLines[i].Parts.Count == 0)
+            {
+                preparedTextLines[i].AddPart(new XNATextPart(" "));
+            }
+            else if (preparedTextLines[i].Parts.TrueForAll(p => p.Text == ""))
+            {
+                var existingPart = preparedTextLines[i].Parts[0];
+                preparedTextLines[i].Parts[0] = new XNATextPart(" ", existingPart.FontIndex, existingPart.Scale, existingPart.Color, existingPart.Underlined);
+            }
+            else
+            {
+                while (true)
                 {
-                    string newLineText = "";
-                    if (remainingText.Substring(Environment.NewLine.Length).StartsWith(Environment.NewLine, StringComparison.InvariantCulture))
-                        newLineText = " ";
-                    line = new XNATextLine(new List<XNATextPart>() { new XNATextPart(newLineText, textPart.FontIndex, textPart.Scale, textPart.Color, textPart.Underlined) });
-                    renderedTextLines.Add(line);
-                    remainingText = remainingText.Substring(Environment.NewLine.Length);
-                    remainingWidth = Width - (Padding * 2);
-                    currentOutputPart = new XNATextPart("", textPart.FontIndex, textPart.Scale, textPart.Color, textPart.Underlined);
-                    continue;
-                }
+                    int emptyTextPartIndex = preparedTextLines[i].Parts.FindIndex(p => p.Text == string.Empty);
+                    if (emptyTextPartIndex < 0)
+                        break;
 
-                var words = remainingText.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
-                foreach (string word in words)
+                    preparedTextLines[i].Parts.RemoveAt(emptyTextPartIndex);
+                }
+            }
+        }
+
+        // For each line, process their text parts.
+        for (int i = 0; i < preparedTextLines.Count; i++)
+        {
+            var line = new XNATextLine(new List<XNATextPart>());
+            renderedTextLines.Add(line);
+
+            var lineOriginalTextParts = new List<XNATextPart>(preparedTextLines[i].Parts);
+            int remainingWidth = Width - (Padding * 2);
+
+            foreach (XNATextPart textPart in lineOriginalTextParts) 
+            {
+                string remainingText = textPart.Text;
+                var currentOutputPart = new XNATextPart("", textPart.FontIndex, textPart.Scale, textPart.Color, textPart.Underlined);
+
+                while (true)
                 {
-                    string wordWithSpace = word + " ";
-                    int wordWidth = (int)Renderer.GetTextDimensions(word, textPart.FontIndex).X;
-                    int wordWidthWithSpace = (int)Renderer.GetTextDimensions(wordWithSpace, textPart.FontIndex).X;
-                    if (wordWidth < remainingWidth)
+                    var words = remainingText.Split(new[] { ' ' }, StringSplitOptions.None);
+                    foreach (string word in words)
                     {
-                        remainingWidth -= wordWidthWithSpace;
-                        currentOutputPart.Text += wordWithSpace;
-                    }
-                    else
-                    {
-                        line.Parts.Add(currentOutputPart);
+                        if (word == "")
+                        {
+                            currentOutputPart.Text += " ";
+                            remainingWidth -= (int)Renderer.GetTextDimensions(" ", textPart.FontIndex).X;
+                            continue;
+                        }
 
-                        remainingWidth = Width - (Padding * 2) - wordWidthWithSpace;
-                        currentOutputPart = new XNATextPart(wordWithSpace, textPart.FontIndex, textPart.Scale, textPart.Color, textPart.Underlined);
-                        line = new XNATextLine(new List<XNATextPart>());
-                        renderedTextLines.Add(line);
+                        string wordToProcess = word;
+
+                        string wordWithSpace = wordToProcess + " ";
+                        int wordWidth = (int)Renderer.GetTextDimensions(wordToProcess, textPart.FontIndex).X;
+                        int wordWidthWithSpace = (int)Renderer.GetTextDimensions(wordWithSpace, textPart.FontIndex).X;
+                        if (wordWidth < remainingWidth)
+                        {
+                            remainingWidth -= wordWidthWithSpace;
+                            currentOutputPart.Text += wordWithSpace;
+                        }
+                        else
+                        {
+                            line.Parts.Add(currentOutputPart);
+
+                            remainingWidth = Width - (Padding * 2) - wordWidthWithSpace;
+                            currentOutputPart = new XNATextPart(wordWithSpace, textPart.FontIndex, textPart.Scale, textPart.Color, textPart.Underlined);
+                            line = new XNATextLine(new List<XNATextPart>());
+                            renderedTextLines.Add(line);
+                        }
                     }
+
+                    line.Parts.Add(currentOutputPart);
+                    break;
                 }
-
-                line.Parts.Add(currentOutputPart);
-                break;
             }
         }
 
