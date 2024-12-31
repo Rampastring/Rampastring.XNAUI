@@ -10,6 +10,9 @@ using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Formats.Png;
 using Color = Microsoft.Xna.Framework.Color;
 using System.Globalization;
+using SixLabors.ImageSharp.Formats.Gif;
+using SixLabors.ImageSharp.Advanced;
+using SixLabors.ImageSharp.PixelFormats;
 
 namespace Rampastring.XNAUI;
 
@@ -28,6 +31,7 @@ public static class AssetLoader
     private static ContentManager contentManager;
 
     private static List<Texture2D> textureCache;
+    private static Dictionary<string, Image> animationsCache;
     private static List<SoundEffect> soundCache;
 
     public static bool IsInitialized { get; private set; } = false;
@@ -47,6 +51,7 @@ public static class AssetLoader
         graphicsDevice = gd;
         AssetSearchPaths = new List<string>();
         textureCache = new List<Texture2D>();
+        animationsCache = new Dictionary<string, Image>();
         soundCache = new List<SoundEffect>();
         contentManager = content;
     }
@@ -72,6 +77,37 @@ public static class AssetLoader
         }
 
         return CreateDummyTexture();
+    }
+
+    /// <summary>
+    /// Loads a animation with the specific name. If the animation isn't found from any
+    /// asset search path, returns a dummy animation with 1 frame.
+    /// </summary>
+    /// <param name="name">The name of the animation.</param>
+    /// <returns>The animation if it was found and could be loaded, otherwise a dummy animation.</returns>
+    public static Image LoadAnimation(string name)
+    {
+        Image cachedAnimation = null;
+
+        try
+        {
+            cachedAnimation = animationsCache[name];
+        }
+        catch(Exception ex)
+        {
+        }
+
+        if (cachedAnimation != null)
+            return cachedAnimation;
+
+        var animation = LoadAnimationInternal(name);
+        if (animation != null)
+        {
+            animationsCache.Add(name, animation);
+            return animation;
+        }
+
+        return CreateDummyAnimation();
     }
 
     /// <summary>
@@ -116,6 +152,31 @@ public static class AssetLoader
         return null;
     }
 
+    private static Image LoadAnimationInternal(string name)
+    {
+        try
+        {
+            foreach (string searchPath in AssetSearchPaths)
+            {
+                FileInfo fileInfo = SafePath.GetFile(searchPath, name);
+
+                if (fileInfo.Exists)
+                {
+                    using FileStream fs = fileInfo.OpenRead();
+                    var animation = Image.Load(fs);
+
+                    return animation;
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            Logger.Log("AssetLoader.LoadTextureInternal: loading texture " + name + " failed! Message: " + ex.Message);
+        }
+
+        return null;
+    }
+
     private static void PremultiplyAlpha(Texture2D texture)
     {
         var data = new Color[texture.Width * texture.Height];
@@ -137,6 +198,14 @@ public static class AssetLoader
     private static Texture2D CreateDummyTexture()
     {
         return CreateTexture(new Color(255, 54, 244), 100, 100);
+    }
+
+    /// <summary>
+    /// Creates and returns a 100x100 pink square.
+    /// </summary>
+    private static Image CreateDummyAnimation()
+    {
+        return new Image<Rgba32>(100, 100, new Rgba32(255, 54, 244));
     }
 
     /// <summary>

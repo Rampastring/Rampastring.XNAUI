@@ -1,7 +1,18 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Rampastring.Tools;
+using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.Formats.Png;
 using System.Globalization;
+using System.IO;
+using Color = Microsoft.Xna.Framework.Color;
+using Rectangle = Microsoft.Xna.Framework.Rectangle;
+using SixLabors.ImageSharp.Formats.Gif;
+using SixLabors.ImageSharp.Advanced;
+using SixLabors.ImageSharp.PixelFormats;
+using System.Threading.Tasks;
+using System;
+using System.Collections.Generic;
 
 namespace Rampastring.XNAUI.XNAControls;
 
@@ -13,7 +24,12 @@ public class XNAPanel : XNAControl
 
     public PanelBackgroundImageDrawMode PanelBackgroundDrawMode { get; set; } = PanelBackgroundImageDrawMode.STRETCHED;
 
+    protected int currentFrameId = 0;
+    protected int totalElapsedTime = 0;
+    protected int frameDelay = 0;
     public virtual Texture2D BackgroundTexture { get; set; }
+
+    public virtual List<Image> BackgroundAnimation { get; set; }
 
     private Color? _borderColor;
 
@@ -70,6 +86,13 @@ public class XNAPanel : XNAControl
             case "BackgroundTexture":
                 BackgroundTexture = AssetLoader.LoadTexture(value);
                 return;
+            case "BackgroundAnimation":
+                BackgroundAnimation = new List<Image>();
+                var gif = AssetLoader.LoadAnimation(value);
+                frameDelay = gif.Frames[0].Metadata.GetGifMetadata().FrameDelay * 10;
+                for (int i = 0; i < gif.Frames.Count; i++)
+                    BackgroundAnimation.Add(gif.Frames.ExportFrame(0));
+                return;
             case "SolidColorBackgroundTexture":
                 BackgroundTexture = AssetLoader.CreateTexture(AssetLoader.GetColorFromString(value), 2, 2);
                 PanelBackgroundDrawMode = PanelBackgroundImageDrawMode.STRETCHED;
@@ -99,6 +122,19 @@ public class XNAPanel : XNAControl
     public override void Update(GameTime gameTime)
     {
         Alpha += AlphaRate * (float)(gameTime.ElapsedGameTime.TotalMilliseconds / 100.0);
+
+        if (BackgroundAnimation != null)
+        {
+            int currentElapsedTime = Convert.ToInt32(gameTime.ElapsedGameTime.TotalMilliseconds);
+            totalElapsedTime += currentElapsedTime;
+            if (totalElapsedTime > frameDelay)
+            {
+                totalElapsedTime = 0;
+                Image frame = BackgroundAnimation[currentFrameId++ % BackgroundAnimation.Count];
+                BackgroundTexture.Dispose();
+                BackgroundTexture = AssetLoader.TextureFromImage(frame);
+            }
+        }
 
         base.Update(gameTime);
     }
