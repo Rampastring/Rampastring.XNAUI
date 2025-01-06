@@ -30,7 +30,7 @@ public class XNAPanel : XNAControl
     protected int frameDelay = 0;
     public virtual Texture2D BackgroundTexture { get; set; }
 
-    public virtual List<Image> BackgroundAnimation { get; set; }
+    public virtual List<Texture2D> BackgroundAnimation { get; set; }
 
     private Color? _borderColor;
 
@@ -88,12 +88,12 @@ public class XNAPanel : XNAControl
                 BackgroundTexture = AssetLoader.LoadTexture(value);
                 return;
             case "BackgroundAnimation":
-                BackgroundAnimation = new List<Image>();
-                var gif = AssetLoader.LoadAnimation(value);
+                BackgroundAnimation = new List<Texture2D>();
+                var gif = AssetLoader.LoadAnimation(value);  
                 frameDelay = gif.Frames[0].Metadata.GetGifMetadata().FrameDelay * 10;
                 
                 for (int i = 0; i < gif.Frames.Count; i++)
-                    BackgroundAnimation.Add(gif.Frames.ExportFrame(0));
+                    BackgroundAnimation.Add(AssetLoader.TextureFromImage(gif.Frames.ExportFrame(0)));
                 
                 return;
             case "SolidColorBackgroundTexture":
@@ -127,13 +127,7 @@ public class XNAPanel : XNAControl
         Alpha += AlphaRate * (float)(gameTime.ElapsedGameTime.TotalMilliseconds / 100.0);
 
         currentElapsedTime = Convert.ToInt32(gameTime.ElapsedGameTime.TotalMilliseconds);
-        UpdateBackgroundAnimationFrame();
-
-        base.Update(gameTime);
-    }
-
-    protected async void UpdateBackgroundAnimationFrame()
-    {
+        
         if (BackgroundAnimation != null)
         {
             totalElapsedTime += currentElapsedTime;
@@ -141,10 +135,11 @@ public class XNAPanel : XNAControl
             if (totalElapsedTime < frameDelay) return;
 
             totalElapsedTime = 0;
-            Image frame = BackgroundAnimation[currentFrameId++ % BackgroundAnimation.Count];
-            BackgroundTexture.Dispose();
-            BackgroundTexture = AssetLoader.TextureFromImage(frame);
+            Texture2D frame = BackgroundAnimation[currentFrameId++ % BackgroundAnimation.Count];
+            BackgroundTexture = frame;
         }
+
+        base.Update(gameTime);
     }
 
     protected void DrawBackgroundTexture(Texture2D texture, Color color)
