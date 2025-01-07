@@ -126,17 +126,16 @@ public class XNAPanel : XNAControl
     {
         Alpha += AlphaRate * (float)(gameTime.ElapsedGameTime.TotalMilliseconds / 100.0);
 
-        currentElapsedTime = Convert.ToInt32(gameTime.ElapsedGameTime.TotalMilliseconds);
-        
         if (BackgroundAnimation != null)
         {
+
+            currentElapsedTime = Convert.ToInt32(gameTime.ElapsedGameTime.TotalMilliseconds);
             totalElapsedTime += currentElapsedTime;
 
             if (totalElapsedTime < frameDelay) return;
 
             totalElapsedTime = 0;
-            Texture2D frame = BackgroundAnimation[currentFrameId++ % BackgroundAnimation.Count];
-            BackgroundTexture = frame;
+            BackgroundTexture = BackgroundAnimation[currentFrameId++ % BackgroundAnimation.Count];
         }
 
         base.Update(gameTime);
