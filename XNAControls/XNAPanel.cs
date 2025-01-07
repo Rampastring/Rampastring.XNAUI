@@ -24,13 +24,13 @@ public class XNAPanel : XNAControl
 
     public PanelBackgroundImageDrawMode PanelBackgroundDrawMode { get; set; } = PanelBackgroundImageDrawMode.STRETCHED;
 
-    protected int currentFrameId = 0;
-    protected int totalElapsedTime = 0;
-    protected int currentElapsedTime = 0;
-    protected int frameDelay = 0;
     public virtual Texture2D BackgroundTexture { get; set; }
 
     public virtual List<Texture2D> BackgroundAnimation { get; set; }
+
+    protected int currentFrameId = 0;
+    protected int totalElapsedTime = 0;
+    protected int frameDelay = 0;
 
     private Color? _borderColor;
 
@@ -89,11 +89,19 @@ public class XNAPanel : XNAControl
                 return;
             case "BackgroundAnimation":
                 BackgroundAnimation = new List<Texture2D>();
-                var gif = AssetLoader.LoadAnimation(value);  
+                var gif = AssetLoader.LoadAnimation(value);
                 frameDelay = gif.Frames[0].Metadata.GetGifMetadata().FrameDelay * 10;
-                
-                for (int i = 0; i < gif.Frames.Count; i++)
-                    BackgroundAnimation.Add(AssetLoader.TextureFromImage(gif.Frames.ExportFrame(0)));
+                Height = gif.Height;
+                Width = gif.Width;
+
+                try
+                {
+                    for (;;)
+                        BackgroundAnimation.Add(AssetLoader.TextureFromImage(gif.Frames.ExportFrame(0)));
+                }
+                catch
+                {
+                }
                 
                 return;
             case "SolidColorBackgroundTexture":
@@ -128,8 +136,7 @@ public class XNAPanel : XNAControl
 
         if (BackgroundAnimation != null)
         {
-
-            currentElapsedTime = Convert.ToInt32(gameTime.ElapsedGameTime.TotalMilliseconds);
+            int currentElapsedTime = Convert.ToInt32(gameTime.ElapsedGameTime.TotalMilliseconds);
             totalElapsedTime += currentElapsedTime;
 
             if (totalElapsedTime < frameDelay) return;
