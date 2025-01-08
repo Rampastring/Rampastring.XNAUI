@@ -27,6 +27,7 @@ public class XNAPanel : XNAControl
     public virtual Texture2D BackgroundTexture { get; set; }
 
     public virtual List<Texture2D> BackgroundAnimation { get; set; }
+    public virtual List<int> Delays { get; set; }
 
     protected int currentFrameId = 0;
     protected int totalElapsedTime = 0;
@@ -89,6 +90,7 @@ public class XNAPanel : XNAControl
                 return;
             case "BackgroundAnimation":
                 BackgroundAnimation = new List<Texture2D>();
+                Delays = new List<int>();
                 var gif = AssetLoader.LoadAnimation(value);
                 frameDelay = gif.Frames[0].Metadata.GetGifMetadata().FrameDelay * 10;
                 Height = gif.Height;
@@ -97,7 +99,13 @@ public class XNAPanel : XNAControl
                 try
                 {
                     for (;;)
-                        BackgroundAnimation.Add(AssetLoader.TextureFromImage(gif.Frames.ExportFrame(0)));
+                    {
+                        var delay = gif.Frames[0].Metadata.GetGifMetadata().FrameDelay * 10;
+                        var currentFrame = gif.Frames.ExportFrame(0);
+
+                        Delays.Add(delay);
+                        BackgroundAnimation.Add(AssetLoader.TextureFromImage(currentFrame));
+                    }
                 }
                 catch
                 {
@@ -134,15 +142,18 @@ public class XNAPanel : XNAControl
     {
         Alpha += AlphaRate * (float)(gameTime.ElapsedGameTime.TotalMilliseconds / 100.0);
 
-        if (BackgroundAnimation != null)
+        if (BackgroundAnimation != null && BackgroundAnimation.Count != 0 && Delays.Count != 0)
         {
             int currentElapsedTime = Convert.ToInt32(gameTime.ElapsedGameTime.TotalMilliseconds);
             totalElapsedTime += currentElapsedTime;
 
-            if (totalElapsedTime < frameDelay) return;
-
-            totalElapsedTime = 0;
-            BackgroundTexture = BackgroundAnimation[currentFrameId++ % BackgroundAnimation.Count];
+            if (totalElapsedTime > frameDelay)
+            {
+                totalElapsedTime = 0;
+                frameDelay = Delays[currentFrameId];
+                BackgroundTexture = BackgroundAnimation[currentFrameId];
+                currentFrameId = ++currentFrameId % BackgroundAnimation.Count;
+            }
         }
 
         base.Update(gameTime);
