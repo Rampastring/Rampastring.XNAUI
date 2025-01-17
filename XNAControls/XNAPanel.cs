@@ -26,12 +26,10 @@ public class XNAPanel : XNAControl
 
     public virtual Texture2D BackgroundTexture { get; set; }
 
-    public virtual List<Texture2D> BackgroundAnimation { get; set; }
+    public virtual Animation BackgroundAnimation { get; set; }
     public virtual List<int> Delays { get; set; }
 
-    protected int currentFrameId = 0;
     protected int totalElapsedTime = 0;
-    protected int frameDelay = 0;
 
     private Color? _borderColor;
 
@@ -89,28 +87,10 @@ public class XNAPanel : XNAControl
                 BackgroundTexture = AssetLoader.LoadTexture(value);
                 return;
             case "BackgroundAnimation":
-                BackgroundAnimation = new List<Texture2D>();
-                Delays = new List<int>();
-                var gif = AssetLoader.LoadAnimation(value);
-                frameDelay = gif.Frames[0].Metadata.GetGifMetadata().FrameDelay * 10;
-                Height = gif.Height;
-                Width = gif.Width;
-
-                try
-                {
-                    for (;;)
-                    {
-                        var delay = gif.Frames[0].Metadata.GetGifMetadata().FrameDelay * 10;
-                        var currentFrame = gif.Frames.ExportFrame(0);
-
-                        Delays.Add(delay);
-                        BackgroundAnimation.Add(AssetLoader.TextureFromImage(currentFrame));
-                    }
-                }
-                catch
-                {
-                }
-                
+                BackgroundAnimation = new Animation(value);
+                BackgroundTexture = BackgroundAnimation.CurrentFrame;
+                Height = BackgroundAnimation.Height;
+                Width  = BackgroundAnimation.Width;
                 return;
             case "SolidColorBackgroundTexture":
                 BackgroundTexture = AssetLoader.CreateTexture(AssetLoader.GetColorFromString(value), 2, 2);
@@ -142,19 +122,8 @@ public class XNAPanel : XNAControl
     {
         Alpha += AlphaRate * (float)(gameTime.ElapsedGameTime.TotalMilliseconds / 100.0);
 
-        if (BackgroundAnimation != null && BackgroundAnimation.Count != 0 && Delays.Count != 0)
-        {
-            int currentElapsedTime = Convert.ToInt32(gameTime.ElapsedGameTime.TotalMilliseconds);
-            totalElapsedTime += currentElapsedTime;
-
-            if (totalElapsedTime > frameDelay)
-            {
-                totalElapsedTime = 0;
-                frameDelay = Delays[currentFrameId];
-                BackgroundTexture = BackgroundAnimation[currentFrameId];
-                currentFrameId = ++currentFrameId % BackgroundAnimation.Count;
-            }
-        }
+        if (BackgroundAnimation != null)
+            BackgroundTexture = BackgroundAnimation.Next(gameTime) ?? BackgroundTexture;
 
         base.Update(gameTime);
     }
