@@ -33,20 +33,16 @@ public class Animation
         Height = gif.Height;
         Width = gif.Width;
 
-        try
-        {
-            // ImageSharp have a bug that gives half of all frame count
-            for (;;)
-            {
-                // ImageSharp returns not milliseconds, but decisecond
-                var delay = gif.Frames[0].Metadata.GetGifMetadata().FrameDelay * 10;
-                var currentFrame = gif.Frames.ExportFrame(0);
+        // ImageSharp doesn't return last gif frame
+        int len = gif.Frames.Count - 1;
 
-                Frames.Add(new Frame{Texture = AssetLoader.TextureFromImage(currentFrame), Delay = delay});
-            }
-        }
-        catch
+        for (int i = 0; i < len; i++)
         {
+            // ImageSharp returns not milliseconds, but decisecond
+            var delay = gif.Frames[0].Metadata.GetGifMetadata().FrameDelay * 10;
+            var currentFrame = gif.Frames.ExportFrame(0);
+
+            Frames.Add(new Frame { Texture = AssetLoader.TextureFromImage(currentFrame), Delay = delay });
         }
 
         CurrentFrame = Frames[0].Texture;
