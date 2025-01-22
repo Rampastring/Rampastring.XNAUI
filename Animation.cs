@@ -6,10 +6,15 @@ using Microsoft.Xna.Framework;
 
 namespace Rampastring.XNAUI;
 
+class Frame
+{
+    public Texture2D Texture { get; set; }
+    public int Delay { get; set; }
+}
+
 public class Animation
 {
-    private List<Texture2D> Frames;
-    private List<int> Delays;
+    private List<Frame> Frames;
     private int currentFrameId = 0;
     private int currentDelay = 0;
     private int totalElapsedTime = 0;
@@ -20,8 +25,7 @@ public class Animation
 
     public Animation(string value) 
     {
-        Frames = new List<Texture2D>();
-        Delays = new List<int>();
+        Frames = new List<Frame>();
         
         var gif = AssetLoader.LoadAnimation(value);
         currentDelay = gif.Frames[0].Metadata.GetGifMetadata().FrameDelay * 10;
@@ -31,22 +35,21 @@ public class Animation
 
         try
         {
-            // ImageSharper have a bug that gives half of all frame count
+            // ImageSharp have a bug that gives half of all frame count
             for (;;)
             {
-                // ImageSharper returns not milliseconds, but decisecond
+                // ImageSharp returns not milliseconds, but decisecond
                 var delay = gif.Frames[0].Metadata.GetGifMetadata().FrameDelay * 10;
                 var currentFrame = gif.Frames.ExportFrame(0);
 
-                Delays.Add(delay);
-                Frames.Add(AssetLoader.TextureFromImage(currentFrame));
+                Frames.Add(new Frame{Texture = AssetLoader.TextureFromImage(currentFrame), Delay = delay});
             }
         }
         catch
         {
         }
 
-        CurrentFrame = Frames[0];
+        CurrentFrame = Frames[0].Texture;
     }
 
     public Texture2D Next(GameTime gameTime)
@@ -64,9 +67,9 @@ public class Animation
 
     public Texture2D Next()
     {
-        currentFrameId = ++currentFrameId % Delays.Count;
-        currentDelay = Delays[currentFrameId];
-        CurrentFrame = Frames[currentFrameId];
+        currentFrameId = ++currentFrameId % Frames.Count;
+        currentDelay = Frames[currentFrameId].Delay;
+        CurrentFrame = Frames[currentFrameId].Texture;
         return CurrentFrame;
     }
 }
