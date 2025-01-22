@@ -145,16 +145,20 @@ public class WindowManager : DrawableGameComponent
     /// </summary>
     public List<IControlINIAttributeParser> ControlINIAttributeParsers { get; private set; } = new List<IControlINIAttributeParser>();
 
+    /// <summary>
+    /// If set, only scales the rendered screen by integer scaling factors. Unfilled space is filled with black.
+    /// </summary>
+    public bool IntegerScalingOnly { get; set; }
+
+    public IIMEHandler IMEHandler { get; set; }
+
+    public bool IsIMEEnabled => IMEHandler != null && IMEHandler.Enabled;
+
     private GraphicsDeviceManager graphics;
 
     private IGameWindowManager gameWindowManager;
     private RenderTarget2D renderTarget;
     private RenderTarget2D doubledRenderTarget;
-
-    /// <summary>
-    /// If set, only scales the rendered screen by integer scaling factors. Unfilled space is filled with black.
-    /// </summary>
-    public bool IntegerScalingOnly { get; set; }
 
     /// <summary>
     /// Sets the rendering (back buffer) resolution of the game.
@@ -789,9 +793,14 @@ public class WindowManager : DrawableGameComponent
             Game.Window.ClientBounds.Width - (SceneXPosition * 2), Game.Window.ClientBounds.Height - (SceneYPosition * 2)), Color.White);
 
 #if DEBUG
-        Renderer.DrawString("Active control " + activeControlName, 0, Vector2.Zero, Color.Red, 1.0f);
+        Renderer.DrawString("Active control: " + activeControlName, 0, Vector2.Zero, Color.Red, 1.0f);
 
+        if (IMEHandler != null && IMEHandler.Enabled)
+        {
+            Renderer.DrawString("IME Enabled", 0, new Vector2(0, 16), Color.Red, 1.0f);
+        }
 #endif
+
         if (Cursor.Visible)
             Cursor.Draw(gameTime);
 
