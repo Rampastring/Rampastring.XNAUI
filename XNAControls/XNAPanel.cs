@@ -27,9 +27,6 @@ public class XNAPanel : XNAControl
     public virtual Texture2D BackgroundTexture { get; set; }
 
     public virtual Animation BackgroundAnimation { get; set; }
-    public virtual List<int> Delays { get; set; }
-
-    protected int totalElapsedTime = 0;
 
     private Color? _borderColor;
 
