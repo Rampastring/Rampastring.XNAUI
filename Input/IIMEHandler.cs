@@ -1,5 +1,4 @@
-﻿using Microsoft.Xna.Framework;
-using Rampastring.XNAUI.XNAControls;
+﻿using Rampastring.XNAUI.XNAControls;
 using System;
 
 namespace Rampastring.XNAUI.Input;
@@ -13,20 +12,7 @@ public class CharacterEventArgs : EventArgs
     {
         Character = character;
     }
-
     public char Character { get; }
-}
-
-public class CompositionChangedEventArgs : EventArgs
-{
-    public CompositionChangedEventArgs(string oldValue, string newValue)
-    {
-        OldValue = oldValue;
-        NewValue = newValue;
-    }
-
-    public string OldValue { get; }
-    public string NewValue { get; }
 }
 
 /// <summary>
@@ -40,17 +26,7 @@ public interface IIMEHandler
     XNAControl IMEFocus { get; set; }
 
     /// <summary>
-    /// Invoke when the IMM service emits characters.
-    /// </summary>
-    event EventHandler<CharacterEventArgs> CharInput;
-
-    /// <summary>
-    /// Invoke when the text composition is changed.
-    /// </summary>
-    event EventHandler<CompositionChangedEventArgs> CompositionChanged;
-
-    /// <summary>
-    /// Determines whether the IME handler is enabled.
+    /// Determines whether the IME (not the IME handler) is enabled.
     /// </summary>
     bool Enabled { get; }
 
@@ -65,18 +41,16 @@ public interface IIMEHandler
     int CompositionCursorPosition { get; set; }
 
     /// <summary>
-    /// Enables the system IMM service to support composited character input.
-    /// Called when the library expects text input from a user and IME is enabled.
+    /// Invoke when the IMM service emits characters.
     /// </summary>
-    void StartTextComposition();
+    event EventHandler<CharacterEventArgs> CharInput;
 
-    /// <summary>
-    /// Stops the system IMM service.
-    /// </summary>
-    void StopTextComposition();
+    void OnXNATextBoxSelectedChanged(XNATextBox sender);
 
-    /// <summary>
-    /// Sets the rectangle used for typing Unicode text inputs with IME.
-    /// </summary>
-    void SetTextInputRectangle(Rectangle rectangle);
+    bool ShouldIMEHandleCharacterInput(XNATextBox sender);
+
+    bool ShouldIMEHandleScrollKey(XNATextBox sender);
+
+    bool ShouldIMEHandleBackspaceOrDeleteKey_WithSideEffect(XNATextBox sender);
+
 }
