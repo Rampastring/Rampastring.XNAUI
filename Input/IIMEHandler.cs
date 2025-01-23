@@ -26,6 +26,11 @@ public interface IIMEHandler
     XNAControl IMEFocus { get; set; }
 
     /// <summary>
+    /// Invoke when the IMM service emits characters.
+    /// </summary>
+    event EventHandler<CharacterEventArgs> CharInput;
+
+    /// <summary>
     /// Determines whether the IME (not the IME handler) is enabled.
     /// </summary>
     bool Enabled { get; }
@@ -39,11 +44,6 @@ public interface IIMEHandler
     /// Caret position of the composition.
     /// </summary>
     int CompositionCursorPosition { get; set; }
-
-    /// <summary>
-    /// Invoke when the IMM service emits characters.
-    /// </summary>
-    event EventHandler<CharacterEventArgs> CharInput;
 
     void OnXNATextBoxSelectedChanged(XNATextBox sender);
 
