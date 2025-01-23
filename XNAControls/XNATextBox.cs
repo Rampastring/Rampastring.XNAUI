@@ -226,14 +226,14 @@ public class XNATextBox : XNAControl
 
     private void InitializeIME()
     {
-        if (IMEDisabled || WindowManager.IMEHandler == null)
-            return;
+        if (!IMEDisabled && WindowManager.IMEHandler != null)
+            WindowManager.IMEHandler.RegisterXNATextBox(this, HandleCharInput);
+    }
 
-        WindowManager.IMEHandler.CharInput += (sender, e) =>
-        {
-            if (WindowManager.IMEHandler.IMEFocus == this)
-                HandleCharInput(e.Character);
-        };
+    private void DeinitializeIME()
+    {
+        if (!IMEDisabled && WindowManager.IMEHandler != null)
+            WindowManager.IMEHandler.KillXNATextBox(this);
     }
 
     public override void Kill()
@@ -244,6 +244,8 @@ public class XNATextBox : XNAControl
         KeyboardEventInput.CharEntered -= KeyboardEventInput_CharEntered;
 #endif
         Keyboard.OnKeyPressed -= Keyboard_OnKeyPressed;
+
+        DeinitializeIME();
 
         base.Kill();
     }
@@ -661,10 +663,10 @@ public class XNATextBox : XNAControl
 
             if (!IMEDisabled && WindowManager.IMEHandler != null)
             {
-                if (WindowManager.IMEHandler.IMEFocus == this && !string.IsNullOrEmpty(WindowManager.IMEHandler.Composition))
+                if (WindowManager.IMEHandler.ShouldDrawCompositionText(this, out string composition, out int compositionCursorPosition))
                 {
-                    DrawString(WindowManager.IMEHandler.Composition, FontIndex, new(barLocationX, TEXT_VERTICAL_MARGIN), Color.Orange);
-                    Vector2 measStr = Renderer.GetTextDimensions(WindowManager.IMEHandler.Composition.Substring(0, WindowManager.IMEHandler.CompositionCursorPosition), FontIndex);
+                    DrawString(composition, FontIndex, new(barLocationX, TEXT_VERTICAL_MARGIN), Color.Orange);
+                    Vector2 measStr = Renderer.GetTextDimensions(composition.Substring(0, compositionCursorPosition), FontIndex);
                     barLocationX += (int)measStr.X;
                 }
             }
