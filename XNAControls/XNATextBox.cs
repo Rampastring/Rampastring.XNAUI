@@ -606,7 +606,8 @@ public class XNATextBox : XNAControl
 
     public override void OnSelectedChanged()
     {
-        WindowManager.IMEHandler.OnXNATextBoxSelectedChanged(this);
+        if (!IMEDisabled && WindowManager.IMEHandler != null)
+            WindowManager.IMEHandler.OnXNATextBoxSelectedChanged(this);
 
         base.OnSelectedChanged();
     }
