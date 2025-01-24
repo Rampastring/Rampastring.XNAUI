@@ -9,9 +9,9 @@ namespace Rampastring.XNAUI.Input;
 public interface IIMEHandler
 {
     /// <summary>
-    /// Determines whether the IME (not the IME handler) is enabled.
+    /// Determines whether IME is allowed to compose text.
     /// </summary>
-    bool Enabled { get; }
+    bool TextCompositionEnabled { get; }
 
     void RegisterXNATextBox(XNATextBox sender, Action<char> handleCharInput);
 
