@@ -102,15 +102,15 @@ namespace Rampastring.XNAUI.Input
                     CharEntered?.Invoke(null, new KeyboardEventArgs((char)wParam.Value, (int)lParam.Value));
                     break;
 
-                case PInvoke.WM_IME_SETCONTEXT:
-                    if (wParam == 1)
-                        PInvoke.ImmAssociateContext(hWnd, hIMC);
-                    break;
+                // case PInvoke.WM_IME_SETCONTEXT:
+                //     if (wParam == 1)
+                //         PInvoke.ImmAssociateContext(hWnd, hIMC);
+                //     break;
 
-                case PInvoke.WM_INPUTLANGCHANGE:
-                    PInvoke.ImmAssociateContext(hWnd, hIMC);
-                    returnCode = (LRESULT)1;
-                    break;
+                // case PInvoke.WM_INPUTLANGCHANGE:
+                //     PInvoke.ImmAssociateContext(hWnd, hIMC);
+                //     returnCode = (LRESULT)1;
+                //     break;
             }
 
             return returnCode;
