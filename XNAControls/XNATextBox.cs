@@ -253,14 +253,26 @@ public class XNATextBox : XNAControl
 #if XNA
     private void KeyboardEventInput_CharEntered(object sender, KeyboardEventArgs e)
     {
-        if (IMEDisabled || WindowManager.IMEHandler == null || !WindowManager.IMEHandler.ShouldIMEHandleCharacterInput(this))
-            HandleCharInput(e.Character);
+        if (!IMEDisabled && WindowManager.IMEHandler != null)
+        {
+            WindowManager.IMEHandler.OnCharacterInput(this, out bool handled);
+            if (handled)
+                return;
+        }
+
+        HandleCharInput(e.Character);
     }
 #else
     private void Window_TextInput(object sender, TextInputEventArgs e)
     {
-        if (IMEDisabled || WindowManager.IMEHandler == null || !WindowManager.IMEHandler.ShouldIMEHandleCharacterInput(this))
-            HandleCharInput(e.Character);
+        if (!IMEDisabled && WindowManager.IMEHandler != null)
+        {
+            WindowManager.IMEHandler.OnCharacterInput(this, out bool handled);
+            if (handled)
+                return;
+        }
+
+        HandleCharInput(e.Character);
     }
 #endif
 
@@ -522,8 +534,13 @@ public class XNATextBox : XNAControl
 
     private void ScrollLeft()
     {
-        if (!IMEDisabled && WindowManager.IMEHandler != null && WindowManager.IMEHandler.ShouldIMEHandleScrollKey(this))
-            return;
+        if (!IMEDisabled && WindowManager.IMEHandler != null)
+        {
+            WindowManager.IMEHandler.OnScrollLeftKey(this, out bool handled);
+            if (handled)
+                return;
+        }
+
 
         if (InputPosition == 0)
             return;
@@ -540,8 +557,12 @@ public class XNATextBox : XNAControl
 
     private void ScrollRight()
     {
-        if (!IMEDisabled && WindowManager.IMEHandler != null && WindowManager.IMEHandler.ShouldIMEHandleScrollKey(this))
-            return;
+        if (!IMEDisabled && WindowManager.IMEHandler != null)
+        {
+            WindowManager.IMEHandler.OnScrollRightKey(this, out bool handled);
+            if (handled)
+                return;
+        }
 
         if (InputPosition >= text.Length)
             return;
@@ -561,9 +582,11 @@ public class XNATextBox : XNAControl
 
     private void DeleteCharacter()
     {
-        if (!IMEDisabled && WindowManager.IMEHandler != null && WindowManager.IMEHandler.ShouldIMEHandleBackspaceOrDeleteKey_WithSideEffect(this))
+        if (!IMEDisabled && WindowManager.IMEHandler != null)
         {
-            return;
+            WindowManager.IMEHandler.OnDeleteKey(this, out bool handled);
+            if (handled)
+                return;
         }
 
         if (text.Length > InputPosition)
@@ -584,9 +607,11 @@ public class XNATextBox : XNAControl
 
     private void Backspace()
     {
-        if (!IMEDisabled && WindowManager.IMEHandler != null && WindowManager.IMEHandler.ShouldIMEHandleBackspaceOrDeleteKey_WithSideEffect(this))
+        if (!IMEDisabled && WindowManager.IMEHandler != null)
         {
-            return;
+            WindowManager.IMEHandler.OnBackspaceKey(this, out bool handled);
+            if (handled)
+                return;
         }
 
         if (text.Length > 0 && InputPosition > 0)
@@ -608,8 +633,8 @@ public class XNATextBox : XNAControl
 
     public override void OnSelectedChanged()
     {
-        if (!IMEDisabled && WindowManager.IMEHandler != null)
-            WindowManager.IMEHandler.OnXNATextBoxSelectedChanged(this);
+        // Note: IMEHandler.OnSelectedChanged() should be called even if this.IMEDisabled holds true
+        WindowManager.IMEHandler?.OnSelectedChanged(this);
 
         base.OnSelectedChanged();
     }
@@ -663,7 +688,8 @@ public class XNATextBox : XNAControl
 
             if (!IMEDisabled && WindowManager.IMEHandler != null)
             {
-                if (WindowManager.IMEHandler.ShouldDrawCompositionText(this, out string composition, out int compositionCursorPosition))
+                WindowManager.IMEHandler.OnDrawCompositionText(this, out bool drawCompositionText, out string composition, out int compositionCursorPosition);
+                if (drawCompositionText)
                 {
                     DrawString(composition, FontIndex, new(barLocationX, TEXT_VERTICAL_MARGIN), Color.Orange);
                     Vector2 measStr = Renderer.GetTextDimensions(composition.Substring(0, compositionCursorPosition), FontIndex);
