@@ -227,7 +227,14 @@ public class XNATextBox : XNAControl
     private void InitializeIME()
     {
         if (!IMEDisabled && WindowManager.IMEHandler != null)
+        {
             WindowManager.IMEHandler.RegisterXNATextBox(this, HandleCharInput);
+
+            TextChanged += (sender, e) =>
+            {
+                WindowManager.IMEHandler.OnTextChanged(this);
+            };
+        }
     }
 
     private void DeinitializeIME()

@@ -18,6 +18,7 @@ public interface IIMEHandler
     void KillXNATextBox(XNATextBox sender);
 
     void OnSelectedChanged(XNATextBox sender);
+    void OnTextChanged(XNATextBox sender);
 
     bool HandleCharInput(XNATextBox sender, char input);
 
