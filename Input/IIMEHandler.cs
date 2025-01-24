@@ -19,13 +19,15 @@ public interface IIMEHandler
 
     void OnSelectedChanged(XNATextBox sender);
 
-    void OnCharacterInput(XNATextBox sender, out bool handled);
+    bool HandleCharacterInput(XNATextBox sender);
 
-    void OnScrollLeftKey(XNATextBox sender, out bool handled);
-    void OnScrollRightKey(XNATextBox sender, out bool handled);
+    bool HandleScrollLeftKey(XNATextBox sender);
+    bool HandleScrollRightKey(XNATextBox sender);
 
-    void OnBackspaceKey(XNATextBox sender, out bool handled);
-    void OnDeleteKey(XNATextBox sender, out bool handled);
+    bool HandleBackspaceKey(XNATextBox sender);
+    bool HandleDeleteKey(XNATextBox sender);
+    bool HandleEnterKey(XNATextBox sender);
+    bool HandleEscapeKey(XNATextBox sender);
 
-    void OnDrawCompositionText(XNATextBox sender, out bool drawCompositionText, out string composition, out int compositionCursorPosition);
+    bool GetDrawCompositionText(XNATextBox sender, out string composition, out int compositionCursorPosition);
 }

@@ -437,9 +437,21 @@ public class XNATextBox : XNAControl
 
                 return true;
             case Keys.Enter:
+                if (!IMEDisabled && WindowManager.IMEHandler != null)
+                {
+                    if (WindowManager.IMEHandler.HandleEnterKey(this))
+                        return true;
+                }
+
                 EnterPressed?.Invoke(this, EventArgs.Empty);
                 return true;
             case Keys.Escape:
+                if (!IMEDisabled && WindowManager.IMEHandler != null)
+                {
+                    if (WindowManager.IMEHandler.HandleEscapeKey(this))
+                        return true;
+                }
+
                 InputPosition = 0;
                 Text = string.Empty;
                 InputReceived?.Invoke(this, EventArgs.Empty);
@@ -536,8 +548,7 @@ public class XNATextBox : XNAControl
     {
         if (!IMEDisabled && WindowManager.IMEHandler != null)
         {
-            WindowManager.IMEHandler.OnScrollLeftKey(this, out bool handled);
-            if (handled)
+            if (WindowManager.IMEHandler.HandleScrollLeftKey(this))
                 return;
         }
 
@@ -559,8 +570,7 @@ public class XNATextBox : XNAControl
     {
         if (!IMEDisabled && WindowManager.IMEHandler != null)
         {
-            WindowManager.IMEHandler.OnScrollRightKey(this, out bool handled);
-            if (handled)
+            if (WindowManager.IMEHandler.HandleScrollRightKey(this))
                 return;
         }
 
@@ -584,8 +594,7 @@ public class XNATextBox : XNAControl
     {
         if (!IMEDisabled && WindowManager.IMEHandler != null)
         {
-            WindowManager.IMEHandler.OnDeleteKey(this, out bool handled);
-            if (handled)
+            if (WindowManager.IMEHandler.HandleDeleteKey(this))
                 return;
         }
 
@@ -609,8 +618,7 @@ public class XNATextBox : XNAControl
     {
         if (!IMEDisabled && WindowManager.IMEHandler != null)
         {
-            WindowManager.IMEHandler.OnBackspaceKey(this, out bool handled);
-            if (handled)
+            if (WindowManager.IMEHandler.HandleBackspaceKey(this))
                 return;
         }
 
@@ -688,8 +696,7 @@ public class XNATextBox : XNAControl
 
             if (!IMEDisabled && WindowManager.IMEHandler != null)
             {
-                WindowManager.IMEHandler.OnDrawCompositionText(this, out bool drawCompositionText, out string composition, out int compositionCursorPosition);
-                if (drawCompositionText)
+                if (WindowManager.IMEHandler.GetDrawCompositionText(this, out string composition, out int compositionCursorPosition))
                 {
                     DrawString(composition, FontIndex, new(barLocationX, TEXT_VERTICAL_MARGIN), Color.Orange);
                     Vector2 measStr = Renderer.GetTextDimensions(composition.Substring(0, compositionCursorPosition), FontIndex);
