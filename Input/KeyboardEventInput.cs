@@ -37,7 +37,8 @@ namespace Rampastring.XNAUI.Input
         private static bool initialized;
         private static IntPtr prevWndProc;
         private static WNDPROC hookProcDelegate;
-        private static HIMC hIMC;
+
+        // private static HIMC hIMC;
 
         /// <summary>
         /// Initialize the TextInput with the given GameWindow.
@@ -72,7 +73,8 @@ namespace Rampastring.XNAUI.Input
                 prevWndProc = result;
             }
 
-            hIMC = PInvoke.ImmGetContext((HWND)window.Handle);
+            // hIMC = PInvoke.ImmGetContext((HWND)window.Handle);
+
             initialized = true;
         }
 
