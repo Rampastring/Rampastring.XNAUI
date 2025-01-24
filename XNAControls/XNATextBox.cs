@@ -255,8 +255,7 @@ public class XNATextBox : XNAControl
     {
         if (!IMEDisabled && WindowManager.IMEHandler != null)
         {
-            WindowManager.IMEHandler.OnCharacterInput(this, out bool handled);
-            if (handled)
+            if (WindowManager.IMEHandler.HandleCharInput(this, e.Character))
                 return;
         }
 
@@ -267,8 +266,7 @@ public class XNATextBox : XNAControl
     {
         if (!IMEDisabled && WindowManager.IMEHandler != null)
         {
-            WindowManager.IMEHandler.OnCharacterInput(this, out bool handled);
-            if (handled)
+            if (WindowManager.IMEHandler.HandleCharInput(this, e.Character))
                 return;
         }
 

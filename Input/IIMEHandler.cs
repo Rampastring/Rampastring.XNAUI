@@ -19,7 +19,7 @@ public interface IIMEHandler
 
     void OnSelectedChanged(XNATextBox sender);
 
-    bool HandleCharacterInput(XNATextBox sender);
+    bool HandleCharInput(XNATextBox sender, char input);
 
     bool HandleScrollLeftKey(XNATextBox sender);
     bool HandleScrollRightKey(XNATextBox sender);
