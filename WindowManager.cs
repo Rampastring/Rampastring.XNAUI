@@ -150,9 +150,7 @@ public class WindowManager : DrawableGameComponent
     /// </summary>
     public bool IntegerScalingOnly { get; set; }
 
-    public IIMEHandler IMEHandler { get; set; }
-
-    public bool IsIMEEnabled => IMEHandler != null && IMEHandler.Enabled;
+    public IIMEHandler IMEHandler { get; set; } = null;
 
     private GraphicsDeviceManager graphics;
 
@@ -795,7 +793,7 @@ public class WindowManager : DrawableGameComponent
 #if DEBUG
         Renderer.DrawString("Active control: " + activeControlName, 0, Vector2.Zero, Color.Red, 1.0f);
 
-        if (IMEHandler != null && IMEHandler.Enabled)
+        if (IMEHandler != null && IMEHandler.TextCompositionEnabled)
         {
             Renderer.DrawString("IME Enabled", 0, new Vector2(0, 16), Color.Red, 1.0f);
         }

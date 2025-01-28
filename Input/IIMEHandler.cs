@@ -1,33 +1,7 @@
-﻿using Microsoft.Xna.Framework;
-using Rampastring.XNAUI.XNAControls;
+﻿using Rampastring.XNAUI.XNAControls;
 using System;
 
 namespace Rampastring.XNAUI.Input;
-
-/// <summary>
-/// Event args for an event that contains a character.
-/// </summary>
-public class CharacterEventArgs : EventArgs
-{
-    public CharacterEventArgs(char character)
-    {
-        Character = character;
-    }
-
-    public char Character { get; }
-}
-
-public class CompositionChangedEventArgs : EventArgs
-{
-    public CompositionChangedEventArgs(string oldValue, string newValue)
-    {
-        OldValue = oldValue;
-        NewValue = newValue;
-    }
-
-    public string OldValue { get; }
-    public string NewValue { get; }
-}
 
 /// <summary>
 /// Interface for outside components implementing Input Method Editor (IME) support.
@@ -35,48 +9,26 @@ public class CompositionChangedEventArgs : EventArgs
 public interface IIMEHandler
 {
     /// <summary>
-    /// Gets or sets the control that is currently the focus of the IME.
+    /// Determines whether IME is allowed to compose text.
     /// </summary>
-    XNAControl IMEFocus { get; set; }
+    bool TextCompositionEnabled { get; }
 
-    /// <summary>
-    /// Invoke when the IMM service emits characters.
-    /// </summary>
-    event EventHandler<CharacterEventArgs> CharInput;
+    void RegisterXNATextBox(XNATextBox sender, Action<char> handleCharInput);
 
-    /// <summary>
-    /// Invoke when the text composition is changed.
-    /// </summary>
-    event EventHandler<CompositionChangedEventArgs> CompositionChanged;
+    void KillXNATextBox(XNATextBox sender);
 
-    /// <summary>
-    /// Determines whether the IME handler is enabled.
-    /// </summary>
-    bool Enabled { get; }
+    void OnSelectedChanged(XNATextBox sender);
+    void OnTextChanged(XNATextBox sender);
 
-    /// <summary>
-    /// IME text composition string.
-    /// </summary>
-    string Composition { get; set; }
+    bool HandleCharInput(XNATextBox sender, char input);
 
-    /// <summary>
-    /// Caret position of the composition.
-    /// </summary>
-    int CompositionCursorPosition { get; set; }
+    bool HandleScrollLeftKey(XNATextBox sender);
+    bool HandleScrollRightKey(XNATextBox sender);
 
-    /// <summary>
-    /// Enables the system IMM service to support composited character input.
-    /// Called when the library expects text input from a user and IME is enabled.
-    /// </summary>
-    void StartTextComposition();
+    bool HandleBackspaceKey(XNATextBox sender);
+    bool HandleDeleteKey(XNATextBox sender);
+    bool HandleEnterKey(XNATextBox sender);
+    bool HandleEscapeKey(XNATextBox sender);
 
-    /// <summary>
-    /// Stops the system IMM service.
-    /// </summary>
-    void StopTextComposition();
-
-    /// <summary>
-    /// Sets the rectangle used for typing Unicode text inputs with IME.
-    /// </summary>
-    void SetTextInputRectangle(Rectangle rectangle);
+    bool GetDrawCompositionText(XNATextBox sender, out string composition, out int compositionCursorPosition);
 }
