@@ -9,7 +9,7 @@ namespace Rampastring.XNAUI;
 class Frame
 {
     public Texture2D Texture { get; set; }
-    public int Delay { get; set; }
+    public TimeSpan Delay { get; set; }
 }
 
 public class Animation
@@ -42,7 +42,7 @@ public class Animation
             var delay = gif.Frames[0].Metadata.GetGifMetadata().FrameDelay * 10;
             var currentFrame = gif.Frames.ExportFrame(0);
 
-            Frames.Add(new Frame { Texture = AssetLoader.TextureFromImage(currentFrame), Delay = delay });
+            Frames.Add(new Frame { Texture = AssetLoader.TextureFromImage(currentFrame), Delay = TimeSpan.FromMilliseconds(delay) });
         }
 
         CurrentFrame = Frames[0].Texture;
@@ -64,7 +64,7 @@ public class Animation
     public Texture2D Next()
     {
         currentFrameId = ++currentFrameId % Frames.Count;
-        currentDelay = Frames[currentFrameId].Delay;
+        currentDelay = Frames[currentFrameId].Delay.Milliseconds;
         CurrentFrame = Frames[currentFrameId].Texture;
         return CurrentFrame;
     }
