@@ -1,8 +1,10 @@
-﻿using Microsoft.Xna.Framework.Graphics;
-using SixLabors.ImageSharp;
 using System;
+using System.IO;
 using System.Collections.Generic;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
+using SixLabors.ImageSharp;
+using Rampastring.Tools;
 
 namespace Rampastring.XNAUI;
 
@@ -20,10 +22,35 @@ public class Animation
     private int totalElapsedTime = 0;
 
     public Texture2D CurrentFrame { get; private set; }
-    public int Height { get; }
-    public int Width { get; }
+    public int Height { get; private set; }
+    public int Width { get; private set; }
 
-    public Animation(string value) 
+    public Animation(string value)
+    {
+        FileInfo sourcePath = null;
+
+        foreach (string searchPath in AssetLoader.AssetSearchPaths)
+        {
+            FileInfo fileInfo = SafePath.GetFile(searchPath, value);
+
+            if (fileInfo.Exists)
+            {
+                sourcePath = fileInfo;
+                break;
+            }
+        }
+
+        switch (sourcePath.Extension.ToLowerInvariant())
+        {
+            case ".gif":
+                FromGIF(value);
+                break;
+            default:
+                break;
+        }
+    }
+
+    private void FromGIF(string value)
     {
         Frames = new List<Frame>();
         
