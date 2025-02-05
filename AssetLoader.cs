@@ -1,18 +1,16 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
+using System.Globalization;
+using System.Collections.Generic;
 using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Graphics;
-using Rampastring.Tools;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Media;
+using Color = Microsoft.Xna.Framework.Color;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Formats.Png;
-using Color = Microsoft.Xna.Framework.Color;
-using System.Globalization;
-using SixLabors.ImageSharp.Formats.Gif;
-using SixLabors.ImageSharp.Advanced;
 using SixLabors.ImageSharp.PixelFormats;
+using Rampastring.Tools;
 
 namespace Rampastring.XNAUI;
 
@@ -89,13 +87,7 @@ public static class AssetLoader
     {
         Image cachedAnimation = null;
 
-        try
-        {
-            cachedAnimation = animationsCache[name];
-        }
-        catch(Exception ex)
-        {
-        }
+        animationsCache.TryGetValue(name, out cachedAnimation);
 
         if (cachedAnimation != null)
             return cachedAnimation;
