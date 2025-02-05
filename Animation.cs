@@ -27,7 +27,7 @@ public class Animation
     {
         Frames = new List<Frame>();
         
-        var gif = AssetLoader.LoadAnimation(value);
+        var gif = AssetLoader.LoadGIFAnimation(value);
         currentDelay = gif.Frames[0].Metadata.GetGifMetadata().FrameDelay * 10;
 
         Height = gif.Height;

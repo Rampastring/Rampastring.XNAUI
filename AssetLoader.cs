@@ -80,12 +80,12 @@ public static class AssetLoader
     }
 
     /// <summary>
-    /// Loads a animation with the specific name. If the animation isn't found from any
+    /// Loads an GIF animation with the specific name. If the animation isn't found from any
     /// asset search path, returns a dummy animation with 1 frame.
     /// </summary>
     /// <param name="name">The name of the animation.</param>
     /// <returns>The animation if it was found and could be loaded, otherwise a dummy animation.</returns>
-    public static Image LoadAnimation(string name)
+    public static Image LoadGIFAnimation(string name)
     {
         Image cachedAnimation = null;
 
