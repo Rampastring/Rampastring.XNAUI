@@ -63,7 +63,7 @@ public class Animation
 
     public Texture2D Next()
     {
-        currentFrameId = ++currentFrameId % Frames.Count;
+        currentFrameId = (currentFrameId + 1) % Frames.Count;
         currentDelay = Frames[currentFrameId].Delay.Milliseconds;
         CurrentFrame = Frames[currentFrameId].Texture;
         return CurrentFrame;
