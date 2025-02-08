@@ -1,15 +1,17 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
+using System.Globalization;
+using System.Collections.Generic;
 using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Graphics;
-using Rampastring.Tools;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Media;
+using Color = Microsoft.Xna.Framework.Color;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Formats.Png;
-using Color = Microsoft.Xna.Framework.Color;
-using System.Globalization;
+using SixLabors.ImageSharp.PixelFormats;
+using Rampastring.Tools;
+using SixLabors.ImageSharp.Formats;
 
 namespace Rampastring.XNAUI;
 
@@ -28,6 +30,7 @@ public static class AssetLoader
     private static ContentManager contentManager;
 
     private static List<Texture2D> textureCache;
+    private static Dictionary<string, Animation> animationsCache;
     private static List<SoundEffect> soundCache;
 
     public static bool IsInitialized { get; private set; } = false;
@@ -47,6 +50,7 @@ public static class AssetLoader
         graphicsDevice = gd;
         AssetSearchPaths = new List<string>();
         textureCache = new List<Texture2D>();
+        animationsCache = new Dictionary<string, Animation>();
         soundCache = new List<SoundEffect>();
         contentManager = content;
     }
@@ -72,6 +76,33 @@ public static class AssetLoader
         }
 
         return CreateDummyTexture();
+    }
+
+    /// <summary>
+    /// Loads an GIF animation with the specific name. If the animation isn't found from any
+    /// asset search path, returns a dummy animation with 1 frame.
+    /// </summary>
+    /// <param name="name">The name of the animation.</param>
+    /// <returns>The animation if it was found and could be loaded, otherwise a dummy animation.</returns>
+    public static Animation LoadAnimation(string name)
+    {
+        Animation cachedAnimation = null;
+
+        animationsCache.TryGetValue(name, out cachedAnimation);
+        if (cachedAnimation != null)
+            return cachedAnimation;
+        
+        IImageFormat imageFormat;
+        var image = LoadAnimationInternal(name, out imageFormat);
+        if (image != null)
+        {
+            cachedAnimation = new Animation(image, imageFormat);
+            animationsCache.Add(name, cachedAnimation);
+
+            return cachedAnimation;
+        }
+
+        return CreateDummyAnimation();
     }
 
     /// <summary>
@@ -116,6 +147,32 @@ public static class AssetLoader
         return null;
     }
 
+    private static Image LoadAnimationInternal(string name, out IImageFormat imageFormat)
+    {
+        try
+        {
+            foreach (string searchPath in AssetSearchPaths)
+            {
+                FileInfo fileInfo = SafePath.GetFile(searchPath, name);
+
+                if (fileInfo.Exists)
+                {
+                    using FileStream fs = fileInfo.OpenRead();
+                    var animation = Image.Load(fs, out imageFormat);
+
+                    return animation;
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            Logger.Log("AssetLoader.LoadTextureInternal: loading texture " + name + " failed! Message: " + ex.Message);
+        }
+
+        imageFormat = null;
+        return null;
+    }
+
     private static void PremultiplyAlpha(Texture2D texture)
     {
         var data = new Color[texture.Width * texture.Height];
@@ -137,6 +194,14 @@ public static class AssetLoader
     private static Texture2D CreateDummyTexture()
     {
         return CreateTexture(new Color(255, 54, 244), 100, 100);
+    }
+
+    /// <summary>
+    /// Creates and returns a 100x100 pink square.
+    /// </summary>
+    private static Animation CreateDummyAnimation()
+    {
+        return new Animation(new Image<Rgba32>(100, 100, new Rgba32(255, 54, 244)));
     }
 
     /// <summary>
