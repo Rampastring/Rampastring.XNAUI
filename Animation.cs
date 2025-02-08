@@ -5,6 +5,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using SixLabors.ImageSharp;
 using Rampastring.Tools;
+using SixLabors.ImageSharp.Formats;
 
 namespace Rampastring.XNAUI;
 
@@ -25,36 +26,24 @@ public class Animation
     public int Height { get; private set; }
     public int Width { get; private set; }
 
-    public Animation(string value)
+    public Animation(Image image, IImageFormat format)
     {
-        FileInfo sourcePath = null;
-
-        foreach (string searchPath in AssetLoader.AssetSearchPaths)
+        switch(format.ToString())
         {
-            FileInfo fileInfo = SafePath.GetFile(searchPath, value);
-
-            if (fileInfo.Exists)
-            {
-                sourcePath = fileInfo;
-                break;
-            }
-        }
-
-        switch (sourcePath.Extension.ToLowerInvariant())
-        {
-            case ".gif":
-                FromGIF(value);
+            case "SixLabors.ImageSharp.Formats.Gif.GifFormat":
+                FromGIF(image);
                 break;
             default:
                 break;
         }
     }
 
-    private void FromGIF(string value)
+    public Animation(Image gif) => FromGIF(gif);
+
+    private void FromGIF(Image gif)
     {
         Frames = new List<Frame>();
         
-        var gif = AssetLoader.LoadGIFAnimation(value);
         currentDelay = gif.Frames[0].Metadata.GetGifMetadata().FrameDelay * 10;
 
         Height = gif.Height;

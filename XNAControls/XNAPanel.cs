@@ -84,7 +84,7 @@ public class XNAPanel : XNAControl
                 BackgroundTexture = AssetLoader.LoadTexture(value);
                 return;
             case "BackgroundAnimation":
-                BackgroundAnimation = new Animation(value);
+                BackgroundAnimation = AssetLoader.LoadAnimation(value);
                 BackgroundTexture = BackgroundAnimation.CurrentFrame;
                 return;
             case "ResizeControlUpToAnimationSize":
