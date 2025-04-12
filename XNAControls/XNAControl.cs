@@ -401,22 +401,18 @@ public class XNAControl : DrawableGameComponent
         set { isActive = value; }
     }
 
-    private bool _ignoreInputOnFrame = false;
+    /// <summary>
+    /// If larger than <see cref="TimeSpan.Zero"/>, the control
+    /// is ignoring all user input for the specified amount of time.
+    /// </summary>
+    public TimeSpan InputIgnoreTime { get; set; }
 
-    public bool IgnoreInputOnFrame
-    {
-        get
-        {
-            if (Parent == null)
-                return _ignoreInputOnFrame;
-            else
-                return _ignoreInputOnFrame || Parent.IgnoreInputOnFrame;
-        }
-        set
-        {
-            _ignoreInputOnFrame = true;
-        }
-    }
+    /// <summary>
+    /// Checks whether this control is currently ignoring input
+    /// through <see cref="InputIgnoreTime"/>, either
+    /// directly or through one or more of its parents.
+    /// </summary>
+    public bool IsIgnoringInput => !AppliesToSelfAndAllParents(c => c.InputIgnoreTime <= TimeSpan.Zero);
 
     private ControlDrawMode drawMode = ControlDrawMode.NORMAL;
 
@@ -1154,9 +1150,17 @@ public class XNAControl : DrawableGameComponent
             }
         }
 
-        if (IgnoreInputOnFrame)
+        if (InputIgnoreTime > TimeSpan.Zero)
         {
-            _ignoreInputOnFrame = false;
+            InputIgnoreTime -= gameTime.ElapsedGameTime;
+            if (InputIgnoreTime < TimeSpan.Zero)
+                InputIgnoreTime = TimeSpan.Zero;
+
+            return;
+        }
+
+        if (Parent.InputIgnoreTime > TimeSpan.Zero)
+        {
             return;
         }
 
