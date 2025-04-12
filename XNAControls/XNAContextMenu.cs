@@ -26,10 +26,15 @@ public class XNAContextMenuItem
     public string Text { get; set; }
 
     /// <summary>
-    /// The hint text of the context menu item.
+    /// A function for generating the hint text of the context menu item.
     /// Drawn in the end of the item.
     /// </summary>
-    public string HintText { get; set; }
+    public Func<string> HintTextGenerator { get; set; }
+
+    /// <summary>
+    /// Cached hint text of the context menu item.
+    /// </summary>
+    internal string HintText { get; set; }
 
     /// <summary>
     /// Determines whether the context menu item is enabled
@@ -199,7 +204,7 @@ public class XNAContextMenu : XNAControl
         AddItem(item);
     }
 
-    public void AddItem(string text, Action selectAction, Func<bool> selectableChecker = null, Func<bool> visibilityChecker = null, Texture2D texture = null, string hintText = null)
+    public void AddItem(string text, Action selectAction, Func<bool> selectableChecker = null, Func<bool> visibilityChecker = null, Texture2D texture = null, Func<string> hintTextGenerator = null)
     {
         var item = new XNAContextMenuItem()
         {
@@ -208,7 +213,7 @@ public class XNAContextMenu : XNAControl
             SelectableChecker = selectableChecker,
             VisibilityChecker = visibilityChecker,
             Texture = texture,
-            HintText = hintText
+            HintTextGenerator = hintTextGenerator
         };
 
         AddItem(item);
@@ -243,6 +248,15 @@ public class XNAContextMenu : XNAControl
 
             if (item.SelectableChecker != null)
                 item.Selectable = item.SelectableChecker();
+
+            if (item.HintTextGenerator != null)
+            {
+                item.HintText = item.HintTextGenerator();
+            }
+            else
+            {
+                item.HintText = null;
+            }
         }
 
         Height = height;
