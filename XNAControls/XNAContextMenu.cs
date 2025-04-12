@@ -257,7 +257,12 @@ public class XNAContextMenu : XNAControl
             X -= Width;
 
         if (windowPoint.Y + Height > WindowManager.RenderResolutionY)
-            Y -= Height;
+        {
+            if (Height > WindowManager.RenderResolutionY)
+                Y = WindowManager.RenderResolutionY - Height;
+            else
+                Y = Math.Max(0, Y - Height);
+        }
 
         openedOnThisFrame = true;
     }
