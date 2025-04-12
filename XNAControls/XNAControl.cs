@@ -1159,7 +1159,7 @@ public class XNAControl : DrawableGameComponent
             return;
         }
 
-        if (Parent.InputIgnoreTime > TimeSpan.Zero)
+        if (Parent != null && Parent.InputIgnoreTime > TimeSpan.Zero)
         {
             return;
         }
