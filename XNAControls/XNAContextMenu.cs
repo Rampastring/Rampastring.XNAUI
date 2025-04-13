@@ -272,10 +272,28 @@ public class XNAContextMenu : XNAControl
 
         if (windowPoint.Y + Height > WindowManager.RenderResolutionY)
         {
+            int screenTopPointY = point.Y - windowPoint.Y;
+
             if (Height > WindowManager.RenderResolutionY)
-                Y = WindowManager.RenderResolutionY - Height;
+            {
+                // The context menu is too big for the screen.
+                // Open it so that the last item is visible at the bottom of the screen.
+                Y = WindowManager.RenderResolutionY + screenTopPointY - Height;
+            }
             else
-                Y = Math.Max(0, Y - Height);
+            {
+                if (Y - Height < screenTopPointY)
+                {
+                    // We cannot open up fully above our location, but not also fully below.
+                    // Stick to the bottom of the screen so that the entire context menu is visible.
+                    Y = screenTopPointY + (WindowManager.RenderResolutionY - Height);
+                }
+                else
+                {
+                    // We have enough space to fully open above.
+                    Y -= Height;
+                }
+            }
         }
 
         openedOnThisFrame = true;
