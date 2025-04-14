@@ -126,11 +126,11 @@
   <!--Switching between Configurations within VS IDE requires reloading the project file-->
   <ItemGroup Condition="$(DefineConstants.Contains('DX'))">
     <PackageReference Include="MonoGame.Framework.WindowsDX" Condition="'$(TargetFrameworkIdentifier)' == '.NETFramework'" Version="3.8.0.1641" />
-    <PackageReference Include="MonoGame.Framework.WindowsDX" Condition="'$(TargetFrameworkIdentifier)' != '.NETFramework'" Version="3.8.1.303" />
+    <PackageReference Include="MonoGame.Framework.WindowsDX" Condition="'$(TargetFrameworkIdentifier)' != '.NETFramework'" Version="3.8.3" />
   </ItemGroup>
   <ItemGroup Condition="$(DefineConstants.Contains('GL'))">
     <PackageReference Include="MonoGame.Framework.DesktopGL" Condition="'$(TargetFrameworkIdentifier)' == '.NETFramework'" Version="3.8.0.1641" />
-    <PackageReference Include="MonoGame.Framework.DesktopGL" Condition="'$(TargetFrameworkIdentifier)' != '.NETFramework'" Version="3.8.1.303" />
+    <PackageReference Include="MonoGame.Framework.DesktopGL" Condition="'$(TargetFrameworkIdentifier)' != '.NETFramework'" Version="3.8.3" />
   </ItemGroup>
   <ItemGroup Condition="$(DefineConstants.Contains('XNA'))">
     <Reference Include="Microsoft.Xna.Framework">
