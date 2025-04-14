@@ -1,7 +1,18 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Rampastring.Tools;
+using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.Formats.Png;
 using System.Globalization;
+using System.IO;
+using Color = Microsoft.Xna.Framework.Color;
+using Rectangle = Microsoft.Xna.Framework.Rectangle;
+using SixLabors.ImageSharp.Formats.Gif;
+using SixLabors.ImageSharp.Advanced;
+using SixLabors.ImageSharp.PixelFormats;
+using System.Threading;
+using System;
+using System.Collections.Generic;
 
 namespace Rampastring.XNAUI.XNAControls;
 
@@ -14,6 +25,8 @@ public class XNAPanel : XNAControl
     public PanelBackgroundImageDrawMode PanelBackgroundDrawMode { get; set; } = PanelBackgroundImageDrawMode.STRETCHED;
 
     public virtual Texture2D BackgroundTexture { get; set; }
+
+    public virtual Animation BackgroundAnimation { get; set; }
 
     private Color? _borderColor;
 
@@ -70,6 +83,15 @@ public class XNAPanel : XNAControl
             case "BackgroundTexture":
                 BackgroundTexture = AssetLoader.LoadTexture(value);
                 return;
+            case "BackgroundAnimation":
+                BackgroundAnimation = AssetLoader.LoadAnimation(value);
+                BackgroundTexture = BackgroundAnimation.CurrentFrame;
+                return;
+            case "ResizeControlUpToAnimationSize":
+                if (!Conversions.BooleanFromString(value, false) || BackgroundAnimation == null) return;
+                Height = BackgroundAnimation.Height;
+                Width = BackgroundAnimation.Width;
+                return;
             case "SolidColorBackgroundTexture":
                 BackgroundTexture = AssetLoader.CreateTexture(AssetLoader.GetColorFromString(value), 2, 2);
                 PanelBackgroundDrawMode = PanelBackgroundImageDrawMode.STRETCHED;
@@ -99,6 +121,9 @@ public class XNAPanel : XNAControl
     public override void Update(GameTime gameTime)
     {
         Alpha += AlphaRate * (float)(gameTime.ElapsedGameTime.TotalMilliseconds / 100.0);
+
+        if (BackgroundAnimation != null)
+            BackgroundTexture = BackgroundAnimation.Next(gameTime) ?? BackgroundTexture;
 
         base.Update(gameTime);
     }
