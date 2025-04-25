@@ -88,7 +88,8 @@ public class XNAPanel : XNAControl
                 BackgroundTexture = BackgroundAnimation.CurrentFrame;
                 return;
             case "ResizeControlUpToAnimationSize":
-                if (!Conversions.BooleanFromString(value, false) || BackgroundAnimation == null) return;
+                if (BackgroundAnimation == null || !Conversions.BooleanFromString(value, false))
+                    return;
                 Height = BackgroundAnimation.Height;
                 Width = BackgroundAnimation.Width;
                 return;
