@@ -166,7 +166,7 @@ public static class AssetLoader
         }
         catch (Exception ex)
         {
-            Logger.Log("AssetLoader.LoadTextureInternal: loading texture " + name + " failed! Message: " + ex.Message);
+            Logger.Log($"{nameof(AssetLoader)}.{nameof(LoadAnimationInternal)}: loading animation {name} failed! Message: {ex.Message}");
         }
 
         imageFormat = null;
