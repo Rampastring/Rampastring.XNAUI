@@ -141,7 +141,7 @@ public static class AssetLoader
         }
         catch (Exception ex)
         {
-            Logger.Log("AssetLoader.LoadTextureInternal: loading texture " + name + " failed! Message: " + ex.Message);
+            Logger.Log($"{nameof(AssetLoader)}.{nameof(LoadTextureInternal)}: loading texture {name} failed! Message: {ex.Message}");
         }
 
         return null;
@@ -259,7 +259,7 @@ public static class AssetLoader
         }
         catch (Exception ex)
         {
-            Logger.Log("AssetLoader.TextureFromImage: failed to create texture! Message: " + ex.Message);
+            Logger.Log($"{nameof(AssetLoader)}.{nameof(TextureFromImage)}: failed to create texture! Message: {ex.Message}");
             return null;
         }
     }
@@ -290,7 +290,7 @@ public static class AssetLoader
             }
         }
 
-        Logger.Log("AssetLoader.LoadSound: Sound not found! " + name);
+        Logger.Log($"{nameof(AssetLoader)}.{nameof(LoadSound)}: sound not found! {name}");
 
         return null;
     }
@@ -308,7 +308,7 @@ public static class AssetLoader
         }
         catch (Exception ex)
         {
-            Logger.Log("Loading song " + name + " failed! Message: " + ex.Message);
+            Logger.Log($"{nameof(AssetLoader)}.{nameof(LoadSong)}: loading song {name} failed! Message: {ex.Message}");
             return null;
         }
     }
@@ -326,7 +326,7 @@ public static class AssetLoader
         }
         catch (Exception ex)
         {
-            Logger.Log("Loading shader effect " + name + " failed! Message: " + ex.Message);
+            Logger.Log($"{nameof(AssetLoader)}.{nameof(LoadEffect)}: loading shader effect {name} failed! Message: {ex.Message}");
             return null;
         }
     }
