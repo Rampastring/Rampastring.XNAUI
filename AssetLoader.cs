@@ -79,7 +79,7 @@ public static class AssetLoader
     }
 
     /// <summary>
-    /// Loads an GIF animation with the specific name. If the animation isn't found from any
+    /// Loads a GIF animation with the specific name. If the animation isn't found from any
     /// asset search path, returns a dummy animation with 1 frame.
     /// </summary>
     /// <param name="name">The name of the animation.</param>
