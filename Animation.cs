@@ -38,12 +38,13 @@ public class Animation
 
     public Animation(Image image, IImageFormat format)
     {
-        switch(format.ToString())
+        switch(format)
         {
-            case "SixLabors.ImageSharp.Formats.Gif.GifFormat":
+            case SixLabors.ImageSharp.Formats.Gif.GifFormat:
                 FromGIF(image);
                 break;
             default:
+                throw new NotSupportedException("Unsupported image format for animation: " + format.Name);
                 break;
         }
     }
