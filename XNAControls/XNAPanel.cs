@@ -124,7 +124,10 @@ public class XNAPanel : XNAControl
         Alpha += AlphaRate * (float)(gameTime.ElapsedGameTime.TotalMilliseconds / 100.0);
 
         if (BackgroundAnimation != null)
-            BackgroundTexture = BackgroundAnimation.Next(gameTime) ?? BackgroundTexture;
+        {
+            BackgroundAnimation.Update(gameTime);
+            BackgroundTexture = BackgroundAnimation.CurrentFrame;
+        }
 
         base.Update(gameTime);
     }

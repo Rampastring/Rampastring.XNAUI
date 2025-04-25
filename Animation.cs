@@ -75,24 +75,21 @@ public class Animation
         CurrentFrame = Frames[0].Texture;
     }
 
-    public Texture2D Next(GameTime gameTime)
+    public void Update(GameTime gameTime)
     {
         totalElapsedTime += Convert.ToInt32(gameTime.ElapsedGameTime.TotalMilliseconds);
 
         if (totalElapsedTime > currentDelay)
         {
             totalElapsedTime = 0;
-            return Next();
+            Update();
         }
-
-        return null;
     }
 
-    public Texture2D Next()
+    public void Update()
     {
         currentFrameId = (currentFrameId + 1) % Frames.Count;
         currentDelay = Frames[currentFrameId].Delay.Milliseconds;
         CurrentFrame = Frames[currentFrameId].Texture;
-        return CurrentFrame;
     }
 }
