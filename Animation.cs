@@ -9,7 +9,7 @@ using SixLabors.ImageSharp.Formats;
 
 namespace Rampastring.XNAUI;
 
-class Frame
+class AnimationFrame
 {
     public Texture2D Texture { get; set; }
     public TimeSpan Delay { get; set; }
@@ -17,7 +17,7 @@ class Frame
 
 public class Animation
 {
-    private List<Frame> Frames;
+    private List<AnimationFrame> Frames;
     private int currentFrameId = 0;
     private int currentDelay = 0;
     private int totalElapsedTime = 0;
@@ -42,7 +42,7 @@ public class Animation
 
     private void FromGIF(Image gif)
     {
-        Frames = new List<Frame>();
+        Frames = new List<AnimationFrame>();
         
         currentDelay = gif.Frames[0].Metadata.GetGifMetadata().FrameDelay * 10;
 
@@ -58,7 +58,7 @@ public class Animation
             var delay = gif.Frames[0].Metadata.GetGifMetadata().FrameDelay * 10;
             var currentFrame = gif.Frames.ExportFrame(0);
 
-            Frames.Add(new Frame { Texture = AssetLoader.TextureFromImage(currentFrame), Delay = TimeSpan.FromMilliseconds(delay) });
+            Frames.Add(new AnimationFrame { Texture = AssetLoader.TextureFromImage(currentFrame), Delay = TimeSpan.FromMilliseconds(delay) });
         }
 
         CurrentFrame = Frames[0].Texture;
