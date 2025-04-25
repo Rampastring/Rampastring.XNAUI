@@ -9,7 +9,7 @@ using System.IO;
 
 namespace Rampastring.XNAUI;
 
-class AnimationFrame
+public class AnimationFrame
 {
     public Texture2D Texture { get; set; }
     public TimeSpan Delay { get; set; }
@@ -25,6 +25,16 @@ public class Animation
     public Texture2D CurrentFrame { get; private set; }
     public int Height { get; private set; }
     public int Width { get; private set; }
+
+    public Animation(List<AnimationFrame> frames)
+    {
+        Frames = frames;
+        
+        if (Frames == null) return;
+        if (Frames.Count == 0) return;
+
+        currentDelay = (int)frames[0].Delay.TotalMilliseconds;
+    }
 
     public Animation(Image image, IImageFormat format)
     {
