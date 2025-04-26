@@ -251,11 +251,36 @@ public static class AssetLoader
     {
         try
         {
-            using var stream = new MemoryStream();
-            image.Save(stream, new PngEncoder());
-            var texture = Texture2D.FromStream(graphicsDevice, stream);
-            PremultiplyAlpha(texture);
-            return texture;
+            if (image == null)
+                return null;
+
+            if (image is Image<Rgba32> rgba32Image)
+            {
+                Texture2D texture = new Texture2D(graphicsDevice, rgba32Image.Width, rgba32Image.Height, false, SurfaceFormat.Color);
+
+                Color[] colorData = new Color[rgba32Image.Width * rgba32Image.Height];
+
+                rgba32Image.ProcessPixelRows(pAcs =>
+                {
+                    for (int y = 0; y < pAcs.Height; y++)
+                    {
+                        Span<Rgba32> pixelRow = pAcs.GetRowSpan(y);
+
+                        for (int x = 0; x < pixelRow.Length; x++)
+                        {
+                            ref Rgba32 pixel = ref pixelRow[x];
+                            colorData[y * pAcs.Width + x] = new Color((byte)(pixel.R * pixel.A / 255), (byte)(pixel.G * pixel.A / 255), (byte)(pixel.B * pixel.A / 255), pixel.A);
+                        }
+                    }
+                });
+                texture.SetData(colorData);
+                return texture;
+            }
+            else
+            {
+                using var convertedImage = image.CloneAs<Rgba32>();
+                return TextureFromImage(convertedImage);
+            }
         }
         catch (Exception ex)
         {
