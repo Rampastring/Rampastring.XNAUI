@@ -21,6 +21,7 @@ public class Animation
     private int currentFrameId = 0;
     private int currentDelay = 0;
     private int totalElapsedTime = 0;
+    private int repeatCount = 0;
 
     public Texture2D CurrentFrame { get; private set; }
     public int Height { get; private set; }
@@ -54,7 +55,8 @@ public class Animation
     private void FromGIF(Image gif)
     {
         Frames = new List<AnimationFrame>();
-        
+
+        repeatCount = gif.Metadata.GetGifMetadata().RepeatCount;
         currentDelay = gif.Frames[0].Metadata.GetGifMetadata().FrameDelay * 10;
 
         Height = gif.Height;
@@ -91,6 +93,12 @@ public class Animation
 
     public void Update()
     {
+        if (repeatCount == 1 && currentFrameId == Frames.Count - 1)
+            return;
+
+        if (currentFrameId == Frames.Count - 1)
+            repeatCount -= 1;
+
         currentFrameId = (currentFrameId + 1) % Frames.Count;
         currentDelay = Frames[currentFrameId].Delay.Milliseconds;
         CurrentFrame = Frames[currentFrameId].Texture;
