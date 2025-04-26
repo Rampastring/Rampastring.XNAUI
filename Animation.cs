@@ -66,10 +66,13 @@ public class Animation
         {
             // ImageSharp returns not milliseconds, but decisecond
             var delay = gif.Frames[i].Metadata.GetGifMetadata().FrameDelay;
-            var currentFrame = gif.Frames.ExportFrame(0);
+
+            // When delay is equal to 1 or less, browsers use a delay equivalent to 100ms.
+            // Example: https://source.chromium.org/chromium/chromium/src/+/main:third_party/blink/renderer/platform/graphics/deferred_image_decoder.cc;drc=e15f3c2e15ee7570159406526444fa1ffb35150f;l=351
+            var currentDelay = delay > 1? delay * 10 : 100;
             var currentFrame = gif.Frames.CloneFrame(i);
 
-            Frames.Add(new AnimationFrame { Texture = AssetLoader.TextureFromImage(currentFrame), Delay = TimeSpan.FromMilliseconds(delay) });
+            Frames.Add(new AnimationFrame { Texture = AssetLoader.TextureFromImage(currentFrame), Delay = TimeSpan.FromMilliseconds(currentDelay) });
         }
 
         CurrentFrame = Frames[0].Texture;
