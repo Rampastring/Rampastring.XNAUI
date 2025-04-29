@@ -88,11 +88,11 @@ public class Animation
         if (totalElapsedTime > currentDelay)
         {
             totalElapsedTime = 0;
-            Update();
+            NextFrame();
         }
     }
 
-    public void Update()
+    public void NextFrame()
     {
         if (repeatCount == 1 && currentFrameId == Frames.Count - 1)
             return;
