@@ -31,10 +31,11 @@ public class Animation
     {
         Frames = frames;
         
-        if (Frames == null) return;
-        if (Frames.Count == 0) return;
-
-        currentDelay = (int)frames[0].Delay.TotalMilliseconds;
+        if (Frames != null && Frames.Count > 0)
+        {
+            CurrentFrame = frames[0].Texture;
+            currentDelay = (int)frames[0].Delay.TotalMilliseconds;
+        }
     }
 
     public Animation(Image image, IImageFormat format)
