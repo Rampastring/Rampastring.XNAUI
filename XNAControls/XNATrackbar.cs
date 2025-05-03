@@ -9,6 +9,7 @@ public class XNATrackbar : XNAPanel
 {
     public XNATrackbar(WindowManager windowManager) : base(windowManager)
     {
+        HandlesDragging = true;
     }
 
     public event EventHandler ValueChanged;

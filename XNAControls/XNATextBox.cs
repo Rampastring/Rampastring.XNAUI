@@ -14,8 +14,11 @@ namespace Rampastring.XNAUI.XNAControls;
 /// </summary>
 public class XNATextBox : XNAControl
 {
+    protected const int SELECTION_MARGIN = 2;
     protected const int TEXT_HORIZONTAL_MARGIN = 3;
     protected const int TEXT_VERTICAL_MARGIN = 2;
+    protected const double CURSOR_SCROLL_REPEAT_TIME = 0.05;
+    protected const double CURSOR_FAST_SCROLL_THRESHOLD = 20;
     protected const double SCROLL_REPEAT_TIME = 0.03;
     protected const double FAST_SCROLL_TRIGGER_TIME = 0.4;
     protected const double BAR_ON_TIME = 0.5;
@@ -27,6 +30,7 @@ public class XNATextBox : XNAControl
     /// <param name="windowManager">The WindowManager that will be associated with this control.</param>
     public XNATextBox(WindowManager windowManager) : base(windowManager)
     {
+        HandlesDragging = true;
     }
 
     /// <summary>
@@ -102,6 +106,20 @@ public class XNATextBox : XNAControl
         set { _backColor = value; }
     }
 
+    private Color? _selectionColor;
+
+    /// <summary>
+    /// The color of the selection rectangle drawn behind selected text.
+    /// </summary>
+    public Color SelectionColor
+    {
+        get
+        {
+            return _selectionColor ?? UISettings.ActiveSettings.SelectionColor;
+        }
+        set { _selectionColor = value; }
+    }
+
     /// <summary>
     /// The index of the spritefont that this textbox uses.
     /// </summary>
@@ -127,6 +145,7 @@ public class XNATextBox : XNAControl
             text = value ?? throw new InvalidOperationException("XNATextBox text cannot be set to null.");
             InputPosition = 0;
             TextStartPosition = 0;
+            UnselectText();
 
             if (text.Length > MaximumTextLength)
                 text = text.Substring(0, MaximumTextLength);
@@ -155,6 +174,35 @@ public class XNATextBox : XNAControl
     /// The input character index inside the textbox text.
     /// </summary>
     public int InputPosition { get; set; }
+
+    /// <summary>
+    /// Start position of current text selection. -1 for none.
+    /// </summary>
+    public int SelectionStartPosition { get; set; }
+
+    /// <summary>
+    /// End position of current text selection. -1 for none.
+    /// </summary>
+    public int SelectionEndPosition { get; set; }
+
+    /// <summary>
+    /// Calculates and returns the length of the currently selected piece of text.
+    /// </summary>
+    public int SelectionLength => Math.Max(0, SelectionEndPosition - SelectionStartPosition);
+
+    /// <summary>
+    /// Checks whether the current text selection is valid.
+    /// </summary>
+    public bool IsValidSelection() => SelectionStartPosition > -1 && SelectionEndPosition > 0 && SelectionStartPosition < text.Length && SelectionEndPosition <= text.Length && SelectionEndPosition > SelectionStartPosition;
+
+    /// <summary>
+    /// Unselects current text selection.
+    /// </summary>
+    public void UnselectText()
+    {
+        SelectionStartPosition = -1;
+        SelectionEndPosition = -1;
+    }
 
     /// <summary>
     /// The start character index of the visible part of the text string.
@@ -196,6 +244,11 @@ public class XNATextBox : XNAControl
     private TimeSpan timeSinceLastScroll = TimeSpan.Zero;
     private bool isScrollingQuickly = false;
 
+    private Point mouseDownPosition;
+    private int mouseDownCharacterIndex;
+    private bool isMouseLocked;
+    private DateTime lastMouseScrollTime = DateTime.MinValue;
+
     protected override void ParseControlINIAttribute(IniFile iniFile, string key, string value)
     {
         if (key == nameof(MaximumTextLength))
@@ -219,7 +272,7 @@ public class XNATextBox : XNAControl
 #else
         KeyboardEventInput.CharEntered += KeyboardEventInput_CharEntered;
 #endif
-        Keyboard.OnKeyPressed += Keyboard_OnKeyPressed;
+        Keyboard.OnKeyDown += Keyboard_OnKeyDown;
 
         InitializeIME();
     }
@@ -250,7 +303,7 @@ public class XNATextBox : XNAControl
 #else
         KeyboardEventInput.CharEntered -= KeyboardEventInput_CharEntered;
 #endif
-        Keyboard.OnKeyPressed -= Keyboard_OnKeyPressed;
+        Keyboard.OnKeyDown -= Keyboard_OnKeyDown;
 
         DeinitializeIME();
 
@@ -344,7 +397,7 @@ public class XNATextBox : XNAControl
         return true;
     }
 
-    private void Keyboard_OnKeyPressed(object sender, KeyPressEventArgs e)
+    private void Keyboard_OnKeyDown(object sender, KeyPressEventArgs e)
     {
         if (WindowManager.SelectedControl != this || !Enabled || !Parent.Enabled || !WindowManager.HasFocus)
             return;
@@ -365,44 +418,56 @@ public class XNATextBox : XNAControl
             case Keys.Home:
                 if (text.Length != 0)
                 {
+                    if (Keyboard.IsShiftHeldDown())
+                    {
+                        if (!IsValidSelection())
+                            SelectionEndPosition = InputPosition;
+
+                        SelectionStartPosition = 0;
+                    }
+                    else
+                    {
+                        UnselectText();
+                    }
+
                     TextStartPosition = 0;
                     TextEndPosition = 0;
                     InputPosition = 0;
 
-                    while (true)
+                    while (TextEndPosition < text.Length)
                     {
-                        if (TextEndPosition < text.Length)
+                        TextEndPosition++;
+
+                        if (!TextFitsBox())
                         {
-                            TextEndPosition++;
-
-                            if (!TextFitsBox())
-                            {
-                                TextEndPosition--;
-                                break;
-                            }
-
-                            continue;
+                            TextEndPosition--;
+                            break;
                         }
-
-                        break;
                     }
                 }
 
                 return true;
             case Keys.End:
                 TextEndPosition = text.Length;
+
+                if (Keyboard.IsShiftHeldDown())
+                {
+                    if (!IsValidSelection())
+                        SelectionStartPosition = InputPosition;
+
+                    SelectionEndPosition = text.Length;
+                }
+                else
+                {
+                    UnselectText();
+                }
+
                 InputPosition = text.Length;
                 TextStartPosition = 0;
 
-                while (true)
+                while (!TextFitsBox())
                 {
-                    if (!TextFitsBox())
-                    {
-                        TextStartPosition++;
-                        continue;
-                    }
-
-                    break;
+                    TextStartPosition++;
                 }
 
                 return true;
@@ -410,12 +475,12 @@ public class XNATextBox : XNAControl
                 if (!Keyboard.IsCtrlHeldDown())
                     break;
 
-                if (!string.IsNullOrEmpty(text))
-                {
-                    ClipboardService.SetText(text);
-                    Text = string.Empty;
-                    InputReceived?.Invoke(this, EventArgs.Empty);
-                }
+                if (!IsValidSelection())
+                    break;
+
+                ClipboardService.SetText(text.Substring(SelectionStartPosition, SelectionLength));
+                Text = text.Substring(0, SelectionStartPosition) + text.Substring(SelectionEndPosition);
+                InputReceived?.Invoke(this, EventArgs.Empty);
 
                 return true;
             case Keys.V:
@@ -437,9 +502,18 @@ public class XNATextBox : XNAControl
                 if (!Keyboard.IsCtrlHeldDown())
                     break;
 
-                if (!string.IsNullOrEmpty(text))
-                    ClipboardService.SetText(text);
+                if (!IsValidSelection())
+                    break;
 
+                ClipboardService.SetText(text.Substring(SelectionStartPosition, SelectionLength));
+
+                return true;
+            case Keys.A:
+                if (!Keyboard.IsCtrlHeldDown())
+                    break;
+
+                SelectionStartPosition = 0;
+                SelectionEndPosition = text.Length;
                 return true;
             case Keys.Enter:
                 if (!IMEDisabled && WindowManager.IMEHandler != null)
@@ -457,11 +531,14 @@ public class XNATextBox : XNAControl
                         return true;
                 }
 
+                UnselectText();
                 InputPosition = 0;
                 Text = string.Empty;
                 InputReceived?.Invoke(this, EventArgs.Empty);
                 return true;
             case Keys.Tab:
+                UnselectText();
+
                 if (Keyboard.IsShiftHeldDown())
                 {
                     if (PreviousControl != null)
@@ -488,29 +565,108 @@ public class XNATextBox : XNAControl
                     FontIndex).X < Width - TEXT_HORIZONTAL_MARGIN * 2;
     }
 
-    public override void OnLeftClick()
+    private void UpdateCursorState()
     {
-        int x = GetCursorPoint().X;
-        int inputPosition = TextEndPosition;
-
-        var text = new StringBuilder();
-
-        for (int i = TextStartPosition; i < TextEndPosition - TextStartPosition; i++)
+        if (isMouseLocked)
         {
-            text.Append(Text[i]);
-            if (Renderer.GetTextDimensions(text.ToString(), FontIndex).X +
-                TEXT_HORIZONTAL_MARGIN > x)
+            if (!InputEnabled || !Cursor.LeftDown)
             {
-                inputPosition = i;
-                break;
+                isMouseLocked = false;
+                return;
+            }
+
+            Point cursorPoint = GetCursorPoint();
+            if (cursorPoint == mouseDownPosition)
+            {
+                return;
+            }
+
+            if (!IsActive)
+            {
+                // The user has moved the cursor outside of the text box.
+                // Most likely, this means that they want to scroll the text to select a wider part of it.
+                // Check if we can scroll the view.
+                // However, don't scroll too often.
+
+                bool shorterInterval = cursorPoint.X < -CURSOR_FAST_SCROLL_THRESHOLD || cursorPoint.X > Width + CURSOR_FAST_SCROLL_THRESHOLD;
+
+                if ((DateTime.Now - lastMouseScrollTime).TotalSeconds > CURSOR_SCROLL_REPEAT_TIME / (shorterInterval ? 2 : 1))
+                {
+                    lastMouseScrollTime = DateTime.Now;
+
+                    if (cursorPoint.X <= 0 && TextStartPosition > 0)
+                    {
+                        TextStartPosition--;
+
+                        while (!TextFitsBox())
+                            TextEndPosition--;
+                    }
+                    else if (cursorPoint.X >= Width && TextEndPosition < Text.Length)
+                    {
+                        TextEndPosition++;
+
+                        while (!TextFitsBox())
+                            TextStartPosition++;
+                    }
+                }
+            }
+
+            // Determine where the user has moved the cursor and select characters accordingly.
+            // Default to last position as it is where we will end up if the cursor is all the way on the edge of the visible text.
+            int newPosition = TextEndPosition;
+
+            var text = new StringBuilder();
+
+            for (int i = TextStartPosition; i < TextEndPosition; i++)
+            {
+                text.Append(Text[i]);
+
+                if (Renderer.GetTextDimensions(text.ToString(), FontIndex).X +
+                    TEXT_HORIZONTAL_MARGIN > cursorPoint.X)
+                {
+                    newPosition = i;
+                    break;
+                }
+            }
+
+            int smaller = Math.Min(mouseDownCharacterIndex, newPosition);
+            int larger = Math.Max(mouseDownCharacterIndex, newPosition);
+            InputPosition = newPosition;
+            SelectionStartPosition = smaller;
+            SelectionEndPosition = larger;
+        }
+        else
+        {
+            if (Cursor.LeftPressedDown)
+            {
+                UnselectText();
+
+                if (IsActive)
+                {
+                    isMouseLocked = true;
+                    mouseDownPosition = GetCursorPoint();
+
+                    int inputPosition = TextEndPosition;
+
+                    var text = new StringBuilder();
+
+                    for (int i = TextStartPosition; i < TextEndPosition; i++)
+                    {
+                        text.Append(Text[i]);
+                        if (Renderer.GetTextDimensions(text.ToString(), FontIndex).X +
+                            TEXT_HORIZONTAL_MARGIN > mouseDownPosition.X)
+                        {
+                            inputPosition = i;
+                            break;
+                        }
+                    }
+
+                    InputPosition = Math.Max(0, inputPosition);
+                    mouseDownCharacterIndex = InputPosition;
+                    barTimer = TimeSpan.Zero;
+                }
             }
         }
-
-        InputPosition = Math.Max(0, inputPosition);
-
-        barTimer = TimeSpan.Zero;
-
-        base.OnLeftClick();
     }
 
     public override void Update(GameTime gameTime)
@@ -547,6 +703,39 @@ public class XNATextBox : XNAControl
                 scrollKeyTime = TimeSpan.Zero;
             }
         }
+
+        UpdateCursorState();
+    }
+
+    private int HowManyCharactersToScrollLeft()
+    {
+        if (!Keyboard.IsCtrlHeldDown())
+            return 1;
+
+        if (InputPosition < 2)
+            return InputPosition;
+
+        int chars = 0;
+
+        // Take as many spaces from the beginning as we can find.
+        while (chars < InputPosition)
+        {
+            if (text[InputPosition - chars - 1] != ' ')
+                break;
+
+            chars++;
+        }
+
+        // Now do the opposite - we want to take a word, so accept all characters that are not spaces.
+        while (chars < InputPosition)
+        {
+            if (text[InputPosition - chars - 1] == ' ')
+                break;
+
+            chars++;
+        }
+
+        return chars;
     }
 
     private void ScrollLeft()
@@ -557,18 +746,89 @@ public class XNATextBox : XNAControl
                 return;
         }
 
+        if (IsValidSelection())
+        {
+            if (Keyboard.IsShiftHeldDown())
+            {
+                int howMany = HowManyCharactersToScrollLeft();
 
-        if (InputPosition == 0)
-            return;
+                if (InputPosition == 0)
+                    return;
 
-        InputPosition--;
+                InputPosition = Math.Max(0, InputPosition - howMany);
+
+                if (InputPosition < SelectionStartPosition)
+                {
+                    SelectionStartPosition = InputPosition;
+                }
+                else if (InputPosition < SelectionEndPosition)
+                {
+                    SelectionEndPosition = InputPosition;
+                }
+            }
+            else
+            {
+                InputPosition = SelectionStartPosition;
+                UnselectText();
+            }
+        }
+        else
+        {
+            int howMany = HowManyCharactersToScrollLeft();
+
+            if (InputPosition == 0)
+                return;
+
+            InputPosition = Math.Max(0, InputPosition - howMany);
+
+            if (Keyboard.IsShiftHeldDown())
+            {
+                SelectionStartPosition = InputPosition;
+                SelectionEndPosition = InputPosition + howMany;
+            }
+        }
+
         if (InputPosition < TextStartPosition)
         {
-            TextStartPosition--;
+            TextStartPosition = InputPosition;
 
             while (!TextFitsBox())
                 TextEndPosition--;
         }
+    }
+
+    private int HowManyCharactersToScrollRight()
+    {
+        if (!Keyboard.IsCtrlHeldDown())
+            return 1;
+
+        if (InputPosition > text.Length - 2)
+            return text.Length - InputPosition;
+
+        int chars = 0;
+
+        // This has opposite operation order from scrolling to the left.
+        // Windows text boxes act the same.
+
+        // We want to take a word, so accept all characters that are not spaces.
+        while (InputPosition + chars < text.Length)
+        {
+            if (text[InputPosition + chars] == ' ')
+                break;
+
+            chars++;
+        }
+
+        // Take as many spaces from the end as we can find.
+        while (InputPosition + chars < text.Length)
+        {
+            if (text[InputPosition + chars] != ' ')
+                break;
+
+            chars++;
+        }
+
+        return chars;
     }
 
     private void ScrollRight()
@@ -579,19 +839,78 @@ public class XNATextBox : XNAControl
                 return;
         }
 
-        if (InputPosition >= text.Length)
-            return;
+        if (IsValidSelection())
+        {
+            if (Keyboard.IsShiftHeldDown())
+            {
+                int howMany = HowManyCharactersToScrollRight();
 
-        InputPosition++;
+                if (InputPosition >= text.Length)
+                    return;
+
+                InputPosition = Math.Min(text.Length, InputPosition + howMany);
+
+                if (InputPosition > SelectionEndPosition)
+                {
+                    SelectionEndPosition = InputPosition;
+                }
+                else if (InputPosition > SelectionStartPosition)
+                {
+                    SelectionStartPosition = InputPosition;
+                }
+            }
+            else
+            {
+                InputPosition = SelectionEndPosition;
+                UnselectText();
+            }
+        }
+        else
+        {
+            int howMany = HowManyCharactersToScrollRight();
+
+            if (InputPosition >= text.Length)
+                return;
+
+            InputPosition = Math.Min(text.Length, InputPosition + howMany);
+
+            if (Keyboard.IsShiftHeldDown())
+            {
+                SelectionEndPosition = InputPosition;
+                SelectionStartPosition = InputPosition - howMany;
+            }
+        }
 
         if (InputPosition > TextEndPosition)
         {
-            TextEndPosition++;
+            TextEndPosition = InputPosition;
 
             while (!TextFitsBox())
             {
                 TextStartPosition++;
             }
+        }
+    }
+
+    private void DeleteSelection()
+    {
+        if (IsValidSelection())
+        {
+            text = text.Remove(SelectionStartPosition, SelectionEndPosition - SelectionStartPosition);
+
+            UnselectText();
+
+            if (TextEndPosition > text.Length)
+            {
+                int width = TextEndPosition - text.Length;
+                TextStartPosition = Math.Max(0, TextStartPosition - width);
+                TextEndPosition = text.Length;
+
+                if (!TextFitsBox())
+                    TextStartPosition++;
+            }
+
+            TextChanged?.Invoke(this, EventArgs.Empty);
         }
     }
 
@@ -603,7 +922,11 @@ public class XNATextBox : XNAControl
                 return;
         }
 
-        if (text.Length > InputPosition)
+        if (IsValidSelection())
+        {
+            DeleteSelection();
+        }
+        else if (text.Length > InputPosition)
         {
             text = text.Remove(InputPosition, 1);
 
@@ -627,7 +950,11 @@ public class XNATextBox : XNAControl
                 return;
         }
 
-        if (text.Length > 0 && InputPosition > 0)
+        if (IsValidSelection())
+        {
+            DeleteSelection();
+        }
+        else if (text.Length > 0 && InputPosition > 0)
         {
             text = text.Remove(InputPosition - 1, 1);
             InputPosition--;
@@ -648,6 +975,9 @@ public class XNATextBox : XNAControl
     {
         // Note: IMEHandler.OnSelectedChanged() should be called even if this.IMEDisabled holds true
         WindowManager.IMEHandler?.OnSelectedChanged(this);
+
+        if (WindowManager.SelectedControl != this)
+            UnselectText();
 
         base.OnSelectedChanged();
     }
@@ -688,30 +1018,57 @@ public class XNATextBox : XNAControl
         else
             DrawRectangle(new Rectangle(0, 0, Width, Height), IdleBorderColor);
 
+        if (WindowManager.SelectedControl == this && Enabled && IsValidSelection())
+        {
+            int selectionStartX = TEXT_HORIZONTAL_MARGIN;
+            int selectionWidth;
+            if (SelectionStartPosition > TextStartPosition)
+            {
+                string textBeforeSelection = Text.Substring(TextStartPosition, SelectionStartPosition - TextStartPosition);
+                selectionStartX = (int)Renderer.GetTextDimensions(textBeforeSelection, FontIndex).X + TEXT_HORIZONTAL_MARGIN;
+            }
+
+            if (SelectionEndPosition > TextEndPosition)
+            {
+                selectionWidth = Width - selectionStartX - 1;
+            }
+            else
+            {
+                int startIndex = TextStartPosition > SelectionStartPosition ? TextStartPosition : SelectionStartPosition;
+                int selectionDrawnLength = SelectionEndPosition - startIndex;
+                string selectedText = Text.Substring(startIndex, selectionDrawnLength);
+                selectionWidth = (int)Renderer.GetTextDimensions(selectedText, FontIndex).X + 1; // +1 due to shadow
+            }
+
+            FillRectangle(new Rectangle(selectionStartX, SELECTION_MARGIN, selectionWidth, Height - (SELECTION_MARGIN * 2)), SelectionColor);
+        }
+
         DrawStringWithShadow(Text.Substring(TextStartPosition, TextEndPosition - TextStartPosition),
-            FontIndex, new Vector2(TEXT_HORIZONTAL_MARGIN, TEXT_VERTICAL_MARGIN),
-            TextColor);
+            FontIndex, new Vector2(TEXT_HORIZONTAL_MARGIN, TEXT_VERTICAL_MARGIN), TextColor);
 
         if (WindowManager.SelectedControl == this && Enabled && WindowManager.HasFocus)
         {
-            int barLocationX = TEXT_HORIZONTAL_MARGIN;
-
-            string inputText = Text.Substring(TextStartPosition, InputPosition - TextStartPosition);
-            barLocationX += (int)Renderer.GetTextDimensions(inputText, FontIndex).X;
-
-            if (!IMEDisabled && WindowManager.IMEHandler != null)
+            if (InputPosition >= TextStartPosition)
             {
-                if (WindowManager.IMEHandler.GetDrawCompositionText(this, out string composition, out int compositionCursorPosition))
+                int barLocationX = TEXT_HORIZONTAL_MARGIN;
+
+                string inputText = Text.Substring(TextStartPosition, InputPosition - TextStartPosition);
+                barLocationX += (int)Renderer.GetTextDimensions(inputText, FontIndex).X;
+
+                if (!IMEDisabled && WindowManager.IMEHandler != null)
                 {
-                    DrawString(composition, FontIndex, new(barLocationX, TEXT_VERTICAL_MARGIN), Color.Orange);
-                    Vector2 measStr = Renderer.GetTextDimensions(composition.Substring(0, compositionCursorPosition), FontIndex);
-                    barLocationX += (int)measStr.X;
+                    if (WindowManager.IMEHandler.GetDrawCompositionText(this, out string composition, out int compositionCursorPosition))
+                    {
+                        DrawString(composition, FontIndex, new(barLocationX, TEXT_VERTICAL_MARGIN), Color.Orange);
+                        Vector2 measStr = Renderer.GetTextDimensions(composition.Substring(0, compositionCursorPosition), FontIndex);
+                        barLocationX += (int)measStr.X;
+                    }
                 }
-            }
 
-            if (barTimer.TotalSeconds < BAR_ON_TIME)
-            {
-                FillRectangle(new Rectangle(barLocationX, 2, 1, Height - 4), Color.White);
+                if (barTimer.TotalSeconds < BAR_ON_TIME)
+                {
+                    FillRectangle(new Rectangle(barLocationX, 2, 1, Height - 4), Color.White);
+                }
             }
         }
 

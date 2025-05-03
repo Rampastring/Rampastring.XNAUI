@@ -2,7 +2,6 @@
 using Microsoft.Xna.Framework.Input;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace Rampastring.XNAUI.Input;
 
@@ -14,17 +13,25 @@ public class RKeyboard : GameComponent
     public RKeyboard(Game game)
         : base(game)
     {
-        PressedKeys = new List<Keys>();
         KeyboardState = Keyboard.GetState();
     }
 
     public delegate void KeyPressedEventHandler(object sender, KeyPressEventArgs e);
+
+    /// <summary>
+    /// Triggered when a key has been pressed, iow. pressed down and then released.
+    /// </summary>
     public event KeyPressedEventHandler OnKeyPressed;
 
-    public KeyboardState KeyboardState;
-    private Keys[] DownKeys = new Keys[0];
+    /// <summary>
+    /// Triggered when a key has been first pressed down.
+    /// </summary>
+    public event KeyPressedEventHandler OnKeyDown;
 
-    public List<Keys> PressedKeys;
+    public KeyboardState KeyboardState;
+
+    public List<Keys> PressedKeys = new List<Keys>();
+    public List<Keys> DownKeys = new List<Keys>();
 
     public override void Update(GameTime gameTime)
     {
@@ -43,7 +50,17 @@ public class RKeyboard : GameComponent
             }
         }
 
-        DownKeys = KeyboardState.GetPressedKeys();
+        var newDownKeys = KeyboardState.GetPressedKeys();
+        for (int i = 0; i < newDownKeys.Length; i++)
+        {
+            if (!DownKeys.Contains(newDownKeys[i]))
+            {
+                DoKeyDown(newDownKeys[i]);
+            }
+        }
+
+        DownKeys.Clear();
+        DownKeys.AddRange(newDownKeys);
     }
 
     private void DoKeyPress(Keys key)
@@ -51,6 +68,21 @@ public class RKeyboard : GameComponent
         if (OnKeyPressed != null)
         {
             Delegate[] delegates = OnKeyPressed.GetInvocationList();
+            var args = new KeyPressEventArgs(key);
+            for (int i = 0; i < delegates.Length; i++)
+            {
+                delegates[i].DynamicInvoke(this, args);
+                if (args.Handled)
+                    return;
+            }
+        }
+    }
+
+    private void DoKeyDown(Keys key)
+    {
+        if (OnKeyDown != null)
+        {
+            Delegate[] delegates = OnKeyDown.GetInvocationList();
             var args = new KeyPressEventArgs(key);
             for (int i = 0; i < delegates.Length; i++)
             {

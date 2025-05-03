@@ -30,6 +30,8 @@ public class UISettings
 
     public Color BackgroundColor { get; set; } = Color.Black;
 
+    public Color SelectionColor { get; set; } = new Color(128, 128, 128);
+
     public Color FocusColor { get; set; } = new Color(64, 64, 64);
 
     public Color PanelBackgroundColor { get; set; } = new Color(32, 32, 32);

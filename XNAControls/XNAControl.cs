@@ -345,6 +345,15 @@ public class XNAControl : DrawableGameComponent
     /// </summary>
     public bool ExclusiveInputCapture { get; protected set; } = false;
 
+    /// <summary>
+    /// Determines whether this control handles dragging input (pressing on it with the mouse and moving the cursor).
+    /// Allows other controls to implement dragging-related functionality without conflicting with already existing 
+    /// dragging functionality. An example use case is draggable windows: they can use this to detect
+    /// whether the cursor is on top of a draggable child control like a scroll bar.
+    /// If yes, the window should not move itself when it is dragged.
+    /// </summary>
+    public bool HandlesDragging { get; protected set; } = false;
+
     private bool CursorOnControl = false;
     private float alpha = 1.0f;
     public virtual float Alpha
@@ -1592,6 +1601,7 @@ public class XNAControl : DrawableGameComponent
     /// </summary>
     public virtual void OnMouseLeftDown()
     {
+        WindowManager.SelectedControl = this;
         MouseLeftDown?.Invoke(this, EventArgs.Empty);
     }
 
@@ -1619,8 +1629,6 @@ public class XNAControl : DrawableGameComponent
     /// </summary>
     public virtual void OnLeftClick()
     {
-        WindowManager.SelectedControl = this;
-
         LeftClick?.Invoke(this, EventArgs.Empty);
 
         if (timeSinceLastLeftClick < TimeSpan.FromSeconds(DOUBLE_CLICK_TIME))

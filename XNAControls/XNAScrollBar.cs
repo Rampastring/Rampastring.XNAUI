@@ -19,6 +19,7 @@ public class XNAScrollBar : XNAControl
     public XNAScrollBar(WindowManager windowManager) : base(windowManager)
     {
         ExclusiveInputCapture = true;
+        HandlesDragging = true;
 
         var scrollUpTexture = AssetLoader.LoadTexture("sbUpArrow.png");
 
