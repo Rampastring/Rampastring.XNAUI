@@ -479,7 +479,16 @@ public class XNATextBox : XNAControl
                     break;
 
                 ClipboardService.SetText(text.Substring(SelectionStartPosition, SelectionLength));
+                int newInputPosition = SelectionStartPosition;
                 Text = text.Substring(0, SelectionStartPosition) + text.Substring(SelectionEndPosition);
+                InputPosition = newInputPosition;
+                if (TextEndPosition < InputPosition)
+                {
+                    TextEndPosition = InputPosition;
+                    while (!TextFitsBox())
+                        TextStartPosition++;
+                }
+
                 InputReceived?.Invoke(this, EventArgs.Empty);
 
                 return true;
@@ -494,10 +503,19 @@ public class XNATextBox : XNAControl
                 // Replace newlines with spaces
                 // https://stackoverflow.com/questions/238002/replace-line-breaks-in-a-string-c-sharp
                 string textToAdd = Regex.Replace(clipboardText, @"\r\n?|\n", " ");
-                Text = Text + Renderer.GetSafeString(textToAdd, FontIndex);
+                int prePasteInputPosition = InputPosition;
+                Text = text.Substring(0, InputPosition) + Renderer.GetSafeString(textToAdd, FontIndex) + text.Substring(InputPosition);
+                InputPosition = prePasteInputPosition + textToAdd.Length;
+                if (TextEndPosition < InputPosition)
+                {
+                    TextEndPosition = InputPosition;
+                    while (!TextFitsBox())
+                        TextStartPosition++;
+                }
+
                 InputReceived?.Invoke(this, EventArgs.Empty);
 
-                goto case Keys.End;
+                return true;
             case Keys.C:
                 if (!Keyboard.IsCtrlHeldDown())
                     break;
