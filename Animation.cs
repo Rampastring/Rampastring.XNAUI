@@ -9,12 +9,18 @@ using System.IO;
 
 namespace Rampastring.XNAUI;
 
+/// <summary>
+/// Basic class of animation texture with delay.
+/// </summary>
 public class AnimationFrame
 {
     public Texture2D Texture { get; set; }
     public TimeSpan Delay { get; set; }
 }
 
+/// <summary>
+/// General purpose animation class.
+/// </summary>
 public class Animation
 {
     private List<AnimationFrame> Frames = null;
@@ -29,6 +35,10 @@ public class Animation
     public int Height { get; private set; }
     public int Width { get; private set; }
 
+    /// <summary>
+    /// Generic constructor.
+    /// </summary>
+    /// <param name="frames">List of frames.</param>
     public Animation(List<AnimationFrame> frames)
     {
         Frames = frames;
@@ -40,6 +50,12 @@ public class Animation
         }
     }
 
+    /// <summary>
+    /// Loads animation from ImageSharp format.
+    /// </summary>
+    /// <param name="image">The actual animation parsed by ImageSharp.</param>
+    /// <param name="format">The animation format details.</param>
+    /// <exception cref="NotSupportedException"></exception>
     public Animation(Image image, IImageFormat format)
     {
         this.image = image;
@@ -56,6 +72,10 @@ public class Animation
         }
     }
 
+    /// <summary>
+    /// Loads GIF format animation.
+    /// </summary>
+    /// <param name="gif">The actual animation parsed by ImageSharp.</param>
     public Animation(Image gif) => FromGIF(gif);
 
     private void FromGIF(Image gif)
@@ -87,6 +107,10 @@ public class Animation
         CurrentFrame = AssetLoader.TextureFromImage(gif.Frames.CloneFrame(0));
     }
 
+    /// <summary>
+    /// Draw next frame when frame delay expires.
+    /// </summary>
+    /// <param name="gameTime"></param>
     public void Update(GameTime gameTime)
     {
         totalElapsedTime += Convert.ToInt32(gameTime.ElapsedGameTime.TotalMilliseconds);
@@ -98,6 +122,9 @@ public class Animation
         }
     }
 
+    /// <summary>
+    /// Draw next frame of animation.
+    /// </summary>
     public void NextFrame()
     {
         if (repeatCount == 1 && currentFrameId == Frames.Count - 1)

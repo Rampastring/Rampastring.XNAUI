@@ -17,7 +17,7 @@ namespace Rampastring.XNAUI;
 
 /// <summary>
 /// A static class that provides easy-to-use methods
-/// for loading and generating assets such as textures and sounds.
+/// for loading and generating assets such as textures, animations, sounds.
 /// </summary>
 public static class AssetLoader
 {
@@ -79,7 +79,7 @@ public static class AssetLoader
     }
 
     /// <summary>
-    /// Loads a GIF animation with the specific name. If the animation isn't found from any
+    /// Loads an animation with the specific name. If the animation isn't found from any
     /// asset search path, returns a dummy animation with 1 frame.
     /// </summary>
     /// <param name="name">The name of the animation.</param>
