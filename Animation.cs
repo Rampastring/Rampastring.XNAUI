@@ -17,7 +17,9 @@ public class AnimationFrame
 
 public class Animation
 {
-    private List<AnimationFrame> Frames;
+    private List<AnimationFrame> Frames = null;
+    private Image image = null;
+    private IImageFormat format = null;
     private int currentFrameId = 0;
     private int currentDelay = 0;
     private int totalElapsedTime = 0;
@@ -40,7 +42,10 @@ public class Animation
 
     public Animation(Image image, IImageFormat format)
     {
-        switch(format)
+        this.image = image;
+        this.format = format;
+
+        switch (format)
         {
             case SixLabors.ImageSharp.Formats.Gif.GifFormat:
                 FromGIF(image);
@@ -67,7 +72,7 @@ public class Animation
 
         for (int i = 0; i < len; i++)
         {
-            // ImageSharp returns not milliseconds, but decisecond
+            // ImageSharp returns not milliseconds, but decisecond as documentation says.
             var delay = gif.Frames[i].Metadata.GetGifMetadata().FrameDelay;
 
             // When delay is equal to 1 or less, browsers use a delay equivalent to 100ms.
@@ -75,10 +80,11 @@ public class Animation
             var currentDelay = delay > 1? delay * 10 : 100;
             var currentFrame = gif.Frames.CloneFrame(i);
 
-            Frames.Add(new AnimationFrame { Texture = AssetLoader.TextureFromImage(currentFrame), Delay = TimeSpan.FromMilliseconds(currentDelay) });
+            // ImageSharp image class is not fast enough to draw images in the expected time.
+            Frames.Add(new AnimationFrame { Texture = null, Delay = TimeSpan.FromMilliseconds(currentDelay) });
         }
 
-        CurrentFrame = Frames[0].Texture;
+        CurrentFrame = AssetLoader.TextureFromImage(gif.Frames.CloneFrame(0));
     }
 
     public void Update(GameTime gameTime)
@@ -102,6 +108,18 @@ public class Animation
 
         currentFrameId = (currentFrameId + 1) % Frames.Count;
         currentDelay = Frames[currentFrameId].Delay.Milliseconds;
-        CurrentFrame = Frames[currentFrameId].Texture;
+        
+        if (image == null)
+        {
+            // If the class is allocated from the generic constructor, then image is null and we should use Animation.Frame.
+            CurrentFrame = Frames[currentFrameId].Texture;
+        }
+        else
+        {
+            // Otherwise we have the source image and would be better off saving memory.
+            CurrentFrame.Dispose();
+            CurrentFrame = AssetLoader.TextureFromImage(image.Frames.CloneFrame(currentFrameId));
+        }
     }
 }
+
