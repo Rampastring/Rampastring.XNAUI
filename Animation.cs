@@ -90,6 +90,10 @@ public class Animation
 
         int len = gif.Frames.Count;
 
+        int estimatedSize = Height * Width * len * 4 / 1024 / 1024;
+        if (estimatedSize >= 50)
+            Logger.Log("Loading animation with estimated size more than 50MiB in raw format.");
+
         for (int i = 0; i < len; i++)
         {
             // ImageSharp returns not milliseconds, but decisecond as documentation says.
