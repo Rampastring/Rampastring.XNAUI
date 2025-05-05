@@ -121,7 +121,7 @@ public class XNAListBox : XNAPanel
         {
             if (value != _viewTop)
             {
-                if (_viewTop < 0)
+                if (value < 0)
                     _viewTop = 0;
                 else
                     _viewTop = value;
