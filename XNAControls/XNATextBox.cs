@@ -500,19 +500,112 @@ public class XNATextBox : XNAControl
                 if (clipboardText == null)
                     return true;
 
-                // Replace newlines with spaces
+                // Replace newlines with spaces, invalid font chars with ?
                 // https://stackoverflow.com/questions/238002/replace-line-breaks-in-a-string-c-sharp
                 string textToAdd = Regex.Replace(clipboardText, @"\r\n?|\n", " ");
-                int prePasteInputPosition = InputPosition;
-                Text = text.Substring(0, InputPosition) + Renderer.GetSafeString(textToAdd, FontIndex) + text.Substring(InputPosition);
-                InputPosition = prePasteInputPosition + textToAdd.Length;
-                if (TextEndPosition < InputPosition)
+                textToAdd = Renderer.GetSafeString(textToAdd, FontIndex);
+
+                // Trim pasted text to fit MaximumTextLength
+                string fullText = text.Substring(0, InputPosition) + textToAdd + text.Substring(InputPosition);
+                if (fullText.Length > MaximumTextLength)
                 {
-                    TextEndPosition = InputPosition;
-                    while (!TextFitsBox())
-                        TextStartPosition++;
+                    int availableSpace = MaximumTextLength - (text.Length - (IsValidSelection() ? SelectionLength : 0));
+                    textToAdd = textToAdd.Substring(0, Math.Min(textToAdd.Length, Math.Max(0, availableSpace)));
                 }
 
+                if (IsValidSelection())
+                {
+                    text = text.Substring(0, SelectionStartPosition) + textToAdd + text.Substring(SelectionEndPosition);
+
+                    InputPosition = SelectionStartPosition + textToAdd.Length;
+                    UnselectText();
+
+                    if (TextEndPosition < InputPosition)
+                        TextEndPosition = InputPosition;
+                    else
+                        TextEndPosition = Math.Min(TextEndPosition, text.Length);
+
+                    if (TextStartPosition < TextEndPosition)
+                        TextStartPosition = Math.Max(TextEndPosition - 1, 0);
+
+                    // Replacing part of the string with another string might open up space for displaying more characters.
+                    // For correct behaviour, we need to look for them at both the beginning and end of the string.
+                    if (text.Length > 0)
+                    {
+                        if (TextFitsBox())
+                        {
+                            // If the text fits, then show more characters from the beginning.
+                            while (TextFitsBox() && TextStartPosition > 0)
+                                TextStartPosition--;
+
+                            // If the start position is not at the beginning in this case, we have over-scrolled by one character.
+                            if (TextStartPosition > 0)
+                            {
+                                TextStartPosition++;
+                            }
+                            else
+                            {
+                                // If we have not overscrolled, we reached the beginning of the string.
+                                // See if we could show more of the string in the end, too.
+                                while (TextEndPosition < text.Length && TextFitsBox())
+                                    TextEndPosition++;
+
+                                if (!TextFitsBox())
+                                    TextEndPosition--;
+                            }
+                        }
+                        else
+                        {
+                            // If the text does not fit, most likely the replacement operation added to the overall string length
+                            // and now the text is too long. Cut it from the beginning as much as necessary.
+                            while (!TextFitsBox())
+                                TextStartPosition++;
+                        }
+                    }
+                }
+                else
+                {
+                    text = text.Substring(0, InputPosition) + textToAdd + text.Substring(InputPosition);
+                    InputPosition = InputPosition + textToAdd.Length;
+
+                    if (TextEndPosition < InputPosition)
+                    {
+                        TextEndPosition = InputPosition;
+
+                        // If we have to display more characters at the end for the input position to be visible,
+                        // then check whether we should hide characters from the front.
+                        while (!TextFitsBox())
+                            TextStartPosition++;
+                    }
+
+                    // Since we added text to the string, display more of the string at the end - as much as possible.
+                    // Avoid displaying more than possible, though.
+                    bool scrolled = false;
+                    while (true) 
+                    {
+                        if (TextFitsBox())
+                        {
+                            if (TextEndPosition < text.Length)
+                            {
+                                scrolled = true;
+                                TextEndPosition++;
+                            }
+                            else
+                            {
+                                break;
+                            }
+                        }
+                        else
+                        {
+                            if (scrolled)
+                                TextEndPosition--;
+
+                            break;
+                        }
+                    } 
+                }
+
+                TextChanged?.Invoke(this, EventArgs.Empty); // we are changing text not Text, so invoke TextChanged
                 InputReceived?.Invoke(this, EventArgs.Empty);
 
                 return true;
