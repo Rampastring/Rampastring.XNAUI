@@ -500,7 +500,7 @@ public class XNATextBox : XNAControl
                 if (clipboardText == null)
                     return true;
 
-                // Replace newlines with spaces, invalid font cahrs with ?
+                // Replace newlines with spaces, invalid font chars with ?
                 // https://stackoverflow.com/questions/238002/replace-line-breaks-in-a-string-c-sharp
                 string textToAdd = Regex.Replace(clipboardText, @"\r\n?|\n", " ");
                 textToAdd = Renderer.GetSafeString(textToAdd, FontIndex);
@@ -528,7 +528,7 @@ public class XNATextBox : XNAControl
                 InputPosition = Math.Min(InputPosition, text.Length);
                 TextEndPosition = text.Length;
 
-                while (!TextFitsBox() && TextStartPosition < TextEndPosition - 1)
+                while (!TextFitsBox())
                     TextStartPosition++;
 
                 TextChanged?.Invoke(this, EventArgs.Empty); // we are changing text not Text, so invoke TextChanged
