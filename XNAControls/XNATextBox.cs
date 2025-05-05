@@ -500,19 +500,38 @@ public class XNATextBox : XNAControl
                 if (clipboardText == null)
                     return true;
 
-                // Replace newlines with spaces
+                // Replace newlines with spaces, invalid font cahrs with ?
                 // https://stackoverflow.com/questions/238002/replace-line-breaks-in-a-string-c-sharp
                 string textToAdd = Regex.Replace(clipboardText, @"\r\n?|\n", " ");
-                int prePasteInputPosition = InputPosition;
-                Text = text.Substring(0, InputPosition) + Renderer.GetSafeString(textToAdd, FontIndex) + text.Substring(InputPosition);
-                InputPosition = prePasteInputPosition + textToAdd.Length;
-                if (TextEndPosition < InputPosition)
+                textToAdd = Renderer.GetSafeString(textToAdd, FontIndex);
+
+                // Trim pasted text to fit MaximumTextLength
+                string fullText = text.Substring(0, InputPosition) + textToAdd + text.Substring(InputPosition);
+                if (fullText.Length > MaximumTextLength)
                 {
-                    TextEndPosition = InputPosition;
-                    while (!TextFitsBox())
-                        TextStartPosition++;
+                    int availableSpace = MaximumTextLength - (text.Length - (IsValidSelection() ? SelectionLength : 0));
+                    textToAdd = textToAdd.Substring(0, Math.Min(textToAdd.Length, Math.Max(0, availableSpace)));
+                }
+                
+                if (IsValidSelection())
+                {
+                    text = text.Substring(0, SelectionStartPosition) + textToAdd + text.Substring(SelectionEndPosition);
+                    InputPosition = SelectionStartPosition + textToAdd.Length;
+                    UnselectText();
+                }
+                else
+                {
+                    text = text.Substring(0, InputPosition) + textToAdd + text.Substring(InputPosition);
+                    InputPosition = InputPosition + textToAdd.Length;
                 }
 
+                InputPosition = Math.Min(InputPosition, text.Length);
+                TextEndPosition = text.Length;
+
+                while (!TextFitsBox() && TextStartPosition < TextEndPosition - 1)
+                    TextStartPosition++;
+
+                TextChanged?.Invoke(this, EventArgs.Empty); // we are changing text not Text, so invoke TextChanged
                 InputReceived?.Invoke(this, EventArgs.Empty);
 
                 return true;
