@@ -302,6 +302,7 @@ public class XNAListBox : XNAPanel
     private TimeSpan timeSinceLastScroll = TimeSpan.Zero;
     private bool isScrollingQuickly = false;
     private bool selectedIndexChanged = false;
+    private int visibleLinesCount = 0;
 
     protected override void ParseControlINIAttribute(IniFile iniFile, string key, string value)
     {
@@ -329,8 +330,15 @@ public class XNAListBox : XNAPanel
 
     public void Clear()
     {
-        Items.ForEach(item => item.TextChanged -= ListBoxItem_TextChanged);
+        foreach (var item in Items)
+        {
+            item.TextChanged -= ListBoxItem_TextChanged;
+            item.VisibilityChanged -= ListBoxItem_VisibilityChanged;
+        }
+
         Items.Clear();
+        visibleLinesCount = 0;
+
         RefreshScrollbar();
     }
 
@@ -383,13 +391,48 @@ public class XNAListBox : XNAPanel
         CheckItemTextForWordWrapAndExcessSize(listBoxItem);
 
         Items.Add(listBoxItem);
+
+        if (listBoxItem.Visible)
+        {
+            visibleLinesCount += listBoxItem.TextLines.Count;
+        }
+
         RefreshScrollbar();
 
         listBoxItem.TextChanged += ListBoxItem_TextChanged;
+        listBoxItem.VisibilityChanged += ListBoxItem_VisibilityChanged;
     }
 
-    private void ListBoxItem_TextChanged(object sender, EventArgs e) =>
-        CheckItemTextForWordWrapAndExcessSize((XNAListBoxItem)sender);
+    private void ListBoxItem_TextChanged(object sender, EventArgs e)
+    {
+        var item = (XNAListBoxItem)sender;
+        int oldLineCount = item.TextLines?.Count ?? 0;
+
+        CheckItemTextForWordWrapAndExcessSize(item);
+
+        if (item.Visible)
+        {
+            visibleLinesCount -= oldLineCount;
+            visibleLinesCount += item.TextLines.Count;
+        }
+
+        RefreshScrollbar();
+    }
+
+    private void ListBoxItem_VisibilityChanged(object sender, EventArgs e)
+    {
+        var item = (XNAListBoxItem)sender;
+        if (item.Visible)
+        {
+            visibleLinesCount += item.TextLines.Count;
+        }
+        else
+        {
+            visibleLinesCount -= item.TextLines.Count;
+        }
+
+        RefreshScrollbar();
+    }
 
     private void CheckItemTextForWordWrapAndExcessSize(XNAListBoxItem listBoxItem)
     {
@@ -441,8 +484,18 @@ public class XNAListBox : XNAPanel
     public void RemoveItem(int index)
     {
         var item = Items[index];
+
+        if (item.Visible)
+        {
+            visibleLinesCount -= item.TextLines.Count;
+        }
+
         item.TextChanged -= ListBoxItem_TextChanged;
+        item.VisibilityChanged -= ListBoxItem_VisibilityChanged;
+
         Items.RemoveAt(index);
+
+        RefreshScrollbar();
     }
 
     /// <summary>
@@ -490,19 +543,11 @@ public class XNAListBox : XNAPanel
     }
 
     /// <summary>
-    /// Returns the total amount of lines in all list box items combined.
+    /// Returns the total amount of lines in all visible list box items combined.
     /// </summary>
     private int GetTotalLineCount()
     {
-        int lineCount = 0;
-
-        foreach (XNAListBoxItem item in Items)
-        {
-            if (item.Visible)
-                lineCount += item.TextLines.Count;
-        }
-
-        return lineCount;
+        return visibleLinesCount;
     }
 
     /// <summary>

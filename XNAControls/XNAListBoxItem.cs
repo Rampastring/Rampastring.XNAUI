@@ -21,6 +21,7 @@ public class XNAListBoxItem
     }
 
     public event EventHandler TextChanged;
+    public event EventHandler VisibilityChanged;
 
     private Color? _textColor;
 
@@ -97,7 +98,19 @@ public class XNAListBoxItem
     /// Whether this list box item is visible.
     /// Invisible list box items are not drawn and cannot be selected.
     /// </summary>
-    public bool Visible { get; set; } = true;
+    private bool visible = true;
+    public bool Visible
+    {
+        get { return visible; }
+        set
+        {
+            if (visible != value)
+            {
+                visible = value;
+                VisibilityChanged?.Invoke(this, EventArgs.Empty);
+            }
+        }
+    }
 
     public List<string> TextLines;
 }
