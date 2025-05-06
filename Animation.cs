@@ -147,8 +147,10 @@ public class Animation
         else
         {
             // Otherwise we have the source image and would be better off saving memory.
+            var clonedFrame = image.Frames.CloneFrame(currentFrameId);
             CurrentFrame.Dispose();
-            CurrentFrame = AssetLoader.TextureFromImage(image.Frames.CloneFrame(currentFrameId));
+            CurrentFrame = AssetLoader.TextureFromImage(clonedFrame);
+            clonedFrame.Dispose();
         }
     }
 }
