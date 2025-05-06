@@ -55,7 +55,6 @@ public class Animation
     /// </summary>
     /// <param name="image">The actual animation parsed by ImageSharp.</param>
     /// <param name="format">The animation format details.</param>
-    /// <exception cref="NotSupportedException"></exception>
     public Animation(Image image, IImageFormat format)
     {
         this.image = image;
