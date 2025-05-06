@@ -103,7 +103,7 @@ public class Animation
             var currentDelay = delay > 1? delay * 10 : 100;
             var currentFrame = gif.Frames.CloneFrame(i);
 
-            // ImageSharp image class is not fast enough to draw images in the expected time.
+            // Fill Frames only with delays because ImageSharp image class is not fast enough when it gets frame metadata and cause play lag.
             Frames.Add(new AnimationFrame { Texture = null, Delay = TimeSpan.FromMilliseconds(currentDelay) });
         }
 
