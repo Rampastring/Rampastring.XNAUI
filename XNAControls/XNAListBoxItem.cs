@@ -98,15 +98,15 @@ public class XNAListBoxItem
     /// Whether this list box item is visible.
     /// Invisible list box items are not drawn and cannot be selected.
     /// </summary>
-    private bool visible = true;
+    private bool _visible = true;
     public bool Visible
     {
-        get { return visible; }
+        get { return _visible; }
         set
         {
-            if (visible != value)
+            if (_visible != value)
             {
-                visible = value;
+                _visible = value;
                 VisibilityChanged?.Invoke(this, EventArgs.Empty);
             }
         }

@@ -302,7 +302,7 @@ public class XNAListBox : XNAPanel
     private TimeSpan timeSinceLastScroll = TimeSpan.Zero;
     private bool isScrollingQuickly = false;
     private bool selectedIndexChanged = false;
-    private int visibleLinesCount = 0;
+    private int visibleLineCount = 0;
 
     protected override void ParseControlINIAttribute(IniFile iniFile, string key, string value)
     {
@@ -337,7 +337,7 @@ public class XNAListBox : XNAPanel
         }
 
         Items.Clear();
-        visibleLinesCount = 0;
+        visibleLineCount = 0;
 
         RefreshScrollbar();
     }
@@ -394,7 +394,7 @@ public class XNAListBox : XNAPanel
 
         if (listBoxItem.Visible)
         {
-            visibleLinesCount += listBoxItem.TextLines.Count;
+            visibleLineCount += listBoxItem.TextLines.Count;
         }
 
         RefreshScrollbar();
@@ -412,8 +412,8 @@ public class XNAListBox : XNAPanel
 
         if (item.Visible)
         {
-            visibleLinesCount -= oldLineCount;
-            visibleLinesCount += item.TextLines.Count;
+            visibleLineCount -= oldLineCount;
+            visibleLineCount += item.TextLines.Count;
         }
 
         RefreshScrollbar();
@@ -424,11 +424,11 @@ public class XNAListBox : XNAPanel
         var item = (XNAListBoxItem)sender;
         if (item.Visible)
         {
-            visibleLinesCount += item.TextLines.Count;
+            visibleLineCount += item.TextLines.Count;
         }
         else
         {
-            visibleLinesCount -= item.TextLines.Count;
+            visibleLineCount -= item.TextLines.Count;
         }
 
         RefreshScrollbar();
@@ -487,7 +487,7 @@ public class XNAListBox : XNAPanel
 
         if (item.Visible)
         {
-            visibleLinesCount -= item.TextLines.Count;
+            visibleLineCount -= item.TextLines.Count;
         }
 
         item.TextChanged -= ListBoxItem_TextChanged;
@@ -547,7 +547,7 @@ public class XNAListBox : XNAPanel
     /// </summary>
     private int GetTotalLineCount()
     {
-        return visibleLinesCount;
+        return visibleLineCount;
     }
 
     /// <summary>
