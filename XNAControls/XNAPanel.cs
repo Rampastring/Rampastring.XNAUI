@@ -83,16 +83,6 @@ public class XNAPanel : XNAControl
             case "BackgroundTexture":
                 BackgroundTexture = AssetLoader.LoadTexture(value);
                 return;
-            //case "BackgroundAnimation":
-            //    BackgroundAnimation = AssetLoader.LoadAnimation(value);
-            //    BackgroundTexture = BackgroundAnimation.CurrentFrame;
-            //    return;
-            //case "ResizeControlUpToAnimationSize":
-            //    if (BackgroundAnimation == null || !Conversions.BooleanFromString(value, false))
-            //        return;
-            //    Height = BackgroundAnimation.Height;
-            //    Width = BackgroundAnimation.Width;
-            //    return;
             case "SolidColorBackgroundTexture":
                 BackgroundTexture = AssetLoader.CreateTexture(AssetLoader.GetColorFromString(value), 2, 2);
                 PanelBackgroundDrawMode = PanelBackgroundImageDrawMode.STRETCHED;
@@ -122,12 +112,6 @@ public class XNAPanel : XNAControl
     public override void Update(GameTime gameTime)
     {
         Alpha += AlphaRate * (float)(gameTime.ElapsedGameTime.TotalMilliseconds / 100.0);
-
-        //if (BackgroundAnimation != null)
-        //{
-        //    BackgroundAnimation.Update(gameTime);
-        //    BackgroundTexture = BackgroundAnimation.CurrentFrame;
-        //}
 
         base.Update(gameTime);
     }
