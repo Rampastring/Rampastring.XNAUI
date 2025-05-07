@@ -393,6 +393,7 @@ public class XNATextBox : XNAControl
                     InputPosition = SelectionStartPosition + 1;
                     UnselectText();
 
+                    TextStartPosition = Math.Min(TextStartPosition, text.Length);
                     TextEndPosition = Math.Min(TextEndPosition, text.Length);
 
                     if (TextStartPosition > 0 && TextFitsBox())
@@ -554,6 +555,7 @@ public class XNATextBox : XNAControl
                     else
                         TextEndPosition = Math.Min(TextEndPosition, text.Length);
 
+                    TextStartPosition = Math.Min(TextStartPosition, text.Length);
                     if (TextStartPosition < TextEndPosition)
                         TextStartPosition = Math.Max(TextEndPosition - 1, 0);
 
