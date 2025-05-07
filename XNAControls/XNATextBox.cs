@@ -1036,8 +1036,9 @@ public class XNATextBox : XNAControl
     {
         if (IsValidSelection())
         {
-            text = text.Remove(SelectionStartPosition, SelectionEndPosition - SelectionStartPosition);
+            text = text.Remove(SelectionStartPosition, SelectionLength);
 
+            InputPosition = SelectionStartPosition;
             UnselectText();
 
             if (TextEndPosition > text.Length)
