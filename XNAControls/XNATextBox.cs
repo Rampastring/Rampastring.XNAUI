@@ -354,9 +354,6 @@ public class XNATextBox : XNAControl
             case '\x001b':  // ESC
                 return;
             default:
-                if (text.Length == MaximumTextLength)
-                    break;
-
                 // Don't allow typing characters that don't exist in the spritefont
                 if (Renderer.GetSafeString(character.ToString(), FontIndex) != character.ToString())
                     break;
@@ -364,17 +361,41 @@ public class XNATextBox : XNAControl
                 if (!AllowCharacterInput(character))
                     break;
 
-                text = text.Insert(InputPosition, character.ToString());
-                InputPosition++;
-
-                if (TextEndPosition >= text.Length - 1 ||
-                    InputPosition > TextEndPosition)
+                if (!IsValidSelection())
                 {
-                    TextEndPosition++;
+                    if (Text.Length >= MaximumTextLength)
+                        break;
 
-                    while (!TextFitsBox())
+                    text = text.Insert(InputPosition, character.ToString());
+                    InputPosition++;
+
+                    if (InputPosition > TextEndPosition)
                     {
-                        TextStartPosition++;
+                        TextEndPosition++;
+
+                        while (!TextFitsBox())
+                        {
+                            TextStartPosition++;
+                        }
+                    }
+                }
+                else
+                {
+                    text = text.Substring(0, SelectionStartPosition) + character.ToString() + text.Substring(SelectionEndPosition);
+                    InputPosition = SelectionStartPosition + 1;
+                    UnselectText();
+
+                    TextEndPosition = Math.Min(TextEndPosition, text.Length);
+
+                    if (TextStartPosition > 0 && TextFitsBox())
+                    {
+                        while (TextFitsBox() && TextStartPosition > 0)
+                        {
+                            TextStartPosition--;
+                        }
+
+                        if (TextStartPosition > 0)
+                            TextStartPosition++;
                     }
                 }
 
