@@ -1206,7 +1206,7 @@ public class XNATextBox : XNAControl
                     }
                 }
 
-                if (barTimer.TotalSeconds < BAR_ON_TIME)
+                if (barTimer.TotalSeconds < BAR_ON_TIME && !IsValidSelection())
                 {
                     FillRectangle(new Rectangle(barLocationX, 2, 1, Height - 4), Color.White);
                 }
