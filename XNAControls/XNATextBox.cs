@@ -371,12 +371,20 @@ public class XNATextBox : XNAControl
 
                     if (InputPosition > TextEndPosition)
                     {
-                        TextEndPosition++;
+                        TextEndPosition = InputPosition;
 
                         while (!TextFitsBox())
-                        {
                             TextStartPosition++;
-                        }
+                    }
+
+                    while (TextFitsBox() && TextEndPosition < text.Length)
+                    {
+                        TextEndPosition++;
+                    }
+
+                    if (!TextFitsBox())
+                    {
+                        TextEndPosition--;
                     }
                 }
                 else
