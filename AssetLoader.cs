@@ -1,21 +1,23 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using Microsoft.Xna.Framework.Audio;
-using Microsoft.Xna.Framework.Graphics;
-using Rampastring.Tools;
+﻿using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Content;
+using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Media;
+using Rampastring.Tools;
 using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.Formats;
 using SixLabors.ImageSharp.Formats.Png;
-using Color = Microsoft.Xna.Framework.Color;
+using SixLabors.ImageSharp.PixelFormats;
+using System;
+using System.Collections.Generic;
 using System.Globalization;
+using System.IO;
+using Color = Microsoft.Xna.Framework.Color;
 
 namespace Rampastring.XNAUI;
 
 /// <summary>
 /// A static class that provides easy-to-use methods
-/// for loading and generating assets such as textures and sounds.
+/// for loading and generating assets such as textures, animations, sounds.
 /// </summary>
 public static class AssetLoader
 {
@@ -28,6 +30,7 @@ public static class AssetLoader
     private static ContentManager contentManager;
 
     private static List<Texture2D> textureCache;
+    private static Dictionary<string, Animation> animationsCache;
     private static List<SoundEffect> soundCache;
 
     public static bool IsInitialized { get; private set; } = false;
@@ -47,6 +50,7 @@ public static class AssetLoader
         graphicsDevice = gd;
         AssetSearchPaths = new List<string>();
         textureCache = new List<Texture2D>();
+        animationsCache = new Dictionary<string, Animation>();
         soundCache = new List<SoundEffect>();
         contentManager = content;
     }
@@ -72,6 +76,33 @@ public static class AssetLoader
         }
 
         return CreateDummyTexture();
+    }
+
+    /// <summary>
+    /// Loads an animation with the specific name. If the animation isn't found from any
+    /// asset search path, returns a dummy animation with 1 frame.
+    /// </summary>
+    /// <param name="name">The name of the animation.</param>
+    /// <returns>The animation if it was found and could be loaded, otherwise a dummy animation.</returns>
+    public static Animation LoadAnimation(string name)
+    {
+        Animation cachedAnimation = null;
+
+        animationsCache.TryGetValue(name, out cachedAnimation);
+        if (cachedAnimation != null)
+            return cachedAnimation;
+        
+        IImageFormat imageFormat;
+        var image = LoadAnimationInternal(name, out imageFormat);
+        if (image != null)
+        {
+            cachedAnimation = new Animation(image, imageFormat);
+            animationsCache.Add(name, cachedAnimation);
+
+            return cachedAnimation;
+        }
+
+        return CreateDummyAnimation();
     }
 
     /// <summary>
@@ -110,9 +141,35 @@ public static class AssetLoader
         }
         catch (Exception ex)
         {
-            Logger.Log("AssetLoader.LoadTextureInternal: loading texture " + name + " failed! Message: " + ex.Message);
+            Logger.Log($"{nameof(AssetLoader)}.{nameof(LoadTextureInternal)}: loading texture {name} failed! Message: {ex.Message}");
         }
 
+        return null;
+    }
+
+    private static Image LoadAnimationInternal(string name, out IImageFormat imageFormat)
+    {
+        try
+        {
+            foreach (string searchPath in AssetSearchPaths)
+            {
+                FileInfo fileInfo = SafePath.GetFile(searchPath, name);
+
+                if (fileInfo.Exists)
+                {
+                    using FileStream fs = fileInfo.OpenRead();
+                    var animation = Image.Load(fs, out imageFormat);
+
+                    return animation;
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            Logger.Log($"{nameof(AssetLoader)}.{nameof(LoadAnimationInternal)}: loading animation {name} failed! Message: {ex.Message}");
+        }
+
+        imageFormat = null;
         return null;
     }
 
@@ -137,6 +194,14 @@ public static class AssetLoader
     private static Texture2D CreateDummyTexture()
     {
         return CreateTexture(new Color(255, 54, 244), 100, 100);
+    }
+
+    /// <summary>
+    /// Creates and returns a 100x100 pink square.
+    /// </summary>
+    private static Animation CreateDummyAnimation()
+    {
+        return new Animation(new Image<Rgba32>(100, 100, new Rgba32(255, 54, 244)));
     }
 
     /// <summary>
@@ -186,15 +251,40 @@ public static class AssetLoader
     {
         try
         {
-            using var stream = new MemoryStream();
-            image.Save(stream, new PngEncoder());
-            var texture = Texture2D.FromStream(graphicsDevice, stream);
-            PremultiplyAlpha(texture);
-            return texture;
+            if (image == null)
+                return null;
+
+            if (image is Image<Rgba32> rgba32Image)
+            {
+                Texture2D texture = new Texture2D(graphicsDevice, rgba32Image.Width, rgba32Image.Height, false, SurfaceFormat.Color);
+
+                Color[] colorData = new Color[rgba32Image.Width * rgba32Image.Height];
+
+                rgba32Image.ProcessPixelRows(pAcs =>
+                {
+                    for (int y = 0; y < pAcs.Height; y++)
+                    {
+                        Span<Rgba32> pixelRow = pAcs.GetRowSpan(y);
+
+                        for (int x = 0; x < pixelRow.Length; x++)
+                        {
+                            ref Rgba32 pixel = ref pixelRow[x];
+                            colorData[y * pAcs.Width + x] = new Color((byte)(pixel.R * pixel.A / 255), (byte)(pixel.G * pixel.A / 255), (byte)(pixel.B * pixel.A / 255), pixel.A);
+                        }
+                    }
+                });
+                texture.SetData(colorData);
+                return texture;
+            }
+            else
+            {
+                using var convertedImage = image.CloneAs<Rgba32>();
+                return TextureFromImage(convertedImage);
+            }
         }
         catch (Exception ex)
         {
-            Logger.Log("AssetLoader.TextureFromImage: failed to create texture! Message: " + ex.Message);
+            Logger.Log($"{nameof(AssetLoader)}.{nameof(TextureFromImage)}: failed to create texture! Message: {ex.Message}");
             return null;
         }
     }
@@ -225,7 +315,7 @@ public static class AssetLoader
             }
         }
 
-        Logger.Log("AssetLoader.LoadSound: Sound not found! " + name);
+        Logger.Log($"{nameof(AssetLoader)}.{nameof(LoadSound)}: sound not found! {name}");
 
         return null;
     }
@@ -243,7 +333,7 @@ public static class AssetLoader
         }
         catch (Exception ex)
         {
-            Logger.Log("Loading song " + name + " failed! Message: " + ex.Message);
+            Logger.Log($"{nameof(AssetLoader)}.{nameof(LoadSong)}: loading song {name} failed! Message: {ex.Message}");
             return null;
         }
     }
@@ -261,7 +351,7 @@ public static class AssetLoader
         }
         catch (Exception ex)
         {
-            Logger.Log("Loading shader effect " + name + " failed! Message: " + ex.Message);
+            Logger.Log($"{nameof(AssetLoader)}.{nameof(LoadEffect)}: loading shader effect {name} failed! Message: {ex.Message}");
             return null;
         }
     }
