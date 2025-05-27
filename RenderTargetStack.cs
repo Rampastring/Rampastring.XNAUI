@@ -93,7 +93,7 @@ internal static class RenderTargetStack
             case 2:
                 graphicsDevice.SetRenderTargets(context.RenderTarget, context.RenderTarget2); break;
             case 3:
-                graphicsDevice.SetRenderTargets(context.RenderTarget, context.RenderTarget2, context.RenderTarget3, context.RenderTarget4); break;
+                graphicsDevice.SetRenderTargets(context.RenderTarget, context.RenderTarget2, context.RenderTarget3); break;
             case 4:
                 graphicsDevice.SetRenderTargets(context.RenderTarget, context.RenderTarget2, context.RenderTarget3, context.RenderTarget4); break;
             default:
