@@ -904,15 +904,18 @@ public class XNAControl : DrawableGameComponent
 
     protected override void OnVisibleChanged(object sender, EventArgs args)
     {
-        if (Visible)
+        if (Initialized)
         {
-            if (DrawMode == ControlDrawMode.UNIQUE_RENDER_TARGET && RenderTarget == null)
-                RenderTarget = GetRenderTarget();
-        }
-        else
-        {
-            if (DrawMode == ControlDrawMode.UNIQUE_RENDER_TARGET && RenderTarget != null && FreeRenderTarget())
-                RenderTarget = null;
+            if (Visible)
+            {
+                if (DrawMode == ControlDrawMode.UNIQUE_RENDER_TARGET && RenderTarget == null)
+                    RenderTarget = GetRenderTarget();
+            }
+            else
+            {
+                if (DrawMode == ControlDrawMode.UNIQUE_RENDER_TARGET && RenderTarget != null && FreeRenderTarget())
+                    RenderTarget = null;
+            }
         }
 
         base.OnVisibleChanged(sender, args);
