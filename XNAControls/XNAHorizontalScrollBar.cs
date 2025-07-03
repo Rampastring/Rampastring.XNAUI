@@ -9,8 +9,11 @@ using Rampastring.XNAUI.XNAControls;
 namespace Rampastring.XNAUI.XNAControls;
 
 /// <summary>
-/// A horizontal scroll bar that can be utilized for various controls.
+/// A horizontal scroll bar that can be utilized for various other controls.
 /// </summary>
+/// /// <remarks>
+/// See also the sibling <see cref="XNAScrollBar"/> class.
+/// </remarks>
 public class XNAHorizontalScrollBar : XNAControl
 {
     private const int MIN_BUTTON_WIDTH = 10;
