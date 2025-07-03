@@ -1,4 +1,4 @@
-using Microsoft.Xna.Framework;
+﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
 using System;
 using System.Globalization;
@@ -175,19 +175,19 @@ public class XNAScrollPanel : XNAPanel
         
         ContentPanel.ChildAdded += ContentPanel_ChildAddedRemoved;
         ContentPanel.ChildRemoved += ContentPanel_ChildAddedRemoved;
-        AddChild(ContentPanel);
+        AddChildWithoutInitialize(ContentPanel);
         
         HorizontalScrollBar.Scrolled += HorizontalScrollBar_Scrolled;
         HorizontalScrollBar.MouseScrolledHorizontally += HorizontalScrollBar_MouseScrolledHorizontally;
         // additional handler for users without horizontal scroll
         HorizontalScrollBar.MouseScrolled += HorizontalScrollBar_MouseScrolled;
-        AddChild(HorizontalScrollBar);
+        AddChildWithoutInitialize(HorizontalScrollBar);
         
         VerticalScrollBar.Scrolled += VerticalScrollBar_Scrolled;
         VerticalScrollBar.MouseScrolled += VerticalScrollBar_MouseScrolled;
-        AddChild(VerticalScrollBar);
+        AddChildWithoutInitialize(VerticalScrollBar);
         
-        AddChild(CornerPanel);
+        AddChildWithoutInitialize(CornerPanel);
 
         if (Parent != null)
             Parent.ClientRectangleUpdated += Parent_ClientRectangleUpdated;
