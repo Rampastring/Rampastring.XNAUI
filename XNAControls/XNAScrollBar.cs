@@ -5,9 +5,11 @@ using System;
 namespace Rampastring.XNAUI.XNAControls;
 
 /// <summary>
-/// A vertical scroll bar, mainly for list boxes but it could also be utilized
-/// by other controls.
+/// A vertical scroll bar that can be utilized for various other controls.
 /// </summary>
+/// <remarks>
+/// See also the sibling <see cref="XNAHorizontalScrollBar"/> class.
+/// </remarks>
 public class XNAScrollBar : XNAControl
 {
     private const int MIN_BUTTON_HEIGHT = 10;
