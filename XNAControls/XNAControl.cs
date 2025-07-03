@@ -160,6 +160,16 @@ public class XNAControl : DrawableGameComponent
     /// Raised after the control is removed from children of this control.
     /// </summary>
     public event EventHandler<ControlEventArgs> ChildRemoved;
+    
+    /// <summary>
+    /// Raised before the control's name is changed.
+    /// </summary>
+    public event EventHandler NameChanging;
+    
+    /// <summary>
+    /// Raised after the control's name is changed.
+    /// </summary>
+    public event EventHandler NameChanged;
 
     #endregion
 
@@ -380,7 +390,20 @@ public class XNAControl : DrawableGameComponent
     /// Gets or sets the name of this control. The name is only an identifier
     /// and does not affect functionality.
     /// </summary>
-    public string Name { get; set; }
+    public string Name
+    {
+        get => name;
+        set
+        {
+            if (name == value)
+                return;
+            
+            NameChanging?.Invoke(this, EventArgs.Empty);
+            name = value;
+            NameChanged?.Invoke(this, EventArgs.Empty);
+        }
+    }
+
     public Color RemapColor { get; set; } = Color.White;
 
     /// <summary>
@@ -1487,6 +1510,7 @@ public class XNAControl : DrawableGameComponent
     #region Draw helpers
 
     private Point drawPoint;
+    private string name;
 
     /// <summary>
     /// Draws a texture relative to the control's location.
