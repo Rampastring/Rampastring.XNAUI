@@ -125,9 +125,34 @@ public class XNAControl : DrawableGameComponent
     public event EventHandler SelectedChanged;
 
     /// <summary>
-    /// Raised when the control's parent is changed.
+    /// Raised before the control's parent is changed.
+    /// </summary>
+    public event EventHandler ParentChanging;
+    
+    /// <summary>
+    /// Raised after the control's parent is changed.
     /// </summary>
     public event EventHandler ParentChanged;
+    
+    /// <summary>
+    /// Raised before the control is added to children of this control.
+    /// </summary>
+    public event EventHandler<ControlEventArgs> ChildAdding;
+    
+    /// <summary>
+    /// Raised after the control is added to children of this control.
+    /// </summary>
+    public event EventHandler<ControlEventArgs> ChildAdded;
+    
+    /// <summary>
+    /// Raised before the control is removed from children of this control.
+    /// </summary>
+    public event EventHandler<ControlEventArgs> ChildRemoving;
+    
+    /// <summary>
+    /// Raised after the control is removed from children of this control.
+    /// </summary>
+    public event EventHandler<ControlEventArgs> ChildRemoved;
 
     #endregion
 
@@ -141,6 +166,7 @@ public class XNAControl : DrawableGameComponent
         get { return parent; }
         set
         {
+            ParentChanging?.Invoke(this, EventArgs.Empty);
             parent = value;
             ParentChanged?.Invoke(this, EventArgs.Empty);
         }
@@ -820,10 +846,12 @@ public class XNAControl : DrawableGameComponent
     /// <param name="child">The child control.</param>
     private void AddChildImmediate(XNAControl child)
     {
+        OnChildAdding(child);
         InitChild(child);
         child.Initialize();
         _children.Add(child);
         ReorderControls();
+        OnChildAdded(child);
     }
 
     /// <summary>
@@ -832,9 +860,11 @@ public class XNAControl : DrawableGameComponent
     /// <param name="child">The child control.</param>
     private void AddChildImmediateWithoutInitialize(XNAControl child)
     {
+        OnChildAdding(child);
         InitChild(child);
         _children.Add(child);
         ReorderControls();
+        OnChildAdded(child);
     }
 
     /// <summary>
@@ -844,10 +874,12 @@ public class XNAControl : DrawableGameComponent
     /// <param name="child">The child control.</param>
     private void AddChildToFirstIndexImmediate(XNAControl child)
     {
+        OnChildAdding(child);
         InitChild(child);
         child.Initialize();
         _children.Insert(0, child);
         ReorderControls();
+        OnChildAdded(child);
     }
 
     private void InitChild(XNAControl child)
@@ -904,12 +936,15 @@ public class XNAControl : DrawableGameComponent
     /// <param name="child">The child control to remove.</param>
     private void RemoveChildImmediate(XNAControl child)
     {
-        if (_children.Remove(child))
+        if (_children.Contains(child))
         {
+            OnChildRemoving(child);
+            _children.Remove(child);
             child.UpdateOrderChanged -= Child_UpdateOrderChanged;
             child.DrawOrderChanged -= Child_DrawOrderChanged;
             child.Parent = null;
             ReorderControls();
+            OnChildRemoved(child);
         }
     }
 
@@ -1700,5 +1735,37 @@ public class XNAControl : DrawableGameComponent
     public virtual void OnSelectedChanged()
     {
         SelectedChanged?.Invoke(this, EventArgs.Empty);
+    }
+    
+    /// <summary>
+    /// Called before the control is added to children of this control.
+    /// </summary>
+    public virtual void OnChildAdding(XNAControl child)
+    {
+        ChildAdding?.Invoke(this, new(child));
+    }
+    
+    /// <summary>
+    /// Called after the control is added to children of this control.
+    /// </summary>
+    public virtual void OnChildAdded(XNAControl child)
+    {
+        ChildAdded?.Invoke(this, new(child));
+    }
+    
+    /// <summary>
+    /// Called before the control is removed from children of this control.
+    /// </summary>
+    public virtual void OnChildRemoving(XNAControl child)
+    {
+        ChildRemoving?.Invoke(this, new(child));
+    }
+    
+    /// <summary>
+    /// Called after the control is removed from children of this control.
+    /// </summary>
+    public virtual void OnChildRemoved(XNAControl child)
+    {
+        ChildRemoved?.Invoke(this, new(child));
     }
 }
