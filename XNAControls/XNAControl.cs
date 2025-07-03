@@ -72,10 +72,16 @@ public class XNAControl : DrawableGameComponent
     public event EventHandler MouseOnControl;
 
     /// <summary>
-    /// Raised when the scroll wheel is used while the cursor is inside
-    /// the control.
+    /// Raised when the scroll wheel is used to scroll vertically
+    /// while the cursor is inside the control.
     /// </summary>
     public event EventHandler MouseScrolled;
+    
+    /// <summary>
+    /// Raised when the scroll wheel is used to scroll horizontally
+    /// while the cursor is inside the control.
+    /// </summary>
+    public event EventHandler MouseScrolledHorizontally;
 
     /// <summary>
     /// Raised when the left mouse button is clicked (pressed and released)
@@ -1307,6 +1313,13 @@ public class XNAControl : DrawableGameComponent
                 if (!isInputCaptured)
                     OnMouseScrolled();
             }
+            
+            if (Cursor.HorizontalScrollWheelValue != 0)
+            {
+                if (!isInputCaptured)
+                    OnMouseScrolled();
+            }
+            
         }
         else if (CursorOnControl)
         {
@@ -1729,6 +1742,15 @@ public class XNAControl : DrawableGameComponent
     public virtual void OnMouseScrolled()
     {
         MouseScrolled?.Invoke(this, EventArgs.Empty);
+    }
+    
+    /// <summary>
+    /// Called when the scroll wheel has been scrolled horizontally
+    /// on the control's client rectangle.
+    /// </summary>
+    public virtual void OnMouseScrolledHorizontally()
+    {
+        MouseScrolledHorizontally?.Invoke(this, EventArgs.Empty);
     }
 
     /// <summary>
