@@ -1,4 +1,4 @@
-﻿using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
 using System;
 using System.Globalization;
@@ -71,6 +71,7 @@ public class XNAScrollPanel : XNAPanel
     
     // TODO switching off scrolling and scrollbars
     // TODO automatic scrollbar switching off
+    // TODO check for graceful handling of controls bigger than viewfinder
     
     #endregion
     
@@ -97,8 +98,8 @@ public class XNAScrollPanel : XNAPanel
         {
             value = new Point
             {
-                X = Math.Clamp(value.X, -(ContentSize.X - ViewSize.X), 0),
-                Y = Math.Clamp(value.Y, -(ContentSize.Y - ViewSize.Y), 0),
+                X = Math.Clamp(value.X, Math.Min(0, -(ContentSize.X - ViewSize.X)), 0),
+                Y = Math.Clamp(value.Y, Math.Min(0, -(ContentSize.Y - ViewSize.Y)), 0),
             };
 
             if (value == ContentPanel.ClientRectangle.Location)
@@ -214,7 +215,7 @@ public class XNAScrollPanel : XNAPanel
         switch (key)
         {
             case "AllowKeyboardInput":
-                AllowKeyboardInput = bool.Parse(value);
+                AllowKeyboardInput = Conversions.BooleanFromString(value, true);
                 return;
             case "ScrollStep":
                 ScrollStep = int.Parse(value);
@@ -232,7 +233,7 @@ public class XNAScrollPanel : XNAPanel
                 OverscrollMargin = OverscrollMargin with { Y = int.Parse(value, CultureInfo.InvariantCulture) };
                 return;
             case "DrawBorders":  // overtaking this one since behavior needs to be adjusted
-                DrawBorders = bool.Parse(value);
+                DrawBorders = Conversions.BooleanFromString(value, true);
                 RecalculateScrollbars();
                 return;
             case "Padding":
