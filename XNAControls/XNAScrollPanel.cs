@@ -172,8 +172,15 @@ public class XNAScrollPanel : XNAPanel
         DrawMode = ControlDrawMode.UNIQUE_RENDER_TARGET; //so controls can be clipped
         HorizontalScrollBar = new XNAHorizontalScrollBar(WindowManager);
         VerticalScrollBar = new XNAScrollBar(WindowManager);
-        ContentPanel = new XNAPanel(WindowManager) { DrawBorders = false };
-        CornerPanel = new XNAPanel(WindowManager) { DrawBorders = false };
+        ContentPanel = new XNAPanel(WindowManager)
+        {
+            DrawBorders = false,
+        };
+        CornerPanel = new XNAPanel(WindowManager)
+        {
+            DrawBorders = false,
+            Alpha = 1.0f,
+        };
 
         NameChanged += XNAScrollPanel_NameChanged;
         
@@ -194,6 +201,10 @@ public class XNAScrollPanel : XNAPanel
         
         VerticalScrollBar.Scrolled += VerticalScrollBar_Scrolled;
         VerticalScrollBar.MouseScrolled += VerticalScrollBar_MouseScrolled;
+        
+        // inherit the same texture by default (accepting better solutions)
+        CornerPanel.BackgroundTexture = BackgroundTexture;
+        CornerPanel.PanelBackgroundDrawMode = PanelBackgroundDrawMode;
         
         ComposeControls();
 
