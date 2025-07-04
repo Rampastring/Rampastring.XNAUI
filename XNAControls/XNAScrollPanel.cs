@@ -1,4 +1,4 @@
-﻿using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
 using System;
 using System.Globalization;
@@ -156,12 +156,12 @@ public class XNAScrollPanel : XNAPanel
     /// <summary>
     /// Whether there is something to scroll horizontally.
     /// </summary>
-    public bool IsOverflowingHorizontally => ViewSize.X > ContentSize.X;
+    public bool IsOverflowingHorizontally => ViewSize.X < ContentSize.X;
     
     /// <summary>
     /// Whether there is something to scroll vertically.
     /// </summary>
-    public bool IsOverflowingVertically => ViewSize.Y > ContentSize.Y;
+    public bool IsOverflowingVertically => ViewSize.Y < ContentSize.Y;
     
     #endregion
     
