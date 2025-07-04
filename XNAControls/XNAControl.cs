@@ -410,6 +410,13 @@ public class XNAControl : DrawableGameComponent
     public bool HandlesDragging { get; protected set; } = false;
 
     private bool CursorOnControl = false;
+    
+    /// <summary>
+    /// When an exclusive control input locks control - <see cref="OnMouseEnter"/> doesn't get called,
+    /// even if the control gives up the lock. This is where this field is useful
+    /// </summary>
+    private bool delayedMouseEnter = false;
+    
     private float alpha = 1.0f;
     public virtual float Alpha
     {
@@ -1249,7 +1256,16 @@ public class XNAControl : DrawableGameComponent
             if (!CursorOnControl)
             {
                 CursorOnControl = true;
+
+                if (!isInputCaptured)
+                    OnMouseEnter();
+                else
+                    delayedMouseEnter = true;
+            }
+            else if (!isInputCaptured && delayedMouseEnter)
+            {
                 OnMouseEnter();
+                delayedMouseEnter = false;
             }
 
             isIteratingChildren = true;
@@ -1348,6 +1364,8 @@ public class XNAControl : DrawableGameComponent
         {
             if (!isInputCaptured)
                 OnMouseLeave();
+            else
+                delayedMouseEnter = false;
 
             CursorOnControl = false;
             isRightPressedOn = false;
