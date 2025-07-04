@@ -1,4 +1,4 @@
-﻿using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
 using System;
 using System.Globalization;
@@ -159,35 +159,28 @@ public class XNAScrollPanel : XNAPanel
         VerticalScrollBar = new XNAScrollBar(WindowManager);
         ContentPanel = new XNAPanel(WindowManager) { DrawBorders = false };
         CornerPanel = new XNAPanel(WindowManager) { DrawBorders = false };
+
+        NameChanged += XNAScrollPanel_NameChanged;
         
         ClientRectangleUpdated += XNAScrollPanel_ClientRectangleUpdated;
     }
 
     public override void Initialize()
     {
-        // by now the name should be set, TODO NameChanged event or Name becoming virtual property
-        HorizontalScrollBar.Name = $"{Name}.HorizontalScrollBar";
-        VerticalScrollBar.Name = $"{Name}.VerticalScrollBar";
-        ContentPanel.Name = $"{Name}.ContentPanel";
-        CornerPanel.Name = $"{Name}.CornerPanel";
-        
         base.Initialize();
         
         ContentPanel.ChildAdded += ContentPanel_ChildAddedRemoved;
         ContentPanel.ChildRemoved += ContentPanel_ChildAddedRemoved;
-        AddChildWithoutInitialize(ContentPanel);
         
         HorizontalScrollBar.Scrolled += HorizontalScrollBar_Scrolled;
         HorizontalScrollBar.MouseScrolledHorizontally += HorizontalScrollBar_MouseScrolledHorizontally;
         // additional handler for users without horizontal scroll
         HorizontalScrollBar.MouseScrolled += HorizontalScrollBar_MouseScrolled;
-        AddChildWithoutInitialize(HorizontalScrollBar);
         
         VerticalScrollBar.Scrolled += VerticalScrollBar_Scrolled;
         VerticalScrollBar.MouseScrolled += VerticalScrollBar_MouseScrolled;
-        AddChildWithoutInitialize(VerticalScrollBar);
         
-        AddChildWithoutInitialize(CornerPanel);
+        ComposeControls();
 
         if (Parent != null)
             Parent.ClientRectangleUpdated += Parent_ClientRectangleUpdated;
@@ -195,6 +188,14 @@ public class XNAScrollPanel : XNAPanel
         ParentChanging += XNAScrollPanel_ParentChanging;
         
         ParentChanged += XNAScrollPanel_ParentChanged;
+    }
+
+    protected virtual void ComposeControls()
+    {
+        AddChild(ContentPanel);
+        AddChild(HorizontalScrollBar);
+        AddChild(VerticalScrollBar);
+        AddChild(CornerPanel);
     }
 
     public override void Kill()
@@ -245,6 +246,14 @@ public class XNAScrollPanel : XNAPanel
     }
 
     #region Control behavior / Handlers
+    
+    private void XNAScrollPanel_NameChanged(object sender, EventArgs e)
+    {
+        HorizontalScrollBar.Name = $"{Name}.HorizontalScrollBar";
+        VerticalScrollBar.Name = $"{Name}.VerticalScrollBar";
+        ContentPanel.Name = $"{Name}.ContentPanel";
+        CornerPanel.Name = $"{Name}.CornerPanel";
+    }
     
     #region Recalculation handlers
     
