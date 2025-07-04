@@ -130,8 +130,20 @@ public class XNAScrollPanel : XNAPanel
         set => CurrentContentPanelPosition = new(-value.X, -value.Y);
     }
     
+    protected Rectangle ViewWindowRectangle
+    {
+        get
+        {
+            var size = ViewSize;
+            var factor = GetTotalScalingRecursive();
+            
+            return new(GetWindowPoint(),
+                new(size.X * factor, size.Y * factor));
+        }
+    }
+
     /// <summary>
-    /// The "viewfinder" area over the <see cref="ContentPanel"/>.
+    /// The viewport area over the <see cref="ContentPanel"/>.
     /// </summary>
     public Rectangle CurrentViewRectangle => new(CurrentViewPosition, ViewSize);
     
@@ -304,6 +316,9 @@ public class XNAScrollPanel : XNAPanel
     
     public override void OnMouseScrolled()
     {
+        if (!ViewWindowRectangle.Contains(Cursor.Location))
+            return;
+        
         // scroll horizontally if no vertical scroll needed to ease the life of users without horizontal scroll
         if (!IsOverflowingVertically)
             CurrentViewPosition = CurrentViewPosition with { X = CurrentViewPosition.X - Cursor.ScrollWheelValue * ScrollStep };
@@ -315,6 +330,9 @@ public class XNAScrollPanel : XNAPanel
     
     public override void OnMouseScrolledHorizontally()
     {
+        if (!ViewWindowRectangle.Contains(Cursor.Location))
+            return;
+        
         CurrentViewPosition = CurrentViewPosition with { X = CurrentViewPosition.X - Cursor.HorizontalScrollWheelValue * ScrollStep };
         
         base.OnMouseScrolled();
