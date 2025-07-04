@@ -425,7 +425,7 @@ public class XNAScrollPanel : XNAPanel
                 - (DrawBorders ? 1 : 0),
             Width = Width
                 - (DrawBorders ? 2 : 0)
-                - (VerticalScrollBar.Visible ? VerticalScrollBar.X : 0),
+                - (VerticalScrollBar.Visible ? VerticalScrollBar.ScrollWidth : 0),
             Height = HorizontalScrollBar.ScrollHeight,
         };
 
@@ -437,8 +437,8 @@ public class XNAScrollPanel : XNAPanel
             Y = DrawBorders ? 1 : 0,
             Width = VerticalScrollBar.ScrollWidth,
             Height = Height 
-                - (DrawBorders ? 1 : 0)
-                - (HorizontalScrollBar.Visible ? HorizontalScrollBar.Y : 0),
+                - (DrawBorders ? 2 : 0)
+                - (HorizontalScrollBar.Visible ? HorizontalScrollBar.ScrollHeight : 0),
         };
 
         CornerPanel.ClientRectangle = new()
@@ -466,10 +466,10 @@ public class XNAScrollPanel : XNAPanel
         CurrentViewPosition = new Point
         {
             X = Math.Clamp(value: CurrentViewRectangle.X,
-                min: rect.X + rect.Width - CurrentViewRectangle.X,
+                min: Math.Min(rect.X + rect.Width - CurrentViewRectangle.Width, rect.X),
                 max: rect.X),
             Y = Math.Clamp(value: CurrentViewRectangle.Y,
-                min: rect.Y + rect.Height - CurrentViewRectangle.Y,
+                min: Math.Min(rect.Y + rect.Height - CurrentViewRectangle.Height, rect.Y),
                 max: rect.Y),
         };
     }
