@@ -1,4 +1,4 @@
-using Microsoft.Xna.Framework;
+﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
 using System;
 using System.Globalization;
@@ -71,7 +71,6 @@ public class XNAScrollPanel : XNAPanel
     
     // TODO switching off scrolling and scrollbars
     // TODO automatic scrollbar switching off
-    // TODO check for graceful handling of controls bigger than viewfinder
     
     #endregion
     
@@ -117,12 +116,14 @@ public class XNAScrollPanel : XNAPanel
     /// </summary>
     public Point ViewSize => new()
         {
+            // not sure whether we should calculate "supposed" value manually
+            // or use current specific values that can be changed later this frame
             X = VerticalScrollBar.Visible ? VerticalScrollBar.X : Width,
             Y = HorizontalScrollBar.Visible ? HorizontalScrollBar.Y : Height,
         };
     
     /// <summary>
-    /// Location of the "viewfinder" over the <see cref="ContentPanel"/>.
+    /// Location of the viewport over the <see cref="ContentPanel"/>.
     /// </summary>
     public Point CurrentViewPosition
     {
@@ -461,8 +462,23 @@ public class XNAScrollPanel : XNAPanel
 
     #region Scroll methods
 
+    /// <summary>
+    /// Scrolls to the specified rectangle.
+    /// </summary>
+    /// <remarks>
+    /// If the rectangle is bigger than the viewport - scrolls to it's top/left bounds.
+    /// </remarks>
+    /// <param name="rect">The rectangle (in local coordinates) to scroll to.</param>
     public void ScrollTo(Rectangle rect)
     {
+        // Math.Min call inside the calculation is responsible for handling controls bigger
+        // than the viewport (basically makes the viewport snap to top left corner, or top/left
+        // sides separately if it overflows on only one side).
+        
+        // As an alternative implementation you might want to have the viewport scroll to
+        // the closest part of the control. To do that simply flip min and max values or flip
+        // places of CurrentViewRectangle and rect in the calculation.
+        
         CurrentViewPosition = new Point
         {
             X = Math.Clamp(value: CurrentViewRectangle.X,
@@ -474,8 +490,16 @@ public class XNAScrollPanel : XNAPanel
         };
     }
 
+    /// <summary>
+    /// Scrolls to the specified point.
+    /// </summary>
+    /// <param name="point">The point (in local coordinates) to scroll to.</param>
     public void ScrollTo(Point point) => ScrollTo(new Rectangle(point, size: Point.Zero));
     
+    /// <summary>
+    /// Scrolls to the specified child control.
+    /// </summary>
+    /// <param name="control">The child control of <see cref="ContentPanel"/> to scroll to.</param>
     public void ScrollToChildControl(XNAControl control) => ScrollTo(control.ClientRectangle);
     
     private void ScrollUp() => CurrentViewPosition = CurrentViewPosition with { Y = CurrentViewPosition.Y - ScrollStep };
