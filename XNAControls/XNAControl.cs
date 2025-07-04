@@ -1317,7 +1317,7 @@ public class XNAControl : DrawableGameComponent
             if (Cursor.HorizontalScrollWheelValue != 0)
             {
                 if (!isInputCaptured)
-                    OnMouseScrolled();
+                    OnMouseScrolledHorizontally();
             }
             
         }
