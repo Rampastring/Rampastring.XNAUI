@@ -1,4 +1,4 @@
-using Microsoft.Xna.Framework;
+﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
 using System;
 using System.Globalization;
@@ -83,6 +83,10 @@ public class XNAScrollPanel : XNAPanel
         private set
         {
             ContentPanel.ClientRectangle = ContentPanel.ClientRectangle with { Size = value };
+            
+            HorizontalScrollBar.Length = value.X;
+            VerticalScrollBar.Length = value.Y;
+            
             RecalculateScrollbars();
         }
     }
@@ -90,7 +94,7 @@ public class XNAScrollPanel : XNAPanel
     /// <summary>
     /// The physical offset of the <see cref="ContentPanel"/>.
     /// </summary>
-    private Point CurrentContentPanelPosition
+    protected Point CurrentContentPanelPosition
     {
         get => ContentPanel.ClientRectangle.Location;
         set
@@ -116,8 +120,6 @@ public class XNAScrollPanel : XNAPanel
     /// </summary>
     public Point ViewSize => new()
         {
-            // not sure whether we should calculate "supposed" value manually
-            // or use current specific values that can be changed later this frame
             X = VerticalScrollBar.Visible ? VerticalScrollBar.X : Width,
             Y = HorizontalScrollBar.Visible ? HorizontalScrollBar.Y : Height,
         };
@@ -182,8 +184,8 @@ public class XNAScrollPanel : XNAPanel
     {
         base.Initialize();
         
-        ContentPanel.ChildAdded += ContentPanel_ChildAddedRemoved;
-        ContentPanel.ChildRemoved += ContentPanel_ChildAddedRemoved;
+        ContentPanel.ChildAdded += ContentPanel_ChildAdded;
+        ContentPanel.ChildRemoved += ContentPanel_ChildRemoved;
         
         HorizontalScrollBar.Scrolled += HorizontalScrollBar_Scrolled;
         HorizontalScrollBar.MouseScrolledHorizontally += HorizontalScrollBar_MouseScrolledHorizontally;
@@ -213,8 +215,13 @@ public class XNAScrollPanel : XNAPanel
 
     public override void Kill()
     {
-        ContentPanel.ChildAdded -= ContentPanel_ChildAddedRemoved;
-        ContentPanel.ChildRemoved -= ContentPanel_ChildAddedRemoved;
+        ContentPanel.ChildAdded -= ContentPanel_ChildAdded;
+        ContentPanel.ChildRemoved -= ContentPanel_ChildRemoved;
+
+        // this is needed because some of the children may be removed after ChildRemoved
+        // handler was removed, thus the subscription won't be removed otherwise
+        foreach (var child in ContentPanel.Children)
+            child.ClientRectangleUpdated -= Control_ClientRectangleUpdated;
         
         ParentChanged -= Parent_ClientRectangleUpdated;
 
@@ -279,10 +286,22 @@ public class XNAScrollPanel : XNAPanel
     private void XNAScrollPanel_ClientRectangleUpdated(object sender, EventArgs e)
         => RecalculateScrollbars();
 
-    private void ContentPanel_ChildAddedRemoved(object o, ControlEventArgs controlEventArgs)
+    private void ContentPanel_ChildAdded(object o, ControlEventArgs e)
+    {
+        if (e.Control.ClientRectangle != Rectangle.Empty)
+            RecalculateContentSize();
+
+        e.Control.ClientRectangleUpdated += Control_ClientRectangleUpdated;
+    }
+    
+    void Control_ClientRectangleUpdated(object sender, EventArgs args)
+        => RecalculateContentSize();
+
+    private void ContentPanel_ChildRemoved(object o, ControlEventArgs e)
     {
         RecalculateContentSize();
-        RecalculateScrollbars();
+
+        e.Control.ClientRectangleUpdated -= Control_ClientRectangleUpdated;
     }
     
     private void XNAScrollPanel_ParentChanged(object sender, EventArgs e)
@@ -372,7 +391,7 @@ public class XNAScrollPanel : XNAPanel
         base.Update(gameTime);
     }
 
-    private void HandleScrollKeyDown(GameTime gameTime, Action action)
+    protected virtual void HandleScrollKeyDown(GameTime gameTime, Action action)
     {
         if (_scrollKeyTime.Equals(TimeSpan.Zero))
             action();
@@ -403,8 +422,13 @@ public class XNAScrollPanel : XNAPanel
 
     #region Recalculation methods
     
-    protected void RecalculateContentSize()
+    /// <remarks>
+    /// If it's known that the size can only grow when calling this method -
+    /// use <see cref="EnlargeContentSizeForRectangle"/> instead.
+    /// </remarks>
+    protected virtual void RecalculateContentSize()
     {
+        // TODO profile and perhaps optimize this via sorted array of max control sizes
         Point contentSize = ContentPanel.Children
             .Select(c => new Point(c.Right, c.Bottom))
             .Aggregate(Point.Zero, (accumulated, next) 
@@ -416,16 +440,19 @@ public class XNAScrollPanel : XNAPanel
     /// <summary>
     /// Readjusts the scrollbar sizes, max values etc.
     /// </summary>
-    protected void RecalculateScrollbars()
+    protected virtual void RecalculateScrollbars()
     {
+        int border = DrawBorders ? 1 : 0;
+        int border2x = border * 2;
+        
         HorizontalScrollBar.ClientRectangle = new()
         {
-            X = DrawBorders ? 1 : 0,
+            X = border,
             Y = Height
                 - HorizontalScrollBar.ScrollHeight 
-                - (DrawBorders ? 1 : 0),
+                - border,
             Width = Width
-                - (DrawBorders ? 2 : 0)
+                - border2x
                 - (VerticalScrollBar.Visible ? VerticalScrollBar.ScrollWidth : 0),
             Height = HorizontalScrollBar.ScrollHeight,
         };
@@ -434,23 +461,21 @@ public class XNAScrollPanel : XNAPanel
         {
             X = Width
                 - VerticalScrollBar.ScrollWidth 
-                - (DrawBorders ? 1 : 0),
-            Y = DrawBorders ? 1 : 0,
+                - border,
+            Y = border,
             Width = VerticalScrollBar.ScrollWidth,
             Height = Height 
-                - (DrawBorders ? 2 : 0)
+                - border2x
                 - (HorizontalScrollBar.Visible ? HorizontalScrollBar.ScrollHeight : 0),
         };
 
         CornerPanel.ClientRectangle = new()
         {
             Location = ViewSize,
-            Size = ClientRectangle.Size - ViewSize - (DrawBorders ? new Point(1) : Point.Zero),
+            Size = ClientRectangle.Size - ViewSize - new Point(border),
         };
         CornerPanel.Visible = HorizontalScrollBar.Visible && VerticalScrollBar.Visible;
         
-        HorizontalScrollBar.Length = ContentSize.X;
-        VerticalScrollBar.Length = ContentSize.Y;
         HorizontalScrollBar.DisplayedPixelCount = ViewSize.X;
         VerticalScrollBar.DisplayedPixelCount = ViewSize.Y;
         
@@ -469,7 +494,7 @@ public class XNAScrollPanel : XNAPanel
     /// If the rectangle is bigger than the viewport - scrolls to it's top/left bounds.
     /// </remarks>
     /// <param name="rect">The rectangle (in local coordinates) to scroll to.</param>
-    public void ScrollTo(Rectangle rect)
+    public virtual void ScrollTo(Rectangle rect)
     {
         // Math.Min call inside the calculation is responsible for handling controls bigger
         // than the viewport (basically makes the viewport snap to top left corner, or top/left
