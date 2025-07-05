@@ -212,7 +212,6 @@ public class XNAScrollPanel : XNAPanel
             Parent.ClientRectangleUpdated += Parent_ClientRectangleUpdated;
 
         ParentChanging += XNAScrollPanel_ParentChanging;
-        
         ParentChanged += XNAScrollPanel_ParentChanged;
     }
 
@@ -234,7 +233,7 @@ public class XNAScrollPanel : XNAPanel
         foreach (var child in ContentPanel.Children)
             child.ClientRectangleUpdated -= Control_ClientRectangleUpdated;
         
-        ParentChanged -= Parent_ClientRectangleUpdated;
+        ParentChanged -= XNAScrollPanel_ParentChanged;
 
         if (Parent != null)
             Parent.ClientRectangleUpdated -= Parent_ClientRectangleUpdated;
@@ -293,6 +292,14 @@ public class XNAScrollPanel : XNAPanel
         if (Parent != null)
             Parent.ClientRectangleUpdated -= Parent_ClientRectangleUpdated;
     }
+        
+    private void XNAScrollPanel_ParentChanged(object sender, EventArgs e)
+    {
+        if (Parent != null)
+            Parent.ClientRectangleUpdated += Parent_ClientRectangleUpdated;
+        
+        RecalculateScrollbars();
+    }
     
     private void XNAScrollPanel_ClientRectangleUpdated(object sender, EventArgs e)
         => RecalculateScrollbars();
@@ -313,14 +320,6 @@ public class XNAScrollPanel : XNAPanel
         RecalculateContentSize();
 
         e.Control.ClientRectangleUpdated -= Control_ClientRectangleUpdated;
-    }
-    
-    private void XNAScrollPanel_ParentChanged(object sender, EventArgs e)
-    {
-        if (Parent != null)
-            Parent.ClientRectangleUpdated += Parent_ClientRectangleUpdated;
-        
-        RecalculateScrollbars();
     }
     
     private void Parent_ClientRectangleUpdated(object sender, EventArgs e)
