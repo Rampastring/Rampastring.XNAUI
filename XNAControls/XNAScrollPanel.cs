@@ -68,7 +68,7 @@ public class XNAScrollPanel : XNAPanel
     }
     
     private Point _overscrollMargin;
-    
+
     /// <summary>
     /// How much can the content be "overscrolled", used for the purposes of inner panel size calculation.
     /// </summary>
@@ -87,9 +87,21 @@ public class XNAScrollPanel : XNAPanel
         }
     }
     
-    // TODO switching off scrolling and scrollbars
-    // TODO automatic scrollbar switching off
-    
+    private bool _drawBorders;
+
+    public override bool DrawBorders
+    {
+        get => _drawBorders;
+        set
+        {
+            if (_drawBorders == value)
+                return;
+            
+            _drawBorders = value;
+            RecalculateScrollbars();
+        }
+    }
+
     #endregion
     
     /// <summary>
@@ -138,7 +150,7 @@ public class XNAScrollPanel : XNAPanel
     }
     
     /// <summary>
-    /// The space that can be displayed by the control at once.
+    /// The size of content that can be displayed by the control at once.
     /// </summary>
     public Point ViewSize => new()
         {
@@ -183,9 +195,11 @@ public class XNAScrollPanel : XNAPanel
     
     public XNAScrollPanel(WindowManager windowManager) : base(windowManager)
     {
-        DrawMode = ControlDrawMode.UNIQUE_RENDER_TARGET; //so controls can be clipped
+        DrawMode = ControlDrawMode.UNIQUE_RENDER_TARGET;  // so controls can be clipped
+        
         HorizontalScrollBar = new XNAHorizontalScrollBar(WindowManager);
         VerticalScrollBar = new XNAScrollBar(WindowManager);
+        
         ContentPanel = new XNAPanel(WindowManager)
         {
             DrawBorders = false,
@@ -266,24 +280,23 @@ public class XNAScrollPanel : XNAPanel
             case "ScrollStep":
                 ScrollStep = int.Parse(value);
                 return;
-            case "OverscrollMarginSize":
+            case "OverscrollMargin":
                 string[] size = value.Split(',');
                 OverscrollMargin = new(
                     int.Parse(size[0], CultureInfo.InvariantCulture),
                     int.Parse(size[1], CultureInfo.InvariantCulture));
                 return;
-            case "OverscrollMarginWidth":
+            case "OverscrollMarginX":
                 OverscrollMargin = OverscrollMargin with { X = int.Parse(value, CultureInfo.InvariantCulture) };
                 return;
-            case "OverscrollMarginHeight":
+            case "OverscrollMarginY":
                 OverscrollMargin = OverscrollMargin with { Y = int.Parse(value, CultureInfo.InvariantCulture) };
                 return;
             case "DrawBorders":  // overtaking this one since behavior needs to be adjusted
                 DrawBorders = Conversions.BooleanFromString(value, true);
                 RecalculateScrollbars();
                 return;
-            case "Padding":
-                // padding is invalid for this control
+            case "Padding":  // padding is invalid for this control
                 return;
         }
 
@@ -558,7 +571,7 @@ public class XNAScrollPanel : XNAPanel
         // the closest part of the control. To do that simply flip min and max values or flip
         // places of CurrentViewRectangle and rect in the calculation.
         
-        CurrentViewPosition = new Point
+        CurrentViewPosition = new()
         {
             X = Math.Clamp(value: CurrentViewRectangle.X,
                 min: Math.Min(rect.X + rect.Width - CurrentViewRectangle.Width, rect.X),
