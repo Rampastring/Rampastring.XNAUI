@@ -72,10 +72,16 @@ public class XNAControl : DrawableGameComponent
     public event EventHandler MouseOnControl;
 
     /// <summary>
-    /// Raised when the scroll wheel is used while the cursor is inside
-    /// the control.
+    /// Raised when the scroll wheel is used to scroll vertically
+    /// while the cursor is inside the control.
     /// </summary>
     public event EventHandler MouseScrolled;
+    
+    /// <summary>
+    /// Raised when the scroll wheel is used to scroll horizontally
+    /// while the cursor is inside the control.
+    /// </summary>
+    public event EventHandler MouseScrolledHorizontally;
 
     /// <summary>
     /// Raised when the left mouse button is clicked (pressed and released)
@@ -112,9 +118,44 @@ public class XNAControl : DrawableGameComponent
     public event EventHandler SelectedChanged;
 
     /// <summary>
-    /// Raised when the control's parent is changed.
+    /// Raised before the control's parent is changed.
+    /// </summary>
+    public event EventHandler ParentChanging;
+    
+    /// <summary>
+    /// Raised after the control's parent is changed.
     /// </summary>
     public event EventHandler ParentChanged;
+    
+    /// <summary>
+    /// Raised before the control is added to children of this control.
+    /// </summary>
+    public event EventHandler<ControlEventArgs> ChildAdding;
+    
+    /// <summary>
+    /// Raised after the control is added to children of this control.
+    /// </summary>
+    public event EventHandler<ControlEventArgs> ChildAdded;
+    
+    /// <summary>
+    /// Raised before the control is removed from children of this control.
+    /// </summary>
+    public event EventHandler<ControlEventArgs> ChildRemoving;
+    
+    /// <summary>
+    /// Raised after the control is removed from children of this control.
+    /// </summary>
+    public event EventHandler<ControlEventArgs> ChildRemoved;
+    
+    /// <summary>
+    /// Raised before the control's name is changed.
+    /// </summary>
+    public event EventHandler NameChanging;
+    
+    /// <summary>
+    /// Raised after the control's name is changed.
+    /// </summary>
+    public event EventHandler NameChanged;
 
     #endregion
 
@@ -128,6 +169,7 @@ public class XNAControl : DrawableGameComponent
         get { return parent; }
         set
         {
+            ParentChanging?.Invoke(this, EventArgs.Empty);
             parent = value;
             ParentChanged?.Invoke(this, EventArgs.Empty);
         }
@@ -333,7 +375,20 @@ public class XNAControl : DrawableGameComponent
     /// Gets or sets the name of this control. The name is only an identifier
     /// and does not affect functionality.
     /// </summary>
-    public string Name { get; set; }
+    public string Name
+    {
+        get => name;
+        set
+        {
+            if (name == value)
+                return;
+            
+            NameChanging?.Invoke(this, EventArgs.Empty);
+            name = value;
+            NameChanged?.Invoke(this, EventArgs.Empty);
+        }
+    }
+
     public Color RemapColor { get; set; } = Color.White;
 
     /// <summary>
@@ -355,6 +410,13 @@ public class XNAControl : DrawableGameComponent
     public bool HandlesDragging { get; protected set; } = false;
 
     private bool CursorOnControl = false;
+    
+    /// <summary>
+    /// When an exclusive control input locks control - <see cref="OnMouseEnter"/> doesn't get called,
+    /// even if the control gives up the lock. This is where this field is useful
+    /// </summary>
+    private bool delayedMouseEnter = false;
+    
     private float alpha = 1.0f;
     public virtual float Alpha
     {
@@ -785,10 +847,12 @@ public class XNAControl : DrawableGameComponent
     /// <param name="child">The child control.</param>
     private void AddChildImmediate(XNAControl child)
     {
+        OnChildAdding(child);
         InitChild(child);
         child.Initialize();
         _children.Add(child);
         ReorderControls();
+        OnChildAdded(child);
     }
 
     /// <summary>
@@ -797,9 +861,11 @@ public class XNAControl : DrawableGameComponent
     /// <param name="child">The child control.</param>
     private void AddChildImmediateWithoutInitialize(XNAControl child)
     {
+        OnChildAdding(child);
         InitChild(child);
         _children.Add(child);
         ReorderControls();
+        OnChildAdded(child);
     }
 
     /// <summary>
@@ -809,10 +875,12 @@ public class XNAControl : DrawableGameComponent
     /// <param name="child">The child control.</param>
     private void AddChildToFirstIndexImmediate(XNAControl child)
     {
+        OnChildAdding(child);
         InitChild(child);
         child.Initialize();
         _children.Insert(0, child);
         ReorderControls();
+        OnChildAdded(child);
     }
 
     private void InitChild(XNAControl child)
@@ -869,12 +937,15 @@ public class XNAControl : DrawableGameComponent
     /// <param name="child">The child control to remove.</param>
     private void RemoveChildImmediate(XNAControl child)
     {
-        if (_children.Remove(child))
+        if (_children.Contains(child))
         {
+            OnChildRemoving(child);
+            _children.Remove(child);
             child.UpdateOrderChanged -= Child_UpdateOrderChanged;
             child.DrawOrderChanged -= Child_DrawOrderChanged;
             child.Parent = null;
             ReorderControls();
+            OnChildRemoved(child);
         }
     }
 
@@ -1185,7 +1256,16 @@ public class XNAControl : DrawableGameComponent
             if (!CursorOnControl)
             {
                 CursorOnControl = true;
+
+                if (!isInputCaptured)
+                    OnMouseEnter();
+                else
+                    delayedMouseEnter = true;
+            }
+            else if (!isInputCaptured && delayedMouseEnter)
+            {
                 OnMouseEnter();
+                delayedMouseEnter = false;
             }
 
             isIteratingChildren = true;
@@ -1272,11 +1352,20 @@ public class XNAControl : DrawableGameComponent
                 if (!isInputCaptured)
                     OnMouseScrolled();
             }
+            
+            if (Cursor.HorizontalScrollWheelValue != 0)
+            {
+                if (!isInputCaptured)
+                    OnMouseScrolledHorizontally();
+            }
+            
         }
         else if (CursorOnControl)
         {
             if (!isInputCaptured)
                 OnMouseLeave();
+            else
+                delayedMouseEnter = false;
 
             CursorOnControl = false;
             isRightPressedOn = false;
@@ -1448,6 +1537,7 @@ public class XNAControl : DrawableGameComponent
     #region Draw helpers
 
     private Point drawPoint;
+    private string name;
 
     /// <summary>
     /// Draws a texture relative to the control's location.
@@ -1695,6 +1785,15 @@ public class XNAControl : DrawableGameComponent
     {
         MouseScrolled?.Invoke(this, EventArgs.Empty);
     }
+    
+    /// <summary>
+    /// Called when the scroll wheel has been scrolled horizontally
+    /// on the control's client rectangle.
+    /// </summary>
+    public virtual void OnMouseScrolledHorizontally()
+    {
+        MouseScrolledHorizontally?.Invoke(this, EventArgs.Empty);
+    }
 
     /// <summary>
     /// Called when the control's status as the selected (last-clicked)
@@ -1703,5 +1802,37 @@ public class XNAControl : DrawableGameComponent
     public virtual void OnSelectedChanged()
     {
         SelectedChanged?.Invoke(this, EventArgs.Empty);
+    }
+    
+    /// <summary>
+    /// Called before the control is added to children of this control.
+    /// </summary>
+    public virtual void OnChildAdding(XNAControl child)
+    {
+        ChildAdding?.Invoke(this, new(child));
+    }
+    
+    /// <summary>
+    /// Called after the control is added to children of this control.
+    /// </summary>
+    public virtual void OnChildAdded(XNAControl child)
+    {
+        ChildAdded?.Invoke(this, new(child));
+    }
+    
+    /// <summary>
+    /// Called before the control is removed from children of this control.
+    /// </summary>
+    public virtual void OnChildRemoving(XNAControl child)
+    {
+        ChildRemoving?.Invoke(this, new(child));
+    }
+    
+    /// <summary>
+    /// Called after the control is removed from children of this control.
+    /// </summary>
+    public virtual void OnChildRemoved(XNAControl child)
+    {
+        ChildRemoved?.Invoke(this, new(child));
     }
 }
