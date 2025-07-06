@@ -37,7 +37,25 @@ public class XNAScrollPanel : XNAPanel
     /// Whether to allow scrolling with arrow keys.
     /// </summary>
     public bool AllowKeyboardInput { get; set; } = true;
+
+    private (bool X, bool Y) _allowScroll = (true, true);
     
+    /// <summary>
+    /// Whether to allow scrolling on X or Y axes.
+    /// </summary>
+    public (bool X, bool Y) AllowScroll
+    {
+        get => _allowScroll;
+        set
+        {
+            if (_allowScroll == value)
+                return;
+            
+            _allowScroll = value;
+            RecalculateScrollbars();
+        }
+    }
+
     /// <summary>
     /// How fast this control is scrolled?
     /// </summary>
@@ -113,8 +131,12 @@ public class XNAScrollPanel : XNAPanel
         {
             value = new Point
             {
-                X = Math.Clamp(value.X, Math.Min(0, -(ContentSize.X - ViewSize.X)), 0),
-                Y = Math.Clamp(value.Y, Math.Min(0, -(ContentSize.Y - ViewSize.Y)), 0),
+                X = AllowScroll.X
+                    ? Math.Clamp(value.X, Math.Min(0, -(ContentSize.X - ViewSize.X)), 0)
+                    : ContentPanel.X,
+                Y = AllowScroll.Y
+                    ? Math.Clamp(value.Y, Math.Min(0, -(ContentSize.Y - ViewSize.Y)), 0)
+                    : ContentPanel.Y,
             };
 
             if (value == ContentPanel.ClientRectangle.Location)
@@ -163,20 +185,12 @@ public class XNAScrollPanel : XNAPanel
     public Rectangle CurrentViewRectangle => new(CurrentViewPosition, ViewSize);
     
     /// <summary>
-    /// Whether there is something to scroll.
+    /// Indicates whether the control can be scrolled 
     /// </summary>
-    public bool IsOverflowing => IsOverflowingHorizontally || IsOverflowingVertically;
-    
-    /// <summary>
-    /// Whether there is something to scroll horizontally.
-    /// </summary>
-    public bool IsOverflowingHorizontally => ViewSize.X < ContentSize.X;
-    
-    /// <summary>
-    /// Whether there is something to scroll vertically.
-    /// </summary>
-    public bool IsOverflowingVertically => ViewSize.Y < ContentSize.Y;
-    
+    public (bool X, bool Y) CanScroll => (
+        AllowScroll.X && ViewSize.X < ContentSize.X,
+        AllowScroll.Y && ViewSize.Y < ContentSize.Y);
+
     #endregion
     
     public XNAScrollPanel(WindowManager windowManager) : base(windowManager)
@@ -250,6 +264,18 @@ public class XNAScrollPanel : XNAPanel
         {
             case "AllowKeyboardInput":
                 AllowKeyboardInput = Conversions.BooleanFromString(value, true);
+                return;
+            case "AllowScroll":
+                string[] arr = value.Split(',');
+                AllowScroll = (
+                    Conversions.BooleanFromString(arr[0], true),
+                    Conversions.BooleanFromString(arr[1], true));
+                return;
+            case "AllowScrollX":
+                AllowScroll = AllowScroll with { X = Conversions.BooleanFromString(value, true) };
+                return;
+            case "AllowScrollY":
+                AllowScroll = AllowScroll with { Y = Conversions.BooleanFromString(value, true) };
                 return;
             case "ScrollStep":
                 ScrollStep = int.Parse(value);
@@ -347,7 +373,7 @@ public class XNAScrollPanel : XNAPanel
         
         // scroll horizontally if no vertical scroll needed to ease the life of users without horizontal scroll
         // or if shift is held
-        if (!IsOverflowingVertically || Keyboard.IsShiftHeldDown())
+        if (!CanScroll.Y || Keyboard.IsShiftHeldDown())
             CurrentViewPosition = CurrentViewPosition with { X = CurrentViewPosition.X - Cursor.ScrollWheelValue * ScrollStep };
         else
             CurrentViewPosition = CurrentViewPosition with { Y = CurrentViewPosition.Y - Cursor.ScrollWheelValue * ScrollStep };
@@ -451,6 +477,49 @@ public class XNAScrollPanel : XNAPanel
         
         int border = DrawBorders ? 1 : 0;
         int border2x = border * 2;
+
+        #region Visibility calculations
+
+        Point viewSizeNoScrollbars = ClientRectangle.Size;
+        Point viewSizeWithScrollbars = new()
+        {
+            X = Width
+                - VerticalScrollBar.ScrollWidth 
+                - border,
+            Y = Height
+                - HorizontalScrollBar.ScrollHeight 
+                - border,
+        };
+
+        // soft means only overflows if the scrollbar-bound area is overflown
+        (bool X, bool Y) isOverflowingSoft = new()
+        {
+            X = ContentSize.X > viewSizeWithScrollbars.X,
+            Y = ContentSize.Y > viewSizeWithScrollbars.Y,
+        };
+        
+        // hard means whole control area (when scrollbars are hidden) is overflown
+        (bool X, bool Y) isOverflowingHard = new()
+        {
+            X = ContentSize.X > viewSizeNoScrollbars.X,
+            Y = ContentSize.Y > viewSizeNoScrollbars.Y,
+        };
+
+        // X means the need for vertical scrollbar, Y - horizontal
+        // this complexity here handles the cases when addition of
+        // a scrollbar makes another coord overflow
+        (bool X, bool Y) scrollbarVisible = new()
+        {
+            X = AllowScroll.X
+                && (isOverflowingHard.X || isOverflowingSoft.X && isOverflowingHard.Y),
+            Y = AllowScroll.Y
+                && (isOverflowingHard.Y || isOverflowingSoft.Y && isOverflowingHard.X),
+        };
+        
+        (HorizontalScrollBar.Visible, VerticalScrollBar.Visible) = scrollbarVisible;
+        CornerPanel.Visible = scrollbarVisible.X && scrollbarVisible.Y;
+
+        #endregion
         
         HorizontalScrollBar.ClientRectangle = new()
         {
@@ -460,7 +529,7 @@ public class XNAScrollPanel : XNAPanel
                 - border,
             Width = Width
                 - border2x
-                - (VerticalScrollBar.Visible ? VerticalScrollBar.ScrollWidth : 0),
+                - (scrollbarVisible.Y ? VerticalScrollBar.ScrollWidth : 0),
             Height = HorizontalScrollBar.ScrollHeight,
         };
 
@@ -473,15 +542,15 @@ public class XNAScrollPanel : XNAPanel
             Width = VerticalScrollBar.ScrollWidth,
             Height = Height 
                 - border2x
-                - (HorizontalScrollBar.Visible ? HorizontalScrollBar.ScrollHeight : 0),
+                - (scrollbarVisible.X ? HorizontalScrollBar.ScrollHeight : 0),
         };
 
+        // keep in mind that CurrentViewSize call here relies on correct placement of scrollbars
         CornerPanel.ClientRectangle = new()
         {
             Location = ViewSize,
             Size = ClientRectangle.Size - ViewSize - new Point(border),
         };
-        CornerPanel.Visible = HorizontalScrollBar.Visible && VerticalScrollBar.Visible;
         
         HorizontalScrollBar.DisplayedPixelCount = ViewSize.X;
         VerticalScrollBar.DisplayedPixelCount = ViewSize.Y;
