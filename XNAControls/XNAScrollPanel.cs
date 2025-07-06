@@ -230,9 +230,9 @@ public class XNAScrollPanel : XNAPanel
         VerticalScrollBar.Scrolled += VerticalScrollBar_Scrolled;
         VerticalScrollBar.MouseScrolled += VerticalScrollBar_MouseScrolled;
         
-        // inherit the same texture by default (accepting better solutions)
-        CornerPanel.BackgroundTexture = BackgroundTexture;
-        CornerPanel.PanelBackgroundDrawMode = PanelBackgroundDrawMode;
+        // black corner texture by default (accepting better solutions)
+        CornerPanel.BackgroundTexture = AssetLoader.CreateTexture(Color.Black, 2, 2);
+        CornerPanel.PanelBackgroundDrawMode = PanelBackgroundImageDrawMode.STRETCHED;
         
         ComposeControls();
     }
