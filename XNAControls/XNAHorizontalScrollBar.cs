@@ -36,8 +36,8 @@ public class XNAHorizontalScrollBar : XNAControl
         var scrollRightTexture = AssetLoader.LoadTexture("hsbRightArrow.png");
 
         btnScrollRight = new XNAButton(WindowManager);
-        btnScrollRight.ClientRectangle = new Rectangle(Width - btnScrollRight.Width, 0,
-            btnScrollRight.Width, btnScrollRight.Height);
+        btnScrollRight.ClientRectangle = new Rectangle(Width - scrollRightTexture.Width, 0,
+            scrollRightTexture.Width, scrollRightTexture.Height);
         btnScrollRight.IdleTexture = scrollRightTexture;
 
         ClientRectangleUpdated += XNAScrollBar_ClientRectangleUpdated;
