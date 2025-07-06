@@ -424,6 +424,9 @@ public class XNAScrollPanel : XNAPanel
     /// </summary>
     protected virtual void RecalculateScrollbars()
     {
+        if (Width == 0 || Height == 0)
+            return;
+        
         int border = DrawBorders ? 1 : 0;
         int border2x = border * 2;
         
