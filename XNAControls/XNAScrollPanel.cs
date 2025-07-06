@@ -1,4 +1,4 @@
-﻿using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
 using System;
 using System.Globalization;
@@ -207,12 +207,6 @@ public class XNAScrollPanel : XNAPanel
         CornerPanel.PanelBackgroundDrawMode = PanelBackgroundDrawMode;
         
         ComposeControls();
-
-        if (Parent != null)
-            Parent.ClientRectangleUpdated += Parent_ClientRectangleUpdated;
-
-        ParentChanging += XNAScrollPanel_ParentChanging;
-        ParentChanged += XNAScrollPanel_ParentChanged;
     }
 
     protected virtual void ComposeControls()
@@ -231,13 +225,8 @@ public class XNAScrollPanel : XNAPanel
         // this is needed because some of the children may be removed after ChildRemoved
         // handler was removed, thus the subscription won't be removed otherwise
         foreach (var child in ContentPanel.Children)
-            child.ClientRectangleUpdated -= Control_ClientRectangleUpdated;
-        
-        ParentChanged -= XNAScrollPanel_ParentChanged;
+            child.ClientRectangleUpdated -= ChildControl_ClientRectangleUpdated;
 
-        if (Parent != null)
-            Parent.ClientRectangleUpdated -= Parent_ClientRectangleUpdated;
-        
         base.Kill();
     }
 
@@ -287,20 +276,6 @@ public class XNAScrollPanel : XNAPanel
     
     #region Recalculation handlers
     
-    private void XNAScrollPanel_ParentChanging(object o, EventArgs eventArgs)
-    {
-        if (Parent != null)
-            Parent.ClientRectangleUpdated -= Parent_ClientRectangleUpdated;
-    }
-        
-    private void XNAScrollPanel_ParentChanged(object sender, EventArgs e)
-    {
-        if (Parent != null)
-            Parent.ClientRectangleUpdated += Parent_ClientRectangleUpdated;
-        
-        RecalculateScrollbars();
-    }
-    
     private void XNAScrollPanel_ClientRectangleUpdated(object sender, EventArgs e)
         => RecalculateScrollbars();
 
@@ -309,21 +284,18 @@ public class XNAScrollPanel : XNAPanel
         if (e.Control.ClientRectangle != Rectangle.Empty)
             RecalculateContentSize();
 
-        e.Control.ClientRectangleUpdated += Control_ClientRectangleUpdated;
+        e.Control.ClientRectangleUpdated += ChildControl_ClientRectangleUpdated;
     }
     
-    void Control_ClientRectangleUpdated(object sender, EventArgs args)
+    void ChildControl_ClientRectangleUpdated(object sender, EventArgs args)
         => RecalculateContentSize();
 
     private void ContentPanel_ChildRemoved(object o, ControlEventArgs e)
     {
         RecalculateContentSize();
 
-        e.Control.ClientRectangleUpdated -= Control_ClientRectangleUpdated;
+        e.Control.ClientRectangleUpdated -= ChildControl_ClientRectangleUpdated;
     }
-    
-    private void Parent_ClientRectangleUpdated(object sender, EventArgs e)
-        => RecalculateScrollbars();
 
     #endregion
 
