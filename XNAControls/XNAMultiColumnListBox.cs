@@ -334,9 +334,9 @@ public class XNAMultiColumnListBox : XNAPanel
         AddChild(header);
     }
 
-    private void ListBox_RightClick(object sender, EventArgs e)
+    private void ListBox_RightClick(object sender, InputEventArgs e)
     {
-        OnRightClick();
+        OnRightClick(e);
     }
 
     private void AdjustExistingListBoxes()

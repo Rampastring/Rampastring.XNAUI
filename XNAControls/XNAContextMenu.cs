@@ -314,7 +314,7 @@ public class XNAContextMenu : XNAControl
             // Hide the drop-down if the left mouse button is clicked while the
             // cursor isn't on this control
             if (Cursor.LeftClicked && !leftClickHandled && !openedOnThisFrame)
-                OnLeftClick();
+                OnLeftClick(new InputEventArgs());
 
             leftClickHandled = false;
             openedOnThisFrame = false;
@@ -330,11 +330,12 @@ public class XNAContextMenu : XNAControl
         }
     }
 
-    public override void OnLeftClick()
+    public override void OnLeftClick(InputEventArgs inputEventArgs)
     {
-        base.OnLeftClick();
+        base.OnLeftClick(inputEventArgs);
 
         leftClickHandled = true;
+        inputEventArgs.Handled = true;
 
         int itemIndexOnCursor = GetItemIndexOnCursor();
 

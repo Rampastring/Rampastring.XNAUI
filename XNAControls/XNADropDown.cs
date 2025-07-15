@@ -311,12 +311,14 @@ public class XNADropDown : XNAControl
         }
     }
 
-    public override void OnMouseLeftDown()
+    public override void OnMouseLeftDown(InputEventArgs inputEventArgs)
     {
-        base.OnMouseLeftDown();
+        base.OnMouseLeftDown(inputEventArgs);
 
         if (!AllowDropDown)
             return;
+
+        inputEventArgs.Handled = true;
 
         if (DropDownState != DropDownState.CLOSED)
             return;
@@ -341,9 +343,10 @@ public class XNADropDown : XNAControl
         hoveredIndex = -1;
     }
 
-    public override void OnLeftClick()
+    public override void OnLeftClick(InputEventArgs inputEventArgs)
     {
-        base.OnLeftClick();
+        base.OnLeftClick(inputEventArgs);
+        inputEventArgs.Handled = true;
 
         if (DropDownState == DropDownState.CLOSED)
         {
@@ -383,7 +386,7 @@ public class XNADropDown : XNAControl
         Attach();
     }
 
-    public override void OnMouseScrolled()
+    public override void OnMouseScrolled(InputEventArgs inputEventArgs)
     {
         if (!AllowDropDown)
             return;
@@ -392,6 +395,8 @@ public class XNADropDown : XNAControl
         {
             if (SelectedIndex >= Items.Count - 1)
                 return;
+
+            inputEventArgs.Handled = true;
 
             if (Items[SelectedIndex + 1].Selectable)
                 SelectedIndex++;
@@ -402,11 +407,13 @@ public class XNADropDown : XNAControl
             if (SelectedIndex < 1)
                 return;
 
+            inputEventArgs.Handled = true;
+
             if (Items[SelectedIndex - 1].Selectable)
                 SelectedIndex--;
         }
 
-        base.OnMouseScrolled();
+        base.OnMouseScrolled(inputEventArgs);
     }
 
     /// <summary>

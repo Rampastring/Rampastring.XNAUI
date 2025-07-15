@@ -92,12 +92,13 @@ public class XNATrackbar : XNAPanel
         }
     }
 
-    public override void OnLeftClick()
+    public override void OnLeftClick(InputEventArgs inputEventArgs)
     {
         isHeldDown = true;
         Scroll();
+        inputEventArgs.Handled = true;
 
-        base.OnLeftClick();
+        base.OnLeftClick(inputEventArgs);
     }
 
     public override void Update(GameTime gameTime)

@@ -849,8 +849,10 @@ public class XNAListBox : XNAPanel
     /// <summary>
     /// Handles input from a scroll wheel.
     /// </summary>
-    public override void OnMouseScrolled()
+    public override void OnMouseScrolled(InputEventArgs inputEventArgs)
     {
+        inputEventArgs.Handled = true;
+
         if (GetTotalLineCount() <= NumberOfLinesOnList)
         {
             TopIndex = 0;
@@ -871,7 +873,7 @@ public class XNAListBox : XNAPanel
             ScrollToBottom();
         }
 
-        base.OnMouseScrolled();
+        base.OnMouseScrolled(inputEventArgs);
     }
 
     /// <summary>
@@ -888,19 +890,23 @@ public class XNAListBox : XNAPanel
     /// <summary>
     /// Clears the selection on right-click.
     /// </summary>
-    public override void OnRightClick()
+    public override void OnRightClick(InputEventArgs inputEventArgs)
     {
         if (AllowRightClickUnselect)
+        {
+            inputEventArgs.Handled = true;
             SelectedIndex = -1;
+        }
 
-        base.OnRightClick();
+        base.OnRightClick(inputEventArgs);
     }
 
     /// <summary>
     /// Selects an item when the user left-clicks on this control.
     /// </summary>
-    public override void OnMouseLeftDown()
+    public override void OnMouseLeftDown(InputEventArgs inputEventArgs)
     {
+        inputEventArgs.Handled = true;
         int itemIndex = GetItemIndexOnCursor(GetCursorPoint());
 
         if (itemIndex == -1)
@@ -914,15 +920,15 @@ public class XNAListBox : XNAPanel
             SelectedIndex = itemIndex;
         }
 
-        base.OnMouseLeftDown();
+        base.OnMouseLeftDown(inputEventArgs);
     }
 
-    public override void OnDoubleLeftClick()
+    public override void OnDoubleLeftClick(InputEventArgs inputEventArgs)
     {
         // We don't want to send a "double left click" message if the user
         // is just quickly changing the selected index
         if (!selectedIndexChanged)
-            base.OnDoubleLeftClick();
+            base.OnDoubleLeftClick(inputEventArgs);
     }
 
     /// <summary>

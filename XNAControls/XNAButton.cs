@@ -148,14 +148,15 @@ public class XNAButton : XNAControl
         }
     }
 
-    public override void OnLeftClick()
+    public override void OnLeftClick(InputEventArgs inputEventArgs)
     {
         if (!AllowClick)
             return;
 
         ClickSoundEffect?.Play();
 
-        base.OnLeftClick();
+        base.OnLeftClick(inputEventArgs);
+        inputEventArgs.Handled = true;
     }
 
     public override void Initialize()
@@ -303,7 +304,7 @@ public class XNAButton : XNAControl
         }
 
         if (Parent != null && Parent.IsActive && Keyboard.PressedKeys.Contains(HotKey))
-            OnLeftClick();
+            OnLeftClick(new InputEventArgs());
     }
 
     public override void Draw(GameTime gameTime)

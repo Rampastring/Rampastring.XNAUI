@@ -202,11 +202,15 @@ public class XNAScrollBar : XNAControl
     /// <summary>
     /// Scrolls the scrollbar when it's clicked on.
     /// </summary>
-    public override void OnLeftClick()
+    public override void OnLeftClick(InputEventArgs inputEventArgs)
     {
-        base.OnLeftClick();
+        if (IsDrawn())
+        {
+            inputEventArgs.Handled = true;
+            base.OnLeftClick(inputEventArgs);
 
-        Scroll();
+            Scroll();
+        }
     }
 
     /// <summary>
@@ -235,8 +239,7 @@ public class XNAScrollBar : XNAControl
             return;
         }
 
-
-        if (point.Y <= buttonMinY)
+        if (point.Y <= buttonMinY || Length >= DisplayedPixelCount)
         {
             ViewTop = 0;
             RefreshButtonY();

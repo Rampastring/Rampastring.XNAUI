@@ -42,19 +42,19 @@ public class XNAControl : DrawableGameComponent
     /// Raised once when the left mouse button is pressed down while the
     /// cursor is inside the control's area.
     /// </summary>
-    public event EventHandler MouseLeftDown;
+    public event EventHandler<InputEventArgs> MouseLeftDown;
 
     /// <summary>
     /// Raised once when the right mouse button is pressed down while the
     /// cursor is inside the control's area.
     /// </summary>
-    public event EventHandler MouseRightDown;
+    public event EventHandler<InputEventArgs> MouseRightDown;
 
     /// <summary>
     /// Raised once when the middle mouse button is pressed down while the
     /// cursor is inside the control's area.
     /// </summary>
-    public event EventHandler MouseMiddleDown;
+    public event EventHandler<InputEventArgs> MouseMiddleDown;
 
     /// <summary>
     /// Raised when the mouse cursor leaves the control's area.
@@ -75,31 +75,31 @@ public class XNAControl : DrawableGameComponent
     /// Raised when the scroll wheel is used while the cursor is inside
     /// the control.
     /// </summary>
-    public event EventHandler MouseScrolled;
+    public event EventHandler<InputEventArgs> MouseScrolled;
 
     /// <summary>
     /// Raised when the left mouse button is clicked (pressed and released)
     /// while the cursor is inside the control's area.
     /// </summary>
-    public event EventHandler LeftClick;
+    public event EventHandler<InputEventArgs> LeftClick;
 
     /// <summary>
     /// Raised when the left mouse button is clicked twice in a short
     /// time-frame while the cursor is inside the control's area.
     /// </summary>
-    public event EventHandler DoubleLeftClick;
+    public event EventHandler<InputEventArgs> DoubleLeftClick;
 
     /// <summary>
     /// Raised when the right mouse button is clicked (pressed and released)
     /// while the cursor is inside the control's area.
     /// </summary>
-    public event EventHandler RightClick;
+    public event EventHandler<InputEventArgs> RightClick;
 
     /// <summary>
     /// Raised when the middle mouse button is clicked (pressed and released)
     /// while the cursor is inside the control's area.
     /// </summary>
-    public event EventHandler MiddleClick;
+    public event EventHandler<InputEventArgs> MiddleClick;
 
     /// <summary>
     /// Raised when the control's client rectangle is changed.
@@ -393,8 +393,6 @@ public class XNAControl : DrawableGameComponent
     /// </summary>
     public bool InputEnabled { get; set; } = true;
 
-    private bool isActive = false;
-
     /// <summary>
     /// Gets or sets a bool that determines whether this control is the current focus of the mouse cursor.
     /// </summary>
@@ -402,12 +400,24 @@ public class XNAControl : DrawableGameComponent
     {
         get
         {
-            if (Parent != null && !Detached)
-                return Parent.IsActive && isActive;
+            if (WindowManager.ActiveControl == this)
+                return true;
 
-            return isActive;
+            if (WindowManager.ActiveControl == null)
+                return false;
+
+            if (WindowManager.ActiveControl.Detached)
+                return false;
+
+            return IsParentOf(WindowManager.ActiveControl);
         }
-        set { isActive = value; }
+        internal set 
+        {
+            if (value == true)
+                WindowManager.ActiveControl = this;
+            else if (WindowManager.ActiveControl == this)
+                WindowManager.ActiveControl = null;
+        }
     }
 
     /// <summary>
@@ -500,23 +510,12 @@ public class XNAControl : DrawableGameComponent
     #endregion
 
     private TimeSpan timeSinceLastLeftClick = TimeSpan.Zero;
-    private bool isLeftPressedOn = false;
-    private bool isRightPressedOn = false;
-    private bool isMiddlePressedOn = false;
+
+    public bool IsLeftPressedOn { get; internal set; }
+    public bool IsRightPressedOn { get; internal set; }
+    public bool IsMiddlePressedOn { get; internal set; }
 
     private bool isIteratingChildren = false;
-
-    /// <summary>
-    /// Whether a child of this control handled input during the ongoing frame.
-    /// Used for input pass-through.
-    /// </summary>
-    internal bool ChildHandledInput = false;
-
-    /// <summary>
-    /// Gets a value that can be used to check whether a child of this control is active on the current frame.
-    /// See <see cref="IsActive"/>.
-    /// </summary>
-    public bool IsChildActive { get; private set; }
 
     /// <summary>
     /// Determines whether the control will automatically update the order of children
@@ -547,7 +546,23 @@ public class XNAControl : DrawableGameComponent
         if (Parent != null)
             return Parent.IsLastParentActive();
 
-        return isActive;
+        return IsActive;
+    }
+
+    /// <summary>
+    /// Checks whether this control is a parent (of any generation) of the given control.
+    /// </summary>
+    public bool IsParentOf(XNAControl control)
+    {
+        while (control != null)
+        {
+            if (control.Parent == this)
+                return true;
+
+            control = control.Parent;
+        }
+
+        return false;
     }
 
     /// <summary>
@@ -902,6 +917,18 @@ public class XNAControl : DrawableGameComponent
         _initScaling = _scaling;
     }
 
+    protected override void OnEnabledChanged(object sender, EventArgs args)
+    {
+        if (!Enabled)
+        {
+            IsLeftPressedOn = false;
+            IsRightPressedOn = false;
+            IsMiddlePressedOn = false;
+        }
+
+        base.OnEnabledChanged(sender, args);
+    }
+
     protected override void OnVisibleChanged(object sender, EventArgs args)
     {
         if (Initialized)
@@ -1138,6 +1165,29 @@ public class XNAControl : DrawableGameComponent
     }
 
     /// <summary>
+    /// Gets the input-receiving child of this control that the cursor is currently on, if any.
+    /// Returns null if this control is not active or if the cursor is on none of its children.
+    /// </summary>
+    public XNAControl GetActiveChild()
+    {
+        if (!IsActive)
+            return null;
+
+        for (int i = 0; i < updateList.Count; i++)
+        {
+            XNAControl child = updateList[i];
+
+            if (child.Visible && !child.Detached && (child.Focused || (child.InputEnabled &&
+                child.GetWindowRectangle().Contains(Cursor.Location))))
+            {
+                return child;
+            }
+        }
+
+        return null;
+    }
+
+    /// <summary>
     /// Updates the control's logic and handles input.
     /// </summary>
     /// <param name="gameTime">Provides a snapshot of timing values.</param>
@@ -1180,7 +1230,7 @@ public class XNAControl : DrawableGameComponent
 
         bool isInputCaptured = WindowManager.IsInputExclusivelyCaptured && WindowManager.SelectedControl != this;
 
-        if (Cursor.IsOnScreen && IsActive && rectangle.Contains(Cursor.Location))
+        if (!isInputCaptured && Cursor.IsOnScreen && IsActive && rectangle.Contains(Cursor.Location))
         {
             if (!CursorOnControl)
             {
@@ -1188,118 +1238,45 @@ public class XNAControl : DrawableGameComponent
                 OnMouseEnter();
             }
 
-            isIteratingChildren = true;
-
-            var activeChildEnumerator = updateList.GetEnumerator();
-
-            while (activeChildEnumerator.MoveNext())
-            {
-                XNAControl child = activeChildEnumerator.Current;
-
-                if (child.Visible && !child.Detached && (child.Focused || (child.InputEnabled &&
-                    child.GetWindowRectangle().Contains(Cursor.Location) && activeChild == null)))
-                {
-                    child.IsActive = true;
-                    activeChild = child;
-                    WindowManager.activeControlName = child.Name;
-                    break;
-                }
-            }
-
-            isIteratingChildren = false;
+            activeChild = GetActiveChild();
+            if (activeChild != null)
+                WindowManager.ActiveControl = activeChild;
 
             Cursor.TextureIndex = CursorTextureIndex;
 
-            bool handleClick = false;
+            OnMouseOnControl();
 
-            if (!isInputCaptured)
-            {
-                OnMouseOnControl();
-
-                if (Cursor.HasMoved)
-                    OnMouseMove();
-
-                handleClick = activeChild == null;
-            }
-
-            if (!isLeftPressedOn && Cursor.LeftPressedDown)
-            {
-                isLeftPressedOn = true;
-
-                if (!isInputCaptured)
-                    OnMouseLeftDown();
-            }
-            else if (isLeftPressedOn && Cursor.LeftClicked)
-            {
-                if (handleClick)
-                    OnLeftClick();
-
-                isLeftPressedOn = false;
-            }
-
-            if (!isRightPressedOn && Cursor.RightPressedDown)
-            {
-                isRightPressedOn = true;
-
-                if (!isInputCaptured)
-                    OnMouseRightDown();
-            }
-            else if (isRightPressedOn && Cursor.RightClicked)
-            {
-                if (handleClick)
-                    OnRightClick();
-
-                isRightPressedOn = false;
-            }
-
-            if (!isMiddlePressedOn && Cursor.MiddlePressedDown)
-            {
-                isMiddlePressedOn = true;
-
-                if (!isInputCaptured)
-                    OnMouseMiddleDown();
-            }
-            else if (isMiddlePressedOn && Cursor.MiddleClicked)
-            {
-                if (handleClick)
-                    OnMiddleClick();
-
-                isMiddlePressedOn = false;
-            }
-
-            if (Cursor.ScrollWheelValue != 0)
-            {
-                if (!isInputCaptured)
-                    OnMouseScrolled();
-            }
-        }
-        else if (CursorOnControl)
-        {
-            if (!isInputCaptured)
-                OnMouseLeave();
-
-            CursorOnControl = false;
-            isRightPressedOn = false;
+            if (Cursor.HasMoved)
+                OnMouseMove();
         }
         else
         {
-            if (isLeftPressedOn && Cursor.LeftClicked)
-                isLeftPressedOn = false;
+            if (CursorOnControl && !isInputCaptured)
+            {
+                OnMouseLeave();
 
-            if (isRightPressedOn && Cursor.RightClicked)
-                isRightPressedOn = false;
+                CursorOnControl = false;
+            }
 
-            if (isMiddlePressedOn && Cursor.MiddleClicked)
-                isMiddlePressedOn = false;
+            // If the cursor is not on us and a button isn't pressed, but the button's input flag is set, then clear it.
+            // Otherwise we might accept a "click" on us that started by the user pressing down the mouse button
+            // while on another control.
+
+            if (IsLeftPressedOn && !Cursor.LeftDown)
+                IsLeftPressedOn = false;
+
+            if (IsRightPressedOn && !Cursor.RightDown)
+                IsRightPressedOn = false;
+
+            if (IsMiddlePressedOn && !Cursor.RightDown)
+                IsMiddlePressedOn = false;
         }
 
         isIteratingChildren = true;
 
-        var enumerator = updateList.GetEnumerator();
-
-        while (enumerator.MoveNext())
+        for (int i = 0; i < updateList.Count; i++)
         {
-            var child = enumerator.Current;
+            var child = updateList[i];
 
             if (child != activeChild && !child.Detached)
                 child.IsActive = false;
@@ -1321,9 +1298,6 @@ public class XNAControl : DrawableGameComponent
             RemoveChildImmediate(child);
 
         childRemoveQueue.Clear();
-
-        ChildHandledInput = activeChild != null;
-        IsChildActive = activeChild != null;
     }
 
     /// <summary>
@@ -1602,41 +1576,41 @@ public class XNAControl : DrawableGameComponent
     /// Called once when the left mouse button is pressed down while the cursor
     /// is on the control.
     /// </summary>
-    public virtual void OnMouseLeftDown()
+    public virtual void OnMouseLeftDown(InputEventArgs e)
     {
         WindowManager.SelectedControl = this;
-        MouseLeftDown?.Invoke(this, EventArgs.Empty);
+        MouseLeftDown?.Invoke(this, e);
     }
 
     /// <summary>
     /// Called once when the right mouse button is pressed down while the cursor
     /// is on the control.
     /// </summary>
-    public virtual void OnMouseRightDown()
+    public virtual void OnMouseRightDown(InputEventArgs inputEventArgs)
     {
-        MouseRightDown?.Invoke(this, EventArgs.Empty);
+        MouseRightDown?.Invoke(this, inputEventArgs);
     }
 
     /// <summary>
     /// Called once when the middle mouse button is pressed down while the cursor
     /// is on the control.
     /// </summary>
-    public virtual void OnMouseMiddleDown()
+    public virtual void OnMouseMiddleDown(InputEventArgs inputEventArgs)
     {
-        MouseMiddleDown?.Invoke(this, EventArgs.Empty);
+        MouseMiddleDown?.Invoke(this, inputEventArgs);
     }
 
     /// <summary>
     /// Called when the left mouse button has been 
     /// clicked on the control's client rectangle.
     /// </summary>
-    public virtual void OnLeftClick()
+    public virtual void OnLeftClick(InputEventArgs inputEventArgs)
     {
-        LeftClick?.Invoke(this, EventArgs.Empty);
+        LeftClick?.Invoke(this, inputEventArgs);
 
         if (timeSinceLastLeftClick < TimeSpan.FromSeconds(DOUBLE_CLICK_TIME))
         {
-            OnDoubleLeftClick();
+            OnDoubleLeftClick(inputEventArgs);
             return;
         }
 
@@ -1647,27 +1621,27 @@ public class XNAControl : DrawableGameComponent
     /// Called when the left mouse button has been 
     /// clicked twice on the control's client rectangle.
     /// </summary>
-    public virtual void OnDoubleLeftClick()
+    public virtual void OnDoubleLeftClick(InputEventArgs inputEventArgs)
     {
-        DoubleLeftClick?.Invoke(this, EventArgs.Empty);
+        DoubleLeftClick?.Invoke(this, inputEventArgs);
     }
 
     /// <summary>
     /// Called when the right mouse button has been 
     /// clicked on the control's client rectangle.
     /// </summary>
-    public virtual void OnRightClick()
+    public virtual void OnRightClick(InputEventArgs inputEventArgs)
     {
-        RightClick?.Invoke(this, EventArgs.Empty);
+        RightClick?.Invoke(this, inputEventArgs);
     }
 
     /// <summary>
     /// Called when the middle mouse button has been 
     /// clicked on the control's client rectangle.
     /// </summary>
-    public virtual void OnMiddleClick()
+    public virtual void OnMiddleClick(InputEventArgs inputEventArgs)
     {
-        MiddleClick?.Invoke(this, EventArgs.Empty);
+        MiddleClick?.Invoke(this, inputEventArgs);
     }
 
     /// <summary>
@@ -1691,9 +1665,9 @@ public class XNAControl : DrawableGameComponent
     /// Called when the scroll wheel has been scrolled on the 
     /// control's client rectangle.
     /// </summary>
-    public virtual void OnMouseScrolled()
+    public virtual void OnMouseScrolled(InputEventArgs inputEventArgs)
     {
-        MouseScrolled?.Invoke(this, EventArgs.Empty);
+        MouseScrolled?.Invoke(this, inputEventArgs);
     }
 
     /// <summary>

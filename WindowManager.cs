@@ -150,7 +150,15 @@ public class WindowManager : DrawableGameComponent
     /// </summary>
     public bool IntegerScalingOnly { get; set; }
 
+    /// <summary>
+    /// Object for handling Input Method Editor (IME) based input.
+    /// </summary>
     public IIMEHandler IMEHandler { get; set; } = null;
+
+    /// <summary>
+    /// The control, of the highest generation, that the mouse cursor is currently positioned on.
+    /// </summary>
+    internal XNAControl ActiveControl { get; set; }
 
     private GraphicsDeviceManager graphics;
 
@@ -671,8 +679,7 @@ public class WindowManager : DrawableGameComponent
             }
         }
 
-        XNAControl activeControl = null;
-        activeControlName = null;
+        ActiveControl = null;
 
         if (HasFocus)
             Keyboard.Update(gameTime);
@@ -685,27 +692,79 @@ public class WindowManager : DrawableGameComponent
         {
             XNAControl control = Controls[i];
 
+            // Before calling the control's Update, check whether the control is currently under the mouse cursor.
             if (HasFocus && control.InputEnabled && control.Enabled &&
-                (activeControl == null && control.GetWindowRectangle().Contains(Cursor.Location) || control.Focused))
+                (ActiveControl == null && control.GetWindowRectangle().Contains(Cursor.Location) || control.Focused))
             {
-                control.IsActive = true;
-                activeControl = control;
-                activeControlName = control.Name;
-            }
-            else
-            {
-                control.IsActive = false;
+                ActiveControl = control;
             }
 
             if (control.Enabled)
             {
                 control.Update(gameTime);
 
-                if (control.InputPassthrough && activeControl == control && !control.ChildHandledInput)
+                // In case ActiveControl points to the control after its Update routine has been called,
+                // that means that none of the control's children handled input.
+                // In case the control is InputPassthrough, clear the active control to give
+                // underlying controls a chance to handle input instead.
+                if (control.InputPassthrough && ActiveControl == control)
                 {
                     control.IsActive = false;
-                    activeControl = null;
-                    activeControlName = null;
+                    ActiveControl = null;
+                }
+
+                // If this control or one of its children is the active control,
+                // then handle mouse input on the active control.
+                if (ActiveControl != null && control.IsActive)
+                {
+                    bool isInputCaptured = IsInputExclusivelyCaptured && SelectedControl != ActiveControl;
+
+                    if (Cursor.LeftPressedDown)
+                    {
+                        if (!isInputCaptured)
+                        {
+                            ActiveControl.IsLeftPressedOn = true;
+                            PropagateInputEvent(static (c, ie) => c.OnMouseLeftDown(ie));
+                        }
+                    }
+                    else if (!Cursor.LeftDown && ActiveControl.IsLeftPressedOn)
+                    {
+                        ActiveControl.IsLeftPressedOn = false;
+                        PropagateInputEvent(static (c, ie) => c.OnLeftClick(ie));
+                    }
+
+                    if (Cursor.RightPressedDown)
+                    {
+                        if (!isInputCaptured)
+                        {
+                            ActiveControl.IsRightPressedOn = true;
+                            PropagateInputEvent(static (c, ie) => c.OnMouseRightDown(ie));
+                        }
+                    }
+                    else if (!Cursor.RightDown && ActiveControl.IsRightPressedOn)
+                    {
+                        ActiveControl.IsRightPressedOn = false;
+                        PropagateInputEvent(static (c, ie) => c.OnRightClick(ie));
+                    }
+
+                    if (Cursor.MiddlePressedDown)
+                    {
+                        if (!isInputCaptured)
+                        {
+                            ActiveControl.IsMiddlePressedOn = true;
+                            PropagateInputEvent(static (c, ie) => c.OnMouseMiddleDown(ie));
+                        }
+                    }
+                    else if (!Cursor.MiddleDown && ActiveControl.IsMiddlePressedOn)
+                    {
+                        ActiveControl.IsMiddlePressedOn = false;
+                        PropagateInputEvent(static (c, ie) => c.OnMiddleClick(ie));
+                    }
+
+                    if (Cursor.ScrollWheelValue != 0 && !isInputCaptured)
+                    {
+                        PropagateInputEvent(static (c, ie) => c.OnMouseScrolled(ie));
+                    }
                 }
             }
         }
@@ -726,7 +785,20 @@ public class WindowManager : DrawableGameComponent
         base.Update(gameTime);
     }
 
-    public string activeControlName;
+    private void PropagateInputEvent(Action<XNAControl, InputEventArgs> action)
+    {
+        var inputEventArgs = new InputEventArgs();
+        XNAControl control = ActiveControl;
+
+        while (control != null)
+        {
+            action(control, inputEventArgs);
+            if (inputEventArgs.Handled)
+                break;
+
+            control = control.Parent;
+        }
+    }
 
     /// <summary>
     /// Draws all the visible controls in the WindowManager.
@@ -791,7 +863,7 @@ public class WindowManager : DrawableGameComponent
             Game.Window.ClientBounds.Width - (SceneXPosition * 2), Game.Window.ClientBounds.Height - (SceneYPosition * 2)), Color.White);
 
 #if DEBUG
-        Renderer.DrawString("Active control: " + activeControlName, 0, Vector2.Zero, Color.Red, 1.0f);
+        Renderer.DrawString("Active control: " + (ActiveControl == null ? "none" : ActiveControl.Name), 0, Vector2.Zero, Color.Red, 1.0f);
 
         if (IMEHandler != null && IMEHandler.TextCompositionEnabled)
         {
