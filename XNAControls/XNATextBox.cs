@@ -30,6 +30,7 @@ public class XNATextBox : XNAControl
     /// <param name="windowManager">The WindowManager that will be associated with this control.</param>
     public XNATextBox(WindowManager windowManager) : base(windowManager)
     {
+        HandledMouseInputs = MouseInputFlags.LeftMouseButton;
         HandlesDragging = true;
     }
 
