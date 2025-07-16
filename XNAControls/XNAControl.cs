@@ -11,6 +11,19 @@ using System.Globalization;
 namespace Rampastring.XNAUI.XNAControls;
 
 /// <summary>
+/// Mouse input types.
+/// </summary>
+[Flags]
+public enum MouseInputFlags
+{
+    None = 0,
+    LeftMouseButton = 1,
+    RightMouseButton = 2,
+    MiddleMouseButton = 4,
+    ScrollWheel = 8
+}
+
+/// <summary>
 /// The base class for a XNA-based UI control.
 /// </summary>
 public class XNAControl : DrawableGameComponent
@@ -157,20 +170,21 @@ public class XNAControl : DrawableGameComponent
     public bool Detached { get; private set; } = false;
 
     /// <summary>
-    /// Holds a reference to the cursor.
+    /// Shortcut for accessing the cursor.
     /// </summary>
-    protected Cursor Cursor
-    {
-        get { return WindowManager.Cursor; }
-    }
+    protected Cursor Cursor => WindowManager.Cursor;
 
     /// <summary>
-    /// Holds a reference to the keyboard.
+    /// Defines which mouse inputs the control handles automatically.
+    /// Setting this is an alternative to manually setting <see cref="InputEventArgs.Handled"/>
+    /// to true on the respective mouse input methods (OnLeftClick etc.).
     /// </summary>
-    protected RKeyboard Keyboard
-    {
-        get { return WindowManager.Keyboard; }
-    }
+    public MouseInputFlags HandledMouseInputs { get; protected set; }
+
+    /// <summary>
+    /// Shortcut for accessing the keyboard.
+    /// </summary>
+    protected RKeyboard Keyboard => WindowManager.Keyboard;
 
     /// <summary>
     /// A list of the control's children. Don't add children to this list directly;

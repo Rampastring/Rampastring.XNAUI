@@ -724,13 +724,13 @@ public class WindowManager : DrawableGameComponent
                         if (!isInputCaptured)
                         {
                             ActiveControl.IsLeftPressedOn = true;
-                            PropagateInputEvent(static (c, ie) => c.OnMouseLeftDown(ie));
+                            PropagateInputEvent(static (c, ie) => c.OnMouseLeftDown(ie), MouseInputFlags.LeftMouseButton);
                         }
                     }
                     else if (!Cursor.LeftDown && ActiveControl.IsLeftPressedOn)
                     {
                         ActiveControl.IsLeftPressedOn = false;
-                        PropagateInputEvent(static (c, ie) => c.OnLeftClick(ie));
+                        PropagateInputEvent(static (c, ie) => c.OnLeftClick(ie), MouseInputFlags.LeftMouseButton);
                     }
 
                     if (Cursor.RightPressedDown)
@@ -738,13 +738,13 @@ public class WindowManager : DrawableGameComponent
                         if (!isInputCaptured)
                         {
                             ActiveControl.IsRightPressedOn = true;
-                            PropagateInputEvent(static (c, ie) => c.OnMouseRightDown(ie));
+                            PropagateInputEvent(static (c, ie) => c.OnMouseRightDown(ie), MouseInputFlags.RightMouseButton);
                         }
                     }
                     else if (!Cursor.RightDown && ActiveControl.IsRightPressedOn)
                     {
                         ActiveControl.IsRightPressedOn = false;
-                        PropagateInputEvent(static (c, ie) => c.OnRightClick(ie));
+                        PropagateInputEvent(static (c, ie) => c.OnRightClick(ie), MouseInputFlags.RightMouseButton);
                     }
 
                     if (Cursor.MiddlePressedDown)
@@ -752,18 +752,18 @@ public class WindowManager : DrawableGameComponent
                         if (!isInputCaptured)
                         {
                             ActiveControl.IsMiddlePressedOn = true;
-                            PropagateInputEvent(static (c, ie) => c.OnMouseMiddleDown(ie));
+                            PropagateInputEvent(static (c, ie) => c.OnMouseMiddleDown(ie), MouseInputFlags.MiddleMouseButton);
                         }
                     }
                     else if (!Cursor.MiddleDown && ActiveControl.IsMiddlePressedOn)
                     {
                         ActiveControl.IsMiddlePressedOn = false;
-                        PropagateInputEvent(static (c, ie) => c.OnMiddleClick(ie));
+                        PropagateInputEvent(static (c, ie) => c.OnMiddleClick(ie), MouseInputFlags.MiddleMouseButton);
                     }
 
                     if (Cursor.ScrollWheelValue != 0 && !isInputCaptured)
                     {
-                        PropagateInputEvent(static (c, ie) => c.OnMouseScrolled(ie));
+                        PropagateInputEvent(static (c, ie) => c.OnMouseScrolled(ie), MouseInputFlags.ScrollWheel);
                     }
                 }
             }
@@ -785,13 +785,16 @@ public class WindowManager : DrawableGameComponent
         base.Update(gameTime);
     }
 
-    private void PropagateInputEvent(Action<XNAControl, InputEventArgs> action)
+    private void PropagateInputEvent(Action<XNAControl, InputEventArgs> action, MouseInputFlags mouseInputFlags)
     {
         var inputEventArgs = new InputEventArgs();
         XNAControl control = ActiveControl;
 
         while (control != null)
         {
+            if ((control.HandledMouseInputs & mouseInputFlags) == mouseInputFlags)
+                inputEventArgs.Handled = true;
+
             action(control, inputEventArgs);
             if (inputEventArgs.Handled)
                 break;
