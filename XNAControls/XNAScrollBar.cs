@@ -239,7 +239,7 @@ public class XNAScrollBar : XNAControl
             return;
         }
 
-        if (point.Y <= buttonMinY || Length >= DisplayedPixelCount)
+        if (point.Y <= buttonMinY)
         {
             ViewTop = 0;
             RefreshButtonY();
