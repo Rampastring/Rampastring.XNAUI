@@ -345,17 +345,18 @@ public class XNAContextMenu : XNAControl
             {
                 Items[itemIndexOnCursor].SelectAction?.Invoke();
                 OptionSelected?.Invoke(this, new ContextMenuItemSelectedEventArgs(itemIndexOnCursor));
-
-                if (Detached)
-                    Attach();
-                Disable();
             }
-
-            return;
+            else
+            {
+                return;
+            }
         }
 
-        Attach();
+        IsActive = false;
         Disable();
+
+        if (Detached)
+            Attach();
     }
 
     /// <summary>
