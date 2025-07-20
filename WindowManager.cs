@@ -679,14 +679,21 @@ public class WindowManager : DrawableGameComponent
             }
         }
 
-        ActiveControl = null;
-
         if (HasFocus)
             Keyboard.Update(gameTime);
 
         Cursor.Update(gameTime);
 
         SoundPlayer.Update(gameTime);
+
+        UpdateControls(gameTime);
+
+        base.Update(gameTime);
+    }
+
+    private void UpdateControls(GameTime gameTime)
+    {
+        ActiveControl = null;
 
         for (int i = Controls.Count - 1; i > -1; i--)
         {
@@ -781,8 +788,6 @@ public class WindowManager : DrawableGameComponent
                 SelectedControl = null;
             }
         }
-
-        base.Update(gameTime);
     }
 
     private void PropagateInputEvent(Action<XNAControl, InputEventArgs> action, MouseInputFlags mouseInputFlags)
