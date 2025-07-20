@@ -24,15 +24,21 @@ public class XNAScrollBar : XNAControl
         var scrollUpTexture = AssetLoader.LoadTexture("sbUpArrow.png");
 
         btnScrollUp = new XNAButton(WindowManager);
+        btnScrollUp.Name = nameof(btnScrollUp);
         btnScrollUp.ClientRectangle = new Rectangle(0, 0, scrollUpTexture.Width, scrollUpTexture.Height);
         btnScrollUp.IdleTexture = scrollUpTexture;
+        if (AssetLoader.AssetExists("sbUpArrowHovered.png"))
+            btnScrollUp.HoverTexture = AssetLoader.LoadTexture("sbUpArrowHovered.png");
 
         var scrollDownTexture = AssetLoader.LoadTexture("sbDownArrow.png");
 
         btnScrollDown = new XNAButton(WindowManager);
+        btnScrollDown.Name = nameof(btnScrollDown);
         btnScrollDown.ClientRectangle = new Rectangle(0, Height - scrollDownTexture.Height,
             scrollDownTexture.Width, scrollDownTexture.Height);
         btnScrollDown.IdleTexture = scrollDownTexture;
+        if (AssetLoader.AssetExists("sbDownArrowHovered.png"))
+            btnScrollDown.HoverTexture = AssetLoader.LoadTexture("sbDownArrowHovered.png");
 
         ClientRectangleUpdated += XNAScrollBar_ClientRectangleUpdated;
     }
@@ -122,6 +128,17 @@ public class XNAScrollBar : XNAControl
         thumbMiddle = AssetLoader.LoadTexture("sbMiddle.png");
         thumbTop = AssetLoader.LoadTexture("sbThumbTop.png");
         thumbBottom = AssetLoader.LoadTexture("sbThumbBottom.png");
+    }
+
+    public override void Kill()
+    {
+        // These textures are cached, don't allow the buttons to dispose them
+        btnScrollDown.IdleTexture = null;
+        btnScrollDown.HoverTexture = null;
+        btnScrollUp.IdleTexture = null;
+        btnScrollUp.HoverTexture = null;
+
+        base.Kill();
     }
 
     /// <summary>
@@ -239,7 +256,7 @@ public class XNAScrollBar : XNAControl
             return;
         }
 
-        if (point.Y <= buttonMinY || Length >= DisplayedPixelCount)
+        if (point.Y <= buttonMinY || DisplayedPixelCount >= Length)
         {
             ViewTop = 0;
             RefreshButtonY();
