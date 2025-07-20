@@ -408,7 +408,7 @@ public class XNAControl : DrawableGameComponent
     public bool InputEnabled { get; set; } = true;
 
     /// <summary>
-    /// Gets or sets a bool that determines whether this control is the current focus of the mouse cursor.
+    /// Gets or sets a bool that determines whether this control or one of its children is the current focus of the mouse cursor.
     /// </summary>
     public bool IsActive
     {
@@ -433,6 +433,12 @@ public class XNAControl : DrawableGameComponent
                 WindowManager.ActiveControl = null;
         }
     }
+
+    /// <summary>
+    /// Determines whether this control is, personally, the current focus of the mouse cursor.
+    /// Unlike <see cref="IsActive"/>, this does not return true if one of the control's children is active.
+    /// </summary>
+    public bool IsDirectlyActive => WindowManager.ActiveControl == this;
 
     /// <summary>
     /// If larger than <see cref="TimeSpan.Zero"/>, the control
@@ -1244,24 +1250,27 @@ public class XNAControl : DrawableGameComponent
 
         bool isInputCaptured = WindowManager.IsInputExclusivelyCaptured && WindowManager.SelectedControl != this;
 
-        if (!isInputCaptured && Cursor.IsOnScreen && IsActive && rectangle.Contains(Cursor.Location))
+        if (Cursor.IsOnScreen && IsActive && rectangle.Contains(Cursor.Location))
         {
-            if (!CursorOnControl)
-            {
-                CursorOnControl = true;
-                OnMouseEnter();
-            }
-
             activeChild = GetActiveChild();
             if (activeChild != null)
                 WindowManager.ActiveControl = activeChild;
 
             Cursor.TextureIndex = CursorTextureIndex;
 
-            OnMouseOnControl();
+            if (!isInputCaptured)
+            {
+                if (!CursorOnControl)
+                {
+                    CursorOnControl = true;
+                    OnMouseEnter();
+                }
 
-            if (Cursor.HasMoved)
-                OnMouseMove();
+                OnMouseOnControl();
+
+                if (Cursor.HasMoved)
+                    OnMouseMove();
+            }
         }
         else
         {
