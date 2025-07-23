@@ -3,6 +3,7 @@ using Microsoft.Xna.Framework.Input;
 using System;
 using System.Globalization;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using Rampastring.Tools;
 
 namespace Rampastring.XNAUI.XNAControls;
@@ -132,10 +133,10 @@ public class XNAScrollPanel : XNAPanel
             value = new Point
             {
                 X = AllowScroll.X
-                    ? Math.Clamp(value.X, Math.Min(0, -(ContentSize.X - ViewSize.X)), 0)
+                    ? Clamp(value.X, Math.Min(0, -(ContentSize.X - ViewSize.X)), 0)
                     : ContentPanel.X,
                 Y = AllowScroll.Y
-                    ? Math.Clamp(value.Y, Math.Min(0, -(ContentSize.Y - ViewSize.Y)), 0)
+                    ? Clamp(value.Y, Math.Min(0, -(ContentSize.Y - ViewSize.Y)), 0)
                     : ContentPanel.Y,
             };
 
@@ -582,10 +583,10 @@ public class XNAScrollPanel : XNAPanel
         
         CurrentViewPosition = new()
         {
-            X = Math.Clamp(value: CurrentViewRectangle.X,
+            X = Clamp(value: CurrentViewRectangle.X,
                 min: Math.Min(rect.X + rect.Width - CurrentViewRectangle.Width, rect.X),
                 max: rect.X),
-            Y = Math.Clamp(value: CurrentViewRectangle.Y,
+            Y = Clamp(value: CurrentViewRectangle.Y,
                 min: Math.Min(rect.Y + rect.Height - CurrentViewRectangle.Height, rect.Y),
                 max: rect.Y),
         };
@@ -629,6 +630,28 @@ public class XNAScrollPanel : XNAPanel
     {
         ScrollToBottom();
         ScrollToRight();
+    }
+    
+    #endregion
+    
+    #region Compatibility
+    
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static int Clamp(int value, int min, int max)
+    {
+#if NET6_0_OR_GREATER
+        return Math.Clamp(value, min, max);
+#else
+        if (min > max)
+            throw new ArgumentException("Max must be greater than min.");
+
+        if (value < min)
+            return min;
+        if (value > max)
+            return max;
+
+        return value;
+#endif
     }
     
     #endregion
