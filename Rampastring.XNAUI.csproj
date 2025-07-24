@@ -1,8 +1,8 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework Condition="'$(Configuration)' == 'UniversalGLDebug' Or '$(Configuration)' == 'UniversalGLRelease'">net8.0</TargetFramework>
-    <TargetFrameworks Condition="'$(Configuration)' != 'UniversalGLDebug' And '$(Configuration)' != 'UniversalGLRelease'">net8.0-windows;net48</TargetFrameworks>
-    <UseWindowsForms Condition="'$(Configuration)' != 'UniversalGLDebug' And '$(Configuration)' != 'UniversalGLRelease'">true</UseWindowsForms>
+    <TargetFramework Condition="$(Configuration.Contains('Universal'))">net8.0</TargetFramework>
+    <TargetFrameworks Condition="$(Configuration.Contains('Windows'))">net8.0-windows;net48</TargetFrameworks>
+    <UseWindowsForms Condition="$(Configuration.Contains('Windows'))">true</UseWindowsForms>
     <Title Condition="'$(Configuration)' == 'WindowsDXRelease'">Rampastring.XNAUI (WindowsDX)</Title>
     <Title Condition="'$(Configuration)' == 'WindowsGLRelease'">Rampastring.XNAUI (WindowsGL)</Title>
     <Title Condition="'$(Configuration)' == 'UniversalGLRelease'">Rampastring.XNAUI (UniversalGL)</Title>
@@ -56,26 +56,32 @@
     <EnablePackageValidation>true</EnablePackageValidation>
     <ManagePackageVersionsCentrally>false</ManagePackageVersionsCentrally>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)' == 'WindowsDXDebug' Or '$(Configuration)' == 'UniversalGLDebug' Or '$(Configuration)' == 'WindowsGLDebug' Or '$(Configuration)' == 'WindowsXNADebug'">
-    <DefineConstants>$(DefineConstants);DEBUG</DefineConstants>
+
+  <PropertyGroup Condition="$(Configuration.Contains('Windows'))">
+    <DefineConstants>$(DefineConstants);WINFORMS;ISWINDOWS</DefineConstants>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)' == 'WindowsDXDebug' Or '$(Configuration)' == 'WindowsDXRelease'">
-    <DefineConstants>$(DefineConstants);DX;WINFORMS;ISWINDOWS</DefineConstants>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)' == 'UniversalGLDebug' Or '$(Configuration)' == 'UniversalGLRelease'">
-    <DefineConstants>$(DefineConstants);GL</DefineConstants>
+  <PropertyGroup Condition="$(Configuration.Contains('Universal'))">
     <DefineConstants Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'windows'">$(DefineConstants);ISWINDOWS</DefineConstants>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)' == 'WindowsGLDebug' Or '$(Configuration)' == 'WindowsGLRelease'">
-    <DefineConstants>$(DefineConstants);GL;WINFORMS;ISWINDOWS</DefineConstants>
+  
+  <PropertyGroup Condition="$(Configuration.Contains('DX'))">
+    <DefineConstants>$(DefineConstants);DX</DefineConstants>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)' == 'WindowsXNADebug' Or '$(Configuration)' == 'WindowsXNARelease'">
-    <DefineConstants>$(DefineConstants);XNA;WINFORMS;ISWINDOWS</DefineConstants>
+  <PropertyGroup Condition="$(Configuration.Contains('GL'))">
+    <DefineConstants>$(DefineConstants);GL</DefineConstants>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)'=='WindowsDXRelease' Or '$(Configuration)'=='UniversalGLRelease' Or '$(Configuration)'=='WindowsGLRelease' Or '$(Configuration)'=='WindowsXNARelease'">
+  <PropertyGroup Condition="$(Configuration.Contains('XNA'))">
+    <DefineConstants>$(DefineConstants);XNA</DefineConstants>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="$(Configuration.Contains('Debug'))">
+    <DefineConstants>$(DefineConstants);DEBUG</DefineConstants>
+  </PropertyGroup>
+  <PropertyGroup Condition="$(Configuration.Contains('Release'))">
     <Optimize>true</Optimize>
     <EnforceCodeStyleInBuild>false</EnforceCodeStyleInBuild>
   </PropertyGroup>
+  
   <Target Name="IncludeXNAAssemblies" Condition="$(DefineConstants.Contains('XNA'))">
     <ItemGroup>
       <BuildOutputInPackage Include="References\XNA\*" />
