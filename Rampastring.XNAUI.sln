@@ -1,4 +1,4 @@
-﻿
+
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.2.32414.248
@@ -6,6 +6,8 @@ MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Rampastring.XNAUI", "Rampastring.XNAUI.csproj", "{3EAF996D-7F03-433B-A9A5-17E69AC97C76}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{65B2C9EF-25F1-47BB-8F3B-989D3FF06450}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Rampastring.Tools", "Rampastring.Tools\Rampastring.Tools.csproj", "{3C384C5D-2CDC-476F-A025-4CDB578DECC6}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -35,6 +37,22 @@ Global
 		{3EAF996D-7F03-433B-A9A5-17E69AC97C76}.WindowsXNADebug|Any CPU.Build.0 = WindowsXNADebug|Any CPU
 		{3EAF996D-7F03-433B-A9A5-17E69AC97C76}.WindowsXNARelease|Any CPU.ActiveCfg = WindowsXNARelease|Any CPU
 		{3EAF996D-7F03-433B-A9A5-17E69AC97C76}.WindowsXNARelease|Any CPU.Build.0 = WindowsXNARelease|Any CPU
+		{3C384C5D-2CDC-476F-A025-4CDB578DECC6}.UniversalGLDebug|Any CPU.ActiveCfg = UniversalGLDebug|Any CPU
+		{3C384C5D-2CDC-476F-A025-4CDB578DECC6}.UniversalGLDebug|Any CPU.Build.0 = UniversalGLDebug|Any CPU
+		{3C384C5D-2CDC-476F-A025-4CDB578DECC6}.UniversalGLRelease|Any CPU.ActiveCfg = UniversalGLDebug|Any CPU
+		{3C384C5D-2CDC-476F-A025-4CDB578DECC6}.UniversalGLRelease|Any CPU.Build.0 = UniversalGLDebug|Any CPU
+		{3C384C5D-2CDC-476F-A025-4CDB578DECC6}.WindowsDXDebug|Any CPU.ActiveCfg = WindowsDXDebug|Any CPU
+		{3C384C5D-2CDC-476F-A025-4CDB578DECC6}.WindowsDXDebug|Any CPU.Build.0 = WindowsDXDebug|Any CPU
+		{3C384C5D-2CDC-476F-A025-4CDB578DECC6}.WindowsDXRelease|Any CPU.ActiveCfg = WindowsDXRelease|Any CPU
+		{3C384C5D-2CDC-476F-A025-4CDB578DECC6}.WindowsDXRelease|Any CPU.Build.0 = WindowsDXRelease|Any CPU
+		{3C384C5D-2CDC-476F-A025-4CDB578DECC6}.WindowsGLDebug|Any CPU.ActiveCfg = WindowsGLDebug|Any CPU
+		{3C384C5D-2CDC-476F-A025-4CDB578DECC6}.WindowsGLDebug|Any CPU.Build.0 = WindowsGLDebug|Any CPU
+		{3C384C5D-2CDC-476F-A025-4CDB578DECC6}.WindowsGLRelease|Any CPU.ActiveCfg = WindowsGLRelease|Any CPU
+		{3C384C5D-2CDC-476F-A025-4CDB578DECC6}.WindowsGLRelease|Any CPU.Build.0 = WindowsGLRelease|Any CPU
+		{3C384C5D-2CDC-476F-A025-4CDB578DECC6}.WindowsXNADebug|Any CPU.ActiveCfg = WindowsXNADebug|Any CPU
+		{3C384C5D-2CDC-476F-A025-4CDB578DECC6}.WindowsXNADebug|Any CPU.Build.0 = WindowsXNADebug|Any CPU
+		{3C384C5D-2CDC-476F-A025-4CDB578DECC6}.WindowsXNARelease|Any CPU.ActiveCfg = UniversalGLDebug|Any CPU
+		{3C384C5D-2CDC-476F-A025-4CDB578DECC6}.WindowsXNARelease|Any CPU.Build.0 = UniversalGLDebug|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
