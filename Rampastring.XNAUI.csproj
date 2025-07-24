@@ -54,6 +54,7 @@
     <PackageLicenseExpression></PackageLicenseExpression>
     <ContinuousIntegrationBuild Condition="'$(GITHUB_ACTIONS)' == 'true'">true</ContinuousIntegrationBuild>
     <EnablePackageValidation>true</EnablePackageValidation>
+    <ManagePackageVersionsCentrally>false</ManagePackageVersionsCentrally>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)' == 'WindowsDXDebug' Or '$(Configuration)' == 'UniversalGLDebug' Or '$(Configuration)' == 'WindowsGLDebug' Or '$(Configuration)' == 'WindowsXNADebug'">
     <DefineConstants>$(DefineConstants);DEBUG</DefineConstants>
