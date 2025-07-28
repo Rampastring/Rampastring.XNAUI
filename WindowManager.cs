@@ -797,12 +797,15 @@ public class WindowManager : DrawableGameComponent
 
         while (control != null)
         {
-            if ((control.HandledMouseInputs & mouseInputFlags) == mouseInputFlags)
-                inputEventArgs.Handled = true;
+            if (!control.InputPassthrough)
+            {
+                if ((control.HandledMouseInputs & mouseInputFlags) == mouseInputFlags)
+                    inputEventArgs.Handled = true;
 
-            action(control, inputEventArgs);
-            if (inputEventArgs.Handled)
-                break;
+                action(control, inputEventArgs);
+                if (inputEventArgs.Handled)
+                    break;
+            }
 
             control = control.Parent;
         }
