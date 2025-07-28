@@ -1,4 +1,4 @@
-﻿using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using System;
@@ -80,6 +80,8 @@ public class Cursor : DrawableGameComponent
     public bool Disabled { get; set; }
 
     public int ScrollWheelValue { get; set; }
+    
+    public int HorizontalScrollWheelValue { get; set; }
 
     public Color RemapColor { get; set; }
 
@@ -160,6 +162,9 @@ public class Cursor : DrawableGameComponent
         Location = location;
 
         ScrollWheelValue = (ms.ScrollWheelValue - previousMouseState.ScrollWheelValue) / 40;
+        // there's something unholy going with what is the direction of horizontal scroll
+        // https://github.com/wesnoth/wesnoth/issues/2218
+        HorizontalScrollWheelValue = -(ms.HorizontalScrollWheelValue - previousMouseState.HorizontalScrollWheelValue) / 40;
 
         LeftDown = ms.LeftButton == ButtonState.Pressed;
         LeftPressedDown = LeftDown && previousMouseState.LeftButton != ButtonState.Pressed;
