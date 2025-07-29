@@ -64,10 +64,6 @@
     <ParentDotGitmodulesFileExists>$([System.IO.File]::Exists('$(MSBuildThisFileDirectory)../.gitmodules'))</ParentDotGitmodulesFileExists>
     <IsSubmodule Condition="'$(DotGitFileExists)' == 'true' And '$(ParentDotGitmodulesFileExists)' == 'true'">true</IsSubmodule>
   </PropertyGroup>
-  
-  <PropertyGroup Condition="">
-    
-  </PropertyGroup>
 
   <PropertyGroup Condition="$(Configuration.Contains('Windows'))">
     <DefineConstants>$(DefineConstants);WINFORMS;ISWINDOWS</DefineConstants>
