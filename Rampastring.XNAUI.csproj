@@ -55,6 +55,18 @@
     <ContinuousIntegrationBuild Condition="'$(GITHUB_ACTIONS)' == 'true'">true</ContinuousIntegrationBuild>
     <EnablePackageValidation>true</EnablePackageValidation>
     <ManagePackageVersionsCentrally>false</ManagePackageVersionsCentrally>
+    
+    <ToolsSubmoduleDirectory>$(MSBuildThisFileDirectory)Rampastring.Tools\</ToolsSubmoduleDirectory>
+    <ToolsSubmoduleProjectPath>$(ToolsSubmoduleDirectory)Rampastring.Tools.csproj</ToolsSubmoduleProjectPath>
+    
+    <!-- A pair of heuristics: when we are in a submodule, .git is a file, also in our projects we usually place submodules at top level, so check for both -->
+    <DotGitFileExists>$([System.IO.File]::Exists('$(MSBuildThisFileDirectory).git'))</DotGitFileExists>
+    <ParentDotGitmodulesFileExists>$([System.IO.File]::Exists('$(MSBuildThisFileDirectory)../.gitmodules'))</ParentDotGitmodulesFileExists>
+    <IsSubmodule Condition="'$(DotGitFileExists)' == 'true' And '$(ParentDotGitmodulesFileExists)' == 'true'">true</IsSubmodule>
+  </PropertyGroup>
+  
+  <PropertyGroup Condition="">
+    
   </PropertyGroup>
 
   <PropertyGroup Condition="$(Configuration.Contains('Windows'))">
@@ -151,17 +163,18 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <PackageReference Include="Rampastring.Tools" Version="2.0.6" Condition="'$(IsSubmodule)' != 'true'"/>
     <PackageReference Include="Microsoft.Windows.CsWin32" Version="0.3.49-beta" PrivateAssets="All" />
     <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1" PrivateAssets="All" />
     <PackageReference Include="SixLabors.ImageSharp" Version="2.1.10" />
     <PackageReference Include="TextCopy" Version="6.2.1" />
-    <PackageReference Include="GitVersion.MsBuild" Version="5.12.0" >
+    <PackageReference Include="GitVersion.MsBuild" Version="5.12.0" Condition="'$(IsSubmodule)' == 'true'" >
       <PrivateAssets>All</PrivateAssets>
     </PackageReference>
   </ItemGroup>
-  <ItemGroup>
-    <Compile Remove="Rampastring.Tools\**" />
-    <None Remove="Rampastring.Tools\**" />
-    <ProjectReference Include="Rampastring.Tools\Rampastring.Tools.csproj" />
+  <ItemGroup Condition="Exists('$(ToolsSubmoduleProjectPath)')">
+    <Compile Remove="$(ToolsSubmoduleDirectory)**" />
+    <None Remove="$(ToolsSubmoduleDirectory)**" />
+    <ProjectReference Include="$(ToolsSubmoduleProjectPath)" />
   </ItemGroup>
 </Project>
