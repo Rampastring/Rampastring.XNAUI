@@ -1193,7 +1193,12 @@ public class XNAControl : DrawableGameComponent
         if (!IsActive)
             return null;
 
-        for (int i = 0; i < updateList.Count; i++)
+        return GetChildOnCursor(0);
+    }
+
+    private XNAControl GetChildOnCursor(int startIndex)
+    {
+        for (int i = startIndex; i < updateList.Count; i++)
         {
             XNAControl child = updateList[i];
 
@@ -1252,10 +1257,6 @@ public class XNAControl : DrawableGameComponent
 
         if (Cursor.IsOnScreen && IsActive && rectangle.Contains(Cursor.Location))
         {
-            activeChild = GetActiveChild();
-            if (activeChild != null)
-                WindowManager.ActiveControl = activeChild;
-
             Cursor.TextureIndex = CursorTextureIndex;
 
             if (!isInputCaptured)
@@ -1271,6 +1272,10 @@ public class XNAControl : DrawableGameComponent
                 if (Cursor.HasMoved)
                     OnMouseMove();
             }
+
+            activeChild = GetActiveChild();
+            if (activeChild != null)
+                WindowManager.ActiveControl = activeChild;
         }
         else
         {
@@ -1301,12 +1306,17 @@ public class XNAControl : DrawableGameComponent
         {
             var child = updateList[i];
 
-            if (child != activeChild && !child.Detached)
-                child.IsActive = false;
-
             if (child.Enabled)
             {
                 child.Update(gameTime);
+            }
+
+            // If our child is input-passthrough and none of its children were assigned as the active control
+            // on its Update call, we need to give our other children a chance to handle input instead.
+            if (activeChild != null && child.InputPassthrough && WindowManager.ActiveControl == child)
+            {
+                activeChild = GetChildOnCursor(i + 1);
+                WindowManager.ActiveControl = activeChild;
             }
         }
 
