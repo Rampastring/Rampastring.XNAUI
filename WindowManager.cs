@@ -714,7 +714,8 @@ public class WindowManager : DrawableGameComponent
                 // that means that none of the control's children handled input.
                 // In case the control is InputPassthrough, clear the active control to give
                 // underlying controls a chance to handle input instead.
-                if (control.InputPassthrough && ActiveControl == control)
+                // Also check for the control's children to enable children to be InputPassthrough.
+                if (ActiveControl != null && ActiveControl.InputPassthrough && (ActiveControl == control || control.IsParentOf(ActiveControl)))
                 {
                     control.IsActive = false;
                     ActiveControl = null;
