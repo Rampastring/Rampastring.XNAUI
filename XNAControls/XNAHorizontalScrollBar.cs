@@ -126,8 +126,8 @@ public class XNAHorizontalScrollBar : XNAControl
         AddChild(btnScrollLeft);
         AddChild(btnScrollRight);
 
-        btnScrollLeft.LeftClick += BtnScrollLeftLeftClick;
-        btnScrollRight.LeftClick += BtnScrollRightLeftClick;
+        btnScrollLeft.LeftClick += BtnScrollLeft_LeftClick;
+        btnScrollRight.LeftClick += BtnScrollRight_LeftClick;
 
         background = AssetLoader.LoadTexture("hsbBackground.png");
         thumbMiddle = AssetLoader.LoadTexture("hsbMiddle.png");
@@ -149,7 +149,7 @@ public class XNAHorizontalScrollBar : XNAControl
     /// <summary>
     /// Scrolls up when the user presses on the "scroll left" arrow.
     /// </summary>
-    private void BtnScrollLeftLeftClick(object sender, EventArgs e)
+    private void BtnScrollLeft_LeftClick(object sender, EventArgs e)
     {
         if (ViewLeft > 0)
         {
@@ -166,7 +166,7 @@ public class XNAHorizontalScrollBar : XNAControl
     /// <summary>
     /// Scrolls down when the user presses on the "scroll down" arrow.
     /// </summary>
-    private void BtnScrollRightLeftClick(object sender, EventArgs e)
+    private void BtnScrollRight_LeftClick(object sender, EventArgs e)
     {
         int nonDisplayedLines = Length - DisplayedPixelCount;
 

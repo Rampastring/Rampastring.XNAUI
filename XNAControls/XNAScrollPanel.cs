@@ -13,9 +13,6 @@ namespace Rampastring.XNAUI.XNAControls;
 /// </summary>
 public class XNAScrollPanel : XNAPanel
 {
-    private const double SCROLL_REPEAT_TIME = 0.03;
-    private const double FAST_SCROLL_TRIGGER_TIME = 0.4;
-    
     protected XNAHorizontalScrollBar HorizontalScrollBar;
     protected XNAScrollBar VerticalScrollBar;
     protected XNAPanel ContentPanel;
@@ -436,14 +433,14 @@ public class XNAScrollPanel : XNAPanel
         {
             _timeSinceLastScroll += gameTime.ElapsedGameTime;
 
-            if (_timeSinceLastScroll > TimeSpan.FromSeconds(SCROLL_REPEAT_TIME))
+            if (_timeSinceLastScroll > TimeSpan.FromSeconds(UIConstants.KEYBOARD_SCROLL_REPEAT_TIME))
             {
                 _timeSinceLastScroll = TimeSpan.Zero;
                 action();
             }
         }
 
-        if (_scrollKeyTime > TimeSpan.FromSeconds(FAST_SCROLL_TRIGGER_TIME) && !_isScrollingQuickly)
+        if (_scrollKeyTime > TimeSpan.FromSeconds(UIConstants.KEYBOARD_FAST_SCROLL_TRIGGER_TIME) && !_isScrollingQuickly)
         {
             _isScrollingQuickly = true;
             _timeSinceLastScroll = TimeSpan.Zero;
