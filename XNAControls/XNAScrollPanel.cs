@@ -1,4 +1,4 @@
-using Microsoft.Xna.Framework;
+﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
 using System;
 using System.Globalization;
@@ -163,18 +163,6 @@ public class XNAScrollPanel : XNAPanel
     {
         get => new(-CurrentContentPanelPosition.X, -CurrentContentPanelPosition.Y);
         set => CurrentContentPanelPosition = new(-value.X, -value.Y);
-    }
-    
-    protected Rectangle ViewWindowRectangle
-    {
-        get
-        {
-            var size = ViewSize;
-            var factor = GetTotalScalingRecursive();
-            
-            return new(GetWindowPoint(),
-                new(size.X * factor, size.Y * factor));
-        }
     }
 
     /// <summary>
@@ -629,7 +617,7 @@ public class XNAScrollPanel : XNAPanel
     #region Compatibility
     
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static int Clamp(int value, int min, int max)
+    private static int Clamp(int value, int min, int max)
     {
 #if NET6_0_OR_GREATER
         return Math.Clamp(value, min, max);
