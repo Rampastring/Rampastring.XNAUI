@@ -3,11 +3,11 @@ using Microsoft.Xna.Framework.Input;
 using System;
 using System.Globalization;
 using System.Linq;
-using System.Runtime.CompilerServices;
 using Rampastring.Tools;
 using Rampastring.XNAUI.Extensions;
-using PointExt = Rampastring.XNAUI.Extensions.PointExtensions;
-using RectExt = Rampastring.XNAUI.Extensions.RectangleExtensions;
+using static Rampastring.XNAUI.Extensions.MathExtensions;
+using static Rampastring.XNAUI.Extensions.PointExtensions;
+using static Rampastring.XNAUI.Extensions.RectangleExtensions;
 
 namespace Rampastring.XNAUI.XNAControls;
 
@@ -145,7 +145,7 @@ public class XNAScrollPanel : XNAPanel
             if (value == ContentPanel.ClientRectangle.Location)
                 return;
 
-            ContentPanel.ClientRectangle =  ContentPanel.ClientRectangle with { Location = value };
+            ContentPanel.ClientRectangle = ContentPanel.ClientRectangle with { Location = value };
             ViewPositionChanged?.Invoke(this, EventArgs.Empty);
             VerticalScrollBar.RefreshButtonY(-value.Y);
             HorizontalScrollBar.RefreshButtonX(-value.X);
@@ -173,7 +173,7 @@ public class XNAScrollPanel : XNAPanel
     /// <summary>
     /// The viewport area over the <see cref="ContentPanel"/>.
     /// </summary>
-    public Rectangle CurrentViewRectangle => RectExt.FromLocationAndSize(CurrentViewPosition, ViewSize);
+    public Rectangle CurrentViewRectangle => FromLocationAndSize(CurrentViewPosition, ViewSize);
     
     /// <summary>
     /// Indicates whether the control can be scrolled 
@@ -528,8 +528,8 @@ public class XNAScrollPanel : XNAPanel
         };
 
         // keep in mind that CurrentViewSize call here relies on correct placement of scrollbars
-        CornerPanel.ClientRectangle = RectExt.FromLocationAndSize(ViewSize,
-            ClientRectangle.GetSize().Subtract(ViewSize).Subtract(PointExt.FromInt(border))
+        CornerPanel.ClientRectangle = FromLocationAndSize(ViewSize,
+            ClientRectangle.GetSize().Subtract(ViewSize).Subtract(FromInt(border))
         );
         
         HorizontalScrollBar.DisplayedPixelCount = ViewSize.X;
@@ -584,7 +584,7 @@ public class XNAScrollPanel : XNAPanel
     /// Scrolls to the specified point.
     /// </summary>
     /// <param name="point">The point (in local coordinates) to scroll to.</param>
-    public void ScrollTo(Point point) => ScrollTo(RectExt.FromLocationAndSize(point, Point.Zero));
+    public void ScrollTo(Point point) => ScrollTo(rect: FromLocationAndSize(point, Point.Zero));
     
     /// <summary>
     /// Scrolls to the specified child control.
@@ -618,28 +618,6 @@ public class XNAScrollPanel : XNAPanel
     {
         ScrollToBottom();
         ScrollToRight();
-    }
-    
-    #endregion
-    
-    #region Compatibility
-    
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private static int Clamp(int value, int min, int max)
-    {
-#if NET6_0_OR_GREATER
-        return Math.Clamp(value, min, max);
-#else
-        if (min > max)
-            throw new ArgumentException("Max must be greater than min.");
-
-        if (value < min)
-            return min;
-        if (value > max)
-            return max;
-
-        return value;
-#endif
     }
     
     #endregion

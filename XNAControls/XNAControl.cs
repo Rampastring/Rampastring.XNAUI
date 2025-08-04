@@ -8,8 +8,6 @@ using System.Linq;
 using Microsoft.Xna.Framework.Graphics;
 using System.Globalization;
 using Rampastring.XNAUI.Extensions;
-using PointExt = Rampastring.XNAUI.Extensions.PointExtensions;
-using RectExt = Rampastring.XNAUI.Extensions.RectangleExtensions;
 
 namespace Rampastring.XNAUI.XNAControls;
 
