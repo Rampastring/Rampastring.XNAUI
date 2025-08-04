@@ -9,7 +9,7 @@ using Rampastring.Tools;
 namespace Rampastring.XNAUI.XNAControls;
 
 /// <summary>
-/// A panel that allows for scrolling.
+/// A panel that allows scrolling over arbitrarily placed child controls that overflow the size of the panel itself.
 /// </summary>
 public class XNAScrollPanel : XNAPanel
 {
@@ -365,7 +365,7 @@ public class XNAScrollPanel : XNAPanel
     {
         inputEventArgs.Handled = true;
         
-            CurrentViewPosition = CurrentViewPosition with { Y = CurrentViewPosition.Y - Cursor.ScrollWheelValue * ScrollStep };
+        CurrentViewPosition = CurrentViewPosition with { Y = CurrentViewPosition.Y - Cursor.ScrollWheelValue * ScrollStep };
     }
 
     public override void OnMouseScrolled(InputEventArgs inputEventArgs)
@@ -484,12 +484,8 @@ public class XNAScrollPanel : XNAPanel
         Point viewSizeNoScrollbars = ClientRectangle.Size;
         Point viewSizeWithScrollbars = new()
         {
-            X = Width
-                - VerticalScrollBar.ScrollWidth 
-                - border,
-            Y = Height
-                - HorizontalScrollBar.ScrollHeight 
-                - border,
+            X = Width - VerticalScrollBar.ScrollWidth - border,
+            Y = Height - HorizontalScrollBar.ScrollHeight - border,
         };
 
         // soft means only overflows if the scrollbar-bound area is overflown
@@ -511,10 +507,8 @@ public class XNAScrollPanel : XNAPanel
         // a scrollbar makes another coord overflow
         (bool X, bool Y) scrollbarVisible = new()
         {
-            X = AllowScroll.X
-                && (isOverflowingHard.X || isOverflowingSoft.X && isOverflowingHard.Y),
-            Y = AllowScroll.Y
-                && (isOverflowingHard.Y || isOverflowingSoft.Y && isOverflowingHard.X),
+            X = AllowScroll.X && (isOverflowingHard.X || isOverflowingSoft.X && isOverflowingHard.Y),
+            Y = AllowScroll.Y && (isOverflowingHard.Y || isOverflowingSoft.Y && isOverflowingHard.X),
         };
         
         (HorizontalScrollBar.Visible, VerticalScrollBar.Visible) = scrollbarVisible;
@@ -525,25 +519,17 @@ public class XNAScrollPanel : XNAPanel
         HorizontalScrollBar.ClientRectangle = new()
         {
             X = border,
-            Y = Height
-                - HorizontalScrollBar.ScrollHeight 
-                - border,
-            Width = Width
-                - border2x
-                - (scrollbarVisible.Y ? VerticalScrollBar.ScrollWidth : 0),
+            Y = Height - HorizontalScrollBar.ScrollHeight - border,
+            Width = Width - border2x - (scrollbarVisible.Y ? VerticalScrollBar.ScrollWidth : 0),
             Height = HorizontalScrollBar.ScrollHeight,
         };
 
         VerticalScrollBar.ClientRectangle = new()
         {
-            X = Width
-                - VerticalScrollBar.ScrollWidth 
-                - border,
+            X = Width - VerticalScrollBar.ScrollWidth - border,
             Y = border,
             Width = VerticalScrollBar.ScrollWidth,
-            Height = Height 
-                - border2x
-                - (scrollbarVisible.X ? HorizontalScrollBar.ScrollHeight : 0),
+            Height = Height - border2x - (scrollbarVisible.X ? HorizontalScrollBar.ScrollHeight : 0),
         };
 
         // keep in mind that CurrentViewSize call here relies on correct placement of scrollbars
@@ -568,7 +554,7 @@ public class XNAScrollPanel : XNAPanel
     /// Scrolls to the specified rectangle.
     /// </summary>
     /// <remarks>
-    /// If the rectangle is bigger than the viewport - scrolls to it's top/left bounds.
+    /// If the rectangle is bigger than the viewport - scrolls to its top/left bounds.
     /// </remarks>
     /// <param name="rect">The rectangle (in local coordinates) to scroll to.</param>
     public virtual void ScrollTo(Rectangle rect)
