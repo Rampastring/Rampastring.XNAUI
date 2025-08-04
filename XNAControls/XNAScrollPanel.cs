@@ -1,4 +1,4 @@
-﻿using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
 using System;
 using System.Globalization;
@@ -556,13 +556,22 @@ public class XNAScrollPanel : XNAPanel
     /// <param name="rect">The rectangle (in local coordinates) to scroll to.</param>
     public virtual void ScrollTo(Rectangle rect)
     {
-        // Math.Min call inside the calculation is responsible for handling controls bigger
+        // Currently the calculations below make the viewport shift the minimal amount needed to
+        // fully show the rectangle we're scrolling to.
+        
+        // Math.Min calls inside the calculation are responsible for handling controls bigger
         // than the viewport (basically makes the viewport snap to top left corner, or top/left
         // sides separately if it overflows on only one side).
         
         // As an alternative implementation you might want to have the viewport scroll to
-        // the closest part of the control. To do that simply flip min and max values or flip
-        // places of CurrentViewRectangle and rect in the calculation.
+        // the closest part of the control. To do that - remove the aforementioned Math.Min
+        // calls and simply flip min and max values (or flip places of CurrentViewRectangle
+        // and rect in the calculation) on the axes where the rect is bigger than CurrentViewRectangle.
+        
+        // Another implementation to consider here is that when the rectangle to scroll to could be centered
+        // within the viewport. This is a more niche implementation though, and it could be argued that
+        // it would be better if the descendants of this control implement it instead for their specific
+        // use cases.
         
         CurrentViewPosition = new()
         {
