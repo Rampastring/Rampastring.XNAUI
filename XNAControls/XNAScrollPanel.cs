@@ -13,6 +13,8 @@ namespace Rampastring.XNAUI.XNAControls;
 /// </summary>
 public class XNAScrollPanel : XNAPanel
 {
+    protected const string CORNER_TEXTURE_FILENAME = "spCornerPanel.png";
+    
     protected XNAHorizontalScrollBar HorizontalScrollBar;
     protected XNAScrollBar VerticalScrollBar;
     protected XNAPanel ContentPanel;
@@ -216,8 +218,9 @@ public class XNAScrollPanel : XNAPanel
         VerticalScrollBar.Scrolled += VerticalScrollBar_Scrolled;
         VerticalScrollBar.MouseScrolled += VerticalScrollBar_MouseScrolled;
         
-        // black corner texture by default (accepting better solutions)
-        CornerPanel.BackgroundTexture = AssetLoader.CreateTexture(Color.Black, 2, 2);
+        CornerPanel.BackgroundTexture = AssetLoader.AssetExists(CORNER_TEXTURE_FILENAME)
+            ? AssetLoader.LoadTexture(CORNER_TEXTURE_FILENAME)
+            : AssetLoader.CreateTexture(Color.Black, 2, 2);
         CornerPanel.PanelBackgroundDrawMode = PanelBackgroundImageDrawMode.STRETCHED;
         
         ComposeControls();
@@ -240,6 +243,10 @@ public class XNAScrollPanel : XNAPanel
         // handler was removed, thus the subscription won't be removed otherwise
         foreach (var child in ContentPanel.Children)
             child.ClientRectangleUpdated -= ChildControl_ClientRectangleUpdated;
+
+        // don't allow to dispose the cached generic texture
+        if (CornerPanel.BackgroundTexture.Name == CORNER_TEXTURE_FILENAME)
+            CornerPanel.BackgroundTexture = null;
 
         base.Kill();
     }
