@@ -5,6 +5,9 @@ using System.Globalization;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using Rampastring.Tools;
+using Rampastring.XNAUI.Extensions;
+using PointExt = Rampastring.XNAUI.Extensions.PointExtensions;
+using RectExt = Rampastring.XNAUI.Extensions.RectangleExtensions;
 
 namespace Rampastring.XNAUI.XNAControls;
 
@@ -82,7 +85,7 @@ public class XNAScrollPanel : XNAPanel
             if (_overscrollMargin == value)
                 return;
             
-            ContentSize += value - _overscrollMargin;
+            ContentSize = ContentSize.Add(value).Subtract(_overscrollMargin);
             _overscrollMargin = value;
         }
     }
@@ -109,10 +112,10 @@ public class XNAScrollPanel : XNAPanel
     /// </summary>
     public Point ContentSize
     {
-        get => ContentPanel.ClientRectangle.Size;
+        get => ContentPanel.ClientRectangle.GetSize();
         private set
         {
-            ContentPanel.ClientRectangle = ContentPanel.ClientRectangle with { Size = value };
+            ContentPanel.ClientRectangle = ContentPanel.ClientRectangle.WithSize(value);
             
             HorizontalScrollBar.Length = value.X;
             VerticalScrollBar.Length = value.Y;
@@ -170,7 +173,7 @@ public class XNAScrollPanel : XNAPanel
     /// <summary>
     /// The viewport area over the <see cref="ContentPanel"/>.
     /// </summary>
-    public Rectangle CurrentViewRectangle => new(CurrentViewPosition, ViewSize);
+    public Rectangle CurrentViewRectangle => RectExt.FromLocationAndSize(CurrentViewPosition, ViewSize);
     
     /// <summary>
     /// Indicates whether the control can be scrolled 
@@ -457,7 +460,7 @@ public class XNAScrollPanel : XNAPanel
             .Aggregate(Point.Zero, (accumulated, next) 
                 => new Point(Math.Max(accumulated.X, next.X), Math.Max(accumulated.Y, next.Y)));
 
-        ContentSize = contentSize + OverscrollMargin;
+        ContentSize = contentSize.Add(OverscrollMargin);
     }
 
     /// <summary>
@@ -473,7 +476,7 @@ public class XNAScrollPanel : XNAPanel
 
         #region Visibility calculations
 
-        Point viewSizeNoScrollbars = ClientRectangle.Size;
+        Point viewSizeNoScrollbars = ClientRectangle.GetSize();
         Point viewSizeWithScrollbars = new()
         {
             X = Width - VerticalScrollBar.ScrollWidth - border,
@@ -525,11 +528,9 @@ public class XNAScrollPanel : XNAPanel
         };
 
         // keep in mind that CurrentViewSize call here relies on correct placement of scrollbars
-        CornerPanel.ClientRectangle = new()
-        {
-            Location = ViewSize,
-            Size = ClientRectangle.Size - ViewSize - new Point(border),
-        };
+        CornerPanel.ClientRectangle = RectExt.FromLocationAndSize(ViewSize,
+            ClientRectangle.GetSize().Subtract(ViewSize).Subtract(PointExt.FromInt(border))
+        );
         
         HorizontalScrollBar.DisplayedPixelCount = ViewSize.X;
         VerticalScrollBar.DisplayedPixelCount = ViewSize.Y;
@@ -583,7 +584,7 @@ public class XNAScrollPanel : XNAPanel
     /// Scrolls to the specified point.
     /// </summary>
     /// <param name="point">The point (in local coordinates) to scroll to.</param>
-    public void ScrollTo(Point point) => ScrollTo(new Rectangle(point, size: Point.Zero));
+    public void ScrollTo(Point point) => ScrollTo(RectExt.FromLocationAndSize(point, Point.Zero));
     
     /// <summary>
     /// Scrolls to the specified child control.

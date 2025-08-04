@@ -7,6 +7,9 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using Microsoft.Xna.Framework.Graphics;
 using System.Globalization;
+using Rampastring.XNAUI.Extensions;
+using PointExt = Rampastring.XNAUI.Extensions.PointExtensions;
+using RectExt = Rampastring.XNAUI.Extensions.RectangleExtensions;
 
 namespace Rampastring.XNAUI.XNAControls;
 
@@ -673,25 +676,12 @@ public class XNAControl : DrawableGameComponent
         {
             int parentTotalScaling = Parent.GetTotalScalingRecursive();
             p = new Point(p.X * parentTotalScaling, p.Y * parentTotalScaling);
-
-#if XNA
-            return SumPoints(p, parent.GetWindowPoint());
-#else
-            return p + parent.GetWindowPoint();
-#endif
+            
+            return p.Add(parent.GetWindowPoint());
         }
 
         return p;
     }
-
-#if XNA
-    // XNA's Point is too dumb to know the plus operator
-    private Point SumPoints(Point p1, Point p2)
-    {
-        return new Point(p1.X + p2.X, p1.Y + p2.Y);
-    }
-
-#endif
     public Point GetSizePoint()
     {
         int totalScaling = GetTotalScalingRecursive();
@@ -740,12 +730,8 @@ public class XNAControl : DrawableGameComponent
 
             if (Parent.DrawMode == ControlDrawMode.UNIQUE_RENDER_TARGET)
                 return p;
-
-#if XNA
-            return SumPoints(p, Parent.GetRenderPoint());
-#else
-            return p + Parent.GetRenderPoint();
-#endif
+            
+            return p.Add(Parent.GetRenderPoint());
         }
 
         return p;

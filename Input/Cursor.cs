@@ -162,9 +162,11 @@ public class Cursor : DrawableGameComponent
         Location = location;
 
         ScrollWheelValue = (ms.ScrollWheelValue - previousMouseState.ScrollWheelValue) / 40;
+#if !XNA
         // there's something unholy going with what is the direction of horizontal scroll
         // https://github.com/wesnoth/wesnoth/issues/2218
         HorizontalScrollWheelValue = -(ms.HorizontalScrollWheelValue - previousMouseState.HorizontalScrollWheelValue) / 40;
+#endif
 
         LeftDown = ms.LeftButton == ButtonState.Pressed;
         LeftPressedDown = LeftDown && previousMouseState.LeftButton != ButtonState.Pressed;
