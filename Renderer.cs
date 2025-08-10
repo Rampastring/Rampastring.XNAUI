@@ -162,9 +162,9 @@ public static class Renderer
         fontSystem = new FontSystem();
         string originalContentRoot = contentManager.RootDirectory;
 #if XNA
-var contentManagerType = contentManager.GetType();
-var rootDirectoryField = contentManagerType.GetField("rootDirectory", BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.SetField | BindingFlags.GetField);
-var fullRootDirectoryField = contentManager.GetType().GetField("fullRootDirectory", BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.SetField | BindingFlags.GetField);
+    var contentManagerType = contentManager.GetType();
+    var rootDirectoryField = contentManagerType.GetField("rootDirectory", BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.SetField | BindingFlags.GetField);
+    var fullRootDirectoryField = contentManager.GetType().GetField("fullRootDirectory", BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.SetField | BindingFlags.GetField);
 #endif
 
         foreach (string searchPath in AssetLoader.AssetSearchPaths)
@@ -232,15 +232,15 @@ var fullRootDirectoryField = contentManager.GetType().GetField("fullRootDirector
 #if !XNA
                     contentManager.RootDirectory = newRootDirectory;
 #else
-            // XNA does not allow changing the value of RootDirectory after the
-            // content manager has been used. However, it has some internal fields
-            // we can modify through reflection to achieve the same.
+        // XNA does not allow changing the value of RootDirectory after the
+        // content manager has been used. However, it has some internal fields
+        // we can modify through reflection to achieve the same.
 
-            // This would be a very bad solution when using a library that
-            // is updated regularly, but since XNA has been EOL for over a decade
-            // by this point, its internal logic is never going to change.
+        // This would be a very bad solution when using a library that
+        // is updated regularly, but since XNA has been EOL for over a decade
+        // by this point, its internal logic is never going to change.
 
-            rootDirectoryField.SetValue(contentManager, newRootDirectory);
+        rootDirectoryField.SetValue(contentManager, newRootDirectory);
             fullRootDirectoryField.SetValue(contentManager, newRootDirectory);
 #endif
 
@@ -254,8 +254,8 @@ var fullRootDirectoryField = contentManager.GetType().GetField("fullRootDirector
 #if !XNA
         contentManager.RootDirectory = originalContentRoot;
 #else
-rootDirectoryField.SetValue(contentManager, originalContentRoot);
-fullRootDirectoryField.SetValue(contentManager, originalContentRoot);
+    rootDirectoryField.SetValue(contentManager, originalContentRoot);
+    fullRootDirectoryField.SetValue(contentManager, originalContentRoot);
 #endif
     }
 
