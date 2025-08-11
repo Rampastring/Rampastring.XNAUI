@@ -212,9 +212,7 @@ public static class Renderer
                                 Logger.Log($"Loaded SpriteFont: {sfName}");
                             }
                             else
-                            {
                                 Logger.Log($"SpriteFont file not found: {sfName}.xnb");
-                            }
                             break;
                     }
                 }
