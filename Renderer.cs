@@ -13,6 +13,12 @@ using System.Reflection;
 #endif
 
 namespace Rampastring.XNAUI;
+public enum FontType
+{
+    SpriteFont,
+    TrueType
+}
+
 public struct SpriteBatchSettings
 {
     public SpriteBatchSettings(SpriteSortMode ssm, BlendState bs, SamplerState ss, DepthStencilState dss, RasterizerState rs, Effect effect)
@@ -161,11 +167,6 @@ public static class Renderer
 
         fontSystem = new FontSystem();
         string originalContentRoot = contentManager.RootDirectory;
-#if XNA
-    var contentManagerType = contentManager.GetType();
-    var rootDirectoryField = contentManagerType.GetField("rootDirectory", BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.SetField | BindingFlags.GetField);
-    var fullRootDirectoryField = contentManager.GetType().GetField("fullRootDirectory", BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.SetField | BindingFlags.GetField);
-#endif
 
         foreach (string searchPath in AssetLoader.AssetSearchPaths)
         {
@@ -180,42 +181,41 @@ public static class Renderer
                 for (int i = 0; i < fontCount; i++)
                 {
                     string section = $"Font{i}";
-                    string fontType = iniFile.GetStringValue(section, "Type", "SpriteFont");
                     string fontPath = iniFile.GetStringValue(section, "Path", "");
                     int size = iniFile.GetIntValue(section, "Size", 16);
+                    string fontTypeStr = iniFile.GetStringValue(section, "Type", nameof(FontType.SpriteFont));
 
-                    if (string.Equals(fontType, "TrueType", StringComparison.OrdinalIgnoreCase))
+                    if (!Enum.TryParse<FontType>(fontTypeStr, true, out var fontType))
+                        fontType = FontType.SpriteFont;
+
+                    switch (fontType)
                     {
-                        string fullFontPath = SafePath.GetFile(searchPath, fontPath).FullName;
-                        if (File.Exists(fullFontPath))
-                        {
-                            fontSystem.AddFont(File.ReadAllBytes(fullFontPath));
-                            fonts.Add(new TTFFontWrapper(fontSystem.GetFont(size)));
-                        }
-                        else
-                            Logger.Log($"TTF font file not found: {fullFontPath}");
-                    }
-                    else
-                    {
-                        string newRootDirectory = baseDir;
-#if !XNA
-                        contentManager.RootDirectory = newRootDirectory;
-#else
-                rootDirectoryField.SetValue(contentManager, newRootDirectory);
-                fullRootDirectoryField.SetValue(contentManager, newRootDirectory);
-#endif
-                        string sfName = Path.GetFileNameWithoutExtension(fontPath);
-                        if (SafePath.GetFile(searchPath, $"{sfName}.xnb").Exists)
-                        {
-                            var font = contentManager.Load<SpriteFont>(sfName);
-                            font.DefaultCharacter ??= '?';
-                            fonts.Add(new SpriteFontWrapper(font));
-                            Logger.Log($"Loaded SpriteFont: {sfName}");
-                        }
-                        else
-                        {
-                            Logger.Log($"SpriteFont file not found: {sfName}.xnb");
-                        }
+                        case FontType.TrueType:
+                            string fullFontPath = SafePath.GetFile(searchPath, fontPath).FullName;
+                            if (File.Exists(fullFontPath))
+                            {
+                                fontSystem.AddFont(File.ReadAllBytes(fullFontPath));
+                                fonts.Add(new TTFFontWrapper(fontSystem.GetFont(size)));
+                            }
+                            else
+                                Logger.Log($"TTF font file not found: {fullFontPath}");
+                            break;
+
+                        case FontType.SpriteFont:
+                            contentManager.SetRootDirectory(baseDir);
+                            string sfName = Path.GetFileNameWithoutExtension(fontPath);
+                            if (SafePath.GetFile(searchPath, $"{sfName}.xnb").Exists)
+                            {
+                                var font = contentManager.Load<SpriteFont>(sfName);
+                                font.DefaultCharacter ??= '?';
+                                fonts.Add(new SpriteFontWrapper(font));
+                                Logger.Log($"Loaded SpriteFont: {sfName}");
+                            }
+                            else
+                            {
+                                Logger.Log($"SpriteFont file not found: {sfName}.xnb");
+                            }
+                            break;
                     }
                 }
             }
@@ -229,20 +229,7 @@ public static class Renderer
                     if (!SafePath.GetFile(searchPath, FormattableString.Invariant($"{sfName}.xnb")).Exists)
                         break;
 
-#if !XNA
-                    contentManager.RootDirectory = newRootDirectory;
-#else
-        // XNA does not allow changing the value of RootDirectory after the
-        // content manager has been used. However, it has some internal fields
-        // we can modify through reflection to achieve the same.
-
-        // This would be a very bad solution when using a library that
-        // is updated regularly, but since XNA has been EOL for over a decade
-        // by this point, its internal logic is never going to change.
-
-        rootDirectoryField.SetValue(contentManager, newRootDirectory);
-            fullRootDirectoryField.SetValue(contentManager, newRootDirectory);
-#endif
+                    contentManager.SetRootDirectory(newRootDirectory);
 
                     var font = contentManager.Load<SpriteFont>(sfName);
                     font.DefaultCharacter ??= '?';
@@ -251,14 +238,8 @@ public static class Renderer
             }
         }
 
-#if !XNA
-        contentManager.RootDirectory = originalContentRoot;
-#else
-    rootDirectoryField.SetValue(contentManager, originalContentRoot);
-    fullRootDirectoryField.SetValue(contentManager, originalContentRoot);
-#endif
+        contentManager.SetRootDirectory(originalContentRoot);
     }
-
 
     /// <summary>
     /// Allows direct access to the list of loaded fonts.
