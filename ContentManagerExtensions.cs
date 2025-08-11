@@ -14,6 +14,14 @@ namespace Rampastring.XNAUI
             .GetField("fullRootDirectory", BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.SetField | BindingFlags.GetField);
 #endif
 
+        // XNA does not allow changing the value of RootDirectory after the
+        // content manager has been used. However, it has some internal fields
+        // we can modify through reflection to achieve the same.
+
+        // This would be a very bad solution when using a library that
+        // is updated regularly, but since XNA has been EOL for over a decade
+        // by this point, its internal logic is never going to change.
+
         /// <summary>
         /// Sets the root directory for the ContentManager with XNA vs MonoGame differences.
         /// </summary>
