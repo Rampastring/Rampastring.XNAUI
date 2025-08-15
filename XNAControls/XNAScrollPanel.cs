@@ -303,10 +303,10 @@ public class XNAScrollPanel : XNAPanel
     
     private void XNAScrollPanel_NameChanged(object sender, EventArgs e)
     {
-        HorizontalScrollBar.Name = $"{Name}.HorizontalScrollBar";
-        VerticalScrollBar.Name = $"{Name}.VerticalScrollBar";
-        ContentPanel.Name = $"{Name}.ContentPanel";
-        CornerPanel.Name = $"{Name}.CornerPanel";
+        HorizontalScrollBar.Name = $"{Name}_HorizontalScrollBar";
+        VerticalScrollBar.Name = $"{Name}_VerticalScrollBar";
+        ContentPanel.Name = $"{Name}_ContentPanel";
+        CornerPanel.Name = $"{Name}_CornerPanel";
     }
     
     #region Recalculation handlers
@@ -431,14 +431,14 @@ public class XNAScrollPanel : XNAPanel
         {
             _timeSinceLastScroll += gameTime.ElapsedGameTime;
 
-            if (_timeSinceLastScroll > TimeSpan.FromSeconds(UIConstants.KEYBOARD_SCROLL_REPEAT_TIME))
+            if (_timeSinceLastScroll > TimeSpan.FromSeconds(XNAUIConstants.KEYBOARD_SCROLL_REPEAT_TIME))
             {
                 _timeSinceLastScroll = TimeSpan.Zero;
                 action();
             }
         }
 
-        if (_scrollKeyTime > TimeSpan.FromSeconds(UIConstants.KEYBOARD_FAST_SCROLL_TRIGGER_TIME) && !_isScrollingQuickly)
+        if (_scrollKeyTime > TimeSpan.FromSeconds(XNAUIConstants.KEYBOARD_FAST_SCROLL_TRIGGER_TIME) && !_isScrollingQuickly)
         {
             _isScrollingQuickly = true;
             _timeSinceLastScroll = TimeSpan.Zero;

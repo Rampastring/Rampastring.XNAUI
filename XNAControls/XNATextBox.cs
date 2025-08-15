@@ -1135,14 +1135,14 @@ public class XNATextBox : XNAControl
         {
             timeSinceLastScroll += gameTime.ElapsedGameTime;
 
-            if (timeSinceLastScroll > TimeSpan.FromSeconds(UIConstants.KEYBOARD_SCROLL_REPEAT_TIME))
+            if (timeSinceLastScroll > TimeSpan.FromSeconds(XNAUIConstants.KEYBOARD_SCROLL_REPEAT_TIME))
             {
                 timeSinceLastScroll = TimeSpan.Zero;
                 action();
             }
         }
 
-        if (scrollKeyTime > TimeSpan.FromSeconds(UIConstants.KEYBOARD_FAST_SCROLL_TRIGGER_TIME) && !isScrollingQuickly)
+        if (scrollKeyTime > TimeSpan.FromSeconds(XNAUIConstants.KEYBOARD_FAST_SCROLL_TRIGGER_TIME) && !isScrollingQuickly)
         {
             isScrollingQuickly = true;
             timeSinceLastScroll = TimeSpan.Zero;
