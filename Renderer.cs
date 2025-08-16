@@ -375,7 +375,7 @@ public static class Renderer
 #if XNA
         spriteBatch.DrawString(fonts[fontIndex], text,
             new Vector2(location.X + shadowDistance, location.Y + shadowDistance),
-            new Color(0, 0, 0, color.A));
+            new Color((byte)0, (byte)0, (byte)0, color.A));
 #else
         spriteBatch.DrawString(fonts[fontIndex], text,
             new Vector2(location.X + shadowDistance, location.Y + shadowDistance),

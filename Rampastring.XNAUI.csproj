@@ -11,7 +11,7 @@
     <Title Condition="'$(Configuration)' == 'WindowsGLDebug'">Rampastring.XNAUI (WindowsGL Debug Build)</Title>
     <Title Condition="'$(Configuration)' == 'UniversalGLDebug'">Rampastring.XNAUI (UniversalGL Debug Build)</Title>
     <Title Condition="'$(Configuration)' == 'WindowsXNADebug'">Rampastring.XNAUI (XNA Debug Build)</Title>
-    <Description>Rampastring XNA/MonoGame UI Library</Description>
+    <Description>Rampastring XNA/MonoGame/KNI UI Library</Description>
     <Company>Rampastring</Company>
     <Product>Rampastring.XNAUI</Product>
     <Copyright>Copyright © Rami 'Rampastring' Pasanen 2016-2024</Copyright>
@@ -124,26 +124,8 @@
     <None Include="README.md" Pack="true" PackagePath="\" />
   </ItemGroup>
   <!--Switching between Configurations within VS IDE requires reloading the project file-->
-  <ItemGroup Condition="$(DefineConstants.Contains('DX'))">
-    <PackageReference Include="MonoGame.Framework.WindowsDX" Condition="'$(TargetFrameworkIdentifier)' == '.NETFramework'" Version="3.8.0.1641" />
-    <PackageReference Include="MonoGame.Framework.WindowsDX" Condition="'$(TargetFrameworkIdentifier)' != '.NETFramework'" Version="3.8.1.303" />
-  </ItemGroup>
-  <ItemGroup Condition="$(DefineConstants.Contains('GL'))">
-    <PackageReference Include="MonoGame.Framework.DesktopGL" Condition="'$(TargetFrameworkIdentifier)' == '.NETFramework'" Version="3.8.0.1641" />
-    <PackageReference Include="MonoGame.Framework.DesktopGL" Condition="'$(TargetFrameworkIdentifier)' != '.NETFramework'" Version="3.8.1.303" />
-  </ItemGroup>
-  <ItemGroup Condition="$(DefineConstants.Contains('XNA'))">
-    <Reference Include="Microsoft.Xna.Framework">
-      <HintPath>References\XNA\Microsoft.Xna.Framework.dll</HintPath>
-    </Reference>
-    <Reference Include="Microsoft.Xna.Framework.Game">
-      <HintPath>References\XNA\Microsoft.Xna.Framework.Game.dll</HintPath>
-    </Reference>
-    <Reference Include="Microsoft.Xna.Framework.Graphics">
-      <HintPath>References\XNA\Microsoft.Xna.Framework.Graphics.dll</HintPath>
-    </Reference>
-  </ItemGroup>
   <ItemGroup>
+    <PackageReference Include="nkast.Kni.Platform.WinForms.DX11" Version="4.1.9001" />
     <PackageReference Include="Rampastring.Tools" Version="2.0.7" />
     <PackageReference Include="Microsoft.Windows.CsWin32" Version="0.3.49-beta" PrivateAssets="All" />
     <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1" PrivateAssets="All" />

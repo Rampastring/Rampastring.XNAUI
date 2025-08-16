@@ -937,7 +937,7 @@ public class XNAControl : DrawableGameComponent
         _initScaling = _scaling;
     }
 
-    protected override void OnEnabledChanged(object sender, EventArgs args)
+    protected override void OnEnabledChanged(EventArgs args)
     {
         if (!Enabled)
         {
@@ -946,10 +946,10 @@ public class XNAControl : DrawableGameComponent
             IsMiddlePressedOn = false;
         }
 
-        base.OnEnabledChanged(sender, args);
+        base.OnEnabledChanged(args);
     }
 
-    protected override void OnVisibleChanged(object sender, EventArgs args)
+    protected override void OnVisibleChanged(EventArgs args)
     {
         if (Initialized)
         {
@@ -965,7 +965,7 @@ public class XNAControl : DrawableGameComponent
             }
         }
 
-        base.OnVisibleChanged(sender, args);
+        base.OnVisibleChanged(args);
     }
 
     /// <summary>

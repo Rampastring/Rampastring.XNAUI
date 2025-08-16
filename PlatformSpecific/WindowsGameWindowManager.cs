@@ -89,7 +89,8 @@ internal class WindowsGameWindowManager : IGameWindowManager
 #if XNA
         gameForm.DesktopLocation = new System.Drawing.Point(x, y);
 #else
-        game.Window.Position = new Microsoft.Xna.Framework.Point(screenX + x, screenY + y);
+        gameForm.DesktopLocation = new System.Drawing.Point(x, y);
+        // game.Window.Position = new Microsoft.Xna.Framework.Point(screenX + x, screenY + y);
 #endif
     }
 
