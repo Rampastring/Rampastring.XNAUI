@@ -19,8 +19,6 @@ public class XNATextBox : XNAControl
     protected const int TEXT_VERTICAL_MARGIN = 2;
     protected const double CURSOR_SCROLL_REPEAT_TIME = 0.05;
     protected const double CURSOR_FAST_SCROLL_THRESHOLD = 20;
-    protected const double SCROLL_REPEAT_TIME = 0.03;
-    protected const double FAST_SCROLL_TRIGGER_TIME = 0.4;
     protected const double BAR_ON_TIME = 0.5;
     protected const double BAR_OFF_TIME = 0.5;
 
@@ -1137,14 +1135,14 @@ public class XNATextBox : XNAControl
         {
             timeSinceLastScroll += gameTime.ElapsedGameTime;
 
-            if (timeSinceLastScroll > TimeSpan.FromSeconds(SCROLL_REPEAT_TIME))
+            if (timeSinceLastScroll > TimeSpan.FromSeconds(XNAUIConstants.KEYBOARD_SCROLL_REPEAT_TIME))
             {
                 timeSinceLastScroll = TimeSpan.Zero;
                 action();
             }
         }
 
-        if (scrollKeyTime > TimeSpan.FromSeconds(FAST_SCROLL_TRIGGER_TIME) && !isScrollingQuickly)
+        if (scrollKeyTime > TimeSpan.FromSeconds(XNAUIConstants.KEYBOARD_FAST_SCROLL_TRIGGER_TIME) && !isScrollingQuickly)
         {
             isScrollingQuickly = true;
             timeSinceLastScroll = TimeSpan.Zero;

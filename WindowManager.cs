@@ -773,6 +773,11 @@ public class WindowManager : DrawableGameComponent
                     {
                         PropagateInputEvent(static (c, ie) => c.OnMouseScrolled(ie), MouseInputFlags.ScrollWheel);
                     }
+                    
+                    if (Cursor.HorizontalScrollWheelValue != 0 && !isInputCaptured)
+                    {
+                        PropagateInputEvent(static (c, ie) => c.OnMouseScrolledHorizontally(ie), MouseInputFlags.ScrollWheelHorizontal);
+                    }
                 }
             }
         }
