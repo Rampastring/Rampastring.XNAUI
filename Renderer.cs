@@ -1,11 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using ClientCore;
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Content;
-using System.Text;
+using Microsoft.Xna.Framework.Graphics;
 using Rampastring.Tools;
+using System;
+using System.Collections.Generic;
 using System.Globalization;
+using System.Text;
+using System.Text.RegularExpressions;
 #if XNA
 using System.Reflection;
 #endif
@@ -167,12 +169,12 @@ public static class Renderer
 
     public static TextParseReturnValue FixText(string text, int fontIndex, int width)
     {
-        return TextParseReturnValue.FixText(fonts[fontIndex], width, text);
+        return TextParseReturnValue.FixText(fonts[fontIndex], width, ArabicFixerSafe.Fix(text));
     }
 
     public static List<string> GetFixedTextLines(string text, int fontIndex, int width, bool splitWords = true, bool keepBlankLines = false)
     {
-        return TextParseReturnValue.GetFixedTextLines(fonts[fontIndex], width, text, splitWords, keepBlankLines);
+        return TextParseReturnValue.GetFixedTextLines(fonts[fontIndex], width, ArabicFixerSafe.Fix(text), splitWords, keepBlankLines);
     }
 
     /// <summary>
@@ -364,7 +366,7 @@ public static class Renderer
         if (fontIndex >= fonts.Count)
             throw new Exception("Invalid font index: " + fontIndex);
 
-        spriteBatch.DrawString(fonts[fontIndex], text, location, color, 0f, Vector2.Zero, scale, SpriteEffects.None, depth);
+        spriteBatch.DrawString(fonts[fontIndex], ArabicFixerSafe.Fix(text), location, color, 0f, Vector2.Zero, scale, SpriteEffects.None, depth);
     }
 
     public static void DrawStringWithShadow(string text, int fontIndex, Vector2 location, Color color, float scale = 1.0f, float shadowDistance = 1.0f, float depth = 0f)
@@ -377,13 +379,13 @@ public static class Renderer
             new Vector2(location.X + shadowDistance, location.Y + shadowDistance),
             new Color(0, 0, 0, color.A));
 #else
-        spriteBatch.DrawString(fonts[fontIndex], text,
+        spriteBatch.DrawString(fonts[fontIndex], ArabicFixerSafe.Fix(text),
             new Vector2(location.X + shadowDistance, location.Y + shadowDistance),
             UISettings.ActiveSettings.TextShadowColor * (color.A / 255.0f),
             0f, Vector2.Zero, scale, SpriteEffects.None, depth);
 #endif
 
-        spriteBatch.DrawString(fonts[fontIndex], text, location, color, 0f, Vector2.Zero, scale, SpriteEffects.None, depth);
+        spriteBatch.DrawString(fonts[fontIndex], ArabicFixerSafe.Fix(text), location, color, 0f, Vector2.Zero, scale, SpriteEffects.None, depth);
     }
 
     public static void DrawRectangle(Rectangle rect, Color color, int thickness = 1)
@@ -404,7 +406,7 @@ public static class Renderer
         if (fontIndex >= fonts.Count)
             throw new Exception("Invalid font index: " + fontIndex);
 
-        return fonts[fontIndex].MeasureString(text);
+        return fonts[fontIndex].MeasureString(ArabicFixerSafe.Fix(text));
     }
 
     public static void DrawLine(Vector2 start, Vector2 end, Color color, int thickness = 1, float depth = 0f)
@@ -423,4 +425,33 @@ public static class Renderer
     }
 
 #endregion
+}
+public static class ArabicFixerSafe
+{
+    private static readonly Regex PlaceholderRegex = new(@"{\d+}", RegexOptions.Compiled);
+
+    public static string Fix(string input)
+    {
+
+        if (string.IsNullOrEmpty(input) || input == "إصدار تجريبي")
+            return input;
+
+
+        var placeholders = new List<string>();
+        string temp = PlaceholderRegex.Replace(input, match =>
+        {
+            placeholders.Add(match.Value);
+            return ((char)('\uE000' + placeholders.Count - 1)).ToString();
+        });
+
+        string fixedText = ArabicSupports.ArabicFixer.Fix(temp, true, false);
+
+        for (int i = 0; i < placeholders.Count; i++)
+        {
+            char marker = (char)('\uE000' + i);
+            fixedText = fixedText.Replace(marker.ToString(), placeholders[i]);
+        }
+
+        return fixedText;
+    }
 }
