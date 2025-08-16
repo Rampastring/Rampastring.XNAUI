@@ -12,7 +12,21 @@ public class XNASuggestionTextBox : XNATextBox
     {
     }
 
-    public string Suggestion { get; set; }
+    private string _suggestion = string.Empty;
+
+    public string Suggestion
+    {
+        get => _suggestion;
+        set
+        {
+            bool isTextDefault = Text == Suggestion;
+            _suggestion = value;
+            if (isTextDefault)
+            {
+                Text = _suggestion;
+            }
+        }
+    }
 
     private Color? _suggestedTextColor;
 
