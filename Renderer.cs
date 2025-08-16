@@ -433,7 +433,7 @@ public static class ArabicFixerSafe
     public static string Fix(string input)
     {
 
-        if (string.IsNullOrEmpty(input) || input == "إصدار تجريبي")
+        if (string.IsNullOrEmpty(input))
             return input;
 
 
