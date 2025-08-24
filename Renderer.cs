@@ -162,68 +162,81 @@ public static class Renderer
 
             if (File.Exists(iniPath))
             {
-                var iniFile = new IniFile(iniPath);
-                int fontCount = iniFile.GetIntValue("Fonts", "Count", 0);
-
-                for (int i = 0; i < fontCount; i++)
-                {
-                    string section = $"Font{i}";
-                    string fontPath = iniFile.GetStringValue(section, "Path", "");
-                    int size = iniFile.GetIntValue(section, "Size", 16);
-                    string fontTypeStr = iniFile.GetStringValue(section, "Type", nameof(FontType.SpriteFont));
-
-                    if (!Enum.TryParse<FontType>(fontTypeStr, true, out var fontType))
-                        fontType = FontType.SpriteFont;
-
-                    switch (fontType)
-                    {
-                        case FontType.TrueType:
-                            string fullFontPath = SafePath.GetFile(searchPath, fontPath).FullName;
-                            if (File.Exists(fullFontPath))
-                            {
-                                fontSystem.AddFont(File.ReadAllBytes(fullFontPath));
-                                fonts.Add(new TTFFontWrapper(fontSystem.GetFont(size)));
-                            }
-                            else
-                                Logger.Log($"TTF font file not found: {fullFontPath}");
-                            break;
-
-                        case FontType.SpriteFont:
-                            contentManager.SetRootDirectory(baseDir);
-                            string sfName = Path.GetFileNameWithoutExtension(fontPath);
-                            if (SafePath.GetFile(searchPath, $"{sfName}.xnb").Exists)
-                            {
-                                var font = contentManager.Load<SpriteFont>(sfName);
-                                font.DefaultCharacter ??= '?';
-                                fonts.Add(new SpriteFontWrapper(font));
-                                Logger.Log($"Loaded SpriteFont: {sfName}");
-                            }
-                            else
-                                Logger.Log($"SpriteFont file not found: {sfName}.xnb");
-                            break;
-                    }
-                }
+                // load via fonts.ini
+                LoadFontsFromIni(iniPath, contentManager, searchPath, baseDir);
             }
             else
             {
-                string newRootDirectory = baseDir;
-                while (true)
-                {
-                    string sfName = string.Format(CultureInfo.InvariantCulture, "SpriteFont{0}", fonts.Count);
-
-                    if (!SafePath.GetFile(searchPath, FormattableString.Invariant($"{sfName}.xnb")).Exists)
-                        break;
-
-                    contentManager.SetRootDirectory(newRootDirectory);
-
-                    var font = contentManager.Load<SpriteFont>(sfName);
-                    font.DefaultCharacter ??= '?';
-                    fonts.Add(new SpriteFontWrapper(font));
-                }
+                // load SpriteFontX.xnb from resources folder
+                LoadLegacySpriteFonts(contentManager, searchPath, baseDir);
             }
         }
 
         contentManager.SetRootDirectory(originalContentRoot);
+    }
+
+    private static void LoadFontsFromIni(string iniPath, ContentManager contentManager, string searchPath, string baseDir)
+    {
+        var iniFile = new IniFile(iniPath);
+        int fontCount = iniFile.GetIntValue("Fonts", "Count", 0);
+
+        for (int i = 0; i < fontCount; i++)
+        {
+            string section = $"Font{i}";
+            string fontPath = iniFile.GetStringValue(section, "Path", "");
+            int size = iniFile.GetIntValue(section, "Size", 16);
+            string fontTypeStr = iniFile.GetStringValue(section, "Type", nameof(FontType.SpriteFont));
+
+            if (!Enum.TryParse<FontType>(fontTypeStr, true, out var fontType))
+                fontType = FontType.SpriteFont;
+
+            switch (fontType)
+            {
+                case FontType.TrueType:
+                    string fullFontPath = SafePath.GetFile(searchPath, fontPath).FullName;
+                    if (File.Exists(fullFontPath))
+                    {
+                        fontSystem.AddFont(File.ReadAllBytes(fullFontPath));
+                        fonts.Add(new TTFFontWrapper(fontSystem.GetFont(size)));
+                        Logger.Log($"Loaded TTF font: {fontPath} (size: {size})");
+                    }
+                    else
+                    {
+                        Logger.Log($"TTF font file not found: {fullFontPath}");
+                    }
+                    break;
+
+                case FontType.SpriteFont:
+                    contentManager.SetRootDirectory(baseDir);
+                    string sfName = Path.GetFileNameWithoutExtension(fontPath);
+                    if (SafePath.GetFile(searchPath, $"{sfName}.xnb").Exists)
+                    {
+                        fonts.Add(new SpriteFontWrapper(contentManager.Load<SpriteFont>(sfName)));
+                        Logger.Log($"Loaded SpriteFont: {sfName}");
+                    }
+                    else
+                    {
+                        Logger.Log($"SpriteFont file not found: {sfName}.xnb");
+                    }
+                    break;
+            }
+        }
+    }
+
+    private static void LoadLegacySpriteFonts(ContentManager contentManager, string searchPath, string baseDir)
+    {
+        contentManager.SetRootDirectory(baseDir);
+
+        while (true)
+        {
+            string sfName = string.Format(CultureInfo.InvariantCulture, "SpriteFont{0}", fonts.Count);
+
+            if (!SafePath.GetFile(searchPath, FormattableString.Invariant($"{sfName}.xnb")).Exists)
+                break;
+
+            fonts.Add(new SpriteFontWrapper(contentManager.Load<SpriteFont>(sfName)));
+            Logger.Log($"Loaded legacy SpriteFont: {sfName}");
+        }
     }
 
     /// <summary>
@@ -244,8 +257,6 @@ public static class Renderer
 
         return fonts[fontIndex].GetSafeString(str);
     }
-
-    public static Vector2 MeasureString(string text, int fontIndex) => fonts[fontIndex].MeasureString(text);
 
     /// <summary>
     /// Returns a that has had its width limited to a specific number.
