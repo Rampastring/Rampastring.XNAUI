@@ -39,13 +39,13 @@ public struct SpriteBatchSettings
     public readonly Effect Effect;
 }
 
-public abstract class IFont
+public interface IFont
 {
-    public abstract Vector2 MeasureString(string text);
-    public abstract void DrawString(SpriteBatch spriteBatch, string text, Vector2 location, Color color, float scale, float depth);
-    public abstract void DrawString(SpriteBatch spriteBatch, StringSegment text, Vector2 location, Color color, float rotation, Vector2 origin, Vector2 scale, float depth);
-    public abstract bool HasCharacter(char c);
-    public abstract string GetSafeString(string str);
+    Vector2 MeasureString(string text);
+    void DrawString(SpriteBatch spriteBatch, string text, Vector2 location, Color color, float scale, float depth);
+    void DrawString(SpriteBatch spriteBatch, StringSegment text, Vector2 location, Color color, float rotation, Vector2 origin, Vector2 scale, float depth);
+    bool HasCharacter(char c);
+    string GetSafeString(string str);
 }
 
 /// <summary>
@@ -59,18 +59,18 @@ public class SpriteFontWrapper : IFont
     {
         _font = font;
     }
+    
+    public Vector2 MeasureString(string text) => _font.MeasureString(text);
 
-    public override Vector2 MeasureString(string text) => _font.MeasureString(text);
-
-    public override void DrawString(SpriteBatch spriteBatch, string text, Vector2 location, Color color, float scale, float depth) =>
+    public void DrawString(SpriteBatch spriteBatch, string text, Vector2 location, Color color, float scale, float depth) =>
         spriteBatch.DrawString(_font, text, location, color, 0f, Vector2.Zero, scale, SpriteEffects.None, depth);
 
-    public override void DrawString(SpriteBatch spriteBatch, StringSegment text, Vector2 location, Color color, float rotation, Vector2 origin, Vector2 scale, float depth) =>
+    public void DrawString(SpriteBatch spriteBatch, StringSegment text, Vector2 location, Color color, float rotation, Vector2 origin, Vector2 scale, float depth) =>
         spriteBatch.DrawString(_font, text.ToString(), location, color, rotation, origin, scale.X, SpriteEffects.None, depth);
 
-    public override bool HasCharacter(char c) => _font.Characters.Contains(c);
+    public bool HasCharacter(char c) => _font.Characters.Contains(c);
 
-    public override string GetSafeString(string str)
+    public string GetSafeString(string str)
     {
         var sb = new StringBuilder(str);
         for (int i = 0; i < str.Length; i++)
@@ -97,38 +97,25 @@ public class TTFFontWrapper : IFont
         _font = font;
     }
 
-    public override Vector2 MeasureString(string text)
+    public Vector2 MeasureString(string text)
     {
         var bounds = _font.MeasureString(text);
         return new Vector2(bounds.X, bounds.Y);
     }
 
-    public override void DrawString(SpriteBatch spriteBatch, string text, Vector2 location, Color color, float scale, float depth)
+    public void DrawString(SpriteBatch spriteBatch, string text, Vector2 location, Color color, float scale, float depth)
     {
         var vectorScale = new Vector2(scale, scale);
         var segment = new StringSegment(text);
         spriteBatch.DrawString(_font, segment, location, color, 0f, Vector2.Zero, vectorScale, depth);
     }
 
-    public override void DrawString(SpriteBatch spriteBatch, StringSegment text, Vector2 location, Color color, float rotation, Vector2 origin, Vector2 scale, float depth) =>
+    public void DrawString(SpriteBatch spriteBatch, StringSegment text, Vector2 location, Color color, float rotation, Vector2 origin, Vector2 scale, float depth) =>
         spriteBatch.DrawString(_font, text, location, color, rotation, origin, scale, depth);
 
-    public override bool HasCharacter(char c) => true;
+    public bool HasCharacter(char c) => true;
 
-    public override string GetSafeString(string str)
-    {
-        var sb = new StringBuilder(str);
-        for (int i = 0; i < str.Length; i++)
-        {
-            char c = str[i];
-            if (!char.IsControl(c) || c == '\r' || c == '\n')
-            {
-                continue;
-            }
-            sb.Replace(c, '?');
-        }
-        return sb.ToString();
-    }
+    public string GetSafeString(string str) => str;
 }
 
 public static class Renderer
