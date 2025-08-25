@@ -3,22 +3,12 @@ using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Content;
-using System.Text;
-using Rampastring.Tools;
-using System.Globalization;
 using FontStashSharp;
-using System.IO;
 #if XNA
 using System.Reflection;
 #endif
 
 namespace Rampastring.XNAUI;
-public enum FontType
-{
-    SpriteFont,
-    TrueType
-}
-
 public struct SpriteBatchSettings
 {
     public SpriteBatchSettings(SpriteSortMode ssm, BlendState bs, SamplerState ss, DepthStencilState dss, RasterizerState rs, Effect effect)
@@ -39,90 +29,9 @@ public struct SpriteBatchSettings
     public readonly Effect Effect;
 }
 
-public interface IFont
-{
-    Vector2 MeasureString(string text);
-    void DrawString(SpriteBatch spriteBatch, string text, Vector2 location, Color color, float scale, float depth);
-    void DrawString(SpriteBatch spriteBatch, StringSegment text, Vector2 location, Color color, float rotation, Vector2 origin, Vector2 scale, float depth);
-    bool HasCharacter(char c);
-    string GetSafeString(string str);
-}
-
-/// <summary>
-/// A wrapper for the classic XNA SpriteFont.
-/// </summary>
-public class SpriteFontWrapper : IFont
-{
-    internal readonly SpriteFont _font;
-
-    public SpriteFontWrapper(SpriteFont font)
-    {
-        _font = font;
-    }
-    
-    public Vector2 MeasureString(string text) => _font.MeasureString(text);
-
-    public void DrawString(SpriteBatch spriteBatch, string text, Vector2 location, Color color, float scale, float depth) =>
-        spriteBatch.DrawString(_font, text, location, color, 0f, Vector2.Zero, scale, SpriteEffects.None, depth);
-
-    public void DrawString(SpriteBatch spriteBatch, StringSegment text, Vector2 location, Color color, float rotation, Vector2 origin, Vector2 scale, float depth) =>
-        spriteBatch.DrawString(_font, text.ToString(), location, color, rotation, origin, scale.X, SpriteEffects.None, depth);
-
-    public bool HasCharacter(char c) => _font.Characters.Contains(c);
-
-    public string GetSafeString(string str)
-    {
-        var sb = new StringBuilder(str);
-        for (int i = 0; i < str.Length; i++)
-        {
-            char c = str[i];
-            if (c != '\r' && c != '\n' && !HasCharacter(c))
-            {
-                sb.Replace(c, '?');
-            }
-        }
-        return sb.ToString();
-    }
-}
-
-/// <summary>
-/// A wrapper for the FontStashSharp TTF fonts.
-/// </summary>
-public class TTFFontWrapper : IFont
-{
-    internal readonly SpriteFontBase _font;
-
-    public TTFFontWrapper(SpriteFontBase font)
-    {
-        _font = font;
-    }
-
-    public Vector2 MeasureString(string text)
-    {
-        var bounds = _font.MeasureString(text);
-        return new Vector2(bounds.X, bounds.Y);
-    }
-
-    public void DrawString(SpriteBatch spriteBatch, string text, Vector2 location, Color color, float scale, float depth)
-    {
-        var vectorScale = new Vector2(scale, scale);
-        var segment = new StringSegment(text);
-        spriteBatch.DrawString(_font, segment, location, color, 0f, Vector2.Zero, vectorScale, depth);
-    }
-
-    public void DrawString(SpriteBatch spriteBatch, StringSegment text, Vector2 location, Color color, float rotation, Vector2 origin, Vector2 scale, float depth) =>
-        spriteBatch.DrawString(_font, text, location, color, rotation, origin, scale, depth);
-
-    public bool HasCharacter(char c) => true;
-
-    public string GetSafeString(string str) => str;
-}
-
 public static class Renderer
 {
     private static SpriteBatch spriteBatch;
-    private static List<IFont> fonts;
-    private static FontSystem fontSystem;
 
     private static Texture2D whitePixelTexture;
 
@@ -135,114 +44,17 @@ public static class Renderer
     public static void Initialize(GraphicsDevice gd, ContentManager content)
     {
         spriteBatch = new SpriteBatch(gd);
-        fonts = new List<IFont>();
-        LoadFonts(content);
+
+        FontManager.Initialize();
+        FontManager.LoadFonts(content);
 
         whitePixelTexture = AssetLoader.CreateTexture(Color.White, 1, 1);
     }
 
     /// <summary>
-    /// Clears all potentially existing loaded fonts and then loads fonts from asset loader directories.
-    /// </summary>
-    /// <param name="contentManager">A XNA/MonoGame ContentManager instance.</param>
-    public static void LoadFonts(ContentManager contentManager)
-    {
-        if (fonts == null)
-            fonts = new List<IFont>();
-        else
-            fonts.Clear();
-
-        fontSystem = new FontSystem();
-        string originalContentRoot = contentManager.RootDirectory;
-
-        foreach (string searchPath in AssetLoader.AssetSearchPaths)
-        {
-            string baseDir = SafePath.GetDirectory(searchPath).FullName;
-            string iniPath = Path.Combine(baseDir, "Fonts.ini");
-
-            if (File.Exists(iniPath))
-            {
-                // load via fonts.ini
-                LoadFontsFromIni(iniPath, contentManager, searchPath, baseDir);
-            }
-            else
-            {
-                // load SpriteFontX.xnb from resources folder
-                LoadLegacySpriteFonts(contentManager, searchPath, baseDir);
-            }
-        }
-
-        contentManager.SetRootDirectory(originalContentRoot);
-    }
-
-    private static void LoadFontsFromIni(string iniPath, ContentManager contentManager, string searchPath, string baseDir)
-    {
-        var iniFile = new IniFile(iniPath);
-        int fontCount = iniFile.GetIntValue("Fonts", "Count", 0);
-
-        for (int i = 0; i < fontCount; i++)
-        {
-            string section = $"Font{i}";
-            string fontPath = iniFile.GetStringValue(section, "Path", "");
-            int size = iniFile.GetIntValue(section, "Size", 16);
-            string fontTypeStr = iniFile.GetStringValue(section, "Type", nameof(FontType.SpriteFont));
-
-            if (!Enum.TryParse<FontType>(fontTypeStr, true, out var fontType))
-                fontType = FontType.SpriteFont;
-
-            switch (fontType)
-            {
-                case FontType.TrueType:
-                    string fullFontPath = SafePath.GetFile(searchPath, fontPath).FullName;
-                    if (File.Exists(fullFontPath))
-                    {
-                        fontSystem.AddFont(File.ReadAllBytes(fullFontPath));
-                        fonts.Add(new TTFFontWrapper(fontSystem.GetFont(size)));
-                        Logger.Log($"Loaded TTF font: {fontPath} (size: {size})");
-                    }
-                    else
-                    {
-                        Logger.Log($"TTF font file not found: {fullFontPath}");
-                    }
-                    break;
-
-                case FontType.SpriteFont:
-                    contentManager.SetRootDirectory(baseDir);
-                    string sfName = Path.GetFileNameWithoutExtension(fontPath);
-                    if (SafePath.GetFile(searchPath, $"{sfName}.xnb").Exists)
-                    {
-                        fonts.Add(new SpriteFontWrapper(contentManager.Load<SpriteFont>(sfName)));
-                        Logger.Log($"Loaded SpriteFont: {sfName}");
-                    }
-                    else
-                    {
-                        Logger.Log($"SpriteFont file not found: {sfName}.xnb");
-                    }
-                    break;
-            }
-        }
-    }
-
-    private static void LoadLegacySpriteFonts(ContentManager contentManager, string searchPath, string baseDir)
-    {
-        contentManager.SetRootDirectory(baseDir);
-
-        while (true)
-        {
-            string sfName = string.Format(CultureInfo.InvariantCulture, "SpriteFont{0}", fonts.Count);
-
-            if (!SafePath.GetFile(searchPath, FormattableString.Invariant($"{sfName}.xnb")).Exists)
-                break;
-
-            fonts.Add(new SpriteFontWrapper(contentManager.Load<SpriteFont>(sfName)));
-            Logger.Log($"Loaded legacy SpriteFont: {sfName}");
-        }
-    }
-
-    /// <summary>
     /// Allows direct access to the list of loaded fonts.
     /// </summary>
-    public static List<IFont> GetFontList() => fonts;
+    public static List<IFont> GetFontList() => FontManager.GetFontList();
 
     /// <summary>
     /// Returns a version of the given string where all characters that don't
@@ -250,61 +62,33 @@ public static class Renderer
     /// </summary>
     /// <param name="str">The string.</param>
     /// <param name="fontIndex">The index of the font.</param>
-    public static string GetSafeString(string str, int fontIndex)
-    {
-        if (fontIndex < 0 || fontIndex >= fonts.Count)
-            throw new IndexOutOfRangeException("Invalid font index.");
-
-        return fonts[fontIndex].GetSafeString(str);
-    }
+    public static string GetSafeString(string str, int fontIndex) =>
+        FontManager.GetSafeString(str, fontIndex);
 
     /// <summary>
-    /// Returns a that has had its width limited to a specific number.
-    /// Characters that'd cross over the width have been cut.
+    /// Returns a string that has had its width limited to a specific number.
+    /// Characters that would cross over the width have been cut.
     /// </summary>
     /// <param name="str">The string to limit.</param>
     /// <param name="fontIndex">The index of the font to use.</param>
     /// <param name="maxWidth">The maximum width of the string.</param>
     /// <returns></returns>
-    public static string GetStringWithLimitedWidth(string str, int fontIndex, int maxWidth)
-    {
-        if (fontIndex < 0 || fontIndex >= fonts.Count)
-            throw new IndexOutOfRangeException("Invalid font index.");
+    public static string GetStringWithLimitedWidth(string str, int fontIndex, int maxWidth) =>
+        FontManager.GetStringWithLimitedWidth(str, fontIndex, maxWidth);
 
-        var font = fonts[fontIndex];
-        var sb = new StringBuilder(str);
-        while (font.MeasureString(sb.ToString()).X > maxWidth && sb.Length > 0)
-        {
-            sb.Remove(sb.Length - 1, 1);
-        }
-        return sb.ToString();
-    }
+    public static TextParseReturnValue FixText(string text, int fontIndex, int width) =>
+        FontManager.FixText(text, fontIndex, width);
 
-public static TextParseReturnValue FixText(string text, int fontIndex, int width)
-{
-    if (fontIndex < 0 || fontIndex >= fonts.Count)
-        throw new IndexOutOfRangeException("Invalid font index.");
+    public static List<string> GetFixedTextLines(string text, int fontIndex, int width, bool splitWords = true, bool keepBlankLines = false) =>
+        FontManager.GetFixedTextLines(text, fontIndex, width, splitWords, keepBlankLines);
 
-    IFont font = fonts[fontIndex];
-    return TextParseReturnValue.FixText(font, width, text);
-}
-
-public static List<string> GetFixedTextLines(string text, int fontIndex, int width, bool splitWords = true, bool keepBlankLines = false)
-{
-    if (fontIndex < 0 || fontIndex >= fonts.Count)
-        throw new IndexOutOfRangeException("Invalid font index.");
-
-    IFont font = fonts[fontIndex];
-    return TextParseReturnValue.GetFixedTextLines(font, width, text, splitWords, keepBlankLines);
-}
-
-/// <summary>
-/// Pushes new settings into the renderer's internal stack and applies them.
-/// A call to <see cref="PushSettings(SpriteBatchSettings)"/> should always
-/// be followed by <see cref="PopSettings"/> once drawing with the new settings is done.
-/// </summary>
-/// <param name="settings">The sprite batch settings.</param>
-public static void PushSettings(SpriteBatchSettings settings)
+    /// <summary>
+    /// Pushes new settings into the renderer's internal stack and applies them.
+    /// A call to <see cref="PushSettings(SpriteBatchSettings)"/> should always
+    /// be followed by <see cref="PopSettings"/> once drawing with the new settings is done.
+    /// </summary>
+    /// <param name="settings">The sprite batch settings.</param>
+    public static void PushSettings(SpriteBatchSettings settings)
     {
         EndDraw();
         PushSettingsInternal();
@@ -484,26 +268,12 @@ public static void PushSettings(SpriteBatchSettings settings)
 
     public static void DrawString(string text, int fontIndex, Vector2 location, Color color, float scale = 1.0f, float depth = 0f)
     {
-        if (fontIndex < 0 || fontIndex >= fonts.Count)
-            throw new IndexOutOfRangeException("Invalid font index: " + fontIndex);
-
-        fonts[fontIndex].DrawString(spriteBatch, text, location, color, scale, depth);
+        FontManager.DrawString(spriteBatch, text, fontIndex, location, color, scale, depth);
     }
 
     public static void DrawStringWithShadow(string text, int fontIndex, Vector2 location, Color color, float scale = 1.0f, float shadowDistance = 1.0f, float depth = 0f)
     {
-        if (fontIndex < 0 || fontIndex >= fonts.Count)
-            throw new IndexOutOfRangeException("Invalid font index: " + fontIndex);
-
-        Color shadowColor;
-#if XNA
-        shadowColor = new Color(0, 0, 0, color.A);
-#else
-        shadowColor = UISettings.ActiveSettings.TextShadowColor * (color.A / 255.0f);
-#endif
-
-        fonts[fontIndex].DrawString(spriteBatch, text, new Vector2(location.X + shadowDistance, location.Y + shadowDistance), shadowColor, scale, depth);
-        fonts[fontIndex].DrawString(spriteBatch, text, location, color, scale, depth);
+        FontManager.DrawStringWithShadow(spriteBatch, text, fontIndex, location, color, scale, shadowDistance, depth);
     }
 
     public static void DrawRectangle(Rectangle rect, Color color, int thickness = 1)
@@ -519,13 +289,8 @@ public static void PushSettings(SpriteBatchSettings settings)
         spriteBatch.Draw(whitePixelTexture, rect, color);
     }
 
-    public static Vector2 GetTextDimensions(string text, int fontIndex)
-    {
-        if (fontIndex < 0 || fontIndex >= fonts.Count)
-            throw new IndexOutOfRangeException("Invalid font index: " + fontIndex);
-
-        return fonts[fontIndex].MeasureString(text);
-    }
+    public static Vector2 GetTextDimensions(string text, int fontIndex) =>
+        FontManager.GetTextDimensions(text, fontIndex);
 
     public static void DrawLine(Vector2 start, Vector2 end, Color color, int thickness = 1, float depth = 0f)
     {
