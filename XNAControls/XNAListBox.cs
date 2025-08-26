@@ -27,6 +27,7 @@ public class XNAListBox : XNAPanel
     public XNAListBox(WindowManager windowManager) : base(windowManager)
     {
         DrawMode = ControlDrawMode.UNIQUE_RENDER_TARGET;
+        _lineHeight = UISettings.ActiveSettings.ListBoxDefaultItemHeight.GetValueOrDefault((int)Renderer.MeasureString("Test String @", FontIndex).Y - 1);
         ScrollBar = new XNAScrollBar(WindowManager);
         ScrollBar.Name = "XNAListBoxScrollBar";
         ScrollBar.ScrollStep = LineHeight;
@@ -77,7 +78,7 @@ public class XNAListBox : XNAPanel
         set { _defaultItemColor = value; }
     }
 
-    private int _lineHeight = 15;
+    private int _lineHeight;
 
     /// <summary>
     /// Gets or sets the height of a single line of text in the list box.

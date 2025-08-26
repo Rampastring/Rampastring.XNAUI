@@ -28,6 +28,7 @@ public class XNATextBox : XNAControl
     /// <param name="windowManager">The WindowManager that will be associated with this control.</param>
     public XNATextBox(WindowManager windowManager) : base(windowManager)
     {
+        Height = UISettings.ActiveSettings.TextBoxDefaultHeight.GetValueOrDefault((int)Renderer.MeasureString("Test String @@", FontIndex).Y + 4);
         HandledMouseInputs = MouseInputFlags.LeftMouseButton;
         HandlesDragging = true;
     }
