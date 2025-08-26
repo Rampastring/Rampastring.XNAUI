@@ -115,6 +115,7 @@ public class XNAContextMenu : XNAControl
     /// <param name="windowManager">The WindowManager associated with this context menu.</param>
     public XNAContextMenu(WindowManager windowManager) : base(windowManager)
     {
+        ItemHeight = UISettings.ActiveSettings.ContextMenuDefaultItemHeight.GetValueOrDefault((int)Renderer.MeasureString("Test String @", FontIndex).Y + 1);
         Height = BORDER_WIDTH * 2;
         DisabledItemColor = Color.Gray;
         Disable();
