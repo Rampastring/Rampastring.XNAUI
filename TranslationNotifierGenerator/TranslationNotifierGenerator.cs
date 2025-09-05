@@ -21,7 +21,7 @@ namespace TranslationNotifierGenerator;
 public class TranslationNotifierGenerator : ISourceGenerator
 {
     // Change those if you change the method names
-    public const string LocalizeMethodContainingNamespace = "ClientCore.Extensions";
+    public const string LocalizeMethodContainingNamespace = "Rampastring.XNAUI.Extensions";
     public const string LocalizeMethodName = "L10N";
 
     public void Execute(GeneratorExecutionContext context)
