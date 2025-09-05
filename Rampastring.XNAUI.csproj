@@ -37,13 +37,10 @@
     <IncludeSymbols>true</IncludeSymbols>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
     <EmbedUntrackedSources>true</EmbedUntrackedSources>
-	
 	<!--Solves CS0579: https://stackoverflow.com/questions/10311347/duplicate-assemblyversion-attribute-->
 	<GenerateAssemblyInfo>false</GenerateAssemblyInfo>
-
 	<!--Solves CS0579: https://stackoverflow.com/questions/61997928/errorcs0579duplicate-globalsystem-runtime-versioning-targetframeworkattribu-->
 	<GenerateTargetFrameworkAttribute>false</GenerateTargetFrameworkAttribute>
-	  
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <TargetsForTfmSpecificBuildOutput>$(TargetsForTfmSpecificBuildOutput);IncludeXNAAssemblies</TargetsForTfmSpecificBuildOutput>
     <TargetsForTfmSpecificContentInPackage>$(TargetsForTfmSpecificContentInPackage);IncludeDesktopGLAssemblies</TargetsForTfmSpecificContentInPackage>
