@@ -45,8 +45,8 @@ public static class Renderer
     {
         spriteBatch = new SpriteBatch(gd);
 
-        FontManager.Initialize();
-        FontManager.LoadFonts(content);
+        FontManagement.Initialize();
+        FontManagement.LoadFonts(content);
 
         whitePixelTexture = AssetLoader.CreateTexture(Color.White, 1, 1);
     }
@@ -54,7 +54,7 @@ public static class Renderer
     /// <summary>
     /// Allows direct access to the list of loaded fonts.
     /// </summary>
-    public static List<IFont> GetFontList() => FontManager.GetFontList();
+    public static List<IFont> GetFontList() => FontManagement.GetFontList();
 
     /// <summary>
     /// Returns a version of the given string where all characters that don't
@@ -63,7 +63,7 @@ public static class Renderer
     /// <param name="str">The string.</param>
     /// <param name="fontIndex">The index of the font.</param>
     public static string GetSafeString(string str, int fontIndex) =>
-        FontManager.GetSafeString(str, fontIndex);
+        FontManagement.GetSafeString(str, fontIndex);
 
     /// <summary>
     /// Returns a string that has had its width limited to a specific number.
@@ -74,13 +74,13 @@ public static class Renderer
     /// <param name="maxWidth">The maximum width of the string.</param>
     /// <returns></returns>
     public static string GetStringWithLimitedWidth(string str, int fontIndex, int maxWidth) =>
-        FontManager.GetStringWithLimitedWidth(str, fontIndex, maxWidth);
+        FontManagement.GetStringWithLimitedWidth(str, fontIndex, maxWidth);
 
     public static TextParseReturnValue FixText(string text, int fontIndex, int width) =>
-        FontManager.FixText(text, fontIndex, width);
+        FontManagement.FixText(text, fontIndex, width);
 
     public static List<string> GetFixedTextLines(string text, int fontIndex, int width, bool splitWords = true, bool keepBlankLines = false) =>
-        FontManager.GetFixedTextLines(text, fontIndex, width, splitWords, keepBlankLines);
+        FontManagement.GetFixedTextLines(text, fontIndex, width, splitWords, keepBlankLines);
 
     /// <summary>
     /// Pushes new settings into the renderer's internal stack and applies them.
@@ -268,12 +268,12 @@ public static class Renderer
 
     public static void DrawString(string text, int fontIndex, Vector2 location, Color color, float scale = 1.0f, float depth = 0f)
     {
-        FontManager.DrawString(spriteBatch, text, fontIndex, location, color, scale, depth);
+        FontManagement.DrawString(spriteBatch, text, fontIndex, location, color, scale, depth);
     }
 
     public static void DrawStringWithShadow(string text, int fontIndex, Vector2 location, Color color, float scale = 1.0f, float shadowDistance = 1.0f, float depth = 0f)
     {
-        FontManager.DrawStringWithShadow(spriteBatch, text, fontIndex, location, color, scale, shadowDistance, depth);
+        FontManagement.DrawStringWithShadow(spriteBatch, text, fontIndex, location, color, scale, shadowDistance, depth);
     }
 
     public static void DrawRectangle(Rectangle rect, Color color, int thickness = 1)
@@ -290,7 +290,7 @@ public static class Renderer
     }
 
     public static Vector2 GetTextDimensions(string text, int fontIndex) =>
-        FontManager.GetTextDimensions(text, fontIndex);
+        FontManagement.GetTextDimensions(text, fontIndex);
 
     public static void DrawLine(Vector2 start, Vector2 end, Color color, int thickness = 1, float depth = 0f)
     {
