@@ -341,6 +341,8 @@ public class XNAControl : DrawableGameComponent
 
     public int ScaledWidth => Width * Scaling;
 
+    public int TotalScaledWidth => Height * GetTotalScalingRecursive();
+
     /// <summary>
     /// The height of the control.
     /// </summary>
@@ -356,6 +358,8 @@ public class XNAControl : DrawableGameComponent
     }
 
     public int ScaledHeight => Height * Scaling;
+
+    public int TotalScaledHeight => Height * GetTotalScalingRecursive();
 
     /// <summary>
     /// Shortcut for accessing ClientRectangle.Bottom.

@@ -347,7 +347,7 @@ public class XNADropDown : XNAControl
         if (!OpenUp)
         {
             DropDownState = DropDownState.OPENED_DOWN;
-            numFittingItems = (WindowManager.RenderResolutionY - (GetWindowRectangle().Bottom + 1)) / ItemHeight;
+            numFittingItems = (WindowManager.RenderResolutionY - (GetWindowRectangle().Bottom + 1)) / (ItemHeight * GetTotalScalingRecursive());
             Height = DropDownTexture.Height + 2 + ItemHeight * Math.Min(numFittingItems, Items.Count);
         }
         else
