@@ -289,12 +289,12 @@ public class XNAContextMenu : XNAControl
                 {
                     // We cannot open up fully above our location, but not also fully below.
                     // Stick to the bottom of the screen so that the entire context menu is visible.
-                    Y = screenTopPointY + (WindowManager.RenderResolutionY - totalScaledHeight);
+                    Y = screenTopPointY + (WindowManager.RenderResolutionY - ScaledHeight);
                 }
                 else
                 {
                     // We have enough space to fully open above.
-                    Y -= totalScaledHeight;
+                    Y -= ScaledHeight;
                 }
             }
         }
