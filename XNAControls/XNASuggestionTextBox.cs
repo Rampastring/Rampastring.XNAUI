@@ -56,7 +56,6 @@ public class XNASuggestionTextBox : XNATextBox
                 Text = string.Empty;
                 ResetMouseTracking();
             }
-
         }
         else
         {
