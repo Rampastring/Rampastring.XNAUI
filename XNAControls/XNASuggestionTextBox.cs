@@ -52,7 +52,11 @@ public class XNASuggestionTextBox : XNATextBox
         if (WindowManager.SelectedControl == this)
         {
             if (Text == Suggestion)
+            {
                 Text = string.Empty;
+                ResetMouseTracking();
+            }
+
         }
         else
         {
