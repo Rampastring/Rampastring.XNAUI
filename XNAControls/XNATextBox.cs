@@ -154,9 +154,9 @@ public class XNATextBox : XNAControl
 
             while (!TextFitsBox())
             {
-                TextEndPosition--;
+                TextEndPosition = GetPreviousCharacterBoundary(TextEndPosition);
 
-                if (TextEndPosition < TextStartPosition)
+                if (TextEndPosition <= TextStartPosition)
                 {
                     TextEndPosition = TextStartPosition;
                     break;
@@ -334,6 +334,37 @@ public class XNATextBox : XNAControl
     }
 #endif
 
+    private int GetNextCharacterBoundary(int position)
+    {
+        if (position >= text.Length)
+            return text.Length;
+        if (position < 0)
+            return 0;
+        if (position < text.Length - 1 && char.IsHighSurrogate(text[position]) && char.IsLowSurrogate(text[position + 1]))
+            return position + 2;
+        return position + 1;
+    }
+
+    private int GetPreviousCharacterBoundary(int position)
+    {
+        if (position <= 0)
+            return 0;
+        if (position > text.Length)
+            position = text.Length;
+        if (position > 1 && char.IsLowSurrogate(text[position - 1]) && char.IsHighSurrogate(text[position - 2]))
+            return position - 2;
+        return position - 1;
+    }
+
+    private int EnsureCharacterBoundary(int position)
+    {
+        if (position <= 0 || position >= text.Length)
+            return position;
+        if (char.IsLowSurrogate(text[position]) && position > 0 && char.IsHighSurrogate(text[position - 1]))
+            return position - 1;
+        return position;
+    }
+
     private void HandleCharInput(char character)
     {
         if (WindowManager.SelectedControl != this || !Enabled || !Parent.Enabled || !WindowManager.HasFocus)
@@ -367,6 +398,8 @@ public class XNATextBox : XNAControl
                     if (Text.Length >= MaximumTextLength)
                         break;
 
+                    InputPosition = EnsureCharacterBoundary(InputPosition);
+
                     text = text.Insert(InputPosition, character.ToString());
                     InputPosition++;
 
@@ -375,17 +408,17 @@ public class XNATextBox : XNAControl
                         TextEndPosition = InputPosition;
 
                         while (!TextFitsBox())
-                            TextStartPosition++;
+                            TextStartPosition = GetNextCharacterBoundary(TextStartPosition);
                     }
 
                     while (TextFitsBox() && TextEndPosition < text.Length)
                     {
-                        TextEndPosition++;
+                        TextEndPosition = GetNextCharacterBoundary(TextEndPosition);
                     }
 
                     if (!TextFitsBox())
                     {
-                        TextEndPosition--;
+                        TextEndPosition = GetPreviousCharacterBoundary(TextEndPosition);
                     }
                 }
                 else
@@ -401,11 +434,11 @@ public class XNATextBox : XNAControl
                     {
                         while (TextFitsBox() && TextStartPosition > 0)
                         {
-                            TextStartPosition--;
+                            TextStartPosition = GetPreviousCharacterBoundary(TextStartPosition);
                         }
 
                         if (TextStartPosition > 0)
-                            TextStartPosition++;
+                            TextStartPosition = GetNextCharacterBoundary(TextStartPosition);
                     }
                 }
 
@@ -467,11 +500,15 @@ public class XNATextBox : XNAControl
 
                     while (TextEndPosition < text.Length)
                     {
-                        TextEndPosition++;
+                        int nextPos = GetNextCharacterBoundary(TextEndPosition);
+                        if (nextPos > text.Length)
+                            break;
+
+                        TextEndPosition = nextPos;
 
                         if (!TextFitsBox())
                         {
-                            TextEndPosition--;
+                            TextEndPosition = GetPreviousCharacterBoundary(TextEndPosition);
                             break;
                         }
                     }
@@ -498,7 +535,7 @@ public class XNATextBox : XNAControl
 
                 while (!TextFitsBox())
                 {
-                    TextStartPosition++;
+                    TextStartPosition = GetNextCharacterBoundary(TextStartPosition);
                 }
 
                 return true;
@@ -517,7 +554,7 @@ public class XNATextBox : XNAControl
                 {
                     TextEndPosition = InputPosition;
                     while (!TextFitsBox())
-                        TextStartPosition++;
+                        TextStartPosition = GetNextCharacterBoundary(TextStartPosition);
                 }
 
                 InputReceived?.Invoke(this, EventArgs.Empty);
@@ -568,22 +605,22 @@ public class XNATextBox : XNAControl
                         {
                             // If the text fits, then show more characters from the beginning.
                             while (TextFitsBox() && TextStartPosition > 0)
-                                TextStartPosition--;
+                                TextStartPosition = GetPreviousCharacterBoundary(TextStartPosition);
 
                             // If the start position is not at the beginning in this case, we have over-scrolled by one character.
                             if (TextStartPosition > 0)
                             {
-                                TextStartPosition++;
+                                TextStartPosition = GetNextCharacterBoundary(TextStartPosition);
                             }
                             else
                             {
                                 // If we have not overscrolled, we reached the beginning of the string.
                                 // See if we could show more of the string in the end, too.
                                 while (TextEndPosition < text.Length && TextFitsBox())
-                                    TextEndPosition++;
+                                    TextEndPosition = GetNextCharacterBoundary(TextEndPosition);
 
                                 if (!TextFitsBox())
-                                    TextEndPosition--;
+                                    TextEndPosition = GetPreviousCharacterBoundary(TextEndPosition);
                             }
                         }
                         else
@@ -591,7 +628,7 @@ public class XNATextBox : XNAControl
                             // If the text does not fit, most likely the replacement operation added to the overall string length
                             // and now the text is too long. Cut it from the beginning as much as necessary.
                             while (!TextFitsBox())
-                                TextStartPosition++;
+                                TextStartPosition = GetNextCharacterBoundary(TextStartPosition);
                         }
                     }
                 }
@@ -607,20 +644,20 @@ public class XNATextBox : XNAControl
                         // If we have to display more characters at the end for the input position to be visible,
                         // then check whether we should hide characters from the front.
                         while (!TextFitsBox())
-                            TextStartPosition++;
+                            TextStartPosition = GetNextCharacterBoundary(TextStartPosition);
                     }
 
                     // Since we added text to the string, display more of the string at the end - as much as possible.
                     // Avoid displaying more than possible, though.
                     bool scrolled = false;
-                    while (true) 
+                    while (true)
                     {
                         if (TextFitsBox())
                         {
                             if (TextEndPosition < text.Length)
                             {
                                 scrolled = true;
-                                TextEndPosition++;
+                                TextEndPosition = GetNextCharacterBoundary(TextEndPosition);
                             }
                             else
                             {
@@ -630,11 +667,11 @@ public class XNATextBox : XNAControl
                         else
                         {
                             if (scrolled)
-                                TextEndPosition--;
+                                TextEndPosition = GetPreviousCharacterBoundary(TextEndPosition);
 
                             break;
                         }
-                    } 
+                    }
                 }
 
                 TextChanged?.Invoke(this, EventArgs.Empty); // we are changing text not Text, so invoke TextChanged
@@ -703,8 +740,14 @@ public class XNATextBox : XNAControl
         if (string.IsNullOrEmpty(text))
             return true;
 
+        int safeStart = EnsureCharacterBoundary(TextStartPosition);
+        int safeEnd = EnsureCharacterBoundary(TextEndPosition);
+
+        if (safeStart >= safeEnd)
+            return true;
+
         return Renderer.GetTextDimensions(
-                    text.Substring(TextStartPosition, TextEndPosition - TextStartPosition),
+                    text.Substring(safeStart, safeEnd - safeStart),
                     FontIndex).X < Width - TEXT_HORIZONTAL_MARGIN * 2;
     }
 
@@ -745,17 +788,17 @@ public class XNATextBox : XNAControl
 
                     if (cursorPoint.X <= 0 && TextStartPosition > 0)
                     {
-                        TextStartPosition--;
+                        TextStartPosition = GetPreviousCharacterBoundary(TextStartPosition);
 
                         while (!TextFitsBox())
-                            TextEndPosition--;
+                            TextEndPosition = GetPreviousCharacterBoundary(TextEndPosition);
                     }
                     else if (cursorPoint.X >= Width && TextEndPosition < Text.Length)
                     {
-                        TextEndPosition++;
+                        TextEndPosition = GetNextCharacterBoundary(TextEndPosition);
 
                         while (!TextFitsBox())
-                            TextStartPosition++;
+                            TextStartPosition = GetNextCharacterBoundary(TextStartPosition);
                     }
                 }
             }
@@ -764,18 +807,24 @@ public class XNATextBox : XNAControl
             // Default to last position as it is where we will end up if the cursor is all the way on the edge of the visible text.
             int newPosition = TextEndPosition;
 
-            var text = new StringBuilder();
+            var tb = new StringBuilder();
 
-            for (int i = TextStartPosition; i < TextEndPosition; i++)
+            for (int i = TextStartPosition; i < TextEndPosition;)
             {
-                text.Append(Text[i]);
+                int nextBoundary = GetNextCharacterBoundary(i);
+                if (nextBoundary > TextEndPosition)
+                    break;
 
-                if (Renderer.GetTextDimensions(text.ToString(), FontIndex).X +
+                tb.Append(text.Substring(i, nextBoundary - i));
+
+                if (Renderer.GetTextDimensions(tb.ToString(), FontIndex).X +
                     TEXT_HORIZONTAL_MARGIN > cursorPoint.X)
                 {
                     newPosition = i;
                     break;
                 }
+
+                i = nextBoundary;
             }
 
             int smaller = Math.Min(mouseDownCharacterIndex, newPosition);
@@ -797,17 +846,24 @@ public class XNATextBox : XNAControl
 
                     int inputPosition = TextEndPosition;
 
-                    var text = new StringBuilder();
+                    var tb = new StringBuilder();
 
-                    for (int i = TextStartPosition; i < TextEndPosition; i++)
+                    for (int i = TextStartPosition; i < TextEndPosition;)
                     {
-                        text.Append(Text[i]);
-                        if (Renderer.GetTextDimensions(text.ToString(), FontIndex).X +
+                        int nextBoundary = GetNextCharacterBoundary(i);
+                        if (nextBoundary > TextEndPosition)
+                            break;
+
+                        tb.Append(text.Substring(i, nextBoundary - i));
+
+                        if (Renderer.GetTextDimensions(tb.ToString(), FontIndex).X +
                             TEXT_HORIZONTAL_MARGIN > mouseDownPosition.X)
                         {
                             inputPosition = i;
                             break;
                         }
+
+                        i = nextBoundary;
                     }
 
                     InputPosition = Math.Max(0, inputPosition);
@@ -859,32 +915,34 @@ public class XNATextBox : XNAControl
     private int HowManyCharactersToScrollLeft()
     {
         if (!Keyboard.IsCtrlHeldDown())
-            return 1;
+            return GetPreviousCharacterBoundary(InputPosition) - InputPosition;
 
         if (InputPosition < 2)
             return InputPosition;
 
-        int chars = 0;
+        int targetPos = InputPosition;
 
         // Take as many spaces from the beginning as we can find.
-        while (chars < InputPosition)
+        while (targetPos > 0)
         {
-            if (text[InputPosition - chars - 1] != ' ')
+            int prevPos = GetPreviousCharacterBoundary(targetPos);
+            if (text[prevPos] != ' ')
                 break;
 
-            chars++;
+            targetPos = prevPos;
         }
 
         // Now do the opposite - we want to take a word, so accept all characters that are not spaces.
-        while (chars < InputPosition)
+        while (targetPos > 0)
         {
-            if (text[InputPosition - chars - 1] == ' ')
+            int prevPos = GetPreviousCharacterBoundary(targetPos);
+            if (text[prevPos] == ' ')
                 break;
 
-            chars++;
+            targetPos = prevPos;
         }
 
-        return chars;
+        return InputPosition - targetPos;
     }
 
     private void ScrollLeft()
@@ -923,17 +981,25 @@ public class XNATextBox : XNAControl
         }
         else
         {
-            int howMany = HowManyCharactersToScrollLeft();
-
             if (InputPosition == 0)
                 return;
 
-            InputPosition = Math.Max(0, InputPosition - howMany);
+            int oldPos = InputPosition;
+
+            if (Keyboard.IsCtrlHeldDown())
+            {
+                int howMany = HowManyCharactersToScrollLeft();
+                InputPosition = Math.Max(0, InputPosition - howMany);
+            }
+            else
+            {
+                InputPosition = GetPreviousCharacterBoundary(InputPosition);
+            }
 
             if (Keyboard.IsShiftHeldDown())
             {
                 SelectionStartPosition = InputPosition;
-                SelectionEndPosition = InputPosition + howMany;
+                SelectionEndPosition = oldPos;
             }
         }
 
@@ -942,42 +1008,42 @@ public class XNATextBox : XNAControl
             TextStartPosition = InputPosition;
 
             while (!TextFitsBox())
-                TextEndPosition--;
+                TextEndPosition = GetPreviousCharacterBoundary(TextEndPosition);
         }
     }
 
     private int HowManyCharactersToScrollRight()
     {
         if (!Keyboard.IsCtrlHeldDown())
-            return 1;
+            return GetNextCharacterBoundary(InputPosition) - InputPosition;
 
-        if (InputPosition > text.Length - 2)
+        if (InputPosition >= text.Length - 1)
             return text.Length - InputPosition;
 
-        int chars = 0;
+        int targetPos = InputPosition;
 
         // This has opposite operation order from scrolling to the left.
         // Windows text boxes act the same.
 
         // We want to take a word, so accept all characters that are not spaces.
-        while (InputPosition + chars < text.Length)
+        while (targetPos < text.Length)
         {
-            if (text[InputPosition + chars] == ' ')
+            if (text[targetPos] == ' ')
                 break;
 
-            chars++;
+            targetPos = GetNextCharacterBoundary(targetPos);
         }
 
         // Take as many spaces from the end as we can find.
-        while (InputPosition + chars < text.Length)
+        while (targetPos < text.Length)
         {
-            if (text[InputPosition + chars] != ' ')
+            if (text[targetPos] != ' ')
                 break;
 
-            chars++;
+            targetPos = GetNextCharacterBoundary(targetPos);
         }
 
-        return chars;
+        return targetPos - InputPosition;
     }
 
     private void ScrollRight()
@@ -1016,17 +1082,25 @@ public class XNATextBox : XNAControl
         }
         else
         {
-            int howMany = HowManyCharactersToScrollRight();
-
             if (InputPosition >= text.Length)
                 return;
 
-            InputPosition = Math.Min(text.Length, InputPosition + howMany);
+            int oldPos = InputPosition;
+
+            if (Keyboard.IsCtrlHeldDown())
+            {
+                int howMany = HowManyCharactersToScrollRight();
+                InputPosition = Math.Min(text.Length, InputPosition + howMany);
+            }
+            else
+            {
+                InputPosition = GetNextCharacterBoundary(InputPosition);
+            }
 
             if (Keyboard.IsShiftHeldDown())
             {
                 SelectionEndPosition = InputPosition;
-                SelectionStartPosition = InputPosition - howMany;
+                SelectionStartPosition = oldPos;
             }
         }
 
@@ -1036,7 +1110,7 @@ public class XNATextBox : XNAControl
 
             while (!TextFitsBox())
             {
-                TextStartPosition++;
+                TextStartPosition = GetNextCharacterBoundary(TextStartPosition);
             }
         }
     }
@@ -1057,7 +1131,7 @@ public class XNATextBox : XNAControl
                 TextEndPosition = text.Length;
 
                 if (!TextFitsBox())
-                    TextStartPosition++;
+                    TextStartPosition = GetNextCharacterBoundary(TextStartPosition);
             }
 
             TextChanged?.Invoke(this, EventArgs.Empty);
@@ -1078,13 +1152,39 @@ public class XNATextBox : XNAControl
         }
         else if (text.Length > InputPosition)
         {
-            text = text.Remove(InputPosition, 1);
+            InputPosition = EnsureCharacterBoundary(InputPosition);
+            int nextBoundary = GetNextCharacterBoundary(InputPosition);
+            int charsToDelete = nextBoundary - InputPosition;
+            text = text.Remove(InputPosition, charsToDelete);
 
-            if (TextStartPosition > 0)
-                TextStartPosition--;
+            // Adjust TextEndPosition if it's beyond the new text length
+            if (TextEndPosition > text.Length)
+                TextEndPosition = text.Length;
 
-            if (TextEndPosition > text.Length || !TextFitsBox())
-                TextEndPosition--;
+            // If we have space to show more text, expand the visible range
+            if (TextStartPosition > 0 && TextFitsBox())
+            {
+                while (TextStartPosition > 0 && TextFitsBox())
+                {
+                    TextStartPosition = GetPreviousCharacterBoundary(TextStartPosition);
+                }
+                // If we went too far, step forward
+                if (!TextFitsBox())
+                    TextStartPosition = GetNextCharacterBoundary(TextStartPosition);
+            }
+            // If we still don't fit after trying to expand backward, try expanding forward
+            else
+            {
+                while (TextEndPosition < text.Length && TextFitsBox())
+                {
+                    int nextPos = GetNextCharacterBoundary(TextEndPosition);
+                    if (nextPos > text.Length) break;
+                    TextEndPosition = nextPos;
+                }
+                // If we went too far, step back
+                if (!TextFitsBox())
+                    TextEndPosition = GetPreviousCharacterBoundary(TextEndPosition);
+            }
 
             TextChanged?.Invoke(this, EventArgs.Empty);
         }
@@ -1106,14 +1206,40 @@ public class XNATextBox : XNAControl
         }
         else if (text.Length > 0 && InputPosition > 0)
         {
-            text = text.Remove(InputPosition - 1, 1);
-            InputPosition--;
+            InputPosition = EnsureCharacterBoundary(InputPosition);
+            int prevBoundary = GetPreviousCharacterBoundary(InputPosition);
+            int charsToDelete = InputPosition - prevBoundary;
+            text = text.Remove(prevBoundary, charsToDelete);
+            InputPosition = prevBoundary;
 
-            if (TextStartPosition > 0)
-                TextStartPosition--;
+            if (TextEndPosition > text.Length)
+                TextEndPosition = text.Length;
 
-            if (TextEndPosition > text.Length || !TextFitsBox())
-                TextEndPosition--;
+            // If carat is now before the visible range, adjust TextStartPosition
+            if (InputPosition < TextStartPosition)
+            {
+                TextStartPosition = InputPosition;
+                // Recalculate TextEndPosition to fit as much text as possible
+                while (TextEndPosition < text.Length && TextFitsBox())
+                {
+                    int nextPos = GetNextCharacterBoundary(TextEndPosition);
+                    if (nextPos > text.Length) break;
+                    TextEndPosition = nextPos;
+                }
+                // If we went too far, step back
+                if (!TextFitsBox())
+                    TextEndPosition = GetPreviousCharacterBoundary(TextEndPosition);
+            }
+            // If we have space to show more text, expand the visible range
+            else if (TextStartPosition > 0 && TextFitsBox())
+            {
+                while (TextStartPosition > 0 && TextFitsBox())
+                    TextStartPosition = GetPreviousCharacterBoundary(TextStartPosition);
+
+                // If we went too far, step forward
+                if (!TextFitsBox())
+                    TextStartPosition = GetNextCharacterBoundary(TextStartPosition);
+            }
 
             TextChanged?.Invoke(this, EventArgs.Empty);
         }
@@ -1172,20 +1298,26 @@ public class XNATextBox : XNAControl
         {
             int selectionStartX = TEXT_HORIZONTAL_MARGIN;
             int selectionWidth;
-            if (SelectionStartPosition > TextStartPosition)
+
+            int safeSelectionStart = EnsureCharacterBoundary(SelectionStartPosition);
+            int safeSelectionEnd = EnsureCharacterBoundary(SelectionEndPosition);
+            int safeTextStart = EnsureCharacterBoundary(TextStartPosition);
+            int safeTextEnd = EnsureCharacterBoundary(TextEndPosition);
+
+            if (safeSelectionStart > safeTextStart)
             {
-                string textBeforeSelection = Text.Substring(TextStartPosition, SelectionStartPosition - TextStartPosition);
+                string textBeforeSelection = Text.Substring(safeTextStart, safeSelectionStart - safeTextStart);
                 selectionStartX = (int)Renderer.GetTextDimensions(textBeforeSelection, FontIndex).X + TEXT_HORIZONTAL_MARGIN;
             }
 
-            if (SelectionEndPosition > TextEndPosition)
+            if (safeSelectionEnd > safeTextEnd)
             {
                 selectionWidth = Width - selectionStartX - 1;
             }
             else
             {
-                int startIndex = TextStartPosition > SelectionStartPosition ? TextStartPosition : SelectionStartPosition;
-                int selectionDrawnLength = SelectionEndPosition - startIndex;
+                int startIndex = safeTextStart > safeSelectionStart ? safeTextStart : safeSelectionStart;
+                int selectionDrawnLength = safeSelectionEnd - startIndex;
                 string selectedText = Text.Substring(startIndex, selectionDrawnLength);
                 selectionWidth = (int)Renderer.GetTextDimensions(selectedText, FontIndex).X + 1; // +1 due to shadow
             }
@@ -1193,17 +1325,27 @@ public class XNATextBox : XNAControl
             FillRectangle(new Rectangle(selectionStartX, SELECTION_MARGIN, selectionWidth, Height - (SELECTION_MARGIN * 2)), SelectionColor);
         }
 
-        DrawStringWithShadow(Text.Substring(TextStartPosition, TextEndPosition - TextStartPosition),
-            FontIndex, new Vector2(TEXT_HORIZONTAL_MARGIN, TEXT_VERTICAL_MARGIN), TextColor);
+        int safeStartPos = EnsureCharacterBoundary(TextStartPosition);
+        int safeEndPos = EnsureCharacterBoundary(TextEndPosition);
+
+        if (safeStartPos < safeEndPos)
+        {
+            DrawStringWithShadow(Text.Substring(safeStartPos, safeEndPos - safeStartPos),
+                FontIndex, new Vector2(TEXT_HORIZONTAL_MARGIN, TEXT_VERTICAL_MARGIN), TextColor);
+        }
 
         if (WindowManager.SelectedControl == this && Enabled && WindowManager.HasFocus)
         {
-            if (InputPosition >= TextStartPosition)
+            int safeInputPos = EnsureCharacterBoundary(InputPosition);
+            if (safeInputPos >= safeStartPos)
             {
                 int barLocationX = TEXT_HORIZONTAL_MARGIN;
 
-                string inputText = Text.Substring(TextStartPosition, InputPosition - TextStartPosition);
-                barLocationX += (int)Renderer.GetTextDimensions(inputText, FontIndex).X;
+                if (safeInputPos > safeStartPos)
+                {
+                    string inputText = Text.Substring(safeStartPos, safeInputPos - safeStartPos);
+                    barLocationX += (int)Renderer.GetTextDimensions(inputText, FontIndex).X;
+                }
 
                 if (!IMEDisabled && WindowManager.IMEHandler != null)
                 {
