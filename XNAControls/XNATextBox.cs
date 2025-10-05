@@ -708,6 +708,12 @@ public class XNATextBox : XNAControl
                     FontIndex).X < Width - TEXT_HORIZONTAL_MARGIN * 2;
     }
 
+    protected void ResetMouseTracking()
+    {
+        isMouseLocked = false;
+        mouseDownCharacterIndex = 0;
+    }
+
     private void UpdateCursorState()
     {
         if (isMouseLocked)
