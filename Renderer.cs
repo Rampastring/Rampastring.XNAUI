@@ -103,7 +103,9 @@ public static class Renderer
                 fullRootDirectoryField.SetValue(contentManager, newRootDirectory);
 #endif
 
-                fonts.Add(contentManager.Load<SpriteFont>(sfName));
+                var font = contentManager.Load<SpriteFont>(sfName);
+                font.DefaultCharacter ??= '?';
+                fonts.Add(font);
             }
         }
 
