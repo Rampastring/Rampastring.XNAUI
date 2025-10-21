@@ -175,6 +175,8 @@ public static class Renderer
         return TextParseReturnValue.GetFixedTextLines(fonts[fontIndex], width, text, splitWords, keepBlankLines);
     }
 
+    public static Vector2 MeasureString(string text, int fontIndex) => fonts[fontIndex].MeasureString(text);
+
     /// <summary>
     /// Pushes new settings into the renderer's internal stack and applies them.
     /// A call to <see cref="PushSettings(SpriteBatchSettings)"/> should always

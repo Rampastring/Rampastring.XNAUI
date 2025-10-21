@@ -19,8 +19,6 @@ public class XNATextBox : XNAControl
     protected const int TEXT_VERTICAL_MARGIN = 2;
     protected const double CURSOR_SCROLL_REPEAT_TIME = 0.05;
     protected const double CURSOR_FAST_SCROLL_THRESHOLD = 20;
-    protected const double SCROLL_REPEAT_TIME = 0.03;
-    protected const double FAST_SCROLL_TRIGGER_TIME = 0.4;
     protected const double BAR_ON_TIME = 0.5;
     protected const double BAR_OFF_TIME = 0.5;
 
@@ -30,6 +28,7 @@ public class XNATextBox : XNAControl
     /// <param name="windowManager">The WindowManager that will be associated with this control.</param>
     public XNATextBox(WindowManager windowManager) : base(windowManager)
     {
+        Height = UISettings.ActiveSettings.TextBoxDefaultHeight.GetValueOrDefault((int)Renderer.MeasureString("Test String @@", FontIndex).Y + 4);
         HandledMouseInputs = MouseInputFlags.LeftMouseButton;
         HandlesDragging = true;
     }
@@ -350,6 +349,7 @@ public class XNATextBox : XNAControl
              * So, we detect that input here and return on these keys.
             /*/
             case '\r':      // Enter / return
+            case '\n':      // Line feed
             case '\x0009':  // Tab
             case '\b':      // Backspace
             case '\x001b':  // ESC
@@ -706,6 +706,12 @@ public class XNATextBox : XNAControl
         return Renderer.GetTextDimensions(
                     text.Substring(TextStartPosition, TextEndPosition - TextStartPosition),
                     FontIndex).X < Width - TEXT_HORIZONTAL_MARGIN * 2;
+    }
+
+    protected void ResetMouseTracking()
+    {
+        isMouseLocked = false;
+        mouseDownCharacterIndex = 0;
     }
 
     private void UpdateCursorState()
@@ -1137,14 +1143,14 @@ public class XNATextBox : XNAControl
         {
             timeSinceLastScroll += gameTime.ElapsedGameTime;
 
-            if (timeSinceLastScroll > TimeSpan.FromSeconds(SCROLL_REPEAT_TIME))
+            if (timeSinceLastScroll > TimeSpan.FromSeconds(XNAUIConstants.KEYBOARD_SCROLL_REPEAT_TIME))
             {
                 timeSinceLastScroll = TimeSpan.Zero;
                 action();
             }
         }
 
-        if (scrollKeyTime > TimeSpan.FromSeconds(FAST_SCROLL_TRIGGER_TIME) && !isScrollingQuickly)
+        if (scrollKeyTime > TimeSpan.FromSeconds(XNAUIConstants.KEYBOARD_FAST_SCROLL_TRIGGER_TIME) && !isScrollingQuickly)
         {
             isScrollingQuickly = true;
             timeSinceLastScroll = TimeSpan.Zero;

@@ -24,6 +24,7 @@ public class XNADropDown : XNAControl
     /// <param name="windowManager">The WindowManager associated with this control.</param>
     public XNADropDown(WindowManager windowManager) : base(windowManager)
     {
+        ItemHeight = UISettings.ActiveSettings.DropDownDefaultItemHeight.GetValueOrDefault((int)Renderer.MeasureString("Test String @", FontIndex).Y + 1);
         Height = ItemHeight + 2;
     }
 
@@ -43,7 +44,7 @@ public class XNADropDown : XNAControl
     /// <summary>
     /// The height of drop-down items.
     /// </summary>
-    public int ItemHeight { get; set; } = 17;
+    public int ItemHeight { get; set; }
 
     public List<XNADropDownItem> Items = new List<XNADropDownItem>();
 
@@ -346,7 +347,7 @@ public class XNADropDown : XNAControl
         if (!OpenUp)
         {
             DropDownState = DropDownState.OPENED_DOWN;
-            numFittingItems = (WindowManager.RenderResolutionY - (GetWindowRectangle().Bottom + 1)) / ItemHeight;
+            numFittingItems = (WindowManager.RenderResolutionY - (GetWindowRectangle().Bottom + 1)) / (ItemHeight * GetTotalScalingRecursive());
             Height = DropDownTexture.Height + 2 + ItemHeight * Math.Min(numFittingItems, Items.Count);
         }
         else

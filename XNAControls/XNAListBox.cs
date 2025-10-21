@@ -19,8 +19,6 @@ public class XNAListBox : XNAPanel
 {
     private const int MARGIN = 2;
     private const int ITEM_TEXT_TEXTURE_MARGIN = 2;
-    private const double SCROLL_REPEAT_TIME = 0.03;
-    private const double FAST_SCROLL_TRIGGER_TIME = 0.4;
 
     /// <summary>
     /// Creates a new list box instance.
@@ -29,6 +27,7 @@ public class XNAListBox : XNAPanel
     public XNAListBox(WindowManager windowManager) : base(windowManager)
     {
         DrawMode = ControlDrawMode.UNIQUE_RENDER_TARGET;
+        _lineHeight = UISettings.ActiveSettings.ListBoxDefaultItemHeight.GetValueOrDefault((int)Renderer.MeasureString("Test String @", FontIndex).Y - 1);
         ScrollBar = new XNAScrollBar(WindowManager);
         ScrollBar.Name = "XNAListBoxScrollBar";
         ScrollBar.ScrollStep = LineHeight;
@@ -79,7 +78,7 @@ public class XNAListBox : XNAPanel
         set { _defaultItemColor = value; }
     }
 
-    private int _lineHeight = 15;
+    private int _lineHeight;
 
     /// <summary>
     /// Gets or sets the height of a single line of text in the list box.
@@ -775,14 +774,14 @@ public class XNAListBox : XNAPanel
         {
             timeSinceLastScroll += gameTime.ElapsedGameTime;
 
-            if (timeSinceLastScroll > TimeSpan.FromSeconds(SCROLL_REPEAT_TIME))
+            if (timeSinceLastScroll > TimeSpan.FromSeconds(XNAUIConstants.KEYBOARD_SCROLL_REPEAT_TIME))
             {
                 timeSinceLastScroll = TimeSpan.Zero;
                 action();
             }
         }
 
-        if (scrollKeyTime > TimeSpan.FromSeconds(FAST_SCROLL_TRIGGER_TIME) && !isScrollingQuickly)
+        if (scrollKeyTime > TimeSpan.FromSeconds(XNAUIConstants.KEYBOARD_FAST_SCROLL_TRIGGER_TIME) && !isScrollingQuickly)
         {
             isScrollingQuickly = true;
             timeSinceLastScroll = TimeSpan.Zero;

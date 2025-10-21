@@ -7,6 +7,7 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using Microsoft.Xna.Framework.Graphics;
 using System.Globalization;
+using Rampastring.XNAUI.Extensions;
 
 namespace Rampastring.XNAUI.XNAControls;
 
@@ -20,7 +21,8 @@ public enum MouseInputFlags
     LeftMouseButton = 1,
     RightMouseButton = 2,
     MiddleMouseButton = 4,
-    ScrollWheel = 8
+    ScrollWheel = 8,
+    ScrollWheelHorizontal = 16,
 }
 
 /// <summary>
@@ -85,10 +87,16 @@ public class XNAControl : DrawableGameComponent
     public event EventHandler MouseOnControl;
 
     /// <summary>
-    /// Raised when the scroll wheel is used while the cursor is inside
-    /// the control.
+    /// Raised when the scroll wheel is used to scroll vertically
+    /// while the cursor is inside the control.
     /// </summary>
     public event EventHandler<InputEventArgs> MouseScrolled;
+        
+    /// <summary>
+    /// Raised when the scroll wheel is used to scroll horizontally
+    /// while the cursor is inside the control.
+    /// </summary>
+    public event EventHandler<InputEventArgs> MouseScrolledHorizontally;
 
     /// <summary>
     /// Raised when the left mouse button is clicked (pressed and released)
@@ -125,9 +133,29 @@ public class XNAControl : DrawableGameComponent
     public event EventHandler SelectedChanged;
 
     /// <summary>
-    /// Raised when the control's parent is changed.
+    /// Raised after the control's parent is changed.
     /// </summary>
     public event EventHandler ParentChanged;
+    
+    /// <summary>
+    /// Raised after the control is added to children of this control.
+    /// </summary>
+    public event EventHandler<ControlEventArgs> ChildAdded;
+    
+    /// <summary>
+    /// Raised after the control is removed from children of this control.
+    /// </summary>
+    public event EventHandler<ControlEventArgs> ChildRemoved;
+    
+    /// <summary>
+    /// Raised before the control's name is changed.
+    /// </summary>
+    public event EventHandler NameChanging;
+    
+    /// <summary>
+    /// Raised after the control's name is changed.
+    /// </summary>
+    public event EventHandler NameChanged;
 
     #endregion
 
@@ -313,6 +341,8 @@ public class XNAControl : DrawableGameComponent
 
     public int ScaledWidth => Width * Scaling;
 
+    public int TotalScaledWidth => Height * GetTotalScalingRecursive();
+
     /// <summary>
     /// The height of the control.
     /// </summary>
@@ -328,6 +358,8 @@ public class XNAControl : DrawableGameComponent
     }
 
     public int ScaledHeight => Height * Scaling;
+
+    public int TotalScaledHeight => Height * GetTotalScalingRecursive();
 
     /// <summary>
     /// Shortcut for accessing ClientRectangle.Bottom.
@@ -347,7 +379,20 @@ public class XNAControl : DrawableGameComponent
     /// Gets or sets the name of this control. The name is only an identifier
     /// and does not affect functionality.
     /// </summary>
-    public string Name { get; set; }
+    public string Name
+    {
+        get => name;
+        set
+        {
+            if (name == value)
+                return;
+            
+            NameChanging?.Invoke(this, EventArgs.Empty);
+            name = value;
+            NameChanged?.Invoke(this, EventArgs.Empty);
+        }
+    }
+
     public Color RemapColor { get; set; } = Color.White;
 
     /// <summary>
@@ -617,25 +662,12 @@ public class XNAControl : DrawableGameComponent
         {
             int parentTotalScaling = Parent.GetTotalScalingRecursive();
             p = new Point(p.X * parentTotalScaling, p.Y * parentTotalScaling);
-
-#if XNA
-            return SumPoints(p, parent.GetWindowPoint());
-#else
-            return p + parent.GetWindowPoint();
-#endif
+            
+            return p.Add(parent.GetWindowPoint());
         }
 
         return p;
     }
-
-#if XNA
-    // XNA's Point is too dumb to know the plus operator
-    private Point SumPoints(Point p1, Point p2)
-    {
-        return new Point(p1.X + p2.X, p1.Y + p2.Y);
-    }
-
-#endif
     public Point GetSizePoint()
     {
         int totalScaling = GetTotalScalingRecursive();
@@ -684,12 +716,8 @@ public class XNAControl : DrawableGameComponent
 
             if (Parent.DrawMode == ControlDrawMode.UNIQUE_RENDER_TARGET)
                 return p;
-
-#if XNA
-            return SumPoints(p, Parent.GetRenderPoint());
-#else
-            return p + Parent.GetRenderPoint();
-#endif
+            
+            return p.Add(Parent.GetRenderPoint());
         }
 
         return p;
@@ -824,6 +852,7 @@ public class XNAControl : DrawableGameComponent
         child.Initialize();
         _children.Add(child);
         ReorderControls();
+        OnChildAdded(child);
     }
 
     /// <summary>
@@ -835,6 +864,7 @@ public class XNAControl : DrawableGameComponent
         InitChild(child);
         _children.Add(child);
         ReorderControls();
+        OnChildAdded(child);
     }
 
     /// <summary>
@@ -848,6 +878,7 @@ public class XNAControl : DrawableGameComponent
         child.Initialize();
         _children.Insert(0, child);
         ReorderControls();
+        OnChildAdded(child);
     }
 
     private void InitChild(XNAControl child)
@@ -904,12 +935,14 @@ public class XNAControl : DrawableGameComponent
     /// <param name="child">The child control to remove.</param>
     private void RemoveChildImmediate(XNAControl child)
     {
-        if (_children.Remove(child))
+        if (_children.Contains(child))
         {
+            _children.Remove(child);
             child.UpdateOrderChanged -= Child_UpdateOrderChanged;
             child.DrawOrderChanged -= Child_DrawOrderChanged;
             child.Parent = null;
             ReorderControls();
+            OnChildRemoved(child);
         }
     }
 
@@ -1193,7 +1226,12 @@ public class XNAControl : DrawableGameComponent
         if (!IsActive)
             return null;
 
-        for (int i = 0; i < updateList.Count; i++)
+        return GetChildOnCursor(0);
+    }
+
+    private XNAControl GetChildOnCursor(int startIndex)
+    {
+        for (int i = startIndex; i < updateList.Count; i++)
         {
             XNAControl child = updateList[i];
 
@@ -1252,10 +1290,6 @@ public class XNAControl : DrawableGameComponent
 
         if (Cursor.IsOnScreen && IsActive && rectangle.Contains(Cursor.Location))
         {
-            activeChild = GetActiveChild();
-            if (activeChild != null)
-                WindowManager.ActiveControl = activeChild;
-
             Cursor.TextureIndex = CursorTextureIndex;
 
             if (!isInputCaptured)
@@ -1271,6 +1305,10 @@ public class XNAControl : DrawableGameComponent
                 if (Cursor.HasMoved)
                     OnMouseMove();
             }
+
+            activeChild = GetActiveChild();
+            if (activeChild != null)
+                WindowManager.ActiveControl = activeChild;
         }
         else
         {
@@ -1301,12 +1339,17 @@ public class XNAControl : DrawableGameComponent
         {
             var child = updateList[i];
 
-            if (child != activeChild && !child.Detached)
-                child.IsActive = false;
-
             if (child.Enabled)
             {
                 child.Update(gameTime);
+            }
+
+            // If our child is input-passthrough and none of its children were assigned as the active control
+            // on its Update call, we need to give our other children a chance to handle input instead.
+            if (activeChild != null && child.InputPassthrough && WindowManager.ActiveControl == child)
+            {
+                activeChild = GetChildOnCursor(i + 1);
+                WindowManager.ActiveControl = activeChild;
             }
         }
 
@@ -1445,6 +1488,7 @@ public class XNAControl : DrawableGameComponent
     #region Draw helpers
 
     private Point drawPoint;
+    private string name;
 
     /// <summary>
     /// Draws a texture relative to the control's location.
@@ -1692,6 +1736,15 @@ public class XNAControl : DrawableGameComponent
     {
         MouseScrolled?.Invoke(this, inputEventArgs);
     }
+    
+    /// <summary>
+    /// Called when the scroll wheel has been scrolled horizontally
+    /// on the control's client rectangle.
+    /// </summary>
+    public virtual void OnMouseScrolledHorizontally(InputEventArgs inputEventArgs)
+    {
+        MouseScrolledHorizontally?.Invoke(this, inputEventArgs);
+    }
 
     /// <summary>
     /// Called when the control's status as the selected (last-clicked)
@@ -1700,5 +1753,21 @@ public class XNAControl : DrawableGameComponent
     public virtual void OnSelectedChanged()
     {
         SelectedChanged?.Invoke(this, EventArgs.Empty);
+    }
+    
+    /// <summary>
+    /// Called after the control is added to children of this control.
+    /// </summary>
+    public virtual void OnChildAdded(XNAControl child)
+    {
+        ChildAdded?.Invoke(this, new(child));
+    }
+    
+    /// <summary>
+    /// Called after the control is removed from children of this control.
+    /// </summary>
+    public virtual void OnChildRemoved(XNAControl child)
+    {
+        ChildRemoved?.Invoke(this, new(child));
     }
 }

@@ -162,7 +162,7 @@
     <PackageReference Include="Rampastring.Tools" Version="2.0.7" Condition="!Exists('$(ToolsSubmoduleProjectPath)')"/>
     <PackageReference Include="Microsoft.Windows.CsWin32" Version="0.3.49-beta" PrivateAssets="All" />
     <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1" PrivateAssets="All" />
-    <PackageReference Include="SixLabors.ImageSharp" Version="2.1.10" />
+    <PackageReference Include="SixLabors.ImageSharp" Version="2.1.11" />
     <PackageReference Include="TextCopy" Version="6.2.1" />
     <PackageReference Include="GitVersion.MsBuild" Version="5.12.0" Condition="'$(IsSubmodule)' == 'true'" >
       <PrivateAssets>All</PrivateAssets>
