@@ -227,15 +227,7 @@ public class XNATextBox : XNAControl
 
         if ((start == -1) != (end == -1))
         {
-            Logger.Log("Only one of start or end is -1. Both must be -1 or both must be valid positions. Unselecting text.");
-
-#if DEBUG
-            System.Diagnostics.Debugger.Break();
-#endif
-
-            selectionStartPosition = -1;
-            selectionEndPosition = -1;
-            return;
+            throw new ArgumentException("Only one of start or end is -1. Both must be -1 or both must be valid positions.");
         }
 
         if (start != -1 && end != -1 && end < start)
