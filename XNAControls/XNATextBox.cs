@@ -240,7 +240,7 @@ public class XNATextBox : XNAControl
 
         if (start != -1 && end != -1 && end < start)
         {
-            Logger.Log("Selection end position cannot be less than start position. Unselecting text.");
+            Logger.Log("Selection end position must be greater than or equal to start position. Unselecting text.");
 
 #if DEBUG
             System.Diagnostics.Debugger.Break();
