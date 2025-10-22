@@ -175,15 +175,28 @@ public class XNATextBox : XNAControl
     /// </summary>
     public int InputPosition { get; set; }
 
+    private int selectionStartPosition = -1;
+
     /// <summary>
     /// Start position of current text selection. -1 for none.
     /// </summary>
-    public int SelectionStartPosition { get; set; }
+    public int SelectionStartPosition
+    {
+        get => selectionStartPosition;
+        [Obsolete("Use SetSelection() method instead")]
+        set => selectionStartPosition = value;
+    }
 
+    private int selectionEndPosition = -1;
     /// <summary>
     /// End position of current text selection. -1 for none.
     /// </summary>
-    public int SelectionEndPosition { get; set; }
+    public int SelectionEndPosition
+    {
+        get => selectionEndPosition;
+        [Obsolete("Use SetSelection() method instead")]
+        set => selectionEndPosition = value;
+    }
 
     /// <summary>
     /// Calculates and returns the length of the currently selected piece of text.
@@ -196,13 +209,63 @@ public class XNATextBox : XNAControl
     public bool IsValidSelection() => SelectionStartPosition > -1 && SelectionEndPosition > 0 && SelectionStartPosition < text.Length && SelectionEndPosition <= text.Length && SelectionEndPosition > SelectionStartPosition;
 
     /// <summary>
+    /// Sets the text selection range.
+    /// </summary>
+    /// <param name="start">The new value of <see cref="SelectionStartPosition"/>.</param>
+    /// <param name="end">The new value of <see cref="SelectionEndPosition"/>.</param>
+    public void SetSelection(int start, int end)
+    {
+        if (start < -1)
+        {
+            throw new ArgumentOutOfRangeException(nameof(start), "Selection start position is out of range.");
+        }
+
+        if (end < -1)
+        {
+            throw new ArgumentOutOfRangeException(nameof(end), "Selection end position is out of range.");
+        }
+
+        if ((start == -1) != (end == -1))
+        {
+            throw new ArgumentException("Only one of start or end is -1. Both must be -1 or both must be valid positions.");
+        }
+
+        if (start != -1 && end != -1 && end < start)
+        {
+            Logger.Log("Selection end position must be greater than or equal to start position. Unselecting text.");
+
+#if DEBUG
+            System.Diagnostics.Debugger.Break();
+#endif
+
+            selectionStartPosition = -1;
+            selectionEndPosition = -1;
+
+            return;
+        }
+
+        if (end != -1 && end > text.Length)
+        {
+            Logger.Log("Selection end position is out of range. Unselecting text.");
+
+#if DEBUG
+            System.Diagnostics.Debugger.Break();
+#endif
+
+            selectionStartPosition = -1;
+            selectionEndPosition = -1;
+
+            return;
+        }
+
+        selectionStartPosition = start;
+        selectionEndPosition = end;
+    }
+
+    /// <summary>
     /// Unselects current text selection.
     /// </summary>
-    public void UnselectText()
-    {
-        SelectionStartPosition = -1;
-        SelectionEndPosition = -1;
-    }
+    public void UnselectText() => SetSelection(start: -1, end: -1);
 
     /// <summary>
     /// The start character index of the visible part of the text string.
@@ -452,9 +515,13 @@ public class XNATextBox : XNAControl
                     if (Keyboard.IsShiftHeldDown())
                     {
                         if (!IsValidSelection())
-                            SelectionEndPosition = InputPosition;
-
-                        SelectionStartPosition = 0;
+                        {
+                            SetSelection(start: 0, end: InputPosition);
+                        }
+                        else
+                        {
+                            SetSelection(start: 0, end: SelectionEndPosition);
+                        }
                     }
                     else
                     {
@@ -484,9 +551,9 @@ public class XNATextBox : XNAControl
                 if (Keyboard.IsShiftHeldDown())
                 {
                     if (!IsValidSelection())
-                        SelectionStartPosition = InputPosition;
-
-                    SelectionEndPosition = text.Length;
+                        SetSelection(start: InputPosition, end: text.Length);
+                    else
+                        SetSelection(start: SelectionStartPosition, end: text.Length);
                 }
                 else
                 {
@@ -613,7 +680,7 @@ public class XNATextBox : XNAControl
                     // Since we added text to the string, display more of the string at the end - as much as possible.
                     // Avoid displaying more than possible, though.
                     bool scrolled = false;
-                    while (true) 
+                    while (true)
                     {
                         if (TextFitsBox())
                         {
@@ -634,7 +701,7 @@ public class XNATextBox : XNAControl
 
                             break;
                         }
-                    } 
+                    }
                 }
 
                 TextChanged?.Invoke(this, EventArgs.Empty); // we are changing text not Text, so invoke TextChanged
@@ -655,8 +722,7 @@ public class XNATextBox : XNAControl
                 if (!Keyboard.IsCtrlHeldDown())
                     break;
 
-                SelectionStartPosition = 0;
-                SelectionEndPosition = text.Length;
+                SetSelection(start: 0, end: text.Length);
                 return true;
             case Keys.Enter:
                 if (!IMEDisabled && WindowManager.IMEHandler != null)
@@ -781,8 +847,7 @@ public class XNATextBox : XNAControl
             int smaller = Math.Min(mouseDownCharacterIndex, newPosition);
             int larger = Math.Max(mouseDownCharacterIndex, newPosition);
             InputPosition = newPosition;
-            SelectionStartPosition = smaller;
-            SelectionEndPosition = larger;
+            SetSelection(start: smaller, end: larger);
         }
         else
         {
@@ -908,11 +973,11 @@ public class XNATextBox : XNAControl
 
                 if (InputPosition < SelectionStartPosition)
                 {
-                    SelectionStartPosition = InputPosition;
+                    SetSelection(start: InputPosition, end: SelectionEndPosition);
                 }
                 else if (InputPosition < SelectionEndPosition)
                 {
-                    SelectionEndPosition = InputPosition;
+                    SetSelection(start: SelectionStartPosition, end: InputPosition);
                 }
             }
             else
@@ -932,8 +997,7 @@ public class XNATextBox : XNAControl
 
             if (Keyboard.IsShiftHeldDown())
             {
-                SelectionStartPosition = InputPosition;
-                SelectionEndPosition = InputPosition + howMany;
+                SetSelection(start: InputPosition, end: InputPosition + howMany);
             }
         }
 
@@ -1001,11 +1065,11 @@ public class XNATextBox : XNAControl
 
                 if (InputPosition > SelectionEndPosition)
                 {
-                    SelectionEndPosition = InputPosition;
+                    SetSelection(start: SelectionStartPosition, end: InputPosition);
                 }
                 else if (InputPosition > SelectionStartPosition)
                 {
-                    SelectionStartPosition = InputPosition;
+                    SetSelection(start: InputPosition, end: SelectionEndPosition);
                 }
             }
             else
@@ -1025,8 +1089,7 @@ public class XNATextBox : XNAControl
 
             if (Keyboard.IsShiftHeldDown())
             {
-                SelectionEndPosition = InputPosition;
-                SelectionStartPosition = InputPosition - howMany;
+                SetSelection(start: InputPosition - howMany, end: InputPosition);
             }
         }
 
