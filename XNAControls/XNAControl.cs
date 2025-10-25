@@ -1231,7 +1231,7 @@ public class XNAControl : DrawableGameComponent
         {
             XNAControl child = updateList[i];
 
-            if (child.Visible && !child.Detached && (child.Focused || (child.InputEnabled &&
+            if (child.Visible && child.Enabled && !child.Detached && (child.Focused || (child.InputEnabled &&
                 child.GetWindowRectangle().Contains(Cursor.Location))))
             {
                 return child;
