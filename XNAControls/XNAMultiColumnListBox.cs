@@ -16,7 +16,7 @@ public class XNAMultiColumnListBox : XNAPanel
     /// <param name="windowManager">The WindowManager.</param>
     public XNAMultiColumnListBox(WindowManager windowManager) : base(windowManager)
     {
-        LineHeight = UISettings.ActiveSettings.ListBoxDefaultItemHeight.GetValueOrDefault((int)Renderer.MeasureString("Test String @", FontIndex).Y - 1);
+        LineHeight = UISettings.ActiveSettings.ListBoxDefaultItemHeight.GetValueOrDefault((int)FontManagement.GetTextDimensions("Test String @", FontIndex).Y - 1);
         DrawMode = ControlDrawMode.UNIQUE_RENDER_TARGET;
         ClientRectangleUpdated += XNAMultiColumnListBox_ClientRectangleUpdated;
     }
