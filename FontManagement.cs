@@ -17,6 +17,33 @@ public enum FontType
     TrueType
 }
 
+/// <summary>
+/// Configuration for HarfBuzz text shaping.
+/// Text shaping is required for complex scripts (Arabic, Hebrew, Hindi, etc.)
+/// and proper rendering of emoji sequences and ligatures.
+/// </summary>
+public class TextShapingSettings
+{
+    /// <summary>
+    /// Enable HarfBuzz text shaping for complex scripts.
+    /// When enabled, text will be properly shaped for languages that require it.
+    /// </summary>
+    public bool Enabled { get; set; } = false;
+
+    /// <summary>
+    /// Enable bidirectional text support for mixed LTR/RTL text.
+    /// Only applies when Enabled is true.
+    /// </summary>
+    public bool EnableBiDi { get; set; } = true;
+
+    /// <summary>
+    /// Size of the shaped text cache.
+    /// Higher values use more memory but reduce shaping overhead for repeated text.
+    /// Default: 100
+    /// </summary>
+    public int CacheSize { get; set; } = 100;
+}
+
 public interface IFont
 {
     Vector2 MeasureString(string text);
@@ -85,8 +112,17 @@ public class TTFFontWrapper : IFont
     public void DrawString(SpriteBatch spriteBatch, StringSegment text, Vector2 location, Color color, float rotation, Vector2 origin, Vector2 scale, float depth) =>
         spriteBatch.DrawString(_font, text, location, color, rotation, origin, scale, depth);
 
+    /// <summary>
+    /// For TTF fonts, this always returns true because FontStashSharp can dynamically
+    /// generate glyphs for any character. If a glyph is not available in the font file,
+    /// a replacement glyph (like � or ?) will be rendered instead.
+    /// </summary>
     public bool HasCharacter(char c) => true;
 
+    /// <summary>
+    /// Returns the string as-is for TTF fonts.
+    /// TTF fonts handle all characters through dynamic glyph generation and fallback.
+    /// </summary>
     public string GetSafeString(string str) => str;
 }
 
@@ -94,10 +130,41 @@ public static class FontManagement
 {
     private static List<IFont> fonts;
     private static FontSystem fontSystem;
+    private static TextShapingSettings textShapingSettings = new TextShapingSettings();
 
     public static void Initialize()
     {
         fonts = new List<IFont>();
+    }
+
+    /// <summary>
+    /// Gets the current text shaping settings.
+    /// </summary>
+    public static TextShapingSettings GetTextShapingSettings() => textShapingSettings;
+
+    /// <summary>
+    /// Checks if text shaping is currently enabled.
+    /// </summary>
+    public static bool IsTextShapingEnabled() => textShapingSettings.Enabled;
+
+    /// <summary>
+    /// Creates a new FontSystem.
+    /// </summary>
+    private static FontSystem CreateFontSystem()
+    {
+        var settings = new FontSystemSettings();
+
+        if (textShapingSettings.Enabled)
+        {
+            var shaper = new HarfBuzzTextShaper
+            {
+                EnableBiDi = textShapingSettings.EnableBiDi
+            };
+            settings.TextShaper = shaper;
+            settings.ShapedTextCacheSize = textShapingSettings.CacheSize;
+        }
+
+        return new FontSystem(settings);
     }
 
     public static void LoadFonts(ContentManager contentManager)
@@ -107,7 +174,7 @@ public static class FontManagement
         else
             fonts.Clear();
 
-        fontSystem = new FontSystem();
+        fontSystem = CreateFontSystem();
         string originalContentRoot = contentManager.RootDirectory;
 
         foreach (string searchPath in AssetLoader.AssetSearchPaths)
@@ -124,9 +191,25 @@ public static class FontManagement
         contentManager.SetRootDirectory(originalContentRoot);
     }
 
+    private static void LoadTextShapingSettings(IniFile iniFile)
+    {
+        textShapingSettings.Enabled = iniFile.GetBooleanValue("TextShaping", "Enabled", false);
+        textShapingSettings.EnableBiDi = iniFile.GetBooleanValue("TextShaping", "EnableBiDi", true);
+        textShapingSettings.CacheSize = iniFile.GetIntValue("TextShaping", "CacheSize", 100);
+
+        if (textShapingSettings.CacheSize < 1)
+            textShapingSettings.CacheSize = 100;
+
+        Logger.Log($"Text shaping settings: Enabled={textShapingSettings.Enabled}, BiDi={textShapingSettings.EnableBiDi}, CacheSize={textShapingSettings.CacheSize}");
+    }
+
     private static void LoadFontsFromIni(string iniPath, ContentManager contentManager, string searchPath, string baseDir)
     {
         var iniFile = new IniFile(iniPath);
+
+        LoadTextShapingSettings(iniFile);
+        fontSystem = CreateFontSystem();
+
         int fontCount = iniFile.GetIntValue("Fonts", "Count", 0);
 
         for (int i = 0; i < fontCount; i++)
