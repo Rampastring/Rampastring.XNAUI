@@ -179,7 +179,7 @@ internal class WindowsGameWindowManager : IGameWindowManager
         if (gameForm == null)
             return;
 
-        gameForm.Icon = Icon.ExtractAssociatedIcon(SafePath.GetFile(path).FullName);
+        gameForm.Icon = new Icon(SafePath.GetFile(path).FullName);
     }
 
     /// <summary>
