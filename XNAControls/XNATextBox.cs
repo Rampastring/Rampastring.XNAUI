@@ -433,85 +433,76 @@ public class XNATextBox : XNAControl
         if (WindowManager.SelectedControl != this || !Enabled || !Parent.Enabled || !WindowManager.HasFocus)
             return;
 
-        switch (character)
+        // Don't allow control characters (asc 0-31 + 127)
+        if (char.IsControl(character))
+            return;
+
+        // Don't allow typing characters that don't exist in the spritefont
+        if (Renderer.GetSafeString(character.ToString(), FontIndex) != character.ToString())
         {
-            /*/ There are a bunch of keys that are detected as text input on
-             * Windows builds of MonoGame, but not on WindowsGL or Linux builds of MonoGame.
-             * We already handle these keys (enter, tab, backspace, escape) by other means,
-             * so we don't want to handle them also as text input on Windows to avoid 
-             * potentially harmful extra triggering of the InputReceived event.
-             * So, we detect that input here and return on these keys.
-            /*/
-            case '\r':      // Enter / return
-            case '\n':      // Line feed
-            case '\x0009':  // Tab
-            case '\b':      // Backspace
-            case '\x001b':  // ESC
-                return;
-            default:
-                // Don't allow control characters (asc 0-31 + 127)
-                if (char.IsControl(character))
-                    return;
-
-                // Don't allow typing characters that don't exist in the spritefont
-                if (Renderer.GetSafeString(character.ToString(), FontIndex) != character.ToString())
-                    break;
-
-                if (!AllowCharacterInput(character))
-                    break;
-
-                if (!IsValidSelection())
-                {
-                    if (Text.Length >= MaximumTextLength)
-                        break;
-
-                    InputPosition = EnsureCharacterBoundary(InputPosition);
-
-                    text = text.Insert(InputPosition, character.ToString());
-                    InputPosition++;
-
-                    if (InputPosition > TextEndPosition)
-                    {
-                        TextEndPosition = InputPosition;
-
-                        while (!TextFitsBox())
-                            TextStartPosition = GetNextCharacterBoundary(TextStartPosition);
-                    }
-
-                    while (TextFitsBox() && TextEndPosition < text.Length)
-                    {
-                        TextEndPosition = GetNextCharacterBoundary(TextEndPosition);
-                    }
-
-                    if (!TextFitsBox())
-                    {
-                        TextEndPosition = GetPreviousCharacterBoundary(TextEndPosition);
-                    }
-                }
-                else
-                {
-                    text = text.Substring(0, SelectionStartPosition) + character.ToString() + text.Substring(SelectionEndPosition);
-                    InputPosition = SelectionStartPosition + 1;
-                    UnselectText();
-
-                    TextStartPosition = Math.Min(TextStartPosition, text.Length);
-                    TextEndPosition = Math.Min(TextEndPosition, text.Length);
-
-                    if (TextStartPosition > 0 && TextFitsBox())
-                    {
-                        while (TextFitsBox() && TextStartPosition > 0)
-                        {
-                            TextStartPosition = GetPreviousCharacterBoundary(TextStartPosition);
-                        }
-
-                        if (TextStartPosition > 0)
-                            TextStartPosition = GetNextCharacterBoundary(TextStartPosition);
-                    }
-                }
-
-                TextChanged?.Invoke(this, EventArgs.Empty);
-                break;
+            InputReceived?.Invoke(this, EventArgs.Empty);
+            return;
         }
+
+        if (!AllowCharacterInput(character))
+        {
+            InputReceived?.Invoke(this, EventArgs.Empty);
+            return;
+        }
+
+        if (!IsValidSelection())
+        {
+            if (Text.Length >= MaximumTextLength)
+            {
+                InputReceived?.Invoke(this, EventArgs.Empty);
+                return;
+            }
+
+            InputPosition = EnsureCharacterBoundary(InputPosition);
+
+            text = text.Insert(InputPosition, character.ToString());
+            InputPosition++;
+
+            if (InputPosition > TextEndPosition)
+            {
+                TextEndPosition = InputPosition;
+
+                while (!TextFitsBox())
+                    TextStartPosition = GetNextCharacterBoundary(TextStartPosition);
+            }
+
+            while (TextFitsBox() && TextEndPosition < text.Length)
+            {
+                TextEndPosition = GetNextCharacterBoundary(TextEndPosition);
+            }
+
+            if (!TextFitsBox())
+            {
+                TextEndPosition = GetPreviousCharacterBoundary(TextEndPosition);
+            }
+        }
+        else
+        {
+            text = text.Substring(0, SelectionStartPosition) + character.ToString() + text.Substring(SelectionEndPosition);
+            InputPosition = SelectionStartPosition + 1;
+            UnselectText();
+
+            TextStartPosition = Math.Min(TextStartPosition, text.Length);
+            TextEndPosition = Math.Min(TextEndPosition, text.Length);
+
+            if (TextStartPosition > 0 && TextFitsBox())
+            {
+                while (TextFitsBox() && TextStartPosition > 0)
+                {
+                    TextStartPosition = GetPreviousCharacterBoundary(TextStartPosition);
+                }
+
+                if (TextStartPosition > 0)
+                    TextStartPosition = GetNextCharacterBoundary(TextStartPosition);
+            }
+        }
+
+        TextChanged?.Invoke(this, EventArgs.Empty);
 
         barTimer = TimeSpan.Zero;
 
