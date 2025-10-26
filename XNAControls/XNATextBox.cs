@@ -449,6 +449,10 @@ public class XNATextBox : XNAControl
             case '\x001b':  // ESC
                 return;
             default:
+                // Don't allow control characters (asc 0-31 + 127)
+                if (char.IsControl(character))
+                    return;
+
                 // Don't allow typing characters that don't exist in the spritefont
                 if (Renderer.GetSafeString(character.ToString(), FontIndex) != character.ToString())
                     break;
