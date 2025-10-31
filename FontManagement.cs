@@ -243,7 +243,9 @@ public static class FontManagement
                     string sfName = Path.GetFileNameWithoutExtension(fontPath);
                     if (SafePath.GetFile(searchPath, $"{sfName}.xnb").Exists)
                     {
-                        fonts.Add(new SpriteFontWrapper(contentManager.Load<SpriteFont>(sfName)));
+                        var font = contentManager.Load<SpriteFont>(sfName);
+                        font.DefaultCharacter ??= '?';
+                        fonts.Add(new SpriteFontWrapper(font));
                         Logger.Log($"Loaded SpriteFont: {sfName}");
                     }
                     else
@@ -265,7 +267,9 @@ public static class FontManagement
             if (!SafePath.GetFile(searchPath, FormattableString.Invariant($"{sfName}.xnb")).Exists)
                 break;
 
-            fonts.Add(new SpriteFontWrapper(contentManager.Load<SpriteFont>(sfName)));
+            var font = contentManager.Load<SpriteFont>(sfName);
+            font.DefaultCharacter ??= '?';
+            fonts.Add(new SpriteFontWrapper(font));
             Logger.Log($"Loaded legacy SpriteFont: {sfName}");
         }
     }
