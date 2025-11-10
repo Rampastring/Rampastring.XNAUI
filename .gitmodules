@@ -1,0 +1,3 @@
+[submodule "Rampastring.Tools"]
+	path = Rampastring.Tools
+	url = ../../Rampastring/Rampastring.Tools.git
