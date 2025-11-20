@@ -173,4 +173,8 @@
     <None Remove="$(ToolsSubmoduleDirectory)**" />
     <ProjectReference Include="$(ToolsSubmoduleProjectPath)" />
   </ItemGroup>
+  <PropertyGroup>
+    <!-- There is a race condition in GitVersion. Disable writing version info should help a bit -->
+    <WriteVersionInfoToBuildLog Condition="'$(IsSubmodule)' == 'true'">false</WriteVersionInfoToBuildLog>
+  </PropertyGroup>
 </Project>
