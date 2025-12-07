@@ -38,8 +38,8 @@
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
     <EmbedUntrackedSources>true</EmbedUntrackedSources>
     <PackageReadmeFile>README.md</PackageReadmeFile>
-    <TargetsForTfmSpecificBuildOutput>$(TargetsForTfmSpecificBuildOutput);IncludeXNAAssemblies</TargetsForTfmSpecificBuildOutput>
-    <TargetsForTfmSpecificContentInPackage>$(TargetsForTfmSpecificContentInPackage);IncludeDesktopGLAssemblies</TargetsForTfmSpecificContentInPackage>
+    <TargetsForTfmSpecificBuildOutput>$(TargetsForTfmSpecificBuildOutput);IncludeXNAAssembliesForNuGet</TargetsForTfmSpecificBuildOutput>
+    <TargetsForTfmSpecificContentInPackage>$(TargetsForTfmSpecificContentInPackage);IncludeDesktopGLAssembliesForNuGet</TargetsForTfmSpecificContentInPackage>
     <PackageId Condition="'$(Configuration)' == 'WindowsDXRelease'">Rampastring.XNAUI.WindowsDX</PackageId>
     <PackageId Condition="'$(Configuration)' == 'WindowsGLRelease'">Rampastring.XNAUI.WindowsGL</PackageId>
     <PackageId Condition="'$(Configuration)' == 'UniversalGLRelease'">Rampastring.XNAUI.UniversalGL</PackageId>
@@ -90,12 +90,15 @@
     <EnforceCodeStyleInBuild>false</EnforceCodeStyleInBuild>
   </PropertyGroup>
   
-  <Target Name="IncludeXNAAssemblies" Condition="$(DefineConstants.Contains('XNA'))">
+  <Target Name="IncludeXNAAssembliesForNuGet" Condition="$(DefineConstants.Contains('XNA'))">
     <ItemGroup>
       <BuildOutputInPackage Include="References\XNA\*" />
     </ItemGroup>
   </Target>
-  <Target Name="IncludeDesktopGLAssemblies" Condition="$(DefineConstants.Contains('GL')) And '$(TargetFrameworkIdentifier)' == '.NETFramework'">
+  <Target Name="IncludeDesktopGLAssembliesForNuGet" Condition="$(DefineConstants.Contains('GL')) And '$(TargetFrameworkIdentifier)' == '.NETFramework'">
+    <!-- TfmSpecificPackageFile is an MSBuild item group used during the **NuGet** packing process to specify target framework moniker-specific files for inclusion in the package. -->
+    <!-- MSBuild's ProjectReference does not automatically copy native DLLs transitively like NuGet does. -->
+    <!-- Therefore, it requires a workaround to manually copy these native binaries if you include this library as a PackageReference. -->
     <ItemGroup>
       <TfmSpecificPackageFile Include="$(OutputPath)\x64\SDL2.dll">
         <PackagePath>runtimes\win-x64\native\SDL2.dll</PackagePath>
