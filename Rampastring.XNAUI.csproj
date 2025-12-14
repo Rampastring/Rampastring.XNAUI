@@ -69,8 +69,8 @@
     <ToolsSubmoduleProjectPath>$(ToolsSubmoduleDirectory)Rampastring.Tools.csproj</ToolsSubmoduleProjectPath>
 
     <!-- A pair of heuristics: when we are in a submodule, .git is a file, also in our projects we usually place submodules at top level, so check for both -->
-    <DotGitFileExists>$(Exists('$(MSBuildThisFileDirectory).git'))</DotGitFileExists>
-    <ParentDotGitmodulesFileExists>$(Exists('$(MSBuildThisFileDirectory)../.gitmodules'))</ParentDotGitmodulesFileExists>
+    <DotGitFileExists>$([System.IO.File]::Exists('$(MSBuildThisFileDirectory).git'))</DotGitFileExists>
+    <ParentDotGitmodulesFileExists>$([System.IO.File]::Exists('$(MSBuildThisFileDirectory)../.gitmodules'))</ParentDotGitmodulesFileExists>
     <IsSubmodule Condition="'$(DotGitFileExists)' == 'true' And '$(ParentDotGitmodulesFileExists)' == 'true'">true</IsSubmodule>
 
     <!-- There is a race condition in GitVersion. Disable writing version info should help a bit -->
