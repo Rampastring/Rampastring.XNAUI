@@ -334,7 +334,6 @@ public class XNAMultiColumnListBox : XNAPanel
             height = newHeight;
         }
 
-        header.Height = height;
         header.ClientRectangle = new Rectangle(width, 0, header.Width, height);
 
         headers.Add(header);
