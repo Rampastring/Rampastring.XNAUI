@@ -2,6 +2,7 @@
 using Rampastring.Tools;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Rampastring.XNAUI.XNAControls;
 
@@ -313,7 +314,28 @@ public class XNAMultiColumnListBox : XNAPanel
 
         int width = GetExistingWidth();
 
-        header.ClientRectangle = new Rectangle(width, 0, header.Width, header.Height);
+        // Increase header height if the new header is taller than existing ones
+        int height;
+        {
+            int existingHeight = headers.Select(h => h.Height).DefaultIfEmpty(0).Max();
+            int newHeight = Math.Max(existingHeight, header.Height);
+            for (int i = 0; i < headers.Count; i++)
+            {
+                var currentHeader = headers[i];
+                var currentListBox = listBoxes[i];
+                if (currentHeader.Height != newHeight)
+                {
+                    currentHeader.Height = newHeight;
+                    currentListBox.ClientRectangle = new Rectangle(
+                        currentListBox.X, currentHeader.Bottom - 1, currentListBox.Width, Height - newHeight + 1);
+                }
+            }
+
+            height = newHeight;
+        }
+
+        header.Height = height;
+        header.ClientRectangle = new Rectangle(width, 0, header.Width, height);
 
         headers.Add(header);
 
