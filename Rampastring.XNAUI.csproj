@@ -150,6 +150,13 @@
     <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1" PrivateAssets="All" />
     <PackageReference Include="SixLabors.ImageSharp" Version="2.1.11" />
     <PackageReference Include="TextCopy" Version="6.2.1" />
+  </ItemGroup>
+
+  <ItemGroup Condition="!$(DefineConstants.Contains('XNA'))">
     <PackageReference Include="FontStashSharp.MonoGame" Version="1.5.1" />
+  </ItemGroup>
+
+  <ItemGroup Condition="$(DefineConstants.Contains('XNA'))">
+    <PackageReference Include="FontStashSharp.XNA" Version="1.5.1" />
   </ItemGroup>
 </Project>
