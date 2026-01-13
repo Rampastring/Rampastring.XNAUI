@@ -1,5 +1,6 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using Rampastring.XNAUI.FontManagement;
 using System;
 using System.Collections.Generic;
 
@@ -115,7 +116,7 @@ public class XNAContextMenu : XNAControl
     /// <param name="windowManager">The WindowManager associated with this context menu.</param>
     public XNAContextMenu(WindowManager windowManager) : base(windowManager)
     {
-        ItemHeight = UISettings.ActiveSettings.ContextMenuDefaultItemHeight.GetValueOrDefault((int)FontManagement.GetTextDimensions("Test String @", FontIndex).Y + 1);
+        ItemHeight = UISettings.ActiveSettings.ContextMenuDefaultItemHeight.GetValueOrDefault((int)FontManager.GetTextDimensions("Test String @", FontIndex).Y + 1);
         Height = BORDER_WIDTH * 2;
         DisabledItemColor = Color.Gray;
         Disable();

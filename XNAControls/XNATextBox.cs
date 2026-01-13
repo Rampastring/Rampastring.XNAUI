@@ -1,6 +1,7 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
 using Rampastring.Tools;
+using Rampastring.XNAUI.FontManagement;
 using Rampastring.XNAUI.Input;
 using System;
 using System.Text;
@@ -28,7 +29,7 @@ public class XNATextBox : XNAControl
     /// <param name="windowManager">The WindowManager that will be associated with this control.</param>
     public XNATextBox(WindowManager windowManager) : base(windowManager)
     {
-        Height = UISettings.ActiveSettings.TextBoxDefaultHeight.GetValueOrDefault((int)FontManagement.GetTextDimensions("Test String @@", FontIndex).Y + 4);
+        Height = UISettings.ActiveSettings.TextBoxDefaultHeight.GetValueOrDefault((int)FontManager.GetTextDimensions("Test String @@", FontIndex).Y + 4);
         HandledMouseInputs = MouseInputFlags.LeftMouseButton;
         HandlesDragging = true;
     }
@@ -807,7 +808,7 @@ public class XNATextBox : XNAControl
         if (safeStart >= safeEnd)
             return true;
 
-        return FontManagement.GetTextDimensions(
+        return FontManager.GetTextDimensions(
                     text.Substring(safeStart, safeEnd - safeStart),
                     FontIndex).X < Width - TEXT_HORIZONTAL_MARGIN * 2;
     }
@@ -878,7 +879,7 @@ public class XNATextBox : XNAControl
 
                 tb.Append(text.Substring(i, nextBoundary - i));
 
-                if (FontManagement.GetTextDimensions(tb.ToString(), FontIndex).X +
+                if (FontManager.GetTextDimensions(tb.ToString(), FontIndex).X +
                     TEXT_HORIZONTAL_MARGIN > cursorPoint.X)
                 {
                     newPosition = i;
@@ -916,7 +917,7 @@ public class XNATextBox : XNAControl
 
                         tb.Append(text.Substring(i, nextBoundary - i));
 
-                        if (FontManagement.GetTextDimensions(tb.ToString(), FontIndex).X +
+                        if (FontManager.GetTextDimensions(tb.ToString(), FontIndex).X +
                             TEXT_HORIZONTAL_MARGIN > mouseDownPosition.X)
                         {
                             inputPosition = i;
@@ -1367,7 +1368,7 @@ public class XNATextBox : XNAControl
             if (safeSelectionStart > safeTextStart)
             {
                 string textBeforeSelection = Text.Substring(safeTextStart, safeSelectionStart - safeTextStart);
-                selectionStartX = (int)FontManagement.GetTextDimensions(textBeforeSelection, FontIndex).X + TEXT_HORIZONTAL_MARGIN;
+                selectionStartX = (int)FontManager.GetTextDimensions(textBeforeSelection, FontIndex).X + TEXT_HORIZONTAL_MARGIN;
             }
 
             if (safeSelectionEnd > safeTextEnd)
@@ -1379,7 +1380,7 @@ public class XNATextBox : XNAControl
                 int startIndex = safeTextStart > safeSelectionStart ? safeTextStart : safeSelectionStart;
                 int selectionDrawnLength = safeSelectionEnd - startIndex;
                 string selectedText = Text.Substring(startIndex, selectionDrawnLength);
-                selectionWidth = (int)FontManagement.GetTextDimensions(selectedText, FontIndex).X + 1; // +1 due to shadow
+                selectionWidth = (int)FontManager.GetTextDimensions(selectedText, FontIndex).X + 1; // +1 due to shadow
             }
 
             FillRectangle(new Rectangle(selectionStartX, SELECTION_MARGIN, selectionWidth, Height - (SELECTION_MARGIN * 2)), SelectionColor);
@@ -1404,7 +1405,7 @@ public class XNATextBox : XNAControl
                 if (safeInputPos > safeStartPos)
                 {
                     string inputText = Text.Substring(safeStartPos, safeInputPos - safeStartPos);
-                    barLocationX += (int)FontManagement.GetTextDimensions(inputText, FontIndex).X;
+                    barLocationX += (int)FontManager.GetTextDimensions(inputText, FontIndex).X;
                 }
 
                 if (!IMEDisabled && WindowManager.IMEHandler != null)
@@ -1412,7 +1413,7 @@ public class XNATextBox : XNAControl
                     if (WindowManager.IMEHandler.GetDrawCompositionText(this, out string composition, out int compositionCursorPosition))
                     {
                         DrawString(composition, FontIndex, new(barLocationX, TEXT_VERTICAL_MARGIN), Color.Orange);
-                        Vector2 measStr = FontManagement.GetTextDimensions(composition.Substring(0, compositionCursorPosition), FontIndex);
+                        Vector2 measStr = FontManager.GetTextDimensions(composition.Substring(0, compositionCursorPosition), FontIndex);
                         barLocationX += (int)measStr.X;
                     }
                 }

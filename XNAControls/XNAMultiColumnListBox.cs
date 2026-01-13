@@ -1,5 +1,6 @@
 ﻿using Microsoft.Xna.Framework;
 using Rampastring.Tools;
+using Rampastring.XNAUI.FontManagement;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -17,7 +18,7 @@ public class XNAMultiColumnListBox : XNAPanel
     /// <param name="windowManager">The WindowManager.</param>
     public XNAMultiColumnListBox(WindowManager windowManager) : base(windowManager)
     {
-        LineHeight = UISettings.ActiveSettings.ListBoxDefaultItemHeight.GetValueOrDefault((int)FontManagement.GetTextDimensions("Test String @", FontIndex).Y - 1);
+        LineHeight = UISettings.ActiveSettings.ListBoxDefaultItemHeight.GetValueOrDefault((int)FontManager.GetTextDimensions("Test String @", FontIndex).Y - 1);
         DrawMode = ControlDrawMode.UNIQUE_RENDER_TARGET;
         ClientRectangleUpdated += XNAMultiColumnListBox_ClientRectangleUpdated;
     }
