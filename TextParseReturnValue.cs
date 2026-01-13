@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using Microsoft.Xna.Framework.Graphics;
 using System.Text;
+using Rampastring.XNAUI.FontManagement;
 
 namespace Rampastring.XNAUI;
 
@@ -16,7 +16,7 @@ public class TextParseReturnValue
         LineCount = lineCount;
     }
 
-    public static TextParseReturnValue FixText(SpriteFont spriteFont, int width, string text)
+    public static TextParseReturnValue FixText(IFont font, int width, string text)
     {
         string line = string.Empty;
         int lineCount = 0;
@@ -25,7 +25,7 @@ public class TextParseReturnValue
 
         foreach (string word in wordArray)
         {
-            if (spriteFont.MeasureString(line + word).Length() > width)
+            if (font.MeasureString(line + word).X > width)
             {
                 processedText = processedText + line + Environment.NewLine;
                 lineCount++;
@@ -39,7 +39,7 @@ public class TextParseReturnValue
         return new TextParseReturnValue(processedText, lineCount);
     }
 
-    public static List<string> GetFixedTextLines(SpriteFont spriteFont, int width, string text, bool splitWords = true, bool keepBlankLines = false)
+    public static List<string> GetFixedTextLines(IFont font, int width, string text, bool splitWords = true, bool keepBlankLines = false)
     {
         if (string.IsNullOrEmpty(text))
             return new List<string>(0);
@@ -60,7 +60,7 @@ public class TextParseReturnValue
 
             foreach (string word in wordArray)
             {
-                if (spriteFont.MeasureString(line + word).X > width)
+                if (font.MeasureString(line + word).X > width)
                 {
                     if (line.Length > 0)
                     {
@@ -68,13 +68,13 @@ public class TextParseReturnValue
                     }
 
                     // Split individual words that are longer than the allowed width
-                    if (splitWords && spriteFont.MeasureString(word).X > width)
+                    if (splitWords && font.MeasureString(word).X > width)
                     {
                         var sb = new StringBuilder();
 
                         for (int i = 0; i < word.Length; i++)
                         {
-                            if (spriteFont.MeasureString(sb.ToString() + word[i]).X > width)
+                            if (font.MeasureString(sb.ToString() + word[i]).X > width)
                             {
                                 returnValue.Add(sb.ToString());
                                 sb.Clear();
