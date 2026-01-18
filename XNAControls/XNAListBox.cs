@@ -1072,6 +1072,11 @@ public class XNAListBox : XNAPanel
         }
     }
 
+    protected virtual int GetListBoxItemHeight(int index)
+    {
+        return Items[index].TextLines.Count * LineHeight;
+    }
+
     /// <summary>
     /// Draws the list box and its items.
     /// </summary>
@@ -1092,7 +1097,7 @@ public class XNAListBox : XNAPanel
 
             DrawListBoxItem(i, height);
 
-            height += lbItem.TextLines.Count * LineHeight;
+            height += GetListBoxItemHeight(i);
 
             if (height > Height)
                 break;
