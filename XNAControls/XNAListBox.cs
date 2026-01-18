@@ -138,7 +138,7 @@ public class XNAListBox : XNAPanel
 
             for (int i = 0; i < Items.Count; i++)
             {
-                h += Items[i].TextLines.Count * LineHeight;
+                h += GetListBoxItemLineCount(Items[i]) * LineHeight;
                 if (h > ViewTop)
                     return i;
             }
@@ -151,7 +151,7 @@ public class XNAListBox : XNAPanel
 
             for (int i = 0; i < value && i < Items.Count; i++)
             {
-                h += Items[i].TextLines.Count * LineHeight;
+                h += GetListBoxItemLineCount(Items[i]) * LineHeight;
             }
 
             ViewTop = h;
@@ -168,7 +168,7 @@ public class XNAListBox : XNAPanel
             {
                 XNAListBoxItem lbItem = Items[i];
 
-                height += lbItem.TextLines.Count * LineHeight;
+                height += GetListBoxItemLineCount(lbItem) * LineHeight;
 
                 if (height >= Height)
                     return i;
@@ -184,7 +184,7 @@ public class XNAListBox : XNAPanel
             {
                 XNAListBoxItem lbItem = Items[i];
 
-                requiredHeight += lbItem.TextLines.Count * LineHeight;
+                requiredHeight += GetListBoxItemLineCount(lbItem) * LineHeight;
 
                 if (i == value)
                 {
@@ -393,7 +393,7 @@ public class XNAListBox : XNAPanel
 
         if (listBoxItem.Visible)
         {
-            visibleLineCount += listBoxItem.TextLines.Count;
+            visibleLineCount += GetListBoxItemLineCount(listBoxItem);
         }
 
         RefreshScrollbar();
@@ -405,14 +405,14 @@ public class XNAListBox : XNAPanel
     private void ListBoxItem_TextChanged(object sender, EventArgs e)
     {
         var item = (XNAListBoxItem)sender;
-        int oldLineCount = item.TextLines?.Count ?? 0;
+        int oldLineCount = GetListBoxItemLineCount(item);
 
         CheckItemTextForWordWrapAndExcessSize(item);
 
         if (item.Visible)
         {
             visibleLineCount -= oldLineCount;
-            visibleLineCount += item.TextLines.Count;
+            visibleLineCount += GetListBoxItemLineCount(item);
         }
 
         RefreshScrollbar();
@@ -423,11 +423,11 @@ public class XNAListBox : XNAPanel
         var item = (XNAListBoxItem)sender;
         if (item.Visible)
         {
-            visibleLineCount += item.TextLines.Count;
+            visibleLineCount += GetListBoxItemLineCount(item);
         }
         else
         {
-            visibleLineCount -= item.TextLines.Count;
+            visibleLineCount -= GetListBoxItemLineCount(item);
         }
 
         RefreshScrollbar();
@@ -486,7 +486,7 @@ public class XNAListBox : XNAPanel
 
         if (item.Visible)
         {
-            visibleLineCount -= item.TextLines.Count;
+            visibleLineCount -= GetListBoxItemLineCount(item);
         }
 
         item.TextChanged -= ListBoxItem_TextChanged;
@@ -582,7 +582,7 @@ public class XNAListBox : XNAPanel
 
         for (int i = 0; i < Items.Count; i++)
         {
-            int elementHeight = Items[i].TextLines.Count * LineHeight;
+            int elementHeight = GetListBoxItemLineCount(Items[i]) * LineHeight;
 
             totalHeight += elementHeight;
 
@@ -972,7 +972,7 @@ public class XNAListBox : XNAPanel
             if (!lbItem.Visible)
                 continue;
 
-            height += lbItem.TextLines.Count * LineHeight;
+            height += GetListBoxItemLineCount(lbItem) * LineHeight;
 
             if (height > mouseLocation.Y)
             {
@@ -1005,7 +1005,7 @@ public class XNAListBox : XNAPanel
         int h = 0;
         for (int i = 0; i < Items.Count; i++)
         {
-            int heightIncrease = Items[i].TextLines.Count * LineHeight;
+            int heightIncrease = GetListBoxItemLineCount(Items[i]) * LineHeight;
             if (h + heightIncrease > ViewTop)
                 return new ListBoxItemDrawInfo(i, h - ViewTop);
             h += heightIncrease;
@@ -1034,7 +1034,7 @@ public class XNAListBox : XNAPanel
             }
 
             FillRectangle(new Rectangle(1, y, drawnWidth,
-                lbItem.TextLines.Count * LineHeight),
+                GetListBoxItemLineCount(lbItem) * LineHeight),
                 FocusColor);
         }
 
@@ -1072,9 +1072,9 @@ public class XNAListBox : XNAPanel
         }
     }
 
-    protected virtual int GetListBoxItemHeight(int index)
+    protected virtual int GetListBoxItemLineCount(XNAListBoxItem listBoxItem)
     {
-        return Items[index].TextLines.Count * LineHeight;
+        return listBoxItem.TextLines != null ? listBoxItem.TextLines.Count : 0;
     }
 
     /// <summary>
@@ -1097,7 +1097,7 @@ public class XNAListBox : XNAPanel
 
             DrawListBoxItem(i, height);
 
-            height += GetListBoxItemHeight(i);
+            height += GetListBoxItemLineCount(lbItem) * LineHeight;
 
             if (height > Height)
                 break;
