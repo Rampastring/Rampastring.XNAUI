@@ -1,29 +1,14 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework Condition="'$(Configuration)' == 'UniversalGLDebug' Or '$(Configuration)' == 'UniversalGLRelease'">net8.0</TargetFramework>
-    <TargetFrameworks Condition="'$(Configuration)' != 'UniversalGLDebug' And '$(Configuration)' != 'UniversalGLRelease'">net8.0-windows;net48</TargetFrameworks>
-    <UseWindowsForms Condition="'$(Configuration)' != 'UniversalGLDebug' And '$(Configuration)' != 'UniversalGLRelease'">true</UseWindowsForms>
-    <Title Condition="'$(Configuration)' == 'WindowsDXRelease'">Rampastring.XNAUI (WindowsDX)</Title>
-    <Title Condition="'$(Configuration)' == 'WindowsGLRelease'">Rampastring.XNAUI (WindowsGL)</Title>
-    <Title Condition="'$(Configuration)' == 'UniversalGLRelease'">Rampastring.XNAUI (UniversalGL)</Title>
-    <Title Condition="'$(Configuration)' == 'WindowsXNARelease'">Rampastring.XNAUI (XNA)</Title>
-    <Title Condition="'$(Configuration)' == 'WindowsDXDebug'">Rampastring.XNAUI (WindowsDX Debug Build)</Title>
-    <Title Condition="'$(Configuration)' == 'WindowsGLDebug'">Rampastring.XNAUI (WindowsGL Debug Build)</Title>
-    <Title Condition="'$(Configuration)' == 'UniversalGLDebug'">Rampastring.XNAUI (UniversalGL Debug Build)</Title>
-    <Title Condition="'$(Configuration)' == 'WindowsXNADebug'">Rampastring.XNAUI (XNA Debug Build)</Title>
+    <TargetDotnet>net8.0</TargetDotnet>
+    <TargetDotnetFramework>net48</TargetDotnetFramework>
+    <Title>Rampastring.XNAUI</Title>
     <Description>Rampastring XNA/MonoGame UI Library</Description>
     <Company>Rampastring</Company>
     <Product>Rampastring.XNAUI</Product>
     <Copyright>Copyright © Rami 'Rampastring' Pasanen 2016-2024</Copyright>
     <Trademark></Trademark>
-    <AssemblyName Condition="'$(Configuration)' == 'WindowsDXRelease'">Rampastring.XNAUI.WindowsDX</AssemblyName>
-    <AssemblyName Condition="'$(Configuration)' == 'WindowsGLRelease'">Rampastring.XNAUI.WindowsGL</AssemblyName>
-    <AssemblyName Condition="'$(Configuration)' == 'UniversalGLRelease'">Rampastring.XNAUI.UniversalGL</AssemblyName>
-    <AssemblyName Condition="'$(Configuration)' == 'WindowsXNARelease'">Rampastring.XNAUI.WindowsXNA</AssemblyName>
-    <AssemblyName Condition="'$(Configuration)' == 'WindowsDXDebug'">Rampastring.XNAUI.WindowsDX.Debug</AssemblyName>
-    <AssemblyName Condition="'$(Configuration)' == 'WindowsGLDebug'">Rampastring.XNAUI.WindowsGL.Debug</AssemblyName>
-    <AssemblyName Condition="'$(Configuration)' == 'UniversalGLDebug'">Rampastring.XNAUI.UniversalGL.Debug</AssemblyName>
-    <AssemblyName Condition="'$(Configuration)' == 'WindowsXNADebug'">Rampastring.XNAUI.WindowsXNA.Debug</AssemblyName>
+    <AssemblyName>Rampastring.XNAUI</AssemblyName>
     <RootNamespace>Rampastring.XNAUI</RootNamespace>
     <ComVisible>false</ComVisible>
     <CLSCompliant>false</CLSCompliant>
@@ -38,49 +23,136 @@
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
     <EmbedUntrackedSources>true</EmbedUntrackedSources>
     <PackageReadmeFile>README.md</PackageReadmeFile>
-    <TargetsForTfmSpecificBuildOutput>$(TargetsForTfmSpecificBuildOutput);IncludeXNAAssemblies</TargetsForTfmSpecificBuildOutput>
-    <TargetsForTfmSpecificContentInPackage>$(TargetsForTfmSpecificContentInPackage);IncludeDesktopGLAssemblies</TargetsForTfmSpecificContentInPackage>
-    <PackageId Condition="'$(Configuration)' == 'WindowsDXRelease'">Rampastring.XNAUI.WindowsDX</PackageId>
-    <PackageId Condition="'$(Configuration)' == 'WindowsGLRelease'">Rampastring.XNAUI.WindowsGL</PackageId>
-    <PackageId Condition="'$(Configuration)' == 'UniversalGLRelease'">Rampastring.XNAUI.UniversalGL</PackageId>
-    <PackageId Condition="'$(Configuration)' == 'WindowsXNARelease'">Rampastring.XNAUI.WindowsXNA</PackageId>
-    <PackageId Condition="'$(Configuration)' == 'WindowsDXDebug'">Rampastring.XNAUI.WindowsDX.Debug</PackageId>
-    <PackageId Condition="'$(Configuration)' == 'WindowsGLDebug'">Rampastring.XNAUI.WindowsGL.Debug</PackageId>
-    <PackageId Condition="'$(Configuration)' == 'UniversalGLDebug'">Rampastring.XNAUI.UniversalGL.Debug</PackageId>
-    <PackageId Condition="'$(Configuration)' == 'WindowsXNADebug'">Rampastring.XNAUI.WindowsXNA.Debug</PackageId>
     <PackageTags></PackageTags>
     <PackageProjectUrl>https://github.com/Rampastring/Rampastring.XNAUI</PackageProjectUrl>
     <PublishRepositoryUrl>true</PublishRepositoryUrl>
     <PackageLicenseExpression></PackageLicenseExpression>
     <ContinuousIntegrationBuild Condition="'$(GITHUB_ACTIONS)' == 'true'">true</ContinuousIntegrationBuild>
     <EnablePackageValidation>true</EnablePackageValidation>
+    <ManagePackageVersionsCentrally>false</ManagePackageVersionsCentrally>
+    <!-- Disable XML documentation warnings -->
+    <NoWarn>$(NoWarn);1591</NoWarn>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)' == 'WindowsDXDebug' Or '$(Configuration)' == 'UniversalGLDebug' Or '$(Configuration)' == 'WindowsGLDebug' Or '$(Configuration)' == 'WindowsXNADebug'">
-    <DefineConstants>$(DefineConstants);DEBUG</DefineConstants>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)' == 'WindowsDXDebug' Or '$(Configuration)' == 'WindowsDXRelease'">
-    <DefineConstants>$(DefineConstants);DX;WINFORMS;ISWINDOWS</DefineConstants>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)' == 'UniversalGLDebug' Or '$(Configuration)' == 'UniversalGLRelease'">
-    <DefineConstants>$(DefineConstants);GL</DefineConstants>
-    <DefineConstants Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'windows'">$(DefineConstants);ISWINDOWS</DefineConstants>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)' == 'WindowsGLDebug' Or '$(Configuration)' == 'WindowsGLRelease'">
-    <DefineConstants>$(DefineConstants);GL;WINFORMS;ISWINDOWS</DefineConstants>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)' == 'WindowsXNADebug' Or '$(Configuration)' == 'WindowsXNARelease'">
-    <DefineConstants>$(DefineConstants);XNA;WINFORMS;ISWINDOWS</DefineConstants>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)'=='WindowsDXRelease' Or '$(Configuration)'=='UniversalGLRelease' Or '$(Configuration)'=='WindowsGLRelease' Or '$(Configuration)'=='WindowsXNARelease'">
+
+  <PropertyGroup Condition="$(Configuration.Contains('Release'))">
     <Optimize>true</Optimize>
     <EnforceCodeStyleInBuild>false</EnforceCodeStyleInBuild>
   </PropertyGroup>
-  <Target Name="IncludeXNAAssemblies" Condition="$(DefineConstants.Contains('XNA'))">
+
+  <PropertyGroup>
+    <TargetFrameworks Condition="$(Configuration.Contains('Universal'))">$(TargetDotnet)</TargetFrameworks>
+    <TargetFrameworks Condition="$(Configuration.Contains('Windows'))">$(TargetDotnet)-windows;$(TargetDotnetFramework)</TargetFrameworks>
+    <UseWindowsForms Condition="$(Configuration.Contains('Windows'))">true</UseWindowsForms>
+    <TitleSuffix Condition="$(Configuration.Contains('WindowsDX'))">WindowsDX</TitleSuffix>
+    <TitleSuffix Condition="$(Configuration.Contains('WindowsGL'))">WindowsGL</TitleSuffix>
+    <TitleSuffix Condition="$(Configuration.Contains('UniversalGL'))">UniversalGL</TitleSuffix>
+    <TitleSuffix Condition="$(Configuration.Contains('WindowsXNA'))">XNA</TitleSuffix>
+    <TitleSuffix Condition="$(Configuration.Contains('Debug'))">$(TitleSuffix) Debug Build</TitleSuffix>
+    <Title>$(Title) ($(TitleSuffix))</Title>
+    <AssemblyName Condition="$(Configuration.Contains('WindowsDX'))">$(AssemblyName).WindowsDX</AssemblyName>
+    <AssemblyName Condition="$(Configuration.Contains('WindowsGL'))">$(AssemblyName).WindowsGL</AssemblyName>
+    <AssemblyName Condition="$(Configuration.Contains('UniversalGL'))">$(AssemblyName).UniversalGL</AssemblyName>
+    <AssemblyName Condition="$(Configuration.Contains('WindowsXNA'))">$(AssemblyName).WindowsXNA</AssemblyName>
+    <AssemblyName Condition="$(Configuration.Contains('Debug'))">$(AssemblyName).Debug</AssemblyName>
+    <PackageId>$(AssemblyName)</PackageId>
+    <DefineConstants Condition="$(Configuration.Contains('DX'))">$(DefineConstants);DX</DefineConstants>
+    <DefineConstants Condition="$(Configuration.Contains('GL'))">$(DefineConstants);GL</DefineConstants>
+    <DefineConstants Condition="$(Configuration.Contains('XNA'))">$(DefineConstants);XNA</DefineConstants>
+    <DefineConstants Condition="$(Configuration.Contains('Debug'))">$(DefineConstants);DEBUG</DefineConstants>
+    <DefineConstants Condition="'$(UseWindowsForms)' == 'true'">$(DefineConstants);WINFORMS</DefineConstants>
+    <DefineConstants Condition="$(Configuration.Contains('Windows'))">$(DefineConstants);ISWINDOWS</DefineConstants>
+    <DefineConstants Condition="!$(DefineConstants.Contains('ISWINDOWS')) AND $([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'windows'">$(DefineConstants);ISWINDOWS</DefineConstants>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <ToolsSubmoduleDirectory>$(MSBuildThisFileDirectory)Rampastring.Tools\</ToolsSubmoduleDirectory>
+    <ToolsSubmoduleProjectPath>$(ToolsSubmoduleDirectory)Rampastring.Tools.csproj</ToolsSubmoduleProjectPath>
+
+    <!-- A pair of heuristics: when we are in a submodule, .git is a file, also in our projects we usually place submodules at top level, so check for both -->
+    <DotGitFileExists>$([System.IO.File]::Exists('$(MSBuildThisFileDirectory).git'))</DotGitFileExists>
+    <ParentDotGitmodulesFileExists>$([System.IO.File]::Exists('$(MSBuildThisFileDirectory)../.gitmodules'))</ParentDotGitmodulesFileExists>
+    <IsSubmodule Condition="'$(DotGitFileExists)' == 'true' And '$(ParentDotGitmodulesFileExists)' == 'true'">true</IsSubmodule>
+
+    <!-- There is a race condition in GitVersion. Disable writing version info should help a bit -->
+    <WriteVersionInfoToBuildLog Condition="'$(IsSubmodule)' == 'true'">false</WriteVersionInfoToBuildLog>
+  </PropertyGroup>
+  
+  <ItemGroup>
+    <Compile Remove="build\**" />
+    <Compile Remove="References\**" />
+    <EmbeddedResource Remove="build\**" />
+    <EmbeddedResource Remove="References\**" />
+    <None Remove="build\**" />
+    <None Remove="References\**" />
+  </ItemGroup>
+  
+  <ItemGroup Condition="!$(DefineConstants.Contains('XNA'))">
+    <Compile Remove="Input\KeyboardEventArgs.cs" />
+    <Compile Remove="Input\KeyboardEventInput.cs" />
+  </ItemGroup>
+  
+  <ItemGroup>
+    <None Include="README.md" Pack="true" PackagePath="\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Rampastring.Tools" Version="2.0.7" Condition="!Exists('$(ToolsSubmoduleProjectPath)')" />
+    <PackageReference Include="Microsoft.Windows.CsWin32" Version="0.3.49-beta" PrivateAssets="All" />
+    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1" PrivateAssets="All" />
+    <PackageReference Include="SixLabors.ImageSharp" Version="2.1.11" />
+    <PackageReference Include="TextCopy" Version="6.2.1" />
+    <PackageReference Include="GitVersion.MsBuild" Version="5.12.0" Condition="'$(IsSubmodule)' == 'true'" PrivateAssets="All" />
+  </ItemGroup>
+  
+  <!--Switching between Configurations within VS IDE requires reloading the project file-->
+  <ItemGroup Condition="$(DefineConstants.Contains('DX'))">
+    <PackageReference Include="MonoGame.Framework.WindowsDX" Condition="'$(TargetFrameworkIdentifier)' == '.NETFramework'" Version="3.8.0.1641" />
+    <PackageReference Include="MonoGame.Framework.WindowsDX" Condition="'$(TargetFrameworkIdentifier)' != '.NETFramework'" Version="3.8.1.303" />
+  </ItemGroup>
+  
+  <ItemGroup Condition="$(DefineConstants.Contains('GL'))">
+    <PackageReference Include="MonoGame.Framework.DesktopGL" GeneratePathProperty="true" Condition="'$(TargetFrameworkIdentifier)' == '.NETFramework'" Version="3.8.0.1641" />
+    <PackageReference Include="MonoGame.Framework.DesktopGL" GeneratePathProperty="true" Condition="'$(TargetFrameworkIdentifier)' != '.NETFramework'" Version="3.8.1.303" />
+  </ItemGroup>
+  
+  <ItemGroup Condition="$(DefineConstants.Contains('XNA'))">
+    <Reference Include="Microsoft.Xna.Framework" HintPath="References\XNA\Microsoft.Xna.Framework.dll" />
+    <Reference Include="Microsoft.Xna.Framework.Game" HintPath="References\XNA\Microsoft.Xna.Framework.Game.dll" />
+    <Reference Include="Microsoft.Xna.Framework.Graphics" HintPath="References\XNA\Microsoft.Xna.Framework.Graphics.dll" />
+  </ItemGroup>
+  
+  <ItemGroup>
+    <None Include="build\GL.targets" Condition="$(Configuration.Contains('WindowsGL'))" Pack="True" PackagePath="build\$(PackageId).targets" />
+  </ItemGroup>
+
+  <ItemGroup Condition="Exists('$(ToolsSubmoduleProjectPath)')">
+    <Compile Remove="$(ToolsSubmoduleDirectory)**" />
+    <None Remove="$(ToolsSubmoduleDirectory)**" />
+    <ProjectReference Include="$(ToolsSubmoduleProjectPath)" />
+  </ItemGroup>
+
+  <PropertyGroup>
+    <TargetsForTfmSpecificBuildOutput>$(TargetsForTfmSpecificBuildOutput);IncludeXNAAssembliesForNuGet</TargetsForTfmSpecificBuildOutput>
+    <TargetsForTfmSpecificContentInPackage>$(TargetsForTfmSpecificContentInPackage);IncludeDesktopGLAssembliesForNuGet</TargetsForTfmSpecificContentInPackage>
+  </PropertyGroup>
+
+  <Target Name="IncludeXNAAssembliesForNuGet" Condition="$(DefineConstants.Contains('XNA'))">
+    <!-- TfmSpecificPackageFile is an MSBuild item group used during the **NuGet** packing process to specify target framework moniker-specific files for inclusion in the package. -->
+    <!-- MSBuild's ProjectReference does not automatically copy native DLLs transitively like NuGet does. -->
+    <!-- Therefore, it requires a workaround (the ItemGroup below this target) to manually copy these native binaries if one include this library as a PackageReference. -->
     <ItemGroup>
       <BuildOutputInPackage Include="References\XNA\*" />
     </ItemGroup>
   </Target>
-  <Target Name="IncludeDesktopGLAssemblies" Condition="$(DefineConstants.Contains('GL')) And '$(TargetFrameworkIdentifier)' == '.NETFramework'">
+  
+  <ItemGroup Condition="$(DefineConstants.Contains('XNA'))">
+    <None Include="References\XNA\*.dll" Link="%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+
+  <Target Name="IncludeDesktopGLAssembliesForNuGet" Condition="$(DefineConstants.Contains('GL')) And '$(TargetFrameworkIdentifier)' == '.NETFramework'">
+    <!-- TfmSpecificPackageFile is an MSBuild item group used during the **NuGet** packing process to specify target framework moniker-specific files for inclusion in the package. -->
+    <!-- MSBuild's ProjectReference does not automatically copy native DLLs transitively like NuGet does. -->
+    <!-- Therefore, it requires a workaround (the ItemGroup below this target) to manually copy these native binaries if one include this library as a PackageReference. -->
     <ItemGroup>
       <TfmSpecificPackageFile Include="$(OutputPath)\x64\SDL2.dll">
         <PackagePath>runtimes\win-x64\native\SDL2.dll</PackagePath>
@@ -108,46 +180,10 @@
       </TfmSpecificPackageFile>
     </ItemGroup>
   </Target>
-  <ItemGroup>
-    <Compile Remove="build\**" />
-    <Compile Remove="References\**" />
-    <EmbeddedResource Remove="build\**" />
-    <EmbeddedResource Remove="References\**" />
-    <None Remove="build\**" />
-    <None Remove="References\**" />
+
+  <ItemGroup Condition="$(DefineConstants.Contains('GL')) And '$(TargetFrameworkIdentifier)' == '.NETFramework'">
+    <None Include="$(PkgMonoGame_Framework_DesktopGL)\runtimes\win-x64\native\*.dll" Link="x64\%(RecursiveDir)%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="$(PkgMonoGame_Framework_DesktopGL)\runtimes\win-x86\native\*.dll" Link="x86\%(RecursiveDir)%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
-  <ItemGroup Condition="!$(DefineConstants.Contains('XNA'))">
-    <Compile Remove="Input\KeyboardEventArgs.cs" />
-    <Compile Remove="Input\KeyboardEventInput.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="README.md" Pack="true" PackagePath="\" />
-  </ItemGroup>
-  <!--Switching between Configurations within VS IDE requires reloading the project file-->
-  <ItemGroup Condition="$(DefineConstants.Contains('DX'))">
-    <PackageReference Include="MonoGame.Framework.WindowsDX" Condition="'$(TargetFrameworkIdentifier)' == '.NETFramework'" Version="3.8.0.1641" />
-    <PackageReference Include="MonoGame.Framework.WindowsDX" Condition="'$(TargetFrameworkIdentifier)' != '.NETFramework'" Version="3.8.1.303" />
-  </ItemGroup>
-  <ItemGroup Condition="$(DefineConstants.Contains('GL'))">
-    <PackageReference Include="MonoGame.Framework.DesktopGL" Condition="'$(TargetFrameworkIdentifier)' == '.NETFramework'" Version="3.8.0.1641" />
-    <PackageReference Include="MonoGame.Framework.DesktopGL" Condition="'$(TargetFrameworkIdentifier)' != '.NETFramework'" Version="3.8.1.303" />
-  </ItemGroup>
-  <ItemGroup Condition="$(DefineConstants.Contains('XNA'))">
-    <Reference Include="Microsoft.Xna.Framework">
-      <HintPath>References\XNA\Microsoft.Xna.Framework.dll</HintPath>
-    </Reference>
-    <Reference Include="Microsoft.Xna.Framework.Game">
-      <HintPath>References\XNA\Microsoft.Xna.Framework.Game.dll</HintPath>
-    </Reference>
-    <Reference Include="Microsoft.Xna.Framework.Graphics">
-      <HintPath>References\XNA\Microsoft.Xna.Framework.Graphics.dll</HintPath>
-    </Reference>
-  </ItemGroup>
-  <ItemGroup>
-    <PackageReference Include="Rampastring.Tools" Version="2.0.7" />
-    <PackageReference Include="Microsoft.Windows.CsWin32" Version="0.3.49-beta" PrivateAssets="All" />
-    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1" PrivateAssets="All" />
-    <PackageReference Include="SixLabors.ImageSharp" Version="2.1.11" />
-    <PackageReference Include="TextCopy" Version="6.2.1" />
-  </ItemGroup>
+
 </Project>
