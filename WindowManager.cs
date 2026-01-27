@@ -411,18 +411,6 @@ public class WindowManager : DrawableGameComponent
         ReorderControls();
     }
 
-    private void UnfocusOtherControlsIfFocused(XNAControl targetControl)
-    {
-        if (!targetControl.Focused)
-            return;
-
-        foreach (XNAControl c in Controls)
-        {
-            if (!object.ReferenceEquals(c, targetControl) && c.Focused)
-                c.Focused = false;
-        }
-    }
-
     /// <summary>
     /// Adds a control to the WindowManager, on the last place
     /// in the list of controls. Does not call the control's
@@ -458,6 +446,18 @@ public class WindowManager : DrawableGameComponent
 
         Controls.Insert(0, control);
         Debug.Assert(Controls.Count(c => c.Focused) <= 1, "There should be at most one focused control.");
+    }
+
+    private void UnfocusOtherControlsIfFocused(XNAControl targetControl)
+    {
+        if (!targetControl.Focused)
+            return;
+
+        foreach (XNAControl c in Controls)
+        {
+            if (!object.ReferenceEquals(c, targetControl) && c.Focused)
+                c.Focused = false;
+        }
     }
 
     /// <summary>
