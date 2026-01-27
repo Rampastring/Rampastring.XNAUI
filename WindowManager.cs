@@ -401,9 +401,26 @@ public class WindowManager : DrawableGameComponent
             throw new InvalidOperationException("WindowManager.AddAndInitializeControl: Control " + control.Name + " already exists!");
         }
 
+        UnfocusOtherControlsIfFocused(control);
+
         control.Initialize();
+
         Controls.Add(control);
+        Debug.Assert(Controls.Count(c => c.Focused) <= 1, "There should be at most one focused control.");
+
         ReorderControls();
+    }
+
+    private void UnfocusOtherControlsIfFocused(XNAControl targetControl)
+    {
+        if (!targetControl.Focused)
+            return;
+
+        foreach (XNAControl c in Controls)
+        {
+            if (!object.ReferenceEquals(c, targetControl) && c.Focused)
+                c.Focused = false;
+        }
     }
 
     /// <summary>
@@ -419,7 +436,10 @@ public class WindowManager : DrawableGameComponent
             throw new InvalidOperationException("WindowManager.AddControl: Control " + control.Name + " already exists!");
         }
 
+        UnfocusOtherControlsIfFocused(control);
+
         Controls.Add(control);
+        Debug.Assert(Controls.Count(c => c.Focused) <= 1, "There should be at most one focused control.");
     }
 
     /// <summary>
@@ -434,7 +454,10 @@ public class WindowManager : DrawableGameComponent
             throw new Exception("WindowManager.InsertAndInitializeControl: Control " + control.Name + " already exists!");
         }
 
+        UnfocusOtherControlsIfFocused(control);
+
         Controls.Insert(0, control);
+        Debug.Assert(Controls.Count(c => c.Focused) <= 1, "There should be at most one focused control.");
     }
 
     /// <summary>
