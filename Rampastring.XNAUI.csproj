@@ -153,10 +153,10 @@
   </ItemGroup>
 
   <ItemGroup Condition="!$(DefineConstants.Contains('XNA'))">
-    <PackageReference Include="FontStashSharp.MonoGame" Version="1.5.1" />
+    <PackageReference Include="FontStashSharp.MonoGame" Version="1.5.2" />
   </ItemGroup>
 
   <ItemGroup Condition="$(DefineConstants.Contains('XNA'))">
-    <PackageReference Include="FontStashSharp.XNA" Version="1.5.1" />
+    <PackageReference Include="FontStashSharp.XNA" Version="1.5.2" />
   </ItemGroup>
 </Project>
