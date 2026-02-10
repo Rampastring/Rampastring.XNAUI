@@ -8,6 +8,7 @@ using TextCopy;
 using System;
 using System.Collections.Generic;
 using Rampastring.Tools;
+using Rampastring.XNAUI.FontManagement;
 using System.Globalization;
 
 namespace Rampastring.XNAUI.XNAControls;
@@ -27,7 +28,7 @@ public class XNAListBox : XNAPanel
     public XNAListBox(WindowManager windowManager) : base(windowManager)
     {
         DrawMode = ControlDrawMode.UNIQUE_RENDER_TARGET;
-        _lineHeight = UISettings.ActiveSettings.ListBoxDefaultItemHeight.GetValueOrDefault((int)Renderer.MeasureString("Test String @", FontIndex).Y - 1);
+        _lineHeight = UISettings.ActiveSettings.ListBoxDefaultItemHeight.GetValueOrDefault((int)FontManager.GetTextDimensions("Test String @", FontIndex).Y - 1);
         ScrollBar = new XNAScrollBar(WindowManager);
         ScrollBar.Name = "XNAListBoxScrollBar";
         ScrollBar.ScrollStep = LineHeight;

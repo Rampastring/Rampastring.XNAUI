@@ -1,6 +1,7 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Rampastring.Tools;
+using Rampastring.XNAUI.FontManagement;
 using System;
 using System.Collections.Generic;
 
@@ -24,7 +25,7 @@ public class XNADropDown : XNAControl
     /// <param name="windowManager">The WindowManager associated with this control.</param>
     public XNADropDown(WindowManager windowManager) : base(windowManager)
     {
-        ItemHeight = UISettings.ActiveSettings.DropDownDefaultItemHeight.GetValueOrDefault((int)Renderer.MeasureString("Test String @", FontIndex).Y + 1);
+        ItemHeight = UISettings.ActiveSettings.DropDownDefaultItemHeight.GetValueOrDefault((int)FontManager.GetTextDimensions("Test String @", FontIndex).Y + 1);
         Height = ItemHeight + 2;
     }
 
