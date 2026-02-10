@@ -17,26 +17,25 @@ namespace Rampastring.XNAUI.FontManagement;
 /// </summary>
 /// <remarks>
 /// <para>
-/// For TrueType fonts, FontManager uses a single shared FontSystem that enables
-/// automatic character fallback across multiple font files. When a character is not
-/// found in the primary font, it automatically falls back to other loaded fonts.
+/// For TrueType fonts, FontManager creates a separate FontSystem for each font index.
+/// Each FontSystem has a primary font (specified via Path) and fallback fonts (from [FallbackFonts]).
+/// When a character is not found in the primary font, it automatically falls back to other loaded fonts.
 /// </para>
 /// <para>
 /// The Fonts.ini file format supports:
 /// <list type="bullet">
-/// <item>[TextShaping] - Optional HarfBuzz text shaping</item>
-/// <item>[FontSources] - Optional explicit fallback font files</item>
-/// <item>[Fonts] - Font index definitions with Size and Type</item>
+/// <item>[TextShaping] - Optional HarfBuzz text shaping configuration</item>
+/// <item>[FallbackFonts] - Optional fallback font files used when primary font lacks a character</item>
+/// <item>[Fonts] - Font index definitions with Size, Type, and optional Path</item>
 /// </list>
 /// </para>
 /// </remarks>
 public static class FontManager
 {
     private static List<IFont> fonts;
-    private static FontSystem fontSystem;
+    private static List<FontSystem> fontSystems = new();
     private static TextShapingSettings textShapingSettings = new();
-    private static HashSet<string> loadedFontSources = new(StringComparer.OrdinalIgnoreCase);
-    private static bool fontIndexesDefined;
+    private static List<string> fallbackFontPaths = new();
 
     public static void Initialize()
     {
@@ -74,44 +73,37 @@ public static class FontManager
     }
 
     /// <summary>
-    /// Loads fonts from all asset search paths.
+    /// Loads fonts from the first Fonts.ini found in asset search paths.
     /// </summary>
     /// <remarks>
     /// <para>
     /// Loading happens in two phases:
     /// </para>
     /// <para>
-    /// Phase 1: Collect all TrueType font sources from all search paths.
-    /// Sources are added in search path order, so translation fonts have
-    /// higher fallback priority than base fonts.
+    /// Phase 1: Load configuration from the first Fonts.ini:
+    /// - [TextShaping] settings
+    /// - [FallbackFonts] paths (used by all TrueType font indexes)
+    /// - [Fonts] definitions (type, path, size)
     /// </para>
     /// <para>
-    /// Phase 2: Create FontIndex entries from the first Fonts.ini found,
-    /// or fall back to legacy SpriteFont loading if no Fonts.ini exists.
+    /// Phase 2: Create font indexes:
+    /// - For TrueType fonts: Create a FontSystem with primary font first, then fallback fonts
+    /// - For SpriteFonts: Load the .xnb file
     /// </para>
     /// </remarks>
     public static void LoadFonts(ContentManager contentManager)
     {
         fonts ??= [];
         fonts.Clear();
-        loadedFontSources.Clear();
-        fontIndexesDefined = false;
+        fontSystems.Clear();
+        fallbackFontPaths.Clear();
 
         // Reset text shaping settings
         textShapingSettings = new TextShapingSettings();
 
-        // Phase 1: Collect all font sources and text shaping settings from all Fonts.ini files
-        CollectFontSources();
-
-        // Create the shared FontSystem with collected settings
-        fontSystem = CreateFontSystem();
-
-        // Add all collected font sources to the FontSystem
-        AddCollectedFontSourcesToFontSystem();
-
         string originalContentRoot = contentManager.RootDirectory;
+        bool fontsIniFound = false;
 
-        // Phase 2: Create FontIndex entries from first Fonts.ini, or use legacy loading
         foreach (string searchPath in AssetLoader.AssetSearchPaths)
         {
             string baseDir = SafePath.GetDirectory(searchPath).FullName;
@@ -119,129 +111,81 @@ public static class FontManager
 
             if (File.Exists(iniPath))
             {
-                if (!fontIndexesDefined)
-                {
-                    CreateFontIndexesFromIni(iniPath, contentManager, searchPath, baseDir);
-                    fontIndexesDefined = true;
-                }
+                Logger.Log($"FontManager: Loading fonts from {iniPath}");
+                LoadFontsFromIni(iniPath, contentManager, searchPath, baseDir);
+                fontsIniFound = true;
+                break; // Stop after first Fonts.ini found
             }
-            else if (!fontIndexesDefined)
+        }
+
+        // Fall back to legacy SpriteFont loading if no Fonts.ini found
+        if (!fontsIniFound)
+        {
+            Logger.Log("FontManager: No Fonts.ini found, attempting legacy SpriteFont loading");
+            foreach (string searchPath in AssetLoader.AssetSearchPaths)
             {
-                // Try legacy SpriteFont loading only if no Fonts.ini has been processed yet
+                string baseDir = SafePath.GetDirectory(searchPath).FullName;
                 int fontsBeforeLoad = fonts.Count;
                 LoadLegacySpriteFonts(contentManager, searchPath, baseDir);
 
                 if (fonts.Count > fontsBeforeLoad)
-                    fontIndexesDefined = true;
+                    break; // Stop after first path with legacy fonts
             }
         }
 
         contentManager.SetRootDirectory(originalContentRoot);
 
-        Logger.Log($"FontManager: Loaded {fonts.Count} font indexes, {loadedFontSources.Count} TTF sources");
+        Logger.Log($"FontManager: Loaded {fonts.Count} font indexes with {fontSystems.Count} FontSystems");
     }
 
     /// <summary>
-    /// Collects all font sources and text shaping settings from Fonts.ini files across all search paths.
+    /// Loads fonts from a specific Fonts.ini file.
     /// </summary>
-    private static void CollectFontSources()
+    private static void LoadFontsFromIni(string iniPath, ContentManager contentManager, string searchPath, string baseDir)
     {
-        bool textShapingLoaded = false;
+        var iniFile = new IniFile(iniPath);
 
-        foreach (string searchPath in AssetLoader.AssetSearchPaths)
+        // Load text shaping settings
+        if (iniFile.SectionExists("TextShaping"))
         {
-            string baseDir = SafePath.GetDirectory(searchPath).FullName;
-            string iniPath = Path.Combine(baseDir, "Fonts.ini");
-
-            if (!File.Exists(iniPath))
-                continue;
-
-            var iniFile = new IniFile(iniPath);
-
-            // Load text shaping settings from first Fonts.ini that has them
-            if (!textShapingLoaded && iniFile.SectionExists("TextShaping"))
-            {
-                LoadTextShapingSettings(iniFile);
-                textShapingLoaded = true;
-            }
-
-            CollectExplicitFontSources(iniFile, searchPath);
-
-            CollectFontSourcesFromFontEntries(iniFile, searchPath);
+            LoadTextShapingSettings(iniFile);
         }
+
+        LoadFallbackFonts(iniFile, searchPath);
+
+        CreateFontIndexesFromIni(iniFile, contentManager, searchPath, baseDir);
     }
 
     /// <summary>
-    /// Collects font sources from the [FontSources] section.
+    /// Loads fallback font paths from the [FallbackFonts] section.
+    /// These fonts are added to all TrueType font indexes after their primary font.
     /// </summary>
-    private static void CollectExplicitFontSources(IniFile iniFile, string searchPath)
+    private static void LoadFallbackFonts(IniFile iniFile, string searchPath)
     {
-        if (!iniFile.SectionExists("FontSources"))
+        if (!iniFile.SectionExists("FallbackFonts"))
+        {
+            Logger.Log("FontManager: No [FallbackFonts] section found");
             return;
-
-        int sourceCount = iniFile.GetIntValue("FontSources", "Count", 0);
-
-        for (int i = 0; i < sourceCount; i++)
-        {
-            string sourcePath = iniFile.GetStringValue("FontSources", $"Source{i}", "");
-            if (string.IsNullOrEmpty(sourcePath))
-                continue;
-
-            string fullPath = SafePath.GetFile(searchPath, sourcePath).FullName;
-            if (File.Exists(fullPath) && !loadedFontSources.Contains(fullPath))
-            {
-                loadedFontSources.Add(fullPath);
-                Logger.Log($"FontManager: Queued font source: {sourcePath}");
-            }
         }
-    }
 
-    /// <summary>
-    /// Collects font sources from [Font*] entries that specify TrueType fonts.
-    /// </summary>
-    private static void CollectFontSourcesFromFontEntries(IniFile iniFile, string searchPath)
-    {
-        int fontCount = iniFile.GetIntValue("Fonts", "Count", 0);
+        int fallbackCount = iniFile.GetIntValue("FallbackFonts", "Count", 0);
+        Logger.Log($"FontManager: Loading {fallbackCount} fallback fonts");
 
-        for (int i = 0; i < fontCount; i++)
+        for (int i = 0; i < fallbackCount; i++)
         {
-            string section = $"Font{i}";
-            string fontTypeStr = iniFile.GetStringValue(section, "Type", nameof(FontType.SpriteFont));
-
-            if (!Enum.TryParse<FontType>(fontTypeStr, true, out var fontType))
+            string fallbackPath = iniFile.GetStringValue("FallbackFonts", $"Fallback{i}", "");
+            if (string.IsNullOrEmpty(fallbackPath))
                 continue;
 
-            if (fontType != FontType.TrueType)
-                continue;
-
-            string fontPath = iniFile.GetStringValue(section, "Path", "");
-            if (string.IsNullOrEmpty(fontPath))
-                continue;
-
-            string fullPath = SafePath.GetFile(searchPath, fontPath).FullName;
-            if (File.Exists(fullPath) && !loadedFontSources.Contains(fullPath))
+            string fullPath = SafePath.GetFile(searchPath, fallbackPath).FullName;
+            if (File.Exists(fullPath))
             {
-                loadedFontSources.Add(fullPath);
-                Logger.Log($"FontManager: Queued font source from Font{i}: {fontPath}");
+                fallbackFontPaths.Add(fullPath);
+                Logger.Log($"FontManager: Added fallback font: {fallbackPath}");
             }
-        }
-    }
-
-    /// <summary>
-    /// Adds all collected font sources to the shared FontSystem.
-    /// </summary>
-    private static void AddCollectedFontSourcesToFontSystem()
-    {
-        foreach (string fontPath in loadedFontSources)
-        {
-            try
+            else
             {
-                fontSystem.AddFont(File.ReadAllBytes(fontPath));
-                Logger.Log($"FontManager: Added font source to FontSystem: {Path.GetFileName(fontPath)}");
-            }
-            catch (Exception ex)
-            {
-                Logger.Log($"FontManager: Failed to add font source {fontPath}: {ex.Message}");
+                Logger.Log($"FontManager: Fallback font not found: {fullPath}");
             }
         }
     }
@@ -260,13 +204,13 @@ public static class FontManager
 
     /// <summary>
     /// Creates FontIndex entries from a Fonts.ini file.
+    /// For each TrueType font, creates a separate FontSystem with primary font first, then fallback fonts.
     /// </summary>
-    private static void CreateFontIndexesFromIni(string iniPath, ContentManager contentManager, string searchPath, string baseDir)
+    private static void CreateFontIndexesFromIni(IniFile iniFile, ContentManager contentManager, string searchPath, string baseDir)
     {
-        var iniFile = new IniFile(iniPath);
         int fontCount = iniFile.GetIntValue("Fonts", "Count", 0);
 
-        Logger.Log($"FontManager: Creating {fontCount} font indexes from {iniPath}");
+        Logger.Log($"FontManager: Creating {fontCount} font indexes");
 
         for (int i = 0; i < fontCount; i++)
         {
@@ -281,15 +225,7 @@ public static class FontManager
             switch (fontType)
             {
                 case FontType.TrueType:
-                    // For TTF, we use the shared FontSystem which already has all sources loaded
-                    if (loadedFontSources.Count == 0)
-                    {
-                        Logger.Log($"FontManager: Warning - Font{i} is TrueType but no font sources are loaded");
-                        continue;
-                    }
-
-                    fonts.Add(new TTFFontWrapper(fontSystem.GetFont(size)));
-                    Logger.Log($"FontManager: Created FontIndex {fonts.Count - 1}: TTF size {size}");
+                    CreateTrueTypeFontIndex(i, fontPath, size, searchPath);
                     break;
 
                 case FontType.SpriteFont:
@@ -298,6 +234,73 @@ public static class FontManager
                     LoadSpriteFont(contentManager, searchPath, sfName);
                     break;
             }
+        }
+    }
+
+    /// <summary>
+    /// Creates a TrueType font index with its own FontSystem.
+    /// The FontSystem contains the primary font (if specified) followed by fallback fonts.
+    /// </summary>
+    private static void CreateTrueTypeFontIndex(int fontIndex, string primaryFontPath, int size, string searchPath)
+    {
+        FontSystem fontSystem = CreateFontSystem();
+        fontSystems.Add(fontSystem);
+
+        bool hasPrimaryFont = false;
+
+        // Add primary font first
+        if (!string.IsNullOrEmpty(primaryFontPath))
+        {
+            string fullPath = SafePath.GetFile(searchPath, primaryFontPath).FullName;
+            if (File.Exists(fullPath))
+            {
+                try
+                {
+                    fontSystem.AddFont(File.ReadAllBytes(fullPath));
+                    Logger.Log($"FontManager: Font{fontIndex} - Added primary font: {primaryFontPath}");
+                    hasPrimaryFont = true;
+                }
+                catch (Exception ex)
+                {
+                    Logger.Log($"FontManager: Font{fontIndex} - Failed to load primary font {primaryFontPath}: {ex.Message}");
+                }
+            }
+            else
+            {
+                Logger.Log($"FontManager: Font{fontIndex} - Primary font not found: {fullPath}");
+            }
+        }
+
+        // Add fallback fonts
+        int fallbacksAdded = 0;
+        foreach (string fallbackPath in fallbackFontPaths)
+        {
+            try
+            {
+                fontSystem.AddFont(File.ReadAllBytes(fallbackPath));
+                fallbacksAdded++;
+            }
+            catch (Exception ex)
+            {
+                Logger.Log($"FontManager: Font{fontIndex} - Failed to load fallback font {fallbackPath}: {ex.Message}");
+            }
+        }
+
+        if (fallbacksAdded > 0)
+        {
+            Logger.Log($"FontManager: Font{fontIndex} - Added {fallbacksAdded} fallback fonts");
+        }
+
+        // Create the font wrapper
+        if (hasPrimaryFont || fallbacksAdded > 0)
+        {
+            fonts.Add(new TTFFontWrapper(fontSystem.GetFont(size)));
+            string primaryInfo = hasPrimaryFont ? $"primary: {Path.GetFileName(primaryFontPath)}" : "no primary";
+            Logger.Log($"FontManager: Created FontIndex {fonts.Count - 1}: TrueType size {size} ({primaryInfo}, {fallbacksAdded} fallbacks)");
+        }
+        else
+        {
+            Logger.Log($"FontManager: Font{fontIndex} - No fonts loaded (no primary and no fallbacks), skipping");
         }
     }
 
