@@ -255,7 +255,7 @@ public class XNAHorizontalScrollBar : XNAControl
     {
         var point = GetCursorPoint();
 
-        if (point.X < btnScrollLeft.Width
+        if (point.X < btnScrollLeft.Right
             || point.X > btnScrollRight.X)
         {
             return;
