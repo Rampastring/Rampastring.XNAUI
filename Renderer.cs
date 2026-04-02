@@ -166,10 +166,7 @@ public static class Renderer
             return str;
 
         // Binary search for the maximum number of characters that fit within maxWidth.
-        // Assumes string width is monotonically non-decreasing as the string length increases,
-        // which holds for all standard fonts.
-        // This reduces complexity from O(n) to O(log n) compared to removing one character at a time.
-
+        // Assumes string width is monotonically non-decreasing as the string length increases.
         int low = 0;
         int high = str.Length - 1;
 
