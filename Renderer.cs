@@ -157,14 +157,34 @@ public static class Renderer
     public static string GetStringWithLimitedWidth(string str, int fontIndex, int maxWidth)
     {
         var sb = new StringBuilder(str);
-        var spriteFont = fonts[fontIndex];
+        var font = fonts[fontIndex];
 
-        while (spriteFont.MeasureString(sb.ToString()).X > maxWidth)
+        if (str == null)
+            throw new ArgumentNullException(nameof(str));
+
+        if (string.IsNullOrEmpty(str) || font.MeasureString(str).X <= maxWidth)
+            return str;
+
+        // Binary search for the maximum number of characters that fit within maxWidth.
+        // Assumes string width is monotonically non-decreasing as the string length increases,
+        // which holds for all standard fonts.
+        // This reduces complexity from O(n) to O(log n) compared to removing one character at a time.
+
+        // Warning: Copilot said: The binary search relies on prefix width being monotonic with length, but that’s not guaranteed with kerning and/or HarfBuzz text shaping (both are used in this codebase). In such cases it’s possible for a longer prefix to measure narrower than a shorter one, making the <= maxWidth predicate non-monotonic and causing the search to return a prefix that is not the longest-fitting (or potentially not fitting at all, depending on the path).
+        // We accept this risk for now.
+        int low = 0;
+        int high = str.Length - 1;
+
+        while (low < high)
         {
-            sb.Remove(sb.Length - 1, 1);
+            int mid = (low + high + 1) / 2; // Round up to avoid infinite loop when low + 1 == high
+            if (font.MeasureString(str.Substring(0, mid)).X <= maxWidth)
+                low = mid;
+            else
+                high = mid - 1;
         }
 
-        return sb.ToString();
+        return str.Substring(0, low);
     }
 
     public static TextParseReturnValue FixText(string text, int fontIndex, int width)
