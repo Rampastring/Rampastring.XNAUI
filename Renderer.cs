@@ -170,8 +170,6 @@ public static class Renderer
         // which holds for all standard fonts.
         // This reduces complexity from O(n) to O(log n) compared to removing one character at a time.
 
-        // Warning: Copilot said: The binary search relies on prefix width being monotonic with length, but that’s not guaranteed with kerning and/or HarfBuzz text shaping (both are used in this codebase). In such cases it’s possible for a longer prefix to measure narrower than a shorter one, making the <= maxWidth predicate non-monotonic and causing the search to return a prefix that is not the longest-fitting (or potentially not fitting at all, depending on the path).
-        // We accept this risk for now.
         int low = 0;
         int high = str.Length - 1;
 
