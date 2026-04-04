@@ -130,11 +130,35 @@ public static class AssetLoader
         var data = new Color[texture.Width * texture.Height];
         texture.GetData(data);
 
+        bool allAlphaAre255 = true;
         for (int i = 0; i < data.Length; i++)
         {
-            data[i].R = (byte)(data[i].R * data[i].A / 255);
-            data[i].G = (byte)(data[i].G * data[i].A / 255);
-            data[i].B = (byte)(data[i].B * data[i].A / 255);
+            if (data[i].A != 255)
+            {
+                allAlphaAre255 = false;
+                break;
+            }
+        }
+
+        if (allAlphaAre255)
+            return;
+
+        for (int i = 0; i < data.Length; i++)
+        {
+            byte alpha = data[i].A;
+            switch (alpha)
+            {
+                case 0:
+                    data[i] = Color.Transparent;
+                    break;
+                case 255:
+                    break;
+                default:
+                    data[i].R = (byte)(data[i].R * alpha / 255);
+                    data[i].G = (byte)(data[i].G * alpha / 255);
+                    data[i].B = (byte)(data[i].B * alpha / 255);
+                    break;
+            }
         }
 
         texture.SetData(data);
@@ -196,7 +220,7 @@ public static class AssetLoader
         try
         {
             using var stream = new MemoryStream();
-            image.Save(stream, new PngEncoder());
+            image.Save(stream, new PngEncoder() { CompressionLevel = PngCompressionLevel.NoCompression });
             var texture = Texture2D.FromStream(graphicsDevice, stream);
             PremultiplyAlpha(texture);
             return texture;
