@@ -130,7 +130,7 @@ public static class AssetLoader
         var data = new Color[texture.Width * texture.Height];
         texture.GetData(data);
 
-        bool allAlphasAre255 = true;
+        bool colorsModified = false;
         for (int i = 0; i < data.Length; i++)
         {
             Color color = data[i];
@@ -138,13 +138,13 @@ public static class AssetLoader
             switch (alpha)
             {
                 case 0:
-                    allAlphasAre255 = false;
+                    colorsModified = true;
                     data[i] = Color.Transparent;
                     break;
                 case 255:
                     break;
                 default:
-                    allAlphasAre255 = false;
+                    colorsModified = true;
                     color.R = (byte)(color.R * alpha / 255);
                     color.G = (byte)(color.G * alpha / 255);
                     color.B = (byte)(color.B * alpha / 255);
@@ -153,7 +153,7 @@ public static class AssetLoader
             }
         }
 
-        if (!allAlphasAre255)
+        if (colorsModified)
             texture.SetData(data);
     }
 
