@@ -133,7 +133,8 @@ public static class AssetLoader
         bool allAlphasAre255 = true;
         for (int i = 0; i < data.Length; i++)
         {
-            byte alpha = data[i].A;
+            Color color = data[i];
+            byte alpha = color.A;
             switch (alpha)
             {
                 case 0:
@@ -144,9 +145,10 @@ public static class AssetLoader
                     break;
                 default:
                     allAlphasAre255 = false;
-                    data[i].R = (byte)(data[i].R * alpha / 255);
-                    data[i].G = (byte)(data[i].G * alpha / 255);
-                    data[i].B = (byte)(data[i].B * alpha / 255);
+                    color.R = (byte)(color.R * alpha / 255);
+                    color.G = (byte)(color.G * alpha / 255);
+                    color.B = (byte)(color.B * alpha / 255);
+                    data[i] = color;
                     break;
             }
         }
