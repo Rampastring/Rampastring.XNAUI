@@ -133,6 +133,7 @@ public static class AssetLoader
         bool colorsModified = false;
         for (int i = 0; i < data.Length; i++)
         {
+            // Caching data[i] in a local variable contributes to a performance increase
             Color color = data[i];
             byte alpha = color.A;
             switch (alpha)
