@@ -252,7 +252,7 @@ public class XNAScrollBar : XNAControl
     {
         var point = GetCursorPoint();
 
-        if (point.Y < btnScrollUp.Height
+        if (point.Y < btnScrollUp.Bottom
             || point.Y > btnScrollDown.Y)
         {
             return;
