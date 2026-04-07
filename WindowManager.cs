@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -159,6 +159,12 @@ public class WindowManager : DrawableGameComponent
     /// The control, of the highest generation, that the mouse cursor is currently positioned on.
     /// </summary>
     internal XNAControl ActiveControl { get; set; }
+
+    /// <summary>
+    /// If specified, the control blocks other controls on the screen
+    /// from being interacted with. Defaults to null.
+    /// </summary>
+    public XNAControl FocusedControl { get; set; } = null;
 
     private GraphicsDeviceManager graphics;
 
@@ -401,12 +407,9 @@ public class WindowManager : DrawableGameComponent
             throw new InvalidOperationException("WindowManager.AddAndInitializeControl: Control " + control.Name + " already exists!");
         }
 
-        UnfocusOtherControlsIfFocused(control);
-
         control.Initialize();
 
         Controls.Add(control);
-        Debug.Assert(Controls.Count(c => c.Focused) <= 1, "There should be at most one focused control.");
 
         ReorderControls();
     }
@@ -424,10 +427,7 @@ public class WindowManager : DrawableGameComponent
             throw new InvalidOperationException("WindowManager.AddControl: Control " + control.Name + " already exists!");
         }
 
-        UnfocusOtherControlsIfFocused(control);
-
         Controls.Add(control);
-        Debug.Assert(Controls.Count(c => c.Focused) <= 1, "There should be at most one focused control.");
     }
 
     /// <summary>
@@ -442,22 +442,7 @@ public class WindowManager : DrawableGameComponent
             throw new Exception("WindowManager.InsertAndInitializeControl: Control " + control.Name + " already exists!");
         }
 
-        UnfocusOtherControlsIfFocused(control);
-
         Controls.Insert(0, control);
-        Debug.Assert(Controls.Count(c => c.Focused) <= 1, "There should be at most one focused control.");
-    }
-
-    private void UnfocusOtherControlsIfFocused(XNAControl targetControl)
-    {
-        if (!targetControl.Focused)
-            return;
-
-        foreach (XNAControl c in Controls)
-        {
-            if (!object.ReferenceEquals(c, targetControl) && c.Focused)
-                c.Focused = false;
-        }
     }
 
     /// <summary>
