@@ -408,9 +408,7 @@ public class WindowManager : DrawableGameComponent
         }
 
         control.Initialize();
-
         Controls.Add(control);
-
         ReorderControls();
     }
 
