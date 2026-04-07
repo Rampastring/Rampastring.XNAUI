@@ -157,14 +157,29 @@ public static class Renderer
     public static string GetStringWithLimitedWidth(string str, int fontIndex, int maxWidth)
     {
         var sb = new StringBuilder(str);
-        var spriteFont = fonts[fontIndex];
+        var font = fonts[fontIndex];
 
-        while (spriteFont.MeasureString(sb.ToString()).X > maxWidth)
+        if (str == null)
+            throw new ArgumentNullException(nameof(str));
+
+        if (string.IsNullOrEmpty(str) || font.MeasureString(str).X <= maxWidth)
+            return str;
+
+        // Binary search for the maximum number of characters that fit within maxWidth.
+        // Assumes string width is monotonically non-decreasing as the string length increases.
+        int low = 0;
+        int high = str.Length - 1;
+
+        while (low < high)
         {
-            sb.Remove(sb.Length - 1, 1);
+            int mid = (low + high + 1) / 2; // Round up to avoid infinite loop when low + 1 == high
+            if (font.MeasureString(str.Substring(0, mid)).X <= maxWidth)
+                low = mid;
+            else
+                high = mid - 1;
         }
 
-        return sb.ToString();
+        return str.Substring(0, low);
     }
 
     public static TextParseReturnValue FixText(string text, int fontIndex, int width)
