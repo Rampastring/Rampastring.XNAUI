@@ -444,7 +444,17 @@ public class XNAControl : DrawableGameComponent
     /// Determines whether the control should block other controls on the screen
     /// from being interacted with.
     /// </summary>
-    public bool Focused { get; set; }
+    public bool Focused
+    {
+        get => object.ReferenceEquals(this, WindowManager.FocusedControl);
+        set
+        {
+            if (value)
+                WindowManager.FocusedControl = this;
+            else if (object.ReferenceEquals(this, WindowManager.FocusedControl))
+                WindowManager.FocusedControl = null;
+        }
+    }
 
     /// <summary>
     /// Determines whether this control is able to handle input.
