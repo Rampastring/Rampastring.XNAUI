@@ -7,7 +7,7 @@ using Rampastring.Tools;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Media;
 using SixLabors.ImageSharp;
-using SixLabors.ImageSharp.Formats.Png;
+using SixLabors.ImageSharp.Formats.Bmp;
 using Color = Microsoft.Xna.Framework.Color;
 using System.Globalization;
 
@@ -214,7 +214,7 @@ public static class AssetLoader
         try
         {
             using var stream = new MemoryStream();
-            image.Save(stream, new PngEncoder() { CompressionLevel = PngCompressionLevel.NoCompression });
+            image.Save(stream, new BmpEncoder() { BitsPerPixel = BmpBitsPerPixel.Pixel32, SupportTransparency = true });
             var texture = Texture2D.FromStream(graphicsDevice, stream);
             PremultiplyAlpha(texture);
             return texture;
