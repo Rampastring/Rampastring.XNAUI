@@ -1339,7 +1339,7 @@ public class XNAControl : DrawableGameComponent
             if (IsRightPressedOn && !Cursor.RightDown)
                 IsRightPressedOn = false;
 
-            if (IsMiddlePressedOn && !Cursor.RightDown)
+            if (IsMiddlePressedOn && !Cursor.MiddleDown)
                 IsMiddlePressedOn = false;
         }
 
