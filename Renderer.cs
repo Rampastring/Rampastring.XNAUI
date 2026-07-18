@@ -156,7 +156,6 @@ public static class Renderer
     /// <returns></returns>
     public static string GetStringWithLimitedWidth(string str, int fontIndex, int maxWidth)
     {
-        var sb = new StringBuilder(str);
         var font = fonts[fontIndex];
 
         if (str == null)
