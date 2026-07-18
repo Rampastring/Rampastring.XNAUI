@@ -341,7 +341,7 @@ public class XNAControl : DrawableGameComponent
 
     public int ScaledWidth => Width * Scaling;
 
-    public int TotalScaledWidth => Height * GetTotalScalingRecursive();
+    public int TotalScaledWidth => Width * GetTotalScalingRecursive();
 
     /// <summary>
     /// The height of the control.
