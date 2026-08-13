@@ -125,7 +125,11 @@ public static class AssetLoader
         return null;
     }
 
-    private static void PremultiplyAlpha(Texture2D texture)
+    /// <summary>
+    /// Multiplies a texture's alpha channel into the color channels for each pixel.
+    /// </summary>
+    /// <param name="texture">The texture to modify.</param>
+    public static void PremultiplyAlpha(Texture2D texture)
     {
         var data = new Color[texture.Width * texture.Height];
         texture.GetData(data);
@@ -188,8 +192,9 @@ public static class AssetLoader
     /// <param name="color">The color of the texture.</param>
     /// <param name="width">The width of the texture in pixels.</param>
     /// <param name="height">The height of the texture in pixels.</param>
+    /// <param name="premultiplyAlpha">Whether the alpha channel should be premultiplied into the texture's color channels.</param>
     /// <returns>A texture.</returns>
-    public static Texture2D CreateTexture(Color color, int width, int height)
+    public static Texture2D CreateTexture(Color color, int width, int height, bool premultiplyAlpha = true)
     {
         var texture = new Texture2D(graphicsDevice, width, height, false, SurfaceFormat.Color);
 
@@ -199,6 +204,11 @@ public static class AssetLoader
             colorArray[i] = color;
 
         texture.SetData(colorArray);
+
+        if (premultiplyAlpha && color.A < 255)
+        {
+            PremultiplyAlpha(texture);
+        }
 
         return texture;
     }
