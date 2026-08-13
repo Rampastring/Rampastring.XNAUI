@@ -166,7 +166,7 @@ public class XNAControl : DrawableGameComponent
     /// </summary>
     public XNAControl Parent
     {
-        get { return parent; }
+        get => parent;
         set
         {
             parent = value;
@@ -232,7 +232,7 @@ public class XNAControl : DrawableGameComponent
     /// </summary>
     public ReadOnlyCollection<XNAControl> Children
     {
-        get { return new ReadOnlyCollection<XNAControl>(_children); }
+        get => new ReadOnlyCollection<XNAControl>(_children);
     }
 
 
@@ -247,10 +247,7 @@ public class XNAControl : DrawableGameComponent
     /// </summary>
     public Rectangle ClientRectangle
     {
-        get
-        {
-            return new Rectangle(_x, _y, _width, _height);
-        }
+        get => new Rectangle(_x, _y, _width, _height);
         set
         {
             _x = value.X;
@@ -417,10 +414,7 @@ public class XNAControl : DrawableGameComponent
     private float alpha = 1.0f;
     public virtual float Alpha
     {
-        get
-        {
-            return alpha;
-        }
+        get => alpha;
         set
         {
             if (value > 1.0f)
@@ -517,7 +511,7 @@ public class XNAControl : DrawableGameComponent
     /// </summary>
     public ControlDrawMode DrawMode
     {
-        get { return drawMode; }
+        get => drawMode;
         set
         {
             if (Initialized)
@@ -606,6 +600,14 @@ public class XNAControl : DrawableGameComponent
     /// in unique render target mode.
     /// </summary>
     protected RenderTarget2D RenderTarget { get; set; }
+
+    /// <summary>
+    /// The render target that was active immediately before this control's
+    /// unique render target was pushed. This contains the content drawn behind
+    /// the control and is only available from <see cref="Draw(GameTime)"/> when
+    /// <see cref="DrawMode"/> is <see cref="ControlDrawMode.UNIQUE_RENDER_TARGET"/>.
+    /// </summary>
+    protected RenderTarget2D BackdropRenderTarget { get; private set; }
 
     /// <summary>
     /// Determines whether the control's <see cref="Initialize"/> method
@@ -1410,11 +1412,14 @@ public class XNAControl : DrawableGameComponent
             RefreshRenderTarget();
 
         drawPoint = Point.Zero;
+        BackdropRenderTarget = RenderTargetStack.CurrentContext.RenderTarget;
         Renderer.PushRenderTarget(RenderTarget);
         GraphicsDevice.Clear(Color.Transparent);
         Draw(gameTime);
         Renderer.PopRenderTarget();
+        BackdropRenderTarget = null;
         Rectangle rect = RenderRectangle();
+        DrawBehindUniqueRenderTarget(rect);
         if (Scaling > 1 && Renderer.CurrentSettings.SamplerState != SamplerState.PointClamp)
         {
             Renderer.PushSettings(new SpriteBatchSettings(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp, null, null, null));
@@ -1455,6 +1460,16 @@ public class XNAControl : DrawableGameComponent
         }
 
         Draw(gameTime);
+    }
+
+    /// <summary>
+    /// Draws content behind a control immediately before its unique render target
+    /// is composited onto the parent render target. Derived controls can use this
+    /// to render effects that extend beyond their own bounds, such as shadows.
+    /// </summary>
+    /// <param name="renderRectangle">The control's render rectangle within the parent render target.</param>
+    protected virtual void DrawBehindUniqueRenderTarget(Rectangle renderRectangle)
+    {
     }
 
     private void DrawUniqueRenderTarget(Rectangle renderRectangle)
