@@ -30,6 +30,30 @@ public class UISettings
 
     public Color BackgroundColor { get; set; } = Color.Black;
 
+    private Color? textBoxBackgroundColor;
+
+    /// <summary>
+    /// The default background color of text boxes. Falls back to
+    /// <see cref="BackgroundColor"/> when it has not been set explicitly.
+    /// </summary>
+    public Color TextBoxBackgroundColor
+    {
+        get => textBoxBackgroundColor ?? BackgroundColor;
+        set => textBoxBackgroundColor = value;
+    }
+
+    private Color? dropDownBackgroundColor;
+
+    /// <summary>
+    /// The default background color of drop-downs. Falls back to
+    /// <see cref="BackgroundColor"/> when it has not been set explicitly.
+    /// </summary>
+    public Color DropDownBackgroundColor
+    {
+        get => dropDownBackgroundColor ?? BackgroundColor;
+        set => dropDownBackgroundColor = value;
+    }
+
     public Color SelectionColor { get; set; } = new Color(128, 128, 128);
 
     public Color FocusColor { get; set; } = new Color(64, 64, 64);
