@@ -92,7 +92,7 @@ public class XNAScrollBar : XNAControl
     /// </summary>
     public int ScrollWidth
     {
-        get { return btnScrollUp.IdleTexture.Width; }
+        get => btnScrollUp.IdleTexture.Width;
     }
 
     private int thumbHeight;

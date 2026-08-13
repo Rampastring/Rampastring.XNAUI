@@ -70,10 +70,7 @@ public class XNAMultiColumnListBox : XNAPanel
     /// </summary>
     public int SelectedIndex
     {
-        get
-        {
-            return listBoxes[0].SelectedIndex;
-        }
+        get => listBoxes[0].SelectedIndex;
         set
         {
             if (handleSelectedIndexChanged)
@@ -108,7 +105,7 @@ public class XNAMultiColumnListBox : XNAPanel
     /// </summary>
     public bool AllowKeyboardInput
     {
-        get { return _allowKeyboardInput; }
+        get => _allowKeyboardInput;
         set
         {
             _allowKeyboardInput = value;
@@ -125,11 +122,8 @@ public class XNAMultiColumnListBox : XNAPanel
     /// </summary>
     public int TopIndex
     {
-        get { return listBoxes[0].TopIndex; }
-        set
-        {
-            listBoxes[0].TopIndex = value;
-        }
+        get => listBoxes[0].TopIndex;
+        set => listBoxes[0].TopIndex = value;
     }
 
     /// <summary>
@@ -137,7 +131,7 @@ public class XNAMultiColumnListBox : XNAPanel
     /// </summary>
     public int LastIndex
     {
-        get { return listBoxes[0].LastIndex; }
+        get => listBoxes[0].LastIndex;
     }
 
     /// <summary>
@@ -162,7 +156,7 @@ public class XNAMultiColumnListBox : XNAPanel
     /// </summary>
     public bool AllowRightClickUnselect
     {
-        get { return _allowRightClickUnselect; }
+        get => _allowRightClickUnselect;
         set
         {
             _allowRightClickUnselect = value;
@@ -180,8 +174,8 @@ public class XNAMultiColumnListBox : XNAPanel
     /// </summary>
     public bool DrawSelectionUnderScrollbar
     {
-        get { return listBoxes[listBoxes.Count - 1].DrawSelectionUnderScrollbar; }
-        set { listBoxes[listBoxes.Count - 1].DrawSelectionUnderScrollbar = value; }
+        get => listBoxes[listBoxes.Count - 1].DrawSelectionUnderScrollbar;
+        set => listBoxes[listBoxes.Count - 1].DrawSelectionUnderScrollbar = value;
     }
 
     protected override void ParseControlINIAttribute(IniFile iniFile, string key, string value)

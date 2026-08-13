@@ -37,18 +37,15 @@ public class XNAListBoxItem
 
             return UISettings.ActiveSettings.AltColor;
         }
-        set { _textColor = value; }
+        set => _textColor = value;
     }
 
     private Color? _backgroundColor;
 
     public Color BackgroundColor
     {
-        get
-        {
-            return _backgroundColor ?? UISettings.ActiveSettings.BackgroundColor;
-        }
-        set { _backgroundColor = value; }
+        get => _backgroundColor ?? UISettings.ActiveSettings.BackgroundColor;
+        set => _backgroundColor = value;
     }
 
     public Texture2D Texture { get; set; }
@@ -82,7 +79,7 @@ public class XNAListBoxItem
     private float alpha = 0.0f;
     public float Alpha
     {
-        get { return alpha; }
+        get => alpha;
         set
         {
             if (value < 0.0f)
@@ -101,7 +98,7 @@ public class XNAListBoxItem
     private bool _visible = true;
     public bool Visible
     {
-        get { return _visible; }
+        get => _visible;
         set
         {
             if (_visible != value)

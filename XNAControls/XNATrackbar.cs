@@ -21,7 +21,7 @@ public class XNATrackbar : XNAPanel
     private int value = 0;
     public int Value
     {
-        get { return value; }
+        get => value;
         set
         {
             int oldValue = this.value;

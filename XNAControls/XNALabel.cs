@@ -17,11 +17,8 @@ public class XNALabel : XNAControl
 
     public Color TextColor
     {
-        get
-        {
-            return _textColor ?? UISettings.ActiveSettings.TextColor;
-        }
-        set { _textColor = value; }
+        get => _textColor ?? UISettings.ActiveSettings.TextColor;
+        set => _textColor = value;
     }
 
     public int FontIndex { get; set; }
@@ -51,10 +48,7 @@ public class XNALabel : XNAControl
 
     public override string Text
     {
-        get
-        {
-            return base.Text;
-        }
+        get => base.Text;
 
         set
         {

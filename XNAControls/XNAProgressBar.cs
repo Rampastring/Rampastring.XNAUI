@@ -47,7 +47,7 @@ public class XNAProgressBar : XNAControl
 
     public int Value
     {
-        get { return _value; }
+        get => _value;
         set
         {
             if (value > Maximum)

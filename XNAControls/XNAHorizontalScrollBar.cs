@@ -95,7 +95,7 @@ public class XNAHorizontalScrollBar : XNAControl
     /// </summary>
     public int ScrollHeight
     {
-        get { return btnScrollLeft.IdleTexture.Height; }
+        get => btnScrollLeft.IdleTexture.Height;
     }
 
     private int thumbWidth;

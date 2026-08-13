@@ -14,15 +14,9 @@ public class XNATextBlock : XNAPanel
 
     public override string Text
     {
-        get
-        {
-            return base.Text;
-        }
+        get => base.Text;
 
-        set
-        {
-            base.Text = Renderer.FixText(value, FontIndex, Width - TextXMargin * 2).Text;
-        }
+        set => base.Text = Renderer.FixText(value, FontIndex, Width - TextXMargin * 2).Text;
     }
 
     private Color? _textColor;
@@ -36,7 +30,7 @@ public class XNATextBlock : XNAPanel
 
             return UISettings.ActiveSettings.TextColor;
         }
-        set { _textColor = value; }
+        set => _textColor = value;
     }
 
     public int FontIndex { get; set; }

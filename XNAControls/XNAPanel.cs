@@ -26,7 +26,7 @@ public class XNAPanel : XNAControl
 
             return UISettings.ActiveSettings.PanelBorderColor;
         }
-        set { _borderColor = value; }
+        set => _borderColor = value;
     }
 
     public virtual bool DrawBorders { get; set; } = true;

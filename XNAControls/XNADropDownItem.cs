@@ -23,7 +23,7 @@ public class XNADropDownItem
     private float alpha = 1.0f;
     public float Alpha
     {
-        get { return alpha; }
+        get => alpha;
         set
         {
             if (value < 0.0f)
