@@ -1,0 +1,3 @@
+[submodule "Rampastring.Tools"]
+	path = Rampastring.Tools
+	url = https://github.com/CnCNet/Rampastring.Tools
