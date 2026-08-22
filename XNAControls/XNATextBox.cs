@@ -1,6 +1,7 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
 using Rampastring.Tools;
+using Rampastring.XNAUI.Extensions;
 using Rampastring.XNAUI.FontManagement;
 using Rampastring.XNAUI.Input;
 using System;
@@ -18,6 +19,7 @@ public class XNATextBox : XNAControl
     protected const int SELECTION_MARGIN = 2;
     protected const int TEXT_HORIZONTAL_MARGIN = 3;
     protected const int TEXT_VERTICAL_MARGIN = 2;
+
     protected const double CURSOR_SCROLL_REPEAT_TIME = 0.05;
     protected const double CURSOR_FAST_SCROLL_THRESHOLD = 20;
     protected const double BAR_ON_TIME = 0.5;
@@ -58,8 +60,11 @@ public class XNATextBox : XNAControl
     /// </summary>
     public virtual Color TextColor
     {
-        get => _textColor ?? UISettings.ActiveSettings.AltColor;
-        set => _textColor = value;
+        get
+        {
+            return _textColor ?? UISettings.ActiveSettings.AltColor;
+        }
+        set { _textColor = value; }
     }
 
     private Color? _idleBorderColor;
@@ -69,8 +74,11 @@ public class XNATextBox : XNAControl
     /// </summary>
     public virtual Color IdleBorderColor
     {
-        get => _idleBorderColor ?? UISettings.ActiveSettings.PanelBorderColor;
-        set => _idleBorderColor = value;
+        get
+        {
+            return _idleBorderColor ?? UISettings.ActiveSettings.PanelBorderColor;
+        }
+        set { _idleBorderColor = value; }
     }
 
     private Color? _activeBorderColor;
@@ -80,8 +88,11 @@ public class XNATextBox : XNAControl
     /// </summary>
     public Color ActiveBorderColor
     {
-        get => _activeBorderColor ?? UISettings.ActiveSettings.AltColor;
-        set => _activeBorderColor = value;
+        get
+        {
+            return _activeBorderColor ?? UISettings.ActiveSettings.AltColor;
+        }
+        set { _activeBorderColor = value; }
     }
 
     private Color? _backColor;
@@ -91,8 +102,11 @@ public class XNATextBox : XNAControl
     /// </summary>
     public Color BackColor
     {
-        get => _backColor ?? UISettings.ActiveSettings.TextBoxBackgroundColor;
-        set => _backColor = value;
+        get
+        {
+            return _backColor ?? UISettings.ActiveSettings.BackgroundColor;
+        }
+        set { _backColor = value; }
     }
 
     private Color? _selectionColor;
@@ -102,8 +116,11 @@ public class XNATextBox : XNAControl
     /// </summary>
     public Color SelectionColor
     {
-        get => _selectionColor ?? UISettings.ActiveSettings.SelectionColor;
-        set => _selectionColor = value;
+        get
+        {
+            return _selectionColor ?? UISettings.ActiveSettings.SelectionColor;
+        }
+        set { _selectionColor = value; }
     }
 
     /// <summary>
@@ -121,7 +138,10 @@ public class XNATextBox : XNAControl
     /// </summary>
     public override string Text
     {
-        get => text;
+        get
+        {
+            return text;
+        }
 
         set
         {
@@ -131,7 +151,7 @@ public class XNATextBox : XNAControl
             UnselectText();
 
             if (text.Length > MaximumTextLength)
-                text = text.Substring(0, MaximumTextLength);
+                text = text.SubstringSurrogateAware(0, MaximumTextLength);
 
             TextEndPosition = text.Length;
 
@@ -152,6 +172,8 @@ public class XNATextBox : XNAControl
 
     private string text = string.Empty;
     private string savedText = string.Empty;
+
+    private (char highSurrogate, int inputPosition)? handleCharInputSavedHighSurrogate = null;
 
     /// <summary>
     /// The input character index inside the textbox text.
@@ -380,34 +402,120 @@ public class XNATextBox : XNAControl
     }
 #endif
 
+    // Advance past exactly one Unicode code point (handles surrogate pairs).
+    private int AdvanceCodePoint(int pos)
+    {
+        if (char.IsHighSurrogate(text[pos]) && pos + 1 < text.Length && char.IsLowSurrogate(text[pos + 1]))
+            return pos + 2;
+        return pos + 1;
+    }
+
+    // Returns true if the character(s) at pos are Unicode "extend" characters that can appear
+    // inside a grapheme cluster: variation selectors, combining marks, or emoji modifiers.
+    private bool IsExtendCharacter(int pos)
+    {
+        char c = text[pos];
+
+        // Variation selectors U+FE00-U+FE0F
+        if (c >= '\uFE00' && c <= '\uFE0F')
+            return true;
+
+        // Combining marks for symbols U+20D0-U+20FF
+        if (c >= '\u20D0' && c <= '\u20FF')
+            return true;
+
+        // Emoji modifiers (skin tones) U+1F3FB-U+1F3FF — encoded as surrogate pairs
+        if (char.IsHighSurrogate(c) && pos + 1 < text.Length && char.IsLowSurrogate(text[pos + 1]))
+        {
+            int codePoint = char.ConvertToUtf32(c, text[pos + 1]);
+            return codePoint >= 0x1F3FB && codePoint <= 0x1F3FF;
+        }
+
+        return false;
+    }
+
+    // Returns the end of the grapheme cluster starting at position.
+    // Handles surrogate pairs, ZWJ emoji sequences, variation selectors, and emoji modifiers.
     private int GetNextCharacterBoundary(int position)
     {
         if (position >= text.Length)
             return text.Length;
         if (position < 0)
             return 0;
-        if (position < text.Length - 1 && char.IsHighSurrogate(text[position]) && char.IsLowSurrogate(text[position + 1]))
-            return position + 2;
-        return position + 1;
+
+        // Step past the first code point of this cluster.
+        int next = AdvanceCodePoint(position);
+
+        // This joins ZWJ emoji sequences into one cluster.
+        bool advanced = true;
+        while (advanced && next < text.Length)
+        {
+            advanced = false;
+
+            // Consume any trailing extend characters.
+            while (next < text.Length && IsExtendCharacter(next))
+                next = AdvanceCodePoint(next);
+
+            // If a ZWJ follows, join it with the next code point as part of this cluster.
+            if (next < text.Length && text[next] == '\u200D')
+            {
+                int afterZwj = next + 1;
+                if (afterZwj < text.Length)
+                {
+                    next = AdvanceCodePoint(afterZwj);
+                    advanced = true;
+                }
+                else
+                {
+                    // Trailing ZWJ with nothing after — include it in this cluster.
+                    next = afterZwj;
+                }
+            }
+        }
+
+        return next;
     }
 
+    // Returns the start of the grapheme cluster immediately before position.
+    // Enumerates clusters from the start of the string using GetNextCharacterBoundary.
     private int GetPreviousCharacterBoundary(int position)
     {
         if (position <= 0)
             return 0;
         if (position > text.Length)
             position = text.Length;
-        if (position > 1 && char.IsLowSurrogate(text[position - 1]) && char.IsHighSurrogate(text[position - 2]))
-            return position - 2;
-        return position - 1;
+
+        int clusterStart = 0;
+        int clusterEnd = GetNextCharacterBoundary(0);
+
+        while (clusterEnd < position)
+        {
+            clusterStart = clusterEnd;
+            clusterEnd = GetNextCharacterBoundary(clusterEnd);
+            if (clusterEnd <= clusterStart)
+                break;
+        }
+
+        return clusterStart;
     }
 
+    // If position falls inside a grapheme cluster, snaps it to the cluster's start boundary.
     private int EnsureCharacterBoundary(int position)
     {
         if (position <= 0 || position >= text.Length)
             return position;
-        if (char.IsLowSurrogate(text[position]) && position > 0 && char.IsHighSurrogate(text[position - 1]))
-            return position - 1;
+
+        int current = 0;
+        while (current < position)
+        {
+            int next = GetNextCharacterBoundary(current);
+            if (next > position)
+                return current; // position is inside [current, next) — snap to cluster start
+            if (next == position || next <= current)
+                break;
+            current = next;
+        }
+
         return position;
     }
 
@@ -420,12 +528,8 @@ public class XNATextBox : XNAControl
         if (char.IsControl(character))
             return;
 
-        // Don't allow typing characters that don't exist in the spritefont
-        if (Renderer.GetSafeString(character.ToString(), FontIndex) != character.ToString())
-        {
-            InputReceived?.Invoke(this, EventArgs.Empty);
-            return;
-        }
+        // Note: we do not check GetSafeString() here anymore. Consider a user typing a non-BMP character like `𰻞`, which consists of two surrogate chars.
+        // IME can only input one char at a time, so the user would first input the high surrogate char, which on its own is an invalid character that cannot be rendered and would be rejected if we checked GetSafeString() here.
 
         if (!AllowCharacterInput(character))
         {
@@ -433,9 +537,45 @@ public class XNATextBox : XNAControl
             return;
         }
 
+        string textToBeInserted;
+        if (char.IsLowSurrogate(character))
+        {
+            if (handleCharInputSavedHighSurrogate == null)
+            {
+                // A low surrogate char without a preceding high surrogate char is invalid. Reject it.
+                return;
+            }
+            else
+            {
+                (char savedHighSurrogate, int savedInputPosition) = handleCharInputSavedHighSurrogate.Value;
+
+                if (InputPosition != savedInputPosition)
+                {
+                    // The input position has changed since the high surrogate was saved. Reject the low surrogate.
+                    handleCharInputSavedHighSurrogate = null;
+                    return;
+                }
+
+                textToBeInserted = new string([savedHighSurrogate, character]);
+                handleCharInputSavedHighSurrogate = null;
+            }
+        }
+        else if (char.IsHighSurrogate(character))
+        {
+            // Save the high surrogate and do not modify the text.
+            handleCharInputSavedHighSurrogate = (character, InputPosition);
+
+            return;
+        }
+        else
+        {
+            textToBeInserted = character.ToString();
+            handleCharInputSavedHighSurrogate = null;
+        }
+
         if (!IsValidSelection())
         {
-            if (Text.Length >= MaximumTextLength)
+            if (Text.Length + textToBeInserted.Length > MaximumTextLength)
             {
                 InputReceived?.Invoke(this, EventArgs.Empty);
                 return;
@@ -443,8 +583,8 @@ public class XNATextBox : XNAControl
 
             InputPosition = EnsureCharacterBoundary(InputPosition);
 
-            text = text.Insert(InputPosition, character.ToString());
-            InputPosition++;
+            text = text.Insert(InputPosition, textToBeInserted);
+            InputPosition += textToBeInserted.Length;
 
             if (InputPosition > TextEndPosition)
             {
@@ -466,8 +606,14 @@ public class XNATextBox : XNAControl
         }
         else
         {
-            text = text.Substring(0, SelectionStartPosition) + character.ToString() + text.Substring(SelectionEndPosition);
-            InputPosition = SelectionStartPosition + 1;
+            if (text.Length - (SelectionEndPosition - SelectionStartPosition) + textToBeInserted.Length > MaximumTextLength)
+            {
+                InputReceived?.Invoke(this, EventArgs.Empty);
+                return;
+            }
+
+            text = text.Substring(0, SelectionStartPosition) + textToBeInserted + text.Substring(SelectionEndPosition);
+            InputPosition = SelectionStartPosition + textToBeInserted.Length;
             UnselectText();
 
             TextStartPosition = Math.Min(TextStartPosition, text.Length);
@@ -591,7 +737,10 @@ public class XNATextBox : XNAControl
                 if (!IsValidSelection())
                     break;
 
-                ClipboardService.SetText(text.Substring(SelectionStartPosition, SelectionLength));
+                // Don't remove the text if writing it on the clipboard fails
+                if (!Clipboard.SetText(text.Substring(SelectionStartPosition, SelectionLength)))
+                    return true;
+
                 int newInputPosition = SelectionStartPosition;
                 Text = text.Substring(0, SelectionStartPosition) + text.Substring(SelectionEndPosition);
                 InputPosition = newInputPosition;
@@ -613,17 +762,16 @@ public class XNATextBox : XNAControl
                 if (clipboardText == null)
                     return true;
 
-                // Replace newlines with spaces, invalid font chars with ?
+                // Replace newlines with spaces
                 // https://stackoverflow.com/questions/238002/replace-line-breaks-in-a-string-c-sharp
                 string textToAdd = Regex.Replace(clipboardText, @"\r\n?|\n", " ");
-                textToAdd = Renderer.GetSafeString(textToAdd, FontIndex);
 
                 // Trim pasted text to fit MaximumTextLength
                 string fullText = text.Substring(0, InputPosition) + textToAdd + text.Substring(InputPosition);
                 if (fullText.Length > MaximumTextLength)
                 {
                     int availableSpace = MaximumTextLength - (text.Length - (IsValidSelection() ? SelectionLength : 0));
-                    textToAdd = textToAdd.Substring(0, Math.Min(textToAdd.Length, Math.Max(0, availableSpace)));
+                    textToAdd = textToAdd.SubstringSurrogateAware(0, Math.Min(textToAdd.Length, Math.Max(0, availableSpace)));
                 }
 
                 if (IsValidSelection())
@@ -730,7 +878,7 @@ public class XNATextBox : XNAControl
                 if (!IsValidSelection())
                     break;
 
-                ClipboardService.SetText(text.Substring(SelectionStartPosition, SelectionLength));
+                Clipboard.SetText(text.Substring(SelectionStartPosition, SelectionLength));
 
                 return true;
             case Keys.A:
@@ -958,7 +1106,7 @@ public class XNATextBox : XNAControl
     private int HowManyCharactersToScrollLeft()
     {
         if (!Keyboard.IsCtrlHeldDown())
-            return GetPreviousCharacterBoundary(InputPosition) - InputPosition;
+            return InputPosition - GetPreviousCharacterBoundary(InputPosition);
 
         if (InputPosition < 2)
             return InputPosition;
@@ -1395,14 +1543,14 @@ public class XNATextBox : XNAControl
                     if (WindowManager.IMEHandler.GetDrawCompositionText(this, out string composition, out int compositionCursorPosition))
                     {
                         DrawString(composition, FontIndex, new(barLocationX, Renderer.GetSingleLineTextYPadding(FontIndex, Height)), Color.Orange);
-                        Vector2 measStr = FontManager.GetTextDimensions(composition.Substring(0, compositionCursorPosition), FontIndex);
+                        Vector2 measStr = FontManager.GetTextDimensions(composition.SubstringSurrogateAware(0, compositionCursorPosition), FontIndex);
                         barLocationX += (int)measStr.X;
                     }
                 }
 
                 if (barTimer.TotalSeconds < BAR_ON_TIME && !IsValidSelection())
                 {
-                    FillRectangle(new Rectangle(barLocationX, 2, 1, Height - 4), Color.White);
+                    FillRectangle(new Rectangle(barLocationX, SELECTION_MARGIN, 1, Height - (SELECTION_MARGIN * 2)), Color.White);
                 }
             }
         }

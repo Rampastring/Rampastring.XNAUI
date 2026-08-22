@@ -1,13 +1,14 @@
-using System;
-using System.Collections.Generic;
-using System.Globalization;
-using System.IO;
-using System.Text;
 using FontStashSharp;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using Rampastring.Tools;
+using Rampastring.XNAUI.Extensions;
+using System;
+using System.Collections.Generic;
+using System.Globalization;
+using System.IO;
+using System.Text;
 
 namespace Rampastring.XNAUI.FontManagement;
 
@@ -115,12 +116,11 @@ public static class FontManager
     /// </para>
     /// </remarks>
     /// <param name="contentManager">Content manager used to load SpriteFont assets.</param>
-    /// <param name="fontResolutionFactor">
-    /// When non-null, overrides any <c>FontResolutionFactor</c> from <c>[FontRendering]</c>
-    /// in <c>Fonts.ini</c>. Used by <see cref="Renderer.ReloadFontsForScale"/> to keep TTF
-    /// glyphs sharp when the render target is upscaled.
+    /// <param name="minimumFontResolutionFactor">
+    /// Optional minimum rasterization factor required by the display scale. The value
+    /// configured in <c>Fonts.ini</c> is preserved when it is higher.
     /// </param>
-    public static void LoadFonts(ContentManager contentManager, float? fontResolutionFactor = null)
+    public static void LoadFonts(ContentManager contentManager, float? minimumFontResolutionFactor = null)
     {
         fonts ??= [];
         fonts.Clear();
@@ -148,7 +148,7 @@ public static class FontManager
                 if (File.Exists(iniPath))
                 {
                     Logger.Log($"{nameof(FontManager)}: Loading fonts from {iniPath}");
-                    LoadFontsFromIni(iniPath, contentManager, searchPath, baseDir, fontResolutionFactor);
+                    LoadFontsFromIni(iniPath, contentManager, searchPath, baseDir, minimumFontResolutionFactor);
                     fontsIniFound = true;
                     break; // Stop after first Fonts.ini found
                 }
@@ -158,8 +158,10 @@ public static class FontManager
         // Apply the resolution-factor override even when no Fonts.ini was found
         // (legacy SpriteFont path), so callers like Renderer.ReloadFontsForScale
         // still take effect.
-        if (!fontsIniFound && fontResolutionFactor.HasValue)
-            fontRenderingSettings.FontResolutionFactor = fontResolutionFactor.Value;
+        if (!fontsIniFound && minimumFontResolutionFactor.HasValue)
+        {
+            fontRenderingSettings.FontResolutionFactor = Math.Max(fontRenderingSettings.FontResolutionFactor, minimumFontResolutionFactor.Value);
+        }
 
         // Fall back to legacy SpriteFont loading if no Fonts.ini found
         if (!fontsIniFound)
@@ -169,7 +171,7 @@ public static class FontManager
             {
                 string baseDir = SafePath.GetDirectory(searchPath).FullName;
                 int fontsBeforeLoad = fonts.Count;
-                LoadLegacySpriteFonts(contentManager, searchPath, baseDir);
+                LoadSpriteFonts(contentManager, searchPath, baseDir);
 
                 if (fonts.Count > fontsBeforeLoad)
                     break; // Stop after first path with legacy fonts
@@ -184,7 +186,7 @@ public static class FontManager
     /// <summary>
     /// Loads fonts from a specific Fonts.ini file.
     /// </summary>
-    private static void LoadFontsFromIni(string iniPath, ContentManager contentManager, string searchPath, string baseDir, float? fontResolutionFactorOverride = null)
+    private static void LoadFontsFromIni(string iniPath, ContentManager contentManager, string searchPath, string baseDir, float? minimumFontResolutionFactor)
     {
         var iniFile = new IniFile(iniPath);
 
@@ -205,8 +207,10 @@ public static class FontManager
         }
 
         // Override after ini load so the runtime value wins
-        if (fontResolutionFactorOverride.HasValue)
-            fontRenderingSettings.FontResolutionFactor = fontResolutionFactorOverride.Value;
+        if (minimumFontResolutionFactor.HasValue)
+        {
+            fontRenderingSettings.FontResolutionFactor = Math.Max(fontRenderingSettings.FontResolutionFactor, minimumFontResolutionFactor.Value);
+        }
 
         CreateFontIndexesFromIni(iniFile, contentManager, searchPath, baseDir);
     }
@@ -366,9 +370,9 @@ public static class FontManager
     }
 
     /// <summary>
-    /// Loads legacy SpriteFonts (SpriteFont0, SpriteFont1, etc.) from a search path.
+    /// Loads SpriteFonts (SpriteFont0, SpriteFont1, etc.) from a search path.
     /// </summary>
-    private static void LoadLegacySpriteFonts(ContentManager contentManager, string searchPath, string baseDir)
+    private static void LoadSpriteFonts(ContentManager contentManager, string searchPath, string baseDir)
     {
         contentManager.SetRootDirectory(baseDir);
 
@@ -399,17 +403,40 @@ public static class FontManager
     public static string GetStringWithLimitedWidth(string str, int fontIndex, int maxWidth)
     {
         if (fontIndex < 0 || fontIndex >= fonts.Count)
-            throw new IndexOutOfRangeException("Invalid font index.");
+            throw new IndexOutOfRangeException($"Invalid font index. {fonts.Count} fonts loaded, requested index: {fontIndex}");
 
         var font = fonts[fontIndex];
-        var sb = new StringBuilder(str);
 
-        while (font.MeasureString(sb.ToString()).X > maxWidth && sb.Length > 0)
+        if (str == null)
+            throw new ArgumentNullException(nameof(str));
+
+        if (string.IsNullOrEmpty(str) || font.MeasureString(str).X <= maxWidth)
+            return str;
+
+        // Binary search for the maximum number of characters that fit within maxWidth.
+        // Assumes string width is monotonically non-decreasing as the string length increases,
+        // which holds for all standard fonts.
+        // This reduces complexity from O(n) to O(log n) compared to removing one character at a time.
+
+        // Warning: Copilot said: The binary search relies on prefix width being monotonic with length,
+        // but that’s not guaranteed with kerning and/or HarfBuzz text shaping (both are used in this codebase).
+        // In such cases it’s possible for a longer prefix to measure narrower than a shorter one,
+        // making the <= maxWidth predicate non-monotonic and causing the search to return a prefix
+        // that is not the longest-fitting (or potentially not fitting at all, depending on the path).
+        // We accept this risk for now.
+        int low = 0;
+        int high = str.Length - 1;
+
+        while (low < high)
         {
-            sb.Remove(sb.Length - 1, 1);
+            int mid = (low + high + 1) / 2; // Round up to avoid infinite loop when low + 1 == high
+            if (font.MeasureString(str.SubstringSurrogateAware(0, mid)).X <= maxWidth)
+                low = mid;
+            else
+                high = mid - 1;
         }
 
-        return sb.ToString();
+        return str.SubstringSurrogateAware(0, low);
     }
 
     public static TextParseReturnValue FixText(string text, int fontIndex, int width)

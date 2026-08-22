@@ -31,17 +31,5 @@ public class SpriteFontWrapper : IFont
 
     public bool HasCharacter(char c) => _font.Characters.Contains(c);
 
-    public string GetSafeString(string str)
-    {
-        var sb = new StringBuilder(str);
-        for (int i = 0; i < str.Length; i++)
-        {
-            char c = str[i];
-            if (c != '\r' && c != '\n' && !HasCharacter(c))
-            {
-                sb.Replace(c, '?');
-            }
-        }
-        return sb.ToString();
-    }
+    public string GetSafeString(string str) => str.Replace("\r\n", "\n").Replace('\r', '\n');
 }

@@ -71,8 +71,7 @@ public static class Renderer
     public static List<IFont> GetFontList() => FontManager.GetFontList();
 
     /// <summary>
-    /// Returns a version of the given string where all characters that don't
-    /// appear in the given font have been replaced with question marks.
+    /// Returns a version of the given string that the font renderer can safely display.
     /// </summary>
     /// <param name="str">The string.</param>
     /// <param name="fontIndex">The index of the font.</param>
