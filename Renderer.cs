@@ -33,6 +33,7 @@ public struct SpriteBatchSettings
 public static class Renderer
 {
     private static SpriteBatch spriteBatch;
+    private static ContentManager contentManager;
 
     private static Texture2D whitePixelTexture;
 
@@ -45,11 +46,23 @@ public static class Renderer
     public static void Initialize(GraphicsDevice gd, ContentManager content)
     {
         spriteBatch = new SpriteBatch(gd);
+        contentManager = content;
 
         FontManager.Initialize();
         FontManager.LoadFonts(content);
 
         whitePixelTexture = AssetLoader.CreateTexture(Color.White, 1, 1);
+    }
+
+    /// <summary>
+    /// Reloads TTF fonts when the final display scale needs a higher-resolution glyph atlas.
+    /// </summary>
+    internal static void ReloadFontsForScale(float scaleRatio)
+    {
+        if (contentManager == null)
+            return;
+
+        FontManager.LoadFonts(contentManager, Math.Max(1f, scaleRatio));
     }
 
     /// <summary>
@@ -292,6 +305,12 @@ public static class Renderer
 
     public static Vector2 GetTextDimensions(string text, int fontIndex) =>
         FontManager.GetTextDimensions(text, fontIndex);
+
+    public static int GetTextYPadding(string text, int fontIndex, int containerHeight) =>
+        FontManager.GetTextYPadding(text, fontIndex, containerHeight);
+
+    public static int GetSingleLineTextYPadding(int fontIndex, int containerHeight) =>
+        FontManager.GetSingleLineTextYPadding(fontIndex, containerHeight);
 
     public static void DrawLine(Vector2 start, Vector2 end, Color color, int thickness = 1, float depth = 0f)
     {

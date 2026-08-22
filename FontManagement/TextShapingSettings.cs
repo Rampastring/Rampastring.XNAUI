@@ -1,3 +1,6 @@
+using Rampastring.Tools;
+using System;
+
 namespace Rampastring.XNAUI.FontManagement;
 
 /// <summary>
@@ -25,4 +28,13 @@ public class TextShapingSettings
     /// Default: 100
     /// </summary>
     public int CacheSize { get; set; } = 100;
+
+    public void ReadSettingsFromIniSection(IniSection iniSection)
+    {
+        Enabled = iniSection.GetBooleanValue(nameof(Enabled), false);
+        EnableBiDi = iniSection.GetBooleanValue(nameof(EnableBiDi), true);
+        CacheSize = Math.Max(1, iniSection.GetIntValue(nameof(CacheSize), 100));
+
+        Logger.Log($"Text shaping settings: Enabled={Enabled}, BiDi={EnableBiDi}, CacheSize={CacheSize}");
+    }
 }

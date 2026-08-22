@@ -1374,7 +1374,7 @@ public class XNATextBox : XNAControl
         if (safeStartPos < safeEndPos)
         {
             DrawStringWithShadow(Text.Substring(safeStartPos, safeEndPos - safeStartPos),
-                FontIndex, new Vector2(TEXT_HORIZONTAL_MARGIN, TEXT_VERTICAL_MARGIN), TextColor);
+                FontIndex, new Vector2(TEXT_HORIZONTAL_MARGIN, Renderer.GetSingleLineTextYPadding(FontIndex, Height)), TextColor);
         }
 
         if (WindowManager.SelectedControl == this && Enabled && WindowManager.HasFocus)
@@ -1394,7 +1394,7 @@ public class XNATextBox : XNAControl
                 {
                     if (WindowManager.IMEHandler.GetDrawCompositionText(this, out string composition, out int compositionCursorPosition))
                     {
-                        DrawString(composition, FontIndex, new(barLocationX, TEXT_VERTICAL_MARGIN), Color.Orange);
+                        DrawString(composition, FontIndex, new(barLocationX, Renderer.GetSingleLineTextYPadding(FontIndex, Height)), Color.Orange);
                         Vector2 measStr = FontManager.GetTextDimensions(composition.Substring(0, compositionCursorPosition), FontIndex);
                         barLocationX += (int)measStr.X;
                     }

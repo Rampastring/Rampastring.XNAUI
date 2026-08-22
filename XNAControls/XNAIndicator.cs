@@ -167,7 +167,7 @@ public class XNAIndicator<T> : XNAControl where T : Enum
         {
             Vector2 textDimensions = Renderer.GetTextDimensions(Text, FontIndex);
 
-            TextLocationY = (texture2D.Height - (int)textDimensions.Y) / 2 - 1;
+            TextLocationY = Renderer.GetTextYPadding(Text, FontIndex, Height);
 
             Width = (int)textDimensions.X + TEXT_PADDING_DEFAULT + texture2D.Width;
             Height = Math.Max((int)textDimensions.Y, texture2D.Height);

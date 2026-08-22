@@ -179,14 +179,7 @@ public class XNAButton : XNAControl
             TextXPosition = (int)((textSize.X - Width) / -2);
         }
 
-        if (textSize.Y < Height)
-        {
-            TextYPosition = (int)((Height - textSize.Y) / 2);
-        }
-        else if (textSize.Y > Height)
-        {
-            TextYPosition = Convert.ToInt32((textSize.Y - Height) / -2);
-        }
+        TextYPosition = Renderer.GetTextYPadding(_text, FontIndex, Height);
     }
 
     protected override void ParseControlINIAttribute(IniFile iniFile, string key, string value)

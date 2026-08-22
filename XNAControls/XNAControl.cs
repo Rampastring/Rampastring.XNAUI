@@ -1593,10 +1593,12 @@ public class XNAControl : DrawableGameComponent
     /// <param name="color">The color of the text.</param>
     /// <param name="scale">The scale of the text.</param>
     /// <param name="shadowDistance">How many distance units (typically pixels) the text shadow is offset from the text.</param>
-    public void DrawStringWithShadow(string text, int fontIndex, Vector2 location, Color color, float scale = 1.0f, float shadowDistance = 1.0f)
+    public void DrawStringWithShadow(string text, int fontIndex, Vector2 location, Color color, float scale = 1.0f, float? shadowDistance = null)
     {
+        float shadowDist = shadowDistance ?? UISettings.ActiveSettings.TextShadowDistance;
+
         Renderer.DrawStringWithShadow(text, fontIndex,
-            new Vector2(location.X + drawPoint.X, location.Y + drawPoint.Y), color, scale, shadowDistance);
+            new Vector2(location.X + drawPoint.X, location.Y + drawPoint.Y), color, scale, shadowDist);
     }
 
     /// <summary>

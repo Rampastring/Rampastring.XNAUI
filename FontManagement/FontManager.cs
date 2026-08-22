@@ -35,6 +35,15 @@ public static class FontManager
     private static List<IFont> fonts;
     private static List<FontSystem> fontSystems = new();
     private static TextShapingSettings textShapingSettings = new();
+    private static FontRenderingSettings fontRenderingSettings = new();
+
+    /// <summary>
+    /// When set before <see cref="LoadFonts"/> runs, skips the Fonts.ini search and
+    /// loads only legacy SpriteFontN.xnb assets. Lets applications offer an opt-out from
+    /// TrueType rendering.
+    /// </summary>
+    public static bool UseSpriteFonts { get; set; }
+
     private static List<string> fallbackFontPaths = new();
 
     public static void Initialize()
@@ -48,6 +57,11 @@ public static class FontManager
     public static TextShapingSettings GetTextShapingSettings() => textShapingSettings;
 
     /// <summary>
+    /// Gets the current font rendering settings.
+    /// </summary>
+    public static FontRenderingSettings GetFontRenderingSettings() => fontRenderingSettings;
+
+    /// <summary>
     /// Checks if text shaping is currently enabled.
     /// </summary>
     public static bool IsTextShapingEnabled() => textShapingSettings.Enabled;
@@ -57,7 +71,16 @@ public static class FontManager
     /// </summary>
     private static FontSystem CreateFontSystem()
     {
-        var settings = new FontSystemSettings();
+        var settings = new FontSystemSettings()
+        {
+            KernelWidth = fontRenderingSettings.KernelWidth,
+            KernelHeight = fontRenderingSettings.KernelHeight,
+            FontResolutionFactor = fontRenderingSettings.FontResolutionFactor,
+            TextureWidth = fontRenderingSettings.TextureWidth,
+            TextureHeight = fontRenderingSettings.TextureHeight,
+            GlyphRenderResult = fontRenderingSettings.GlyphRenderResult,
+            UseEmToPixelsScale = true
+        };
 
         if (textShapingSettings.Enabled)
         {
@@ -91,37 +114,57 @@ public static class FontManager
     /// - For SpriteFonts: Load the .xnb file
     /// </para>
     /// </remarks>
-    public static void LoadFonts(ContentManager contentManager)
+    /// <param name="contentManager">Content manager used to load SpriteFont assets.</param>
+    /// <param name="fontResolutionFactor">
+    /// When non-null, overrides any <c>FontResolutionFactor</c> from <c>[FontRendering]</c>
+    /// in <c>Fonts.ini</c>. Used by <see cref="Renderer.ReloadFontsForScale"/> to keep TTF
+    /// glyphs sharp when the render target is upscaled.
+    /// </param>
+    public static void LoadFonts(ContentManager contentManager, float? fontResolutionFactor = null)
     {
         fonts ??= [];
         fonts.Clear();
         fontSystems.Clear();
         fallbackFontPaths.Clear();
 
-        // Reset text shaping settings
+        // Reset text shaping and rendering settings
         textShapingSettings = new TextShapingSettings();
+        fontRenderingSettings = new FontRenderingSettings();
 
         string originalContentRoot = contentManager.RootDirectory;
         bool fontsIniFound = false;
 
-        foreach (string searchPath in AssetLoader.AssetSearchPaths)
+        if (UseSpriteFonts)
         {
-            string baseDir = SafePath.GetDirectory(searchPath).FullName;
-            string iniPath = Path.Combine(baseDir, "Fonts.ini");
-
-            if (File.Exists(iniPath))
+            Logger.Log($"{nameof(FontManager)}: {nameof(UseSpriteFonts)} is set, skipping Fonts.ini search");
+        }
+        else
+        {
+            foreach (string searchPath in AssetLoader.AssetSearchPaths)
             {
-                Logger.Log($"FontManager: Loading fonts from {iniPath}");
-                LoadFontsFromIni(iniPath, contentManager, searchPath, baseDir);
-                fontsIniFound = true;
-                break; // Stop after first Fonts.ini found
+                string baseDir = SafePath.GetDirectory(searchPath).FullName;
+                string iniPath = Path.Combine(baseDir, "Fonts.ini");
+
+                if (File.Exists(iniPath))
+                {
+                    Logger.Log($"{nameof(FontManager)}: Loading fonts from {iniPath}");
+                    LoadFontsFromIni(iniPath, contentManager, searchPath, baseDir, fontResolutionFactor);
+                    fontsIniFound = true;
+                    break; // Stop after first Fonts.ini found
+                }
             }
         }
+
+        // Apply the resolution-factor override even when no Fonts.ini was found
+        // (legacy SpriteFont path), so callers like Renderer.ReloadFontsForScale
+        // still take effect.
+        if (!fontsIniFound && fontResolutionFactor.HasValue)
+            fontRenderingSettings.FontResolutionFactor = fontResolutionFactor.Value;
 
         // Fall back to legacy SpriteFont loading if no Fonts.ini found
         if (!fontsIniFound)
         {
-            Logger.Log("FontManager: No Fonts.ini found, attempting legacy SpriteFont loading");
+            Logger.Log($"{nameof(FontManager)}: No Fonts.ini found, attempting SpriteFont loading");
             foreach (string searchPath in AssetLoader.AssetSearchPaths)
             {
                 string baseDir = SafePath.GetDirectory(searchPath).FullName;
@@ -135,23 +178,35 @@ public static class FontManager
 
         contentManager.SetRootDirectory(originalContentRoot);
 
-        Logger.Log($"FontManager: Loaded {fonts.Count} font indexes with {fontSystems.Count} FontSystems");
+        Logger.Log($"{nameof(FontManager)}: Loaded {fonts.Count} font indexes with {fontSystems.Count} FontSystems");
     }
 
     /// <summary>
     /// Loads fonts from a specific Fonts.ini file.
     /// </summary>
-    private static void LoadFontsFromIni(string iniPath, ContentManager contentManager, string searchPath, string baseDir)
+    private static void LoadFontsFromIni(string iniPath, ContentManager contentManager, string searchPath, string baseDir, float? fontResolutionFactorOverride = null)
     {
         var iniFile = new IniFile(iniPath);
 
         // Load text shaping settings
-        if (iniFile.SectionExists("TextShaping"))
+        var textShapingSection = iniFile.GetSection("TextShaping");
+        if (textShapingSection != null)
         {
-            LoadTextShapingSettings(iniFile);
+            textShapingSettings.ReadSettingsFromIniSection(textShapingSection);
         }
 
         LoadFallbackFonts(iniFile, searchPath);
+
+        // Load font rendering settings
+        var fontRenderingSection = iniFile.GetSection("FontRendering");
+        if (fontRenderingSection != null)
+        {
+            fontRenderingSettings.ReadSettingsFromIniSection(fontRenderingSection);
+        }
+
+        // Override after ini load so the runtime value wins
+        if (fontResolutionFactorOverride.HasValue)
+            fontRenderingSettings.FontResolutionFactor = fontResolutionFactorOverride.Value;
 
         CreateFontIndexesFromIni(iniFile, contentManager, searchPath, baseDir);
     }
@@ -188,18 +243,6 @@ public static class FontManager
                 Logger.Log($"FontManager: Fallback font not found: {fullPath}");
             }
         }
-    }
-
-    private static void LoadTextShapingSettings(IniFile iniFile)
-    {
-        textShapingSettings.Enabled = iniFile.GetBooleanValue("TextShaping", "Enabled", false);
-        textShapingSettings.EnableBiDi = iniFile.GetBooleanValue("TextShaping", "EnableBiDi", true);
-        textShapingSettings.CacheSize = iniFile.GetIntValue("TextShaping", "CacheSize", 100);
-
-        if (textShapingSettings.CacheSize < 1)
-            textShapingSettings.CacheSize = 100;
-
-        Logger.Log($"FontManager: Text shaping settings: Enabled={textShapingSettings.Enabled}, BiDi={textShapingSettings.EnableBiDi}, CacheSize={textShapingSettings.CacheSize}");
     }
 
     /// <summary>
@@ -393,6 +436,21 @@ public static class FontManager
             throw new IndexOutOfRangeException("Invalid font index: " + fontIndex);
 
         return fonts[fontIndex].MeasureString(text);
+    }
+
+    public static int GetTextYPadding(string text, int fontIndex, int containerHeight)
+    {
+        if (fontIndex < 0 || fontIndex >= fonts.Count)
+            throw new IndexOutOfRangeException($"Invalid font index. {fonts.Count} fonts loaded, requested index: {fontIndex}");
+
+        return fonts[fontIndex].GetTextYPadding(containerHeight, text);
+    }
+
+    public static int GetSingleLineTextYPadding(int fontIndex, int containerHeight)
+    {
+        if (fontIndex < 0 || fontIndex >= fonts.Count)
+            throw new IndexOutOfRangeException($"Invalid font index. {fonts.Count} fonts loaded, requested index: {fontIndex}");
+        return fonts[fontIndex].GetSingleLineTextYPadding(containerHeight);
     }
 
     public static void DrawString(SpriteBatch spriteBatch, string text, int fontIndex, Vector2 location, Color color, float scale = 1.0f, float depth = 0f)
