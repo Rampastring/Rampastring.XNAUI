@@ -23,10 +23,7 @@ public class XNALinkLabel : XNALabel
     /// </summary>
     public Color IdleColor
     {
-        get
-        {
-            return _idleColor ?? UISettings.ActiveSettings.TextColor;
-        }
+        get => _idleColor ?? UISettings.ActiveSettings.TextColor;
         set { _idleColor = value; if (!IsActive) RemapColor = value; }
     }
 
@@ -37,10 +34,7 @@ public class XNALinkLabel : XNALabel
     /// </summary>
     public Color HoverColor
     {
-        get
-        {
-            return _hoverColor ?? UISettings.ActiveSettings.AltColor;
-        }
+        get => _hoverColor ?? UISettings.ActiveSettings.AltColor;
         set { _hoverColor = value; if (IsActive) RemapColor = value; }
     }
 

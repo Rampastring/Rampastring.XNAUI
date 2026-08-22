@@ -26,14 +26,8 @@ public class XNAPasswordBox : XNATextBox
     /// </summary>
     public string Password
     {
-        get
-        {
-            return base.Text;
-        }
-        set
-        {
-            Text = value;
-        }
+        get => base.Text;
+        set => Text = value;
     }
 
     /// <summary>
@@ -42,14 +36,8 @@ public class XNAPasswordBox : XNATextBox
     /// </summary>
     public override string Text
     {
-        get
-        {
-            return new string(VisibleChar, base.Text.Length);
-        }
+        get => new string(VisibleChar, base.Text.Length);
 
-        set
-        {
-            base.Text = value;
-        }
+        set => base.Text = value;
     }
 }

@@ -61,7 +61,7 @@ public class XNADropDown : XNAControl
     /// </summary>
     public bool AllowDropDown
     {
-        get { return _allowDropDown; }
+        get => _allowDropDown;
         set
         {
             _allowDropDown = value;
@@ -79,7 +79,7 @@ public class XNADropDown : XNAControl
     /// </summary>
     public int SelectedIndex
     {
-        get { return _selectedIndex; }
+        get => _selectedIndex;
         set
         {
             int oldSelectedIndex = _selectedIndex;
@@ -113,55 +113,51 @@ public class XNADropDown : XNAControl
 
     public Color BorderColor
     {
-        get
-        {
-            return _borderColor ?? UISettings.ActiveSettings.PanelBorderColor;
-        }
-        set { _borderColor = value; }
+        get => _borderColor ?? UISettings.ActiveSettings.PanelBorderColor;
+        set => _borderColor = value;
     }
 
     private Color? _focusColor;
 
     public Color FocusColor
     {
-        get
-        {
-            return _focusColor ?? UISettings.ActiveSettings.FocusColor;
-        }
-        set { _focusColor = value; }
+        get => _focusColor ?? UISettings.ActiveSettings.FocusColor;
+        set => _focusColor = value;
     }
 
     private Color? _backColor;
 
     public Color BackColor
     {
-        get
-        {
-            return _backColor ?? UISettings.ActiveSettings.BackgroundColor;
-        }
-        set { _backColor = value; }
+        get => _backColor ?? UISettings.ActiveSettings.DropDownBackgroundColor;
+        set => _backColor = value;
+    }
+
+    private Color? _listBackgroundColor;
+
+    /// <summary>
+    /// The background color of the drop down's list of selectable elements when the drop down is open.
+    /// </summary>
+    public Color ListBackgroundColor
+    {
+        get => _listBackgroundColor ?? UISettings.ActiveSettings.BackgroundColor;
+        set => _listBackgroundColor = value;
     }
 
     private Color? _textColor;
 
     public Color TextColor
     {
-        get
-        {
-            return _textColor ?? UISettings.ActiveSettings.AltColor;
-        }
-        set { _textColor = value; }
+        get => _textColor ?? UISettings.ActiveSettings.AltColor;
+        set => _textColor = value;
     }
 
     private Color? _disabledItemColor;
 
     public Color DisabledItemColor
     {
-        get
-        {
-            return _disabledItemColor ?? UISettings.ActiveSettings.DisabledItemColor;
-        }
-        set { _disabledItemColor = value; }
+        get => _disabledItemColor ?? UISettings.ActiveSettings.DisabledItemColor;
+        set => _disabledItemColor = value;
     }
 
     /// <summary>
@@ -292,8 +288,7 @@ public class XNADropDown : XNAControl
     /// Gets the text color of a drop-down item.
     /// </summary>
     /// <param name="item">The item.</param>
-    protected Color GetItemTextColor(XNADropDownItem item) =>
-        item.TextColor ?? TextColor;
+    protected Color GetItemTextColor(XNADropDownItem item) => item.TextColor ?? TextColor;
 
     public override void Update(GameTime gameTime)
     {
@@ -593,7 +588,7 @@ public class XNADropDown : XNAControl
         }
         else
         {
-            FillRectangle(new Rectangle(1, y, Width - 2, ItemHeight), BackColor);
+            FillRectangle(new Rectangle(1, y, Width - 2, ItemHeight), ListBackgroundColor);
         }
 
         int textX = 2;

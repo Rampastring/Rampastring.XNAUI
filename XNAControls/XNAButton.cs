@@ -51,7 +51,7 @@ public class XNAButton : XNAControl
     private string _text = String.Empty;
     public override string Text
     {
-        get { return _text; }
+        get => _text;
         set
         {
             _text = value;

@@ -95,7 +95,7 @@ public class XNAHorizontalScrollBar : XNAControl
     /// </summary>
     public int ScrollHeight
     {
-        get { return btnScrollLeft.IdleTexture.Height; }
+        get => btnScrollLeft.IdleTexture.Height;
     }
 
     private int thumbWidth;
@@ -255,7 +255,7 @@ public class XNAHorizontalScrollBar : XNAControl
     {
         var point = GetCursorPoint();
 
-        if (point.X < btnScrollLeft.Width
+        if (point.X < btnScrollLeft.Right
             || point.X > btnScrollRight.X)
         {
             return;

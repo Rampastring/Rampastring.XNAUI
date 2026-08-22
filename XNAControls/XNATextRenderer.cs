@@ -10,15 +10,20 @@ namespace Rampastring.XNAUI.XNAControls;
 /// </summary>
 public struct XNATextPart
 {
-    public XNATextPart(string text, int fontIndex, float scale, Color? color, bool underlined)
+    public XNATextPart(string text, int fontIndex, float scale, Color? color, bool underlined, bool includeSpace)
     {
         _text = text;
         _fontIndex = fontIndex;
         _scale = scale;
         _color = color;
         Underlined = underlined;
+        IncludesSpace = includeSpace;
         Size = Point.Zero;
         UpdateSize();
+    }
+
+    public XNATextPart(string text, int fontIndex, float scale, Color? color, bool underlined) : this(text, fontIndex, scale, color, underlined, true)
+    {
     }
 
     public XNATextPart(string text) : this(text, 0, 1.0f, null, false) { }
@@ -59,7 +64,15 @@ public struct XNATextPart
 
     public bool Underlined { get; set; }
 
+    /// <summary>
+    /// The size of the text part, with scaling taken into account.
+    /// </summary>
     public Point Size { get; private set; }
+
+    /// <summary>
+    /// Does this text part have a space at the end of it?
+    /// </summary>
+    public bool IncludesSpace { get; private set; }
 
     private void UpdateSize()
     {
@@ -67,9 +80,15 @@ public struct XNATextPart
         Size = new Point((int)size.X, (int)size.Y);
     }
 
-    public int Width => (int)(Size.X * Scale);
+    public int Width => (int)(Size.X);
 
-    public int Height => (int)(Size.Y * Scale);
+    public int Height => (int)(Size.Y);
+
+    /// <summary>
+    /// Defines the vertical draw offset of the text part.
+    /// Calculated dynamically to center the text part within its line.
+    /// </summary>
+    internal int Y { get; set; }
 
     public void Draw(Point point)
     {
@@ -158,6 +177,23 @@ public class XNATextRenderer : XNAControl
 
     public XNATextPart GetTextPart(int index) => originalTextParts[index];
 
+    private void AdjustHeight(ref XNATextLine line, ref XNATextPart currentOutputPart)
+    {
+        if (currentOutputPart.Height < line.Height)
+        {
+            // If this part is not as high as other parts in the line, center it
+            currentOutputPart.Y = (line.Height - currentOutputPart.Height) / 2;
+        }
+        else if (currentOutputPart.Height > line.Height)
+        {
+            // If this part is higher than other parts in the line, center existing parts in the line
+            for (int pIndex = 0; pIndex < line.Parts.Count; pIndex++)
+            {
+                line.Parts[pIndex] = line.Parts[pIndex] with { Y = currentOutputPart.Height - line.Parts[pIndex].Height };
+            }
+        }
+    }
+
     /// <summary>
     /// Processes the text parts fed to this text renderer.
     /// </summary>
@@ -243,16 +279,18 @@ public class XNATextRenderer : XNAControl
             var lineOriginalTextParts = new List<XNATextPart>(preparedTextLines[i].Parts);
             int remainingWidth = Width - (Padding * 2);
 
-            foreach (XNATextPart textPart in lineOriginalTextParts) 
+            foreach (XNATextPart textPart in lineOriginalTextParts)
             {
                 string remainingText = textPart.Text;
                 var currentOutputPart = new XNATextPart("", textPart.FontIndex, textPart.Scale, textPart.Color, textPart.Underlined);
 
                 while (true)
                 {
-                    var words = remainingText.Split(new[] { ' ' }, StringSplitOptions.None);
-                    foreach (string word in words)
+                    var words = remainingText.Split([' '], StringSplitOptions.None);
+                    for (int wIndex = 0; wIndex < words.Length; wIndex++)
                     {
+                        string word = words[wIndex];
+
                         if (word == "")
                         {
                             currentOutputPart.Text += " ";
@@ -260,27 +298,30 @@ public class XNATextRenderer : XNAControl
                             continue;
                         }
 
+                        bool includeSpace = textPart.IncludesSpace || wIndex < words.Length - 1;
                         string wordToProcess = word;
 
                         string wordWithSpace = wordToProcess + " ";
-                        int wordWidth = (int)Renderer.GetTextDimensions(wordToProcess, textPart.FontIndex).X;
-                        int wordWidthWithSpace = (int)Renderer.GetTextDimensions(wordWithSpace, textPart.FontIndex).X;
+                        int wordWidth = (int)(Renderer.GetTextDimensions(wordToProcess, textPart.FontIndex).X * textPart.Scale);
+                        int wordWidthWithSpace = (int)(Renderer.GetTextDimensions(wordWithSpace, textPart.FontIndex).X * textPart.Scale);
                         if (wordWidth < remainingWidth)
                         {
-                            remainingWidth -= wordWidthWithSpace;
-                            currentOutputPart.Text += wordWithSpace;
+                            remainingWidth -= includeSpace ? wordWidthWithSpace : wordWidth;
+                            currentOutputPart.Text += includeSpace ? wordWithSpace : word;
                         }
                         else
                         {
+                            AdjustHeight(ref line, ref currentOutputPart);
                             line.Parts.Add(currentOutputPart);
 
-                            remainingWidth = Width - (Padding * 2) - wordWidthWithSpace;
-                            currentOutputPart = new XNATextPart(wordWithSpace, textPart.FontIndex, textPart.Scale, textPart.Color, textPart.Underlined);
+                            remainingWidth = Width - (Padding * 2) - (includeSpace ? wordWidthWithSpace : wordWidth);
+                            currentOutputPart = new XNATextPart(includeSpace ? wordWithSpace : word, textPart.FontIndex, textPart.Scale, textPart.Color, textPart.Underlined);
                             line = new XNATextLine(new List<XNATextPart>());
                             renderedTextLines.Add(line);
                         }
                     }
 
+                    AdjustHeight(ref line, ref currentOutputPart);
                     line.Parts.Add(currentOutputPart);
                     break;
                 }
@@ -310,7 +351,7 @@ public class XNATextRenderer : XNAControl
 
             foreach (XNATextPart part in line.Parts)
             {
-                DrawStringWithShadow(part.Text, part.FontIndex, new Vector2(x, y), part.Color, 1f);
+                DrawStringWithShadow(part.Text, part.FontIndex, new Vector2(x, y + part.Y), part.Color, part.Scale);
                 x += part.Width + 1;
             }
 

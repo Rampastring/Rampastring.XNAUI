@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -159,6 +159,12 @@ public class WindowManager : DrawableGameComponent
     /// The control, of the highest generation, that the mouse cursor is currently positioned on.
     /// </summary>
     internal XNAControl ActiveControl { get; set; }
+
+    /// <summary>
+    /// If specified, the control blocks other controls on the screen
+    /// from being interacted with. Defaults to null.
+    /// </summary>
+    public XNAControl FocusedControl { get; set; } = null;
 
     private GraphicsDeviceManager graphics;
 

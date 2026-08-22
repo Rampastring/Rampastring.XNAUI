@@ -58,11 +58,8 @@ public class XNATextBox : XNAControl
     /// </summary>
     public virtual Color TextColor
     {
-        get
-        {
-            return _textColor ?? UISettings.ActiveSettings.AltColor;
-        }
-        set { _textColor = value; }
+        get => _textColor ?? UISettings.ActiveSettings.AltColor;
+        set => _textColor = value;
     }
 
     private Color? _idleBorderColor;
@@ -72,11 +69,8 @@ public class XNATextBox : XNAControl
     /// </summary>
     public virtual Color IdleBorderColor
     {
-        get
-        {
-            return _idleBorderColor ?? UISettings.ActiveSettings.PanelBorderColor;
-        }
-        set { _idleBorderColor = value; }
+        get => _idleBorderColor ?? UISettings.ActiveSettings.PanelBorderColor;
+        set => _idleBorderColor = value;
     }
 
     private Color? _activeBorderColor;
@@ -86,11 +80,8 @@ public class XNATextBox : XNAControl
     /// </summary>
     public Color ActiveBorderColor
     {
-        get
-        {
-            return _activeBorderColor ?? UISettings.ActiveSettings.AltColor;
-        }
-        set { _activeBorderColor = value; }
+        get => _activeBorderColor ?? UISettings.ActiveSettings.AltColor;
+        set => _activeBorderColor = value;
     }
 
     private Color? _backColor;
@@ -100,11 +91,8 @@ public class XNATextBox : XNAControl
     /// </summary>
     public Color BackColor
     {
-        get
-        {
-            return _backColor ?? UISettings.ActiveSettings.BackgroundColor;
-        }
-        set { _backColor = value; }
+        get => _backColor ?? UISettings.ActiveSettings.TextBoxBackgroundColor;
+        set => _backColor = value;
     }
 
     private Color? _selectionColor;
@@ -114,11 +102,8 @@ public class XNATextBox : XNAControl
     /// </summary>
     public Color SelectionColor
     {
-        get
-        {
-            return _selectionColor ?? UISettings.ActiveSettings.SelectionColor;
-        }
-        set { _selectionColor = value; }
+        get => _selectionColor ?? UISettings.ActiveSettings.SelectionColor;
+        set => _selectionColor = value;
     }
 
     /// <summary>
@@ -136,10 +121,7 @@ public class XNATextBox : XNAControl
     /// </summary>
     public override string Text
     {
-        get
-        {
-            return text;
-        }
+        get => text;
 
         set
         {
