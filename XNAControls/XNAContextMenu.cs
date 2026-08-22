@@ -1,5 +1,6 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using Rampastring.XNAUI.FontManagement;
 using System;
 using System.Collections.Generic;
 
@@ -115,7 +116,7 @@ public class XNAContextMenu : XNAControl
     /// <param name="windowManager">The WindowManager associated with this context menu.</param>
     public XNAContextMenu(WindowManager windowManager) : base(windowManager)
     {
-        ItemHeight = UISettings.ActiveSettings.ContextMenuDefaultItemHeight.GetValueOrDefault((int)Renderer.MeasureString("Test String @", FontIndex).Y + 1);
+        ItemHeight = UISettings.ActiveSettings.ContextMenuDefaultItemHeight.GetValueOrDefault((int)FontManager.GetTextDimensions("Test String @", FontIndex).Y + 1);
         Height = BORDER_WIDTH * 2;
         DisabledItemColor = Color.Gray;
         Disable();
@@ -464,11 +465,15 @@ public class XNAContextMenu : XNAControl
 
         Color textColor = item.Selectable ? GetItemTextColor(item) : DisabledItemColor;
 
-        DrawStringWithShadow(item.Text, FontIndex, new Vector2(textX, point.Y + TextVerticalPadding), textColor);
+        int contentTop = point.Y + TextVerticalPadding;
+        int contentHeight = Math.Max(0, itemHeight - TextVerticalPadding * 2);
+        int textY = point.Y + TextVerticalPadding + Renderer.GetTextYPadding(item.Text, FontIndex, contentHeight);
+        DrawStringWithShadow(item.Text, FontIndex, new Vector2(textX, textY), textColor);
         if (item.HintText != null)
         {
             int hintTextX = Width - TextHorizontalPadding - (int)Renderer.GetTextDimensions(item.HintText, HintFontIndex).X;
-            DrawStringWithShadow(item.HintText, HintFontIndex, new Vector2(hintTextX, point.Y + TextVerticalPadding), textColor);
+            int hintTextY = point.Y + TextVerticalPadding + Renderer.GetTextYPadding(item.HintText, HintFontIndex, contentHeight);
+            DrawStringWithShadow(item.HintText, HintFontIndex, new Vector2(hintTextX, hintTextY), textColor);
         }
 
         return itemHeight;

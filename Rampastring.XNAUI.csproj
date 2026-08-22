@@ -144,10 +144,34 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Rampastring.Tools" Version="3.0.0" />
+    <PackageReference Include="Rampastring.Tools" Version="3.0.2" />
     <PackageReference Include="Microsoft.Windows.CsWin32" Version="0.3.49-beta" PrivateAssets="All" />
     <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1" PrivateAssets="All" />
     <PackageReference Include="SixLabors.ImageSharp" Version="2.1.11" />
     <PackageReference Include="TextCopy" Version="6.2.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- HarfBuzzSharp is pulled in transitively by FontStashSharp.TextShapers.HarfBuzz, but we use
+        its API directly (FontManager probes whether the native library can load), so reference it
+        explicitly. -->
+    <PackageReference Include="HarfBuzzSharp" Version="8.3.1.2" />
+    <!-- The HarfBuzzSharp package automatically pulls in HarfBuzzSharp.NativeAssets.Win32 and
+        HarfBuzzSharp.NativeAssets.macOS, but NOT the Linux native assets. Without this reference
+        libHarfBuzzSharp.so is never shipped, so text shaping crashes on Linux (e.g. Steam Deck)
+        with "Unable to load shared library 'libHarfBuzzSharp'". Add it explicitly - but only for
+        the UniversalGL engine, which is the one that actually runs on Linux. Scoping it here keeps
+        the Linux .so files out of the Windows (WindowsDX/WindowsGL/XNA) outputs entirely, rather
+        than shipping them and relying on a publish-time cleanup to delete them again. -->
+    <PackageReference Include="HarfBuzzSharp.NativeAssets.Linux" Version="8.3.1.2" Condition="$(Configuration.Contains('Universal'))" />
+      <PackageReference Include="FontStashSharp.TextShapers.HarfBuzz" Version="1.2.3" />
+  </ItemGroup>
+
+  <ItemGroup Condition="!$(DefineConstants.Contains('XNA'))">
+    <PackageReference Include="FontStashSharp.MonoGame" Version="1.5.5" />
+  </ItemGroup>
+
+  <ItemGroup Condition="$(DefineConstants.Contains('XNA'))">
+    <PackageReference Include="FontStashSharp.XNA" Version="1.5.5" />
   </ItemGroup>
 </Project>

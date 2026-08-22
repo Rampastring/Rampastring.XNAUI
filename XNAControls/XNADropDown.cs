@@ -1,6 +1,7 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Rampastring.Tools;
+using Rampastring.XNAUI.FontManagement;
 using System;
 using System.Collections.Generic;
 
@@ -24,7 +25,7 @@ public class XNADropDown : XNAControl
     /// <param name="windowManager">The WindowManager associated with this control.</param>
     public XNADropDown(WindowManager windowManager) : base(windowManager)
     {
-        ItemHeight = UISettings.ActiveSettings.DropDownDefaultItemHeight.GetValueOrDefault((int)Renderer.MeasureString("Test String @", FontIndex).Y + 1);
+        ItemHeight = UISettings.ActiveSettings.DropDownDefaultItemHeight.GetValueOrDefault((int)FontManager.GetTextDimensions("Test String @", FontIndex).Y + 1);
         Height = ItemHeight + 2;
     }
 
@@ -532,8 +533,8 @@ public class XNADropDown : XNAControl
 
             if (item.Text != null)
             {
-                DrawStringWithShadow(item.Text, FontIndex,
-                    new Vector2(textX, dropDownRect.Y + 2), GetItemTextColor(item));
+                int textY = dropDownRect.Y + Renderer.GetTextYPadding(item.Text, FontIndex, dropDownRect.Height);
+                DrawStringWithShadow(item.Text, FontIndex, new Vector2(textX, dropDownRect.Y + 2), GetItemTextColor(item));
             }
         }
 
@@ -605,6 +606,9 @@ public class XNADropDown : XNAControl
             textColor = DisabledItemColor;
 
         if (item.Text != null)
+        {
+            int textY = y + Renderer.GetTextYPadding(item.Text, FontIndex, ItemHeight);
             DrawStringWithShadow(item.Text, FontIndex, new Vector2(textX, y + 1), textColor);
+        }
     }
 }

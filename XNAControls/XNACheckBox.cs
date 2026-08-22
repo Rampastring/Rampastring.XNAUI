@@ -184,7 +184,7 @@ public class XNACheckBox : XNAControl
         {
             Vector2 textDimensions = Renderer.GetTextDimensions(Text, FontIndex);
 
-            TextLocationY = (CheckedTexture.Height - (int)textDimensions.Y) / 2 - 1;
+            TextLocationY = Renderer.GetTextYPadding(Text, FontIndex, CheckedTexture.Height);
 
             Width = (int)textDimensions.X + TEXT_PADDING_DEFAULT + CheckedTexture.Width;
             Height = Math.Max((int)textDimensions.Y, CheckedTexture.Height);
