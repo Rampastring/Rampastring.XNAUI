@@ -96,6 +96,14 @@ public static class FontManager
         return new FontSystem(settings);
     }
 
+    public static Vector2 MeasureString(string text, int fontIndex)
+    {
+        if (fontIndex < 0 || fontIndex >= fonts.Count)
+            throw new IndexOutOfRangeException($"Invalid font index. {fonts.Count} fonts loaded, requested index: {fontIndex}");
+
+        return fonts[fontIndex].MeasureString(text);
+    }
+
     /// <summary>
     /// Loads fonts from the first Fonts.ini found in asset search paths.
     /// </summary>

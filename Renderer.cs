@@ -95,6 +95,8 @@ public static class Renderer
     public static List<string> GetFixedTextLines(string text, int fontIndex, int width, bool splitWords = true, bool keepBlankLines = false) =>
         FontManager.GetFixedTextLines(text, fontIndex, width, splitWords, keepBlankLines);
 
+    public static Vector2 MeasureString(string text, int fontIndex) => FontManager.MeasureString(text, fontIndex);
+
     /// <summary>
     /// Pushes new settings into the renderer's internal stack and applies them.
     /// A call to <see cref="PushSettings(SpriteBatchSettings)"/> should always
