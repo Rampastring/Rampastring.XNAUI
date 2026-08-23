@@ -265,16 +265,16 @@ public static class FontManager
     /// </summary>
     private static void CreateFontIndexesFromIni(IniFile iniFile, ContentManager contentManager, string searchPath, string baseDir)
     {
-        int fontCount = iniFile.GetIntValue("Fonts", "Count", 0);
-
-        Logger.Log($"FontManager: Creating {fontCount} font indexes");
-
-        for (int i = 0; i < fontCount; i++)
+        int i = 0;
+        while (true)
         {
-            string section = $"Font{i}";
-            string fontPath = iniFile.GetStringValue(section, "Path", "");
-            int size = iniFile.GetIntValue(section, "Size", 16);
-            string fontTypeStr = iniFile.GetStringValue(section, "Type", nameof(FontType.SpriteFont));
+            IniSection section = iniFile.GetSection($"Font{i}");
+            if (section == null)
+                break;
+
+            string fontPath = section.GetStringValue("Path", "");
+            int size = section.GetIntValue("Size", 16);
+            string fontTypeStr = section.GetStringValue("Type", nameof(FontType.SpriteFont));
 
             if (!Enum.TryParse<FontType>(fontTypeStr, true, out var fontType))
                 fontType = FontType.SpriteFont;
@@ -286,8 +286,8 @@ public static class FontManager
                     break;
 
                 case FontType.SystemFont:
-                    string fontFamily = iniFile.GetStringValue(section, "Family", "");
-                    string fontStyle = iniFile.GetStringValue(section, "Style", "Regular");
+                    string fontFamily = section.GetStringValue("Family", "");
+                    string fontStyle = section.GetStringValue("Style", "Regular");
                     CreateTrueTypeFontIndex(i, fontPath, size, searchPath, fontFamily, fontStyle);
                     break;
 
@@ -297,7 +297,11 @@ public static class FontManager
                     LoadSpriteFont(contentManager, searchPath, sfName);
                     break;
             }
+
+            i++;
         }
+
+        Logger.Log($"FontManager: Created {i} font indexes");
     }
 
     /// <summary>
