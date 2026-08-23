@@ -19,7 +19,8 @@ namespace Rampastring.XNAUI.FontManagement;
 /// <remarks>
 /// <para>
 /// For TrueType fonts, FontManager creates a separate FontSystem for each font index.
-/// Each FontSystem has a primary font (specified via Path) and fallback fonts (from [FallbackFonts]).
+/// Each FontSystem has a primary font (specified via Path or a Windows system font family)
+/// and fallback fonts (from [FallbackFonts]).
 /// When a character is not found in the primary font, it automatically falls back to other loaded fonts.
 /// </para>
 /// <para>
@@ -27,7 +28,8 @@ namespace Rampastring.XNAUI.FontManagement;
 /// <list type="bullet">
 /// <item>[TextShaping] - Optional HarfBuzz text shaping configuration</item>
 /// <item>[FallbackFonts] - Optional fallback font files used when primary font lacks a character</item>
-/// <item>[Fonts] - Font index definitions with Size, Type, and optional Path</item>
+/// <item>[Fonts] - Font index definitions with Size, Type, and source-specific settings.
+/// SystemFont entries use Family and optional Style values on Windows; their optional Path is a file fallback.</item>
 /// </list>
 /// </para>
 /// </remarks>
@@ -119,7 +121,7 @@ public static class FontManager
     /// </para>
     /// <para>
     /// Phase 2: Create font indexes:
-    /// - For TrueType fonts: Create a FontSystem with primary font first, then fallback fonts
+    /// - For TrueType and system fonts: Create a FontSystem with primary font first, then fallback fonts
     /// - For SpriteFonts: Load the .xnb file
     /// </para>
     /// </remarks>
@@ -283,6 +285,12 @@ public static class FontManager
                     CreateTrueTypeFontIndex(i, fontPath, size, searchPath);
                     break;
 
+                case FontType.SystemFont:
+                    string fontFamily = iniFile.GetStringValue(section, "Family", "");
+                    string fontStyle = iniFile.GetStringValue(section, "Style", "Regular");
+                    CreateTrueTypeFontIndex(i, fontPath, size, searchPath, fontFamily, fontStyle);
+                    break;
+
                 case FontType.SpriteFont:
                     contentManager.SetRootDirectory(baseDir);
                     string sfName = Path.GetFileNameWithoutExtension(fontPath);
@@ -294,16 +302,46 @@ public static class FontManager
 
     /// <summary>
     /// Creates a TrueType font index with its own FontSystem.
-    /// The FontSystem contains the primary font (if specified) followed by fallback fonts.
+    /// The FontSystem contains the Windows system font (if specified), the file-based primary
+    /// font (if specified), and the shared fallback fonts, in that order.
     /// </summary>
-    private static void CreateTrueTypeFontIndex(int fontIndex, string primaryFontPath, int size, string searchPath)
+    private static void CreateTrueTypeFontIndex(int fontIndex, string primaryFontPath, int size, string searchPath,
+        string systemFontFamily = null, string systemFontStyle = null)
     {
         FontSystem fontSystem = CreateFontSystem();
         fontSystems.Add(fontSystem);
 
         bool hasPrimaryFont = false;
+        bool hasSystemFont = false;
 
-        // Add primary font first
+        if (!string.IsNullOrWhiteSpace(systemFontFamily))
+        {
+#if WINFORMS
+            if (WindowsSystemFontLoader.TryLoadFontData(systemFontFamily, systemFontStyle, out byte[] fontData, out string errorMessage))
+            {
+                try
+                {
+                    fontSystem.AddFont(fontData);
+                    Logger.Log($"FontManager: Font{fontIndex} - Added system font: {systemFontFamily} ({systemFontStyle})");
+                    hasPrimaryFont = true;
+                    hasSystemFont = true;
+                }
+                catch (Exception ex)
+                {
+                    Logger.Log($"FontManager: Font{fontIndex} - Failed to load system font {systemFontFamily} ({systemFontStyle}): {ex.Message}");
+                }
+            }
+            else
+            {
+                Logger.Log($"FontManager: Font{fontIndex} - Failed to load system font {systemFontFamily} ({systemFontStyle}): {errorMessage}");
+            }
+#else
+            Logger.Log($"FontManager: Font{fontIndex} - System font {systemFontFamily} is unavailable on this platform; trying file fallbacks");
+#endif
+        }
+
+        // A Path on a SystemFont entry acts as the first file fallback. On a regular
+        // TrueType entry it remains the primary font, preserving existing behavior.
         if (!string.IsNullOrEmpty(primaryFontPath))
         {
             string fullPath = SafePath.GetFile(searchPath, primaryFontPath).FullName;
@@ -312,7 +350,8 @@ public static class FontManager
                 try
                 {
                     fontSystem.AddFont(File.ReadAllBytes(fullPath));
-                    Logger.Log($"FontManager: Font{fontIndex} - Added primary font: {primaryFontPath}");
+                    string fontRole = hasPrimaryFont ? "file fallback" : "primary font";
+                    Logger.Log($"FontManager: Font{fontIndex} - Added {fontRole}: {primaryFontPath}");
                     hasPrimaryFont = true;
                 }
                 catch (Exception ex)
@@ -350,7 +389,14 @@ public static class FontManager
         if (hasPrimaryFont || fallbacksAdded > 0)
         {
             fonts.Add(new TTFFontWrapper(fontSystem.GetFont(size)));
-            string primaryInfo = hasPrimaryFont ? $"primary: {Path.GetFileName(primaryFontPath)}" : "no primary";
+            string primaryInfo;
+            if (hasSystemFont)
+                primaryInfo = $"system font: {systemFontFamily} ({systemFontStyle})";
+            else if (hasPrimaryFont)
+                primaryInfo = $"primary: {Path.GetFileName(primaryFontPath)}";
+            else
+                primaryInfo = "no primary";
+
             Logger.Log($"FontManager: Created FontIndex {fonts.Count - 1}: TrueType size {size} ({primaryInfo}, {fallbacksAdded} fallbacks)");
         }
         else
