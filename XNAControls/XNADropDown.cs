@@ -48,6 +48,12 @@ public class XNADropDown : XNAControl
     /// </summary>
     public int ItemHeight { get; set; }
 
+    public int? BorderThickness
+    {
+        get => field ?? UISettings.ActiveSettings.BorderThickness;
+        set => field = value;
+    }
+
     public List<XNADropDownItem> Items = new List<XNADropDownItem>();
 
     /// <summary>
@@ -517,7 +523,7 @@ public class XNADropDown : XNAControl
 
         FillRectangle(new Rectangle(dropDownRect.X + 1, dropDownRect.Y + 1,
             dropDownRect.Width - 2, dropDownRect.Height - 2), BackColor);
-        DrawRectangle(dropDownRect, BorderColor);
+        DrawRectangle(dropDownRect, BorderColor, BorderThickness.Value);
 
         if (SelectedIndex > -1 && SelectedIndex < Items.Count)
         {
