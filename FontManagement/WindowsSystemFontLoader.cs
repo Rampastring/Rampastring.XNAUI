@@ -2,16 +2,19 @@
 using System;
 using System.Drawing;
 using System.Drawing.Text;
+using System.IO;
 using System.Runtime.InteropServices;
+using Microsoft.Win32;
 
 namespace Rampastring.XNAUI.FontManagement;
 
 /// <summary>
-/// Loads the raw data of an installed Windows font through GDI without redistributing
-/// the font file with the application.
+/// Loads the raw data of an installed Windows font through GDI or the Windows font
+/// registration without redistributing the font file with the application.
 /// </summary>
 internal static class WindowsSystemFontLoader
 {
+    private const string FontsRegistryPath = @"SOFTWARE\Microsoft\Windows NT\CurrentVersion\Fonts";
     private const uint GdiError = uint.MaxValue;
     private const FontStyle SupportedStyles = FontStyle.Bold | FontStyle.Italic;
 
@@ -32,12 +35,31 @@ internal static class WindowsSystemFontLoader
             return false;
         }
 
+        if (TryLoadFontDataThroughGdi(familyName.Trim(), style, out fontData, out string gdiErrorMessage))
+            return true;
+
+        // GDI+ does not expose every registered font under its Windows registration name.
+        // For example, "Segoe UI Variable" is exposed as separate Text, Display, and Small
+        // families. Fall back to the font registration so these fonts can still be loaded.
+        if (TryLoadRegisteredFontData(familyName.Trim(), style, out fontData, out string registryErrorMessage))
+            return true;
+
+        errorMessage = $"{gdiErrorMessage} {registryErrorMessage}";
+        return false;
+    }
+
+    private static bool TryLoadFontDataThroughGdi(string familyName, FontStyle style, out byte[] fontData,
+        out string errorMessage)
+    {
+        fontData = null;
+        errorMessage = null;
+
         using var installedFonts = new InstalledFontCollection();
         FontFamily selectedFamily = null;
 
         foreach (FontFamily installedFamily in installedFonts.Families)
         {
-            if (string.Equals(installedFamily.Name, familyName.Trim(), StringComparison.OrdinalIgnoreCase))
+            if (string.Equals(installedFamily.Name, familyName, StringComparison.OrdinalIgnoreCase))
             {
                 selectedFamily = installedFamily;
                 break;
@@ -66,6 +88,102 @@ internal static class WindowsSystemFontLoader
             errorMessage = ex.Message;
             return false;
         }
+    }
+
+    private static bool TryLoadRegisteredFontData(string familyName, FontStyle style, out byte[] fontData,
+        out string errorMessage)
+    {
+        fontData = null;
+        errorMessage = null;
+
+        string registeredFontName = GetRegisteredFontName(familyName, style);
+        RegistryHive[] registryHives = [RegistryHive.CurrentUser, RegistryHive.LocalMachine];
+        RegistryView[] registryViews = Environment.Is64BitOperatingSystem
+            ? [RegistryView.Registry64, RegistryView.Registry32]
+            : [RegistryView.Registry32];
+
+        foreach (RegistryHive registryHive in registryHives)
+        {
+            foreach (RegistryView registryView in registryViews)
+            {
+                try
+                {
+                    using RegistryKey baseKey = RegistryKey.OpenBaseKey(registryHive, registryView);
+                    using RegistryKey fontsKey = baseKey.OpenSubKey(FontsRegistryPath);
+                    if (fontsKey == null)
+                        continue;
+
+                    foreach (string valueName in fontsKey.GetValueNames())
+                    {
+                        if (!string.Equals(RemoveFontTechnologySuffix(valueName), registeredFontName,
+                            StringComparison.OrdinalIgnoreCase))
+                        {
+                            continue;
+                        }
+
+                        if (fontsKey.GetValue(valueName) is not string registeredPath)
+                            continue;
+
+                        foreach (string fontPath in GetPossibleFontPaths(registeredPath, registryHive))
+                        {
+                            if (!File.Exists(fontPath))
+                                continue;
+
+                            fontData = File.ReadAllBytes(fontPath);
+                            return true;
+                        }
+                    }
+                }
+                catch (Exception ex) when (ex is IOException || ex is UnauthorizedAccessException ||
+                                           ex is System.Security.SecurityException)
+                {
+                    errorMessage = ex.Message;
+                }
+            }
+        }
+
+        errorMessage ??= $"No installed font registration named '{registeredFontName}' was found.";
+        return false;
+    }
+
+    private static string GetRegisteredFontName(string familyName, FontStyle style)
+    {
+        if (style == FontStyle.Regular)
+            return familyName;
+
+        if (style == (FontStyle.Bold | FontStyle.Italic))
+            return $"{familyName} Bold Italic";
+
+        return $"{familyName} {style}";
+    }
+
+    private static string RemoveFontTechnologySuffix(string registryValueName)
+    {
+        string name = registryValueName.TrimEnd().TrimEnd(';').TrimEnd();
+        int suffixStart = name.LastIndexOf(" (", StringComparison.Ordinal);
+
+        return suffixStart >= 0 && name.EndsWith(")", StringComparison.Ordinal)
+            ? name.Substring(0, suffixStart)
+            : name;
+    }
+
+    private static string[] GetPossibleFontPaths(string registeredPath, RegistryHive registryHive)
+    {
+        string expandedPath = Environment.ExpandEnvironmentVariables(registeredPath.Trim().Trim('"'));
+        if (Path.IsPathRooted(expandedPath))
+            return [expandedPath];
+
+        string systemFontsPath = Environment.GetFolderPath(Environment.SpecialFolder.Fonts);
+        if (registryHive == RegistryHive.CurrentUser)
+        {
+            string userFontsPath = Path.Combine(
+                Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+                "Microsoft", "Windows", "Fonts");
+
+            return [Path.Combine(userFontsPath, expandedPath), Path.Combine(systemFontsPath, expandedPath)];
+        }
+
+        return [Path.Combine(systemFontsPath, expandedPath)];
     }
 
     private static bool TryReadFontData(Font font, out byte[] fontData, out string errorMessage)
