@@ -62,6 +62,10 @@ public class UISettings
 
     public Color PanelBorderColor { get; set; } = new Color(196, 196, 196);
 
+    public Color WindowActiveBorderColor { get; set; } = new Color(222, 222, 222);
+
+    public Color WindowInactiveBorderColor { get; set; } = new Color(64, 64, 64);
+
     public Texture2D CheckBoxCheckedTexture { get; set; }
 
     public Texture2D CheckBoxClearTexture { get; set; }
@@ -74,9 +78,15 @@ public class UISettings
     public int? ContextMenuDefaultItemHeight { get; set; }
     public int? TextBoxDefaultHeight { get; set; }
 
-    public float DefaultAlphaRate = 0.005f;
+    public float DefaultAlphaRate { get; set; } = 0.005f;
 
-    public float CheckBoxAlphaRate = 0.05f;
+    public float CheckBoxAlphaRate { get; set; } = 0.05f;
 
-    public float IndicatorAlphaRate = 0.05f;
+    public float IndicatorAlphaRate { get; set; } = 0.05f;
+
+    public float WindowAppearingRate { get; set; } = 0.9f;
+
+    public float WindowDisappearingRate { get; set; } = 1.0f;
+
+    public int BorderThickness { get; set; } = 1;
 }

@@ -49,6 +49,11 @@ public class XNAControl : DrawableGameComponent
     #region Events
 
     /// <summary>
+    /// Raised when the control has been initialized.
+    /// </summary>
+    public event EventHandler OnInitialized;
+
+    /// <summary>
     /// Raised when the mouse cursor enters the control's area.
     /// </summary>
     public event EventHandler MouseEnter;
@@ -980,6 +985,8 @@ public class XNAControl : DrawableGameComponent
 
         Initialized = true;
         _initScaling = _scaling;
+
+        OnInitialized?.Invoke(this, EventArgs.Empty);
     }
 
     protected override void OnEnabledChanged(object sender, EventArgs args)
