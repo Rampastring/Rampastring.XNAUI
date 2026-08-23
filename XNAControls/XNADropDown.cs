@@ -27,6 +27,7 @@ public class XNADropDown : XNAControl
     {
         ItemHeight = UISettings.ActiveSettings.DropDownDefaultItemHeight.GetValueOrDefault((int)FontManager.GetTextDimensions("Test String @", FontIndex).Y + 1);
         Height = ItemHeight + 2;
+        HandlesDragging = true;
     }
 
     public delegate void SelectedIndexChangedEventHandler(object sender, EventArgs e);
