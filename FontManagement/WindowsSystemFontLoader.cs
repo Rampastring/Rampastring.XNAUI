@@ -14,9 +14,19 @@ namespace Rampastring.XNAUI.FontManagement;
 /// </summary>
 internal static class WindowsSystemFontLoader
 {
+    // Unfortunately, System.Drawing's FontStyle enum does not have the Semibold value, so we had to introduce our own enum.
+    [Flags]
+    private enum SystemFontStyle
+    {
+        Regular = 0,
+        Bold = 1,
+        Italic = 2,
+        Semibold = 4
+    }
+
     private const string FontsRegistryPath = @"SOFTWARE\Microsoft\Windows NT\CurrentVersion\Fonts";
     private const uint GdiError = uint.MaxValue;
-    private const FontStyle SupportedStyles = FontStyle.Bold | FontStyle.Italic;
+    private const SystemFontStyle SupportedStyles = SystemFontStyle.Bold | SystemFontStyle.Italic | SystemFontStyle.Semibold;
 
     public static bool TryLoadFontData(string familyName, string styleName, out byte[] fontData, out string errorMessage)
     {
@@ -29,19 +39,26 @@ internal static class WindowsSystemFontLoader
             return false;
         }
 
-        if (!Enum.TryParse(styleName, true, out FontStyle style) || (style & ~SupportedStyles) != 0)
+        if (!Enum.TryParse(styleName, true, out SystemFontStyle style) ||
+            (style & ~SupportedStyles) != 0 ||
+            (style & (SystemFontStyle.Bold | SystemFontStyle.Semibold)) ==
+            (SystemFontStyle.Bold | SystemFontStyle.Semibold))
         {
-            errorMessage = $"Unknown font style '{styleName}'. Supported values are Regular, Bold, Italic.";
+            errorMessage = $"Unknown font style '{styleName}'. Supported values are Regular, Semibold, Bold, Italic, 'Semibold, Italic', and 'Bold, Italic'.";
             return false;
         }
 
-        if (TryLoadFontDataThroughGdi(familyName.Trim(), style, out fontData, out string gdiErrorMessage))
+        string trimmedFamilyName = familyName.Trim();
+        string gdiFamilyName = GetGdiFontFamilyName(trimmedFamilyName, style);
+        FontStyle gdiStyle = GetGdiFontStyle(style);
+
+        if (TryLoadFontDataThroughGdi(gdiFamilyName, gdiStyle, out fontData, out string gdiErrorMessage))
             return true;
 
         // GDI+ does not expose every registered font under its Windows registration name.
         // For example, "Segoe UI Variable" is exposed as separate Text, Display, and Small
         // families. Fall back to the font registration so these fonts can still be loaded.
-        if (TryLoadRegisteredFontData(familyName.Trim(), style, out fontData, out string registryErrorMessage))
+        if (TryLoadRegisteredFontData(trimmedFamilyName, style, out fontData, out string registryErrorMessage))
             return true;
 
         errorMessage = $"{gdiErrorMessage} {registryErrorMessage}";
@@ -90,7 +107,7 @@ internal static class WindowsSystemFontLoader
         }
     }
 
-    private static bool TryLoadRegisteredFontData(string familyName, FontStyle style, out byte[] fontData,
+    private static bool TryLoadRegisteredFontData(string familyName, SystemFontStyle style, out byte[] fontData,
         out string errorMessage)
     {
         fontData = null;
@@ -146,15 +163,39 @@ internal static class WindowsSystemFontLoader
         return false;
     }
 
-    private static string GetRegisteredFontName(string familyName, FontStyle style)
+    private static string GetGdiFontFamilyName(string familyName, SystemFontStyle style)
     {
-        if (style == FontStyle.Regular)
-            return familyName;
+        return (style & SystemFontStyle.Semibold) != 0
+            ? $"{familyName} Semibold"
+            : familyName;
+    }
 
-        if (style == (FontStyle.Bold | FontStyle.Italic))
-            return $"{familyName} Bold Italic";
+    private static FontStyle GetGdiFontStyle(SystemFontStyle style)
+    {
+        FontStyle gdiStyle = FontStyle.Regular;
 
-        return $"{familyName} {style}";
+        if ((style & SystemFontStyle.Bold) != 0)
+            gdiStyle |= FontStyle.Bold;
+
+        if ((style & SystemFontStyle.Italic) != 0)
+            gdiStyle |= FontStyle.Italic;
+
+        return gdiStyle;
+    }
+
+    private static string GetRegisteredFontName(string familyName, SystemFontStyle style)
+    {
+        string registeredFontName = familyName;
+
+        if ((style & SystemFontStyle.Semibold) != 0)
+            registeredFontName += " Semibold";
+        else if ((style & SystemFontStyle.Bold) != 0)
+            registeredFontName += " Bold";
+
+        if ((style & SystemFontStyle.Italic) != 0)
+            registeredFontName += " Italic";
+
+        return registeredFontName;
     }
 
     private static string RemoveFontTechnologySuffix(string registryValueName)
