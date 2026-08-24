@@ -3,7 +3,6 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 #if WINFORMS
 using Rampastring.XNAUI.Input;
-using TextCopy;
 #endif
 using System;
 using System.Collections.Generic;
@@ -305,10 +304,10 @@ public class XNAListBox : XNAPanel
     {
         switch (key)
         {
-            case "EnableScrollbar":
+            case nameof(EnableScrollbar):
                 EnableScrollbar = Conversions.BooleanFromString(value, true);
                 return;
-            case "DrawSelectionUnderScrollbar":
+            case nameof(DrawSelectionUnderScrollbar):
                 DrawSelectionUnderScrollbar = Conversions.BooleanFromString(value, true);
                 return;
             case nameof(AllowMultiLineItems):
@@ -465,7 +464,7 @@ public class XNAListBox : XNAPanel
         if (textLines.Count == 1)
         {
             Vector2 textSize = Renderer.GetTextDimensions(textLines[0], FontIndex);
-            listBoxItem.TextYPadding = (LineHeight - (int)textSize.Y) / 2;
+            listBoxItem.TextYPadding = Renderer.GetSingleLineTextYPadding(FontIndex, LineHeight);
 
             if (listBoxItem.IsHeader)
             {
