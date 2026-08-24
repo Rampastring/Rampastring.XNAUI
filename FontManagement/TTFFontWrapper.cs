@@ -22,8 +22,15 @@ public class TTFFontWrapper : IFont
 
     public Vector2 MeasureString(string text)
     {
-        var bounds = _font.MeasureString(GetSafeString(text));
-        return new Vector2(bounds.X, bounds.Y);
+        text = GetSafeString(text);
+        var measuredSize = _font.MeasureString(text);
+
+        // FontStashSharp reports the bottom of the lowest glyph as the Y dimension,
+        // making equally formatted strings have different heights depending on their
+        // characters. Use the font's line height to match SpriteFont.MeasureString and
+        // keep text parts on a shared line aligned to the same draw origin.
+        int height = text.Length == 0 ? 0 : _font.LineHeight * (text.Count(static c => c == '\n') + 1);
+        return new Vector2(measuredSize.X, height);
     }
 
     /// <summary>
