@@ -1,6 +1,4 @@
-﻿using Rampastring.Tools.IniSettings;
-using Rampastring.XNAUI.XNAControls;
-using SharpDX.DirectWrite;
+﻿using Rampastring.XNAUI.XNAControls;
 using System;
 using System.Collections.Generic;
 using System.Reflection;
