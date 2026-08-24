@@ -1,4 +1,6 @@
-﻿using Rampastring.XNAUI.XNAControls;
+﻿using Rampastring.Tools.IniSettings;
+using Rampastring.XNAUI.XNAControls;
+using SharpDX.DirectWrite;
 using System;
 using System.Collections.Generic;
 using System.Reflection;
@@ -64,6 +66,32 @@ public class XNAWindowController : IWindowController
     protected XNAControl ForegroundWindow { get; set; }
 
     public bool IsWindowForeground(XNAControl window) => ForegroundWindow == window;
+
+
+    /// <summary>
+    /// Automatically fetches all members of this class instance that derive from
+    /// <see cref="XNAWindow"/> and registers them as windows of this instance.
+    /// </summary>
+    /// <remarks>Properties that are null at the time of calling this are ignored.
+    ///
+    /// The property must have a public getter.</remarks>
+    protected void PopulateWithReflection()
+    {
+        var type = GetType();
+        var propertyInfos = type.GetProperties();
+
+        foreach (var property in propertyInfos)
+        {
+            var propertyType = property.PropertyType;
+
+            if (!typeof(XNAWindow).IsAssignableFrom(propertyType))
+                continue;
+
+            var windowInstance = property.GetValue(this);
+            if (windowInstance != null)
+                RegisterWindow((XNAWindow)windowInstance);
+        }
+    }
 
     public void RegisterWindow<T>(T window) where T : XNAControl, IWindow
     {
