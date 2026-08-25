@@ -22,7 +22,6 @@ public class TTFFontWrapper : IFont
 
     public Vector2 MeasureString(string text)
     {
-        text = GetSafeString(text);
         var measuredSize = _font.MeasureString(text);
 
         // FontStashSharp reports the bottom of the lowest glyph as the Y dimension,
