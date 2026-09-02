@@ -54,6 +54,11 @@ public class XNAControl : DrawableGameComponent
     public event EventHandler OnInitialized;
 
     /// <summary>
+    /// Raised when the control has been killed.
+    /// </summary>
+    public event EventHandler OnKilled;
+
+    /// <summary>
     /// Raised when the mouse cursor enters the control's area.
     /// </summary>
     public event EventHandler MouseEnter;
@@ -1228,6 +1233,7 @@ public class XNAControl : DrawableGameComponent
         childrenCopy.ForEach(RemoveChild);
 
         Killed = true;
+        OnKilled?.Invoke(this, EventArgs.Empty);
     }
 
     public virtual void RefreshSize()
