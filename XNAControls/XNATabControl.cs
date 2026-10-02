@@ -4,8 +4,19 @@ using Rampastring.Tools;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.Linq;
 
 namespace Rampastring.XNAUI.XNAControls;
+
+public class TabEventArgs : EventArgs
+{
+    public TabEventArgs(Tab tab)
+    {
+        Tab = tab;
+    }
+
+    public Tab Tab { get; }
+}
 
 /// <summary>
 /// A control that has multiple tabs, of which only one can be selected at a time.
@@ -17,10 +28,11 @@ public class XNATabControl : XNAControl
     }
 
     public delegate void SelectedIndexChangedEventHandler(object sender, EventArgs e);
-    public event SelectedIndexChangedEventHandler SelectedIndexChanged;
+    public event EventHandler<TabEventArgs> SelectedTabChanged;
+    public event EventHandler<TabEventArgs> HoveredTabChanged;
 
-    private int _selectedTab = 0;
-    public int SelectedTab
+    private Tab _selectedTab = null;
+    public Tab SelectedTab
     {
         get => _selectedTab;
         set
@@ -29,8 +41,21 @@ public class XNATabControl : XNAControl
                 return;
 
             _selectedTab = value;
+            SelectedTabChanged?.Invoke(this, new TabEventArgs(_selectedTab));
+        }
+    }
 
-            SelectedIndexChanged?.Invoke(this, EventArgs.Empty);
+    private Tab _hoveredTab = null;
+    public Tab HoveredTab
+    {
+        get => _hoveredTab;
+        set
+        {
+            if (_hoveredTab == value)
+                return;
+
+            _hoveredTab = value;
+            HoveredTabChanged?.Invoke(this, new TabEventArgs(_hoveredTab));
         }
     }
 
@@ -54,8 +79,9 @@ public class XNATabControl : XNAControl
         set => _textColorDisabled = value;
     }
 
-    private List<Tab> Tabs = new List<Tab>();
+    public List<Tab> Tabs { get; set; } = new List<Tab>();
 
+    public EnhancedSoundEffect HoverSound { get; set; }
     public EnhancedSoundEffect ClickSound { get; set; }
 
     public override void Initialize()
@@ -63,32 +89,42 @@ public class XNATabControl : XNAControl
         base.Initialize();
     }
 
-    public void MakeSelectable(int index)
-    {
-        Tabs[index].Selectable = true;
-    }
-
-    public void MakeUnselectable(int index)
-    {
-        Tabs[index].Selectable = false;
-    }
-
     public void RemoveTab(int index)
     {
-        if (DisposeTexturesOnTabRemove)
-        {
-            Tabs[index].DefaultTexture.Dispose();
-            Tabs[index].PressedTexture.Dispose();
-        }
+        if (index < 0 || index >= Tabs.Count)
+            throw new ArgumentOutOfRangeException($"{nameof(RemoveTab)}: Tab index out of range: {index}");
 
-        Tabs.RemoveAt(index);
+        Tab tab = Tabs[index];
+        RemoveTab(tab);
     }
 
     public void RemoveTab(string text)
     {
-        int index = Tabs.FindIndex(t => t.Text == text);
+        Tab tab = Tabs.Find(t => t.Text == text);
+        if (tab != null)
+            RemoveTab(tab);
+    }
 
-        Tabs.RemoveAt(index);
+    public void RemoveTab(Tab tab)
+    {
+        if (!Tabs.Contains(tab))
+            throw new ArgumentException("The given tab does not belong to this tab control!");
+
+        if (DisposeTexturesOnTabRemove)
+        {
+            tab.DefaultTexture.Dispose();
+            tab.PressedTexture.Dispose();
+        }
+
+        Tabs.Remove(tab);
+
+        Width = Tabs.Sum(t => t.Width);
+
+        if (SelectedTab == tab)
+            SelectedTab = null;
+
+        if (HoveredTab == tab)
+            HoveredTab = null;
     }
 
     public void AddTab(string text, Texture2D defaultTexture, Texture2D pressedTexture)
@@ -133,33 +169,69 @@ public class XNATabControl : XNAControl
         base.ParseControlINIAttribute(iniFile, key, value);
     }
 
-    public override void OnLeftClick(InputEventArgs inputEventArgs)
+    private Tab GetTabOnCursor()
     {
-        base.OnLeftClick(inputEventArgs);
-        inputEventArgs.Handled = true;
-
         Point p = GetCursorPoint();
+        if (p.Y < 0 || p.Y >= Height)
+            return null;
 
         int w = 0;
-        int i = 0;
         foreach (Tab tab in Tabs)
         {
-            w += tab.DefaultTexture.Width;
+            w += tab.Width;
 
             if (p.X < w)
             {
-                if (tab.Selectable)
-                {
-                    ClickSound?.Play();
-
-                    SelectedTab = i;
-                }
-
-                return;
+                return tab;
             }
-
-            i++;
         }
+
+        return null;
+    }
+
+    public override void OnLeftClick(InputEventArgs inputEventArgs)
+    {
+        inputEventArgs.Handled = true;
+        Tab tabOnCursor = GetTabOnCursor();
+        if (tabOnCursor != null && tabOnCursor.Selectable)
+        {
+            SelectedTab = tabOnCursor;
+            ClickSound?.Play();
+        }
+
+        base.OnLeftClick(inputEventArgs);
+    }
+
+    public override void OnMouseMove()
+    {
+        Tab newHoveredTab = GetTabOnCursor();
+        if (newHoveredTab != HoveredTab)
+        {
+            HoveredTab = newHoveredTab;
+            if (HoveredTab != null && HoveredTab.Selectable)
+            {
+                HoverSound?.Play();
+            }
+        }
+
+        base.OnMouseMove();
+    }
+
+    public override void OnMouseLeave()
+    {
+        HoveredTab = null;
+        base.OnMouseLeave();
+    }
+
+    public virtual void DrawTab(GameTime gameTime, int x, Tab tab)
+    {
+        Texture2D texture = tab == SelectedTab ? tab.PressedTexture : tab.DefaultTexture;
+
+        DrawTexture(texture, new Point(x, 0), RemapColor);
+
+        DrawStringWithShadow(tab.Text, FontIndex,
+            new Vector2(x + tab.TextXPosition, tab.TextYPosition),
+            tab.Selectable && Enabled ? TextColor : TextColorDisabled);
     }
 
     public override void Draw(GameTime gameTime)
@@ -169,21 +241,13 @@ public class XNATabControl : XNAControl
         for (int i = 0; i < Tabs.Count; i++)
         {
             Tab tab = Tabs[i];
-
-            Texture2D texture = i == SelectedTab ? tab.PressedTexture : tab.DefaultTexture;
-
-            DrawTexture(texture, new Point(x, 0), RemapColor);
-
-            DrawStringWithShadow(tab.Text, FontIndex,
-                new Vector2(x + tab.TextXPosition, tab.TextYPosition),
-                tab.Selectable && Enabled ? TextColor : TextColorDisabled);
-
-            x += tab.DefaultTexture.Width;
+            DrawTab(gameTime, x, tab);
+            x += tab.Width;
         }
     }
 }
 
-internal class Tab
+public class Tab
 {
     public Tab() { }
 
@@ -194,6 +258,11 @@ internal class Tab
         PressedTexture = pressedTexture;
         Selectable = selectable;
     }
+
+    /// <summary>
+    /// The width of the tab based on the tab's texture.
+    /// </summary>
+    public int Width => DefaultTexture.Width;
 
     public Texture2D DefaultTexture { get; set; }
 
@@ -206,4 +275,6 @@ internal class Tab
     public int TextXPosition { get; set; }
 
     public int TextYPosition { get; set; }
+
+    public object Tag { get; set;  }
 }
