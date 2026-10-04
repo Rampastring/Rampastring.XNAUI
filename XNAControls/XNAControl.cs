@@ -1,13 +1,13 @@
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
+using Rampastring.Tools;
+using Rampastring.XNAUI.Extensions;
+using Rampastring.XNAUI.Input;
 using System;
 using System.Collections.Generic;
-using Rampastring.Tools;
-using Rampastring.XNAUI.Input;
 using System.Collections.ObjectModel;
-using System.Linq;
-using Microsoft.Xna.Framework.Graphics;
 using System.Globalization;
-using Rampastring.XNAUI.Extensions;
+using System.Linq;
 
 namespace Rampastring.XNAUI.XNAControls;
 
@@ -479,12 +479,23 @@ public class XNAControl : DrawableGameComponent
             if (WindowManager.ActiveControl == null)
                 return false;
 
-            if (WindowManager.ActiveControl.Detached)
-                return false;
+            // Check if we are a parent of the active control. If yes, consider us active too,
+            // unless the active control is a child of our own detached child.
+            var control = WindowManager.ActiveControl;
+            while (control != null)
+            {
+                if (control.Detached)
+                    return false;
 
-            return IsParentOf(WindowManager.ActiveControl);
+                if (control.Parent == this)
+                    return true;
+
+                control = control.Parent;
+            }
+
+            return false;
         }
-        internal set 
+        internal set
         {
             if (value == true)
                 WindowManager.ActiveControl = this;
