@@ -29,19 +29,77 @@ public class XNATabControl : XNAControl
 
     public delegate void SelectedIndexChangedEventHandler(object sender, EventArgs e);
     public event EventHandler<TabEventArgs> SelectedTabChanged;
+    public event EventHandler SelectedIndexChanged;
     public event EventHandler<TabEventArgs> HoveredTabChanged;
 
-    private Tab _selectedTab = null;
-    public Tab SelectedTab
+    private int _selectedTabIndex = -1;
+    private int _selectedIndexChangeDepth;
+
+    private void FireSelectedIndexChangedEvent()
     {
-        get => _selectedTab;
+        _selectedIndexChangeDepth++;
+        try
+        {
+            SelectedIndexChanged?.Invoke(this, EventArgs.Empty);
+        }
+        finally
+        {
+            _selectedIndexChangeDepth--;
+        }
+    }
+
+    public int SelectedTabIndex
+    {
+        get => _selectedTabIndex;
         set
         {
-            if (_selectedTab == value)
+            if (value >= Tabs.Count || value < -1)
+                value = -1; // Normalize "not selected" as -1
+
+            if (value == _selectedTabIndex)
                 return;
 
-            _selectedTab = value;
-            SelectedTabChanged?.Invoke(this, new TabEventArgs(_selectedTab));
+            Tab previousTab = SelectedTab;
+            _selectedTabIndex = value;
+
+            // Properly handle cases where the handler of a tab-selection event changes the tab.
+            // Only the "outermost" tab change emits SelectedTabChanged.
+            FireSelectedIndexChangedEvent();
+
+            if (_selectedIndexChangeDepth != 0)
+                return;
+
+            Tab newTab = SelectedTab;
+            if (previousTab != newTab)
+                SelectedTabChanged?.Invoke(this, new TabEventArgs(newTab));
+        }
+    }
+
+    public Tab SelectedTab
+    {
+        get
+        {
+            if (_selectedTabIndex < 0 || _selectedTabIndex >= Tabs.Count)
+                return null;
+
+            return Tabs[_selectedTabIndex];
+        }
+        set
+        {
+            if (value == null)
+            {
+                SelectedTabIndex = -1;
+                return;
+            }
+
+            int tabIndex = Tabs.IndexOf(value);
+            if (tabIndex < 0)
+                throw new InvalidOperationException("Attempted to select a tab that is not part of this TabControl.");
+
+            if (tabIndex == SelectedTabIndex)
+                return;
+
+            SelectedTabIndex = tabIndex;
         }
     }
 
@@ -105,9 +163,23 @@ public class XNATabControl : XNAControl
             RemoveTab(tab);
     }
 
+    private void FireSelectedTabChangedEvent(Tab previousTab)
+    {
+        if (_selectedIndexChangeDepth == 0)
+        {
+            if (SelectedTab != previousTab)
+                SelectedTabChanged?.Invoke(this, new TabEventArgs(SelectedTab));
+        }
+    }
+
     public void RemoveTab(Tab tab)
     {
-        if (!Tabs.Contains(tab))
+        int index = Tabs.IndexOf(tab);
+
+        if (tab == null)
+            throw new ArgumentNullException(nameof(tab));
+
+        if (index < 0)
             throw new ArgumentException("The given tab does not belong to this tab control!");
 
         if (DisposeTexturesOnTabRemove)
@@ -116,25 +188,48 @@ public class XNATabControl : XNAControl
             tab.PressedTexture.Dispose();
         }
 
-        Tabs.Remove(tab);
+        // Record selection state. Only fire event handlers after the removal has been completed,
+        // so there's no order-of-operation issues if an event handler wants to change to another tab.
+        bool decrementSelectedTab = false;
 
-        Width = Tabs.Sum(t => t.Width);
+        Tab previousTab = SelectedTab;
 
-        if (SelectedTab == tab)
-            SelectedTab = null;
+        if (SelectedTabIndex >= index)
+            decrementSelectedTab = true;
+
+        Tabs.RemoveAt(index);
+
+        if (previousTab == tab)
+        {
+            _selectedTabIndex = -1;
+            FireSelectedIndexChangedEvent();
+            FireSelectedTabChangedEvent(previousTab);
+        }
+        else if (decrementSelectedTab)
+        {
+            _selectedTabIndex--;
+            FireSelectedIndexChangedEvent();
+            FireSelectedTabChangedEvent(previousTab);
+        }
 
         if (HoveredTab == tab)
             HoveredTab = null;
+
+        Width = Tabs.Sum(t => t.Width);
     }
 
     public void AddTab(string text, Texture2D defaultTexture, Texture2D pressedTexture)
     {
-        AddTab(text, defaultTexture, pressedTexture, true);
+        AddTab(text, defaultTexture, pressedTexture, true, null);
     }
 
-    public void AddTab(string text, Texture2D defaultTexture, Texture2D pressedTexture, bool selectable)
+    public void AddTab(string text, Texture2D defaultTexture, Texture2D pressedTexture, bool selectable, object tag)
     {
+        if (defaultTexture == null)
+            throw new ArgumentNullException($"{nameof(AddTab)} requires a default texture to be specified.");
+
         var tab = new Tab(text, defaultTexture, pressedTexture, selectable);
+        tab.Tag = tag;
         Tabs.Add(tab);
 
         Vector2 textSize = Renderer.GetTextDimensions(text, FontIndex);
@@ -143,6 +238,17 @@ public class XNATabControl : XNAControl
 
         Width += defaultTexture.Width;
         Height = defaultTexture.Height;
+    }
+
+    public void AddTab(Tab tab)
+    {
+        if (tab == null)
+            throw new ArgumentNullException(nameof(tab));
+
+        Tabs.Add(tab);
+        Width += tab.Width;
+        if (tab.DefaultTexture != null && Height < tab.DefaultTexture.Height)
+            Height = tab.DefaultTexture.Height;
     }
 
     protected override void ParseControlINIAttribute(IniFile iniFile, string key, string value)
