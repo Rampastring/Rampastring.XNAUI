@@ -105,6 +105,25 @@ public class XNAScrollPanel : XNAPanel
         }
     }
 
+    private bool _includeHiddenChildrenInContentSize = true;
+
+    /// <summary>
+    /// Determines whether children with <see cref="DrawableGameComponent.Visible"/> set to
+    /// false are taken into account when calculating the size of the scroll panel's content.
+    /// </summary>
+    public bool IncludeHiddenChildrenInContentSize
+    {
+        get => _includeHiddenChildrenInContentSize;
+        set
+        {
+            if (_includeHiddenChildrenInContentSize != value)
+            {
+                _includeHiddenChildrenInContentSize = value;
+                RecalculateContentSize();
+            }
+        }
+    }
+
     #endregion
     
     /// <summary>
@@ -245,7 +264,9 @@ public class XNAScrollPanel : XNAPanel
         // this is needed because some of the children may be removed after ChildRemoved
         // handler was removed, thus the subscription won't be removed otherwise
         foreach (var child in ContentPanel.Children)
-            child.ClientRectangleUpdated -= ChildControl_ClientRectangleUpdated;
+        {
+            UnsubscribeFromChildControlEvents(child);
+        }
 
         // don't allow to dispose the cached generic texture
         if (CornerPanel.BackgroundTexture.Name == CORNER_TEXTURE_FILENAME)
@@ -259,7 +280,7 @@ public class XNAScrollPanel : XNAPanel
         switch (key)
         {
             case "AllowKeyboardInput":
-                AllowKeyboardInput = Conversions.BooleanFromString(value, true);
+                AllowKeyboardInput = Conversions.BooleanFromString(value, AllowKeyboardInput);
                 return;
             case "AllowScroll":
                 string[] arr = value.Split(',');
@@ -294,6 +315,9 @@ public class XNAScrollPanel : XNAPanel
                 return;
             case "Padding":  // padding is invalid for this control
                 return;
+            case nameof(IncludeHiddenChildrenInContentSize):
+                IncludeHiddenChildrenInContentSize = Conversions.BooleanFromString(value, IncludeHiddenChildrenInContentSize);
+                return;
         }
 
         base.ParseControlINIAttribute(iniFile, key, value);
@@ -320,16 +344,23 @@ public class XNAScrollPanel : XNAPanel
             RecalculateContentSize();
 
         e.Control.ClientRectangleUpdated += ChildControl_ClientRectangleUpdated;
+        e.Control.VisibleChanged += ChildControl_VisibleChanged;
     }
-    
-    void ChildControl_ClientRectangleUpdated(object sender, EventArgs args)
-        => RecalculateContentSize();
+
+    private void ChildControl_VisibleChanged(object sender, EventArgs e) => RecalculateContentSize();
+
+    private void ChildControl_ClientRectangleUpdated(object sender, EventArgs args) => RecalculateContentSize();
 
     private void ContentPanel_ChildRemoved(object o, ControlEventArgs e)
     {
         RecalculateContentSize();
+        UnsubscribeFromChildControlEvents(e.Control);
+    }
 
-        e.Control.ClientRectangleUpdated -= ChildControl_ClientRectangleUpdated;
+    private void UnsubscribeFromChildControlEvents(XNAControl child)
+    {
+        child.ClientRectangleUpdated -= ChildControl_ClientRectangleUpdated;
+        child.VisibleChanged -= ChildControl_VisibleChanged;
     }
 
     #endregion
@@ -456,6 +487,7 @@ public class XNAScrollPanel : XNAPanel
     {
         // TODO profile and perhaps optimize this via sorted array of max control sizes
         Point contentSize = ContentPanel.Children
+            .Where(c => IncludeHiddenChildrenInContentSize ? true : c.Visible)
             .Select(c => new Point(c.Right, c.Bottom))
             .Aggregate(Point.Zero, (accumulated, next) 
                 => new Point(Math.Max(accumulated.X, next.X), Math.Max(accumulated.Y, next.Y)));
@@ -537,6 +569,8 @@ public class XNAScrollPanel : XNAPanel
         
         HorizontalScrollBar.Refresh();
         VerticalScrollBar.Refresh();
+
+        ScrollTo(CurrentViewPosition);
     }
     
     #endregion
