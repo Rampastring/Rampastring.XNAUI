@@ -19,6 +19,9 @@ public class XNASuggestionTextBox : XNATextBox
         get => _suggestion;
         set
         {
+            if (_suggestion == value)
+                return;
+
             bool isTextDefault = Text == Suggestion;
             _suggestion = value;
             if (isTextDefault)
