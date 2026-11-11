@@ -2,7 +2,6 @@
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Rampastring.Tools;
-using System;
 
 namespace Rampastring.XNAUI.XNAControls;
 
@@ -25,8 +24,24 @@ public class XNAButton : XNAControl
     public EnhancedSoundEffect ClickSoundEffect { get; set; }
 
     public float AlphaRate { get; set; }
-    public float IdleTextureAlpha { get; private set; } = 1.0f;
-    public float HoverTextureAlpha { get; private set; } = 0.0f;
+
+    /// <summary>
+    /// Defines the current alpha level (opacity) of the button's idle texture.
+    /// </summary>
+    public float IdleTextureAlpha
+    {
+        get => field;
+        private set => SetTextureAlpha(ref field, value, IdleTexture);
+    } = 1.0f;
+
+    /// <summary>
+    /// Defines the current alpha level (opacity) of the button's hover texture.
+    /// </summary>
+    public float HoverTextureAlpha
+    {
+        get => field;
+        private set => SetTextureAlpha(ref field, value, HoverTexture);
+    }
 
     public Keys HotKey { get; set; }
 
@@ -48,7 +63,7 @@ public class XNAButton : XNAControl
         }
     }
 
-    private string _text = String.Empty;
+    private string _text = string.Empty;
     public override string Text
     {
         get => _text;
@@ -250,33 +265,18 @@ public class XNAButton : XNAControl
 
         float alphaRate = AlphaRate * (float)(gameTime.ElapsedGameTime.TotalMilliseconds / 10.0);
 
+        float previousIdleAlpha = IdleTextureAlpha;
+        float previousHoverAlpha = HoverTextureAlpha;
+
         if (AnimationMode == ButtonAnimationMode.HIGHLIGHT)
         {
             IdleTextureAlpha -= alphaRate;
-            if (IdleTextureAlpha < 0.0f)
-            {
-                IdleTextureAlpha = 0.0f;
-            }
-
             HoverTextureAlpha += alphaRate;
-            if (HoverTextureAlpha >= 1.0f)
-            {
-                HoverTextureAlpha = 1.0f;
-            }
         }
         else
         {
             HoverTextureAlpha -= alphaRate;
-            if (HoverTextureAlpha < 0.0f)
-            {
-                HoverTextureAlpha = 0.0f;
-            }
-
             IdleTextureAlpha += alphaRate;
-            if (IdleTextureAlpha >= 1.0f)
-            {
-                IdleTextureAlpha = 1.0f;
-            }
         }
 
         if (Parent != null && Parent.IsActive && Keyboard.PressedKeys.Contains(HotKey))
@@ -285,19 +285,16 @@ public class XNAButton : XNAControl
 
     public override void Draw(GameTime gameTime)
     {
-        if (IdleTexture != null)
+        if (IdleTexture != null && IdleTextureAlpha > 0f)
         {
-            if (IdleTextureAlpha > 0f)
-            {
-                DrawTexture(IdleTexture, new Rectangle(0, 0, Width, Height),
-                    RemapColor * IdleTextureAlpha * Alpha);
-            }
+            DrawTexture(IdleTexture, new Rectangle(0, 0, Width, Height),
+                RemapColor * IdleTextureAlpha * Alpha);
+        }
 
-            if (HoverTexture != null && HoverTextureAlpha > 0f)
-            {
-                DrawTexture(HoverTexture, new Rectangle(0, 0, Width, Height),
-                    RemapColor * HoverTextureAlpha * Alpha);
-            }
+        if (HoverTexture != null && HoverTextureAlpha > 0f)
+        {
+            DrawTexture(HoverTexture, new Rectangle(0, 0, Width, Height),
+                RemapColor * HoverTextureAlpha * Alpha);
         }
 
         var textPosition = new Vector2(TextXPosition, TextYPosition);

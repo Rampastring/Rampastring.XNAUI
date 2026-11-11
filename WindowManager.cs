@@ -7,6 +7,7 @@ using Rampastring.Tools;
 using Microsoft.Xna.Framework.Content;
 using Color = Microsoft.Xna.Framework.Color;
 using Rectangle = Microsoft.Xna.Framework.Rectangle;
+using Keys = Microsoft.Xna.Framework.Input.Keys;
 using Rampastring.XNAUI.Input;
 using System.Diagnostics;
 using System.Linq;
@@ -65,6 +66,17 @@ public class WindowManager : DrawableGameComponent
     /// The keyboard.
     /// </summary>
     public RKeyboard Keyboard { get; private set; }
+
+    /// <summary>
+    /// Gets or sets the optional application-provided manager that handles redraw requests.
+    /// </summary>
+    public IPowerSaveManager PowerSaveManager { get; set; }
+
+    /// <summary>
+    /// Requests a redraw at the application's next normal drawing opportunity.
+    /// Call this on the game thread when a visual change needs to be displayed.
+    /// </summary>
+    public void RequestRedraw() => PowerSaveManager?.RequestRedraw();
 
     /// <summary>
     /// The SoundPlayer that is responsible for handling audio.
@@ -701,6 +713,19 @@ public class WindowManager : DrawableGameComponent
         UpdateControls(gameTime);
 
         base.Update(gameTime);
+
+        UpdatePowerSaveManager();
+    }
+
+    private void UpdatePowerSaveManager()
+    {
+        if (PowerSaveManager == null)
+            return;
+
+        bool hasInput = HasFocus && (Cursor.HasInput || Keyboard.PressedKeys.Count > 0 || Keyboard.DownKeys.Exists(static key => key != Keys.None));
+
+        if (hasInput)
+            RequestRedraw();
     }
 
     private void UpdateControls(GameTime gameTime)

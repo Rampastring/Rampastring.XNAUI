@@ -126,8 +126,14 @@ public class XNACheckBox : XNAControl
     /// </summary>
     protected int TextLocationY { get; set; }
 
-
-    private double checkedAlpha = 0.0;
+    /// <summary>
+    /// Defines the current alpha level (opacity) of the checked texture.
+    /// </summary>
+    public float CheckedAlpha
+    {
+        get => field;
+        private set => SetTextureAlpha(ref field, value, AllowChecking ? CheckedTexture : DisabledCheckedTexture);
+    }
 
 
     public override void Initialize()
@@ -136,7 +142,7 @@ public class XNACheckBox : XNAControl
 
         if (Checked)
         {
-            checkedAlpha = 1.0;
+            CheckedAlpha = 1.0f;
         }
 
         base.Initialize();
@@ -230,15 +236,7 @@ public class XNACheckBox : XNAControl
     public override void Update(GameTime gameTime)
     {
         double alphaRate = AlphaRate * (gameTime.ElapsedGameTime.TotalMilliseconds / 10.0);
-
-        if (Checked)
-        {
-            checkedAlpha = Math.Min(checkedAlpha + alphaRate, 1.0);
-        }
-        else
-        {
-            checkedAlpha = Math.Max(0.0, checkedAlpha - alphaRate);
-        }
+        CheckedAlpha += (float)(Checked ? alphaRate : -alphaRate);
 
         base.Update(gameTime);
     }
@@ -290,13 +288,13 @@ public class XNACheckBox : XNAControl
 
         // Might not be worth it to save one draw-call per frame with a confusing
         // if-else routine, but oh well
-        if (checkedAlpha == 0.0)
+        if (CheckedAlpha == 0.0f)
         {
             DrawTexture(clearTexture,
                 new Rectangle(0, checkBoxYPosition,
                 clearTexture.Width, clearTexture.Height), Color.White);
         }
-        else if (checkedAlpha == 1.0)
+        else if (CheckedAlpha == 1.0f)
         {
             DrawTexture(checkedTexture,
                 new Rectangle(0, checkBoxYPosition,
@@ -312,7 +310,7 @@ public class XNACheckBox : XNAControl
             DrawTexture(checkedTexture,
                 new Rectangle(0, checkBoxYPosition,
                 clearTexture.Width, clearTexture.Height),
-                Color.White * (float)checkedAlpha);
+                Color.White * CheckedAlpha);
         }
 
         base.Draw(gameTime);

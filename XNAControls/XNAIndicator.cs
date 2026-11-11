@@ -7,7 +7,7 @@ using System.Collections.Generic;
 namespace Rampastring.XNAUI.XNAControls;
 
 /// <summary>
-/// An indicator with dynamic textures pool.
+/// An indicator with a dynamic texture pool.
 /// </summary>
 /// <typeparam name="T">The type of the enum that specifies the possible indicator states.</typeparam>
 public class XNAIndicator<T> : XNAControl where T : Enum
@@ -44,7 +44,7 @@ public class XNAIndicator<T> : XNAControl where T : Enum
             {
                 _oldTexture = _currentTexture;
                 _currentTexture = value;
-                textureAlpha = 0.0;
+                TextureAlpha = 0f;
             }
         }
     }
@@ -81,6 +81,10 @@ public class XNAIndicator<T> : XNAControl where T : Enum
         set => _highlightColor = value;
     }
 
+    /// <summary>
+    /// Controls how quickly the indicator texture's opacity level changes when switching between states.
+    /// Defines change rate over every 10 milliseconds.
+    /// </summary>
     public double AlphaRate { get; set; }
 
     /// <summary>
@@ -103,7 +107,14 @@ public class XNAIndicator<T> : XNAControl where T : Enum
     /// </summary>
     protected int TextLocationY { get; set; }
 
-    private double textureAlpha = 1.0;
+    /// <summary>
+    /// Defines the current alpha level (opacity) of the indicator texture.
+    /// </summary>
+    public float TextureAlpha
+    {
+        get => field;
+        private set => SetTextureAlpha(ref field, value, _currentTexture);
+    } = 1.0f;
 
     public override void Initialize()
     {
@@ -185,7 +196,7 @@ public class XNAIndicator<T> : XNAControl where T : Enum
     public override void Update(GameTime gameTime)
     {
         double alphaRate = AlphaRate * (gameTime.ElapsedGameTime.TotalMilliseconds / 10.0);
-        textureAlpha = Math.Min(textureAlpha + alphaRate, 1.0);
+        TextureAlpha += (float)alphaRate;
 
         base.Update(gameTime);
     }
@@ -218,7 +229,7 @@ public class XNAIndicator<T> : XNAControl where T : Enum
         }
 
         // Don't draw old texture if new one is fully opaque
-        if (textureAlpha < 1.0)
+        if (TextureAlpha < 1.0f)
         {
             DrawTexture(_oldTexture,
                 new Rectangle(0, indicatorYPosition,
@@ -227,12 +238,12 @@ public class XNAIndicator<T> : XNAControl where T : Enum
         }
 
         // Don't draw new texture if it's fully invisible
-        if (textureAlpha > 0.0)
+        if (TextureAlpha > 0.0f)
         {
             DrawTexture(_currentTexture,
                 new Rectangle(0, indicatorYPosition,
                 _currentTexture.Width, _currentTexture.Height),
-                Color.White * (float)textureAlpha);
+                Color.White * TextureAlpha);
         }
 
         base.Draw(gameTime);

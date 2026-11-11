@@ -1069,6 +1069,7 @@ public class XNATextBox : XNAControl
     {
         base.Update(gameTime);
 
+        bool wasCaretOn = barTimer.TotalSeconds < BAR_ON_TIME;
         barTimer += gameTime.ElapsedGameTime;
 
         if (barTimer > TimeSpan.FromSeconds(BAR_ON_TIME + BAR_OFF_TIME))
@@ -1076,6 +1077,9 @@ public class XNATextBox : XNAControl
 
         if (WindowManager.SelectedControl == this)
         {
+            if (Visible && WindowManager.HasFocus && wasCaretOn != (barTimer.TotalSeconds < BAR_ON_TIME) && !IsValidSelection())
+                WindowManager.RequestRedraw();
+
             if (Keyboard.IsKeyHeldDown(Keys.Left))
             {
                 HandleScrollKeyDown(gameTime, ScrollLeft);

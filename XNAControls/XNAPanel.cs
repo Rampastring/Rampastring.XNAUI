@@ -104,7 +104,11 @@ public class XNAPanel : XNAControl
 
     public override void Update(GameTime gameTime)
     {
-        Alpha += AlphaRate * (float)(gameTime.ElapsedGameTime.TotalMilliseconds / 100.0);
+        float previousAlpha = Alpha;
+        Alpha = previousAlpha + AlphaRate * (float)(gameTime.ElapsedGameTime.TotalMilliseconds / 100.0);
+
+        if (Visible && Alpha != previousAlpha)
+            WindowManager.RequestRedraw();
 
         base.Update(gameTime);
     }

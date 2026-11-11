@@ -701,12 +701,20 @@ public class XNAControl : DrawableGameComponent
 
         return p;
     }
+
+    /// <summary>
+    /// Returns this control's size as a point, with scaling taken into account.
+    /// </summary>
     public Point GetSizePoint()
     {
         int totalScaling = GetTotalScalingRecursive();
         return new Point(Width * totalScaling, Height * totalScaling);
     }
 
+    /// <summary>
+    /// Recursively calculates the total scale factor applied to this control,
+    /// taking into account its own scaling as well as the scaling of all parents.
+    /// </summary>
     public int GetTotalScalingRecursive()
     {
         if (Parent != null)
@@ -754,6 +762,21 @@ public class XNAControl : DrawableGameComponent
         }
 
         return p;
+    }
+
+    /// <summary>
+    /// Sets an alpha value and requests the window manager for a redraw on next frame if the value actually changed.
+    /// </summary>
+    protected void SetTextureAlpha(ref float alpha, float value, Texture2D texture)
+    {
+        value = MathHelper.Clamp(value, 0.0f, 1.0f);
+        if (alpha == value)
+            return;
+
+        alpha = value;
+
+        if (Visible && texture != null)
+            WindowManager.RequestRedraw();
     }
 
     /// <summary>

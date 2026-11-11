@@ -12,6 +12,8 @@ namespace Rampastring.XNAUI.Input;
 
 public class Cursor : DrawableGameComponent
 {
+    private const int ScrollWheelValueDivisor = 40;
+
     public Cursor(WindowManager windowManager)
         : base(windowManager.Game)
     {
@@ -77,6 +79,11 @@ public class Cursor : DrawableGameComponent
     /// </summary>
     public bool MiddlePressedDown { get; private set; }
 
+    /// <summary>
+    /// True if the cursor has received input on the current frame.
+    /// </summary>
+    public bool HasInput => !Disabled && (HasMoved || LeftDown || RightDown || MiddleDown || LeftClicked || RightClicked || MiddleClicked || ScrollWheelValue != 0 || HorizontalScrollWheelValue != 0);
+
     public bool Disabled { get; set; }
 
     public int ScrollWheelValue { get; set; }
@@ -137,7 +144,11 @@ public class Cursor : DrawableGameComponent
     {
         MouseState ms = Mouse.GetState();
 
+        // Calculate HasMoved before taking scaling into account so the sprite cursor
+        // is redrawn on pixel level movement while power saving and scaling is active.
+        var oldLocation = DrawnLocation;
         DrawnLocation = new Point(ms.X, ms.Y);
+        HasMoved = oldLocation != DrawnLocation;
 
         if (!windowManager.HasFocus || Disabled)
         {
@@ -145,6 +156,15 @@ public class Cursor : DrawableGameComponent
             RightClicked = false;
             MiddleClicked = false;
             LeftDown = false;
+            RightDown = false;
+            MiddleDown = false;
+            LeftPressedDown = false;
+            RightPressedDown = false;
+            MiddlePressedDown = false;
+            ScrollWheelValue = 0;
+#if !XNA
+            HorizontalScrollWheelValue = 0;
+#endif
             return;
         }
 
@@ -157,15 +177,13 @@ public class Cursor : DrawableGameComponent
         location = new Point(location.X - windowManager.SceneXPosition, location.Y - windowManager.SceneYPosition);
         location = new Point((int)(location.X / windowManager.ScaleRatio), (int)(location.Y / windowManager.ScaleRatio));
 
-        HasMoved = (location != Location);
-
         Location = location;
 
-        ScrollWheelValue = (ms.ScrollWheelValue - previousMouseState.ScrollWheelValue) / 40;
+        ScrollWheelValue = (ms.ScrollWheelValue - previousMouseState.ScrollWheelValue) / ScrollWheelValueDivisor;
 #if !XNA
         // there's something unholy going with what is the direction of horizontal scroll
         // https://github.com/wesnoth/wesnoth/issues/2218
-        HorizontalScrollWheelValue = -(ms.HorizontalScrollWheelValue - previousMouseState.HorizontalScrollWheelValue) / 40;
+        HorizontalScrollWheelValue = -(ms.HorizontalScrollWheelValue - previousMouseState.HorizontalScrollWheelValue) / ScrollWheelValueDivisor;
 #endif
 
         LeftDown = ms.LeftButton == ButtonState.Pressed;
