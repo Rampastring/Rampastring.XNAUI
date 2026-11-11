@@ -6,8 +6,6 @@ using Microsoft.Xna.Framework.Graphics;
 using Rampastring.Tools;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Media;
-using SixLabors.ImageSharp;
-using SixLabors.ImageSharp.Formats.Png;
 using Color = Microsoft.Xna.Framework.Color;
 using System.Globalization;
 
@@ -199,9 +197,7 @@ public static class AssetLoader
         var texture = new Texture2D(graphicsDevice, width, height, false, SurfaceFormat.Color);
 
         var colorArray = new Color[width * height];
-
-        for (int i = 0; i < colorArray.Length; i++)
-            colorArray[i] = color;
+        Array.Fill(colorArray, color);
 
         texture.SetData(colorArray);
 
@@ -214,26 +210,67 @@ public static class AssetLoader
     }
 
     /// <summary>
-    /// Creates a texture from a <see cref="Image"/>.
-    /// Returns null if creating the texture fails.
+    /// Creates a texture based on an array of colors.
     /// </summary>
-    /// <param name="image">The image.</param>
-    /// <returns>The created texture, or null if creating the texture fails.</returns>
-    public static Texture2D TextureFromImage(Image image)
+    /// <param name="colors">The color array. A single entry defines the color of a single pixel. The array's size must match width x height.</param>
+    /// <param name="width">The width of the texture.</param>
+    /// <param name="height">The height of the texture.</param>
+    /// <param name="premultiplyAlpha">Whether the alpha channel should be premultiplied into the texture's color channels.</param>
+    /// <returns>A texture.</returns>
+    public static Texture2D CreateTexture(Color[] colors, int width, int height, bool premultiplyAlpha = true)
     {
+        if (colors == null)
+            throw new ArgumentNullException(nameof(colors));
+
+        int expectedLength = width * height;
+        if (colors.Length != expectedLength)
+            throw new ArgumentException($"{nameof(AssetLoader)}.{nameof(CreateTexture)}: Unexpected length of color array: {colors.Length} vs {expectedLength}");
+
+        var texture = new Texture2D(graphicsDevice, width, height, false, SurfaceFormat.Color);
+        texture.SetData(colors);
+
+        if (premultiplyAlpha)
+        {
+            PremultiplyAlpha(texture);
+        }
+
+        return texture;
+    }
+
+    /// <summary>
+    /// Loads a PNG texture from a stream and premultiplies its alpha.
+    /// </summary>
+    /// <param name="pngStream">A readable PNG stream owned by the caller.</param>
+    /// <returns>The created texture, or null if creating the texture fails.</returns>
+    public static Texture2D TextureFromPNG(Stream pngStream)
+    {
+        Texture2D texture = null;
         try
         {
-            using var stream = new MemoryStream();
-            image.Save(stream, new PngEncoder() { CompressionLevel = PngCompressionLevel.NoCompression });
-            var texture = Texture2D.FromStream(graphicsDevice, stream);
+            texture = Texture2D.FromStream(graphicsDevice, pngStream);
             PremultiplyAlpha(texture);
             return texture;
         }
         catch (Exception ex)
         {
-            Logger.Log("AssetLoader.TextureFromImage: failed to create texture! Message: " + ex.Message);
+            texture?.Dispose();
+            Logger.Log("AssetLoader.TextureFromPNG: failed to create texture! Message: " + ex.Message);
             return null;
         }
+    }
+
+    /// <summary>
+    /// Loads a PNG texture from encoded image bytes and premultiplies its alpha.
+    /// </summary>
+    /// <param name="pngData">The encoded PNG bytes.</param>
+    /// <returns>The created texture, or null if creating the texture fails.</returns>
+    public static Texture2D TextureFromPNG(byte[] pngData)
+    {
+        if (pngData == null)
+            throw new ArgumentNullException(nameof(pngData));
+
+        using var stream = new MemoryStream(pngData, writable: false);
+        return TextureFromPNG(stream);
     }
 
     /// <summary>
