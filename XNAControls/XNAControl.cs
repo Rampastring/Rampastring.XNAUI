@@ -240,10 +240,7 @@ public class XNAControl : DrawableGameComponent
     /// A read-only list of the control's children. 
     /// Call the AddChild method to add children to the control.
     /// </summary>
-    public ReadOnlyCollection<XNAControl> Children
-    {
-        get => new ReadOnlyCollection<XNAControl>(_children);
-    }
+    public IReadOnlyList<XNAControl> Children => _children.AsReadOnly();
 
 
     #region Location and size
