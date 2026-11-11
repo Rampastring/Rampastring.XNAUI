@@ -98,23 +98,21 @@ public class XNAMultiColumnListBox : XNAPanel
         }
     }
 
-    private bool _allowKeyboardInput = false;
-
     /// <summary>
     /// If set to true, the user is able to scroll the listbox items
     /// by using keyboard keys.
     /// </summary>
     public bool AllowKeyboardInput
     {
-        get => _allowKeyboardInput;
+        get => field;
         set
         {
-            _allowKeyboardInput = value;
+            field = value;
 
             foreach (XNAListBox lb in listBoxes)
                 lb.AllowKeyboardInput = value;
         }
-    }
+    } = false;
 
     private bool topIndexChangeBeingHandled;
 
@@ -149,25 +147,23 @@ public class XNAMultiColumnListBox : XNAPanel
         }
     }
 
-    private bool _allowRightClickUnselect = true;
-
     /// <summary>
     /// Gets or sets a bool that determines whether the user is able to un-select
     /// the currently selected listbox item by right-clicking on the list box.
     /// </summary>
     public bool AllowRightClickUnselect
     {
-        get => _allowRightClickUnselect;
+        get => field;
         set
         {
-            _allowRightClickUnselect = value;
+            field = value;
 
             foreach (XNAListBox lb in listBoxes)
             {
-                lb.AllowRightClickUnselect = _allowRightClickUnselect;
+                lb.AllowRightClickUnselect = field;
             }
         }
-    }
+    } = true;
 
     /// <summary>
     /// Controls whether the highlighted background of the selected item should

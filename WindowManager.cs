@@ -119,24 +119,22 @@ public class WindowManager : DrawableGameComponent
     public int SceneXPosition { get; private set; } = 0;
     public int SceneYPosition { get; private set; } = 0;
 
-    private XNAControl _selectedControl;
-
     /// <summary>
     /// Gets or sets the control that is currently selected.
     /// Usually used for controls that need input focus, like text boxes.
     /// </summary>
     public XNAControl SelectedControl
     {
-        get { return _selectedControl; }
+        get { return field; }
         set
         {
-            XNAControl oldSelectedControl = _selectedControl;
-            _selectedControl = value;
+            XNAControl oldSelectedControl = field;
+            field = value;
 
-            if (oldSelectedControl != _selectedControl)
+            if (oldSelectedControl != field)
             {
-                if (_selectedControl != null)
-                    _selectedControl.OnSelectedChanged();
+                if (field != null)
+                    field.OnSelectedChanged();
 
                 if (oldSelectedControl != null)
                     oldSelectedControl.OnSelectedChanged();

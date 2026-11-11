@@ -61,44 +61,40 @@ public class XNADropDown : XNAControl
     /// </summary>
     public DropDownState DropDownState { get; private set; }
 
-    private bool _allowDropDown = true;
-
     /// <summary>
     /// Controls whether the drop-down control can be dropped down.
     /// </summary>
     public bool AllowDropDown
     {
-        get => _allowDropDown;
+        get => field;
         set
         {
-            _allowDropDown = value;
-            if (!_allowDropDown && DropDownState != DropDownState.CLOSED)
+            field = value;
+            if (!field && DropDownState != DropDownState.CLOSED)
             {
                 CloseDropDown();
             }
         }
-    }
-
-    private int _selectedIndex = -1;
+    } = true;
 
     /// <summary>
     /// Gets or sets the selected index of the drop-down control.
     /// </summary>
     public int SelectedIndex
     {
-        get => _selectedIndex;
+        get => field;
         set
         {
-            int oldSelectedIndex = _selectedIndex;
+            int oldSelectedIndex = field;
 
-            _selectedIndex = value;
+            field = value;
 
             if (value != oldSelectedIndex)
                 SelectedIndexChanged?.Invoke(this, EventArgs.Empty);
             else
                 IndexReselected?.Invoke(this, EventArgs.Empty);
         }
-    }
+    } = -1;
 
     /// <summary>
     /// Gets the currently selected item of the drop-down control.

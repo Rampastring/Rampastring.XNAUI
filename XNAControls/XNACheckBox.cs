@@ -48,23 +48,21 @@ public class XNACheckBox : XNAControl
     /// </summary>
     public EnhancedSoundEffect HoverSoundEffect { get; set; }
 
-    private bool _checked = false;
-
     /// <summary>
     /// Determines whether the check box is currently checked.
     /// </summary>
     public bool Checked
     {
-        get => _checked;
+        get => field;
         set
         {
-            bool originalValue = _checked;
-            _checked = value;
+            bool originalValue = field;
+            field = value;
 
-            if (_checked != originalValue)
+            if (field != originalValue)
                 CheckedChanged?.Invoke(this, EventArgs.Empty);
         }
-    }
+    } = false;
 
     /// <summary>
     /// Determines whether the user can (un)check the box by clicking on it.

@@ -18,25 +18,24 @@ public class XNATrackbar : XNAPanel
 
     public int MaxValue { get; set; }
 
-    private int value = 0;
     public int Value
     {
-        get => value;
+        get => field;
         set
         {
-            int oldValue = this.value;
+            int oldValue = field;
 
             if (value > MaxValue)
-                this.value = MaxValue;
+                field = MaxValue;
             else if (value < MinValue)
-                this.value = MinValue;
+                field = MinValue;
             else
-                this.value = value;
+                field = value;
 
-            if (oldValue != this.value)
+            if (oldValue != field)
                 ValueChanged?.Invoke(this, EventArgs.Empty);
         }
-    }
+    } = 0;
 
     public EnhancedSoundEffect ClickSound { get; set; }
 

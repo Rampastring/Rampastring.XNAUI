@@ -20,18 +20,17 @@ public class XNADropDownItem
     public object Tag { get; set; }
     public bool Selectable { get; set; } = true;
 
-    private float alpha = 1.0f;
     public float Alpha
     {
-        get => alpha;
+        get => field;
         set
         {
             if (value < 0.0f)
-                alpha = 0.0f;
+                field = 0.0f;
             else if (value > 1.0f)
-                alpha = 1.0f;
+                field = 1.0f;
             else
-                alpha = value;
+                field = value;
         }
-    }
+    } = 1.0f;
 }

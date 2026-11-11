@@ -25,21 +25,19 @@ public class XNALabel : XNAControl
 
     public float TextShadowDistance { get; set; } = UISettings.ActiveSettings.TextShadowDistance;
 
-    private Vector2 _anchorPoint = Vector2.Zero;
-
     /// <summary>
     /// Determines the point that the text is placed around
     /// depending on TextAnchor.
     /// </summary>
     public Vector2 AnchorPoint
     {
-        get => _anchorPoint;
+        get => field;
         set
         {
-            _anchorPoint = value;
+            field = value;
             RefreshClientRectangle();
         }
-    }
+    } = Vector2.Zero;
 
     /// <summary>
     /// Determines the position of the label's text relative to AnchorPoint.

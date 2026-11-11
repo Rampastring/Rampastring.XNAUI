@@ -41,23 +41,21 @@ public class XNAScrollPanel : XNAPanel
     /// </summary>
     public bool AllowKeyboardInput { get; set; } = true;
 
-    private (bool X, bool Y) _allowScroll = (true, true);
-    
     /// <summary>
     /// Whether to allow scrolling on X or Y axes.
     /// </summary>
     public (bool X, bool Y) AllowScroll
     {
-        get => _allowScroll;
+        get => field;
         set
         {
-            if (_allowScroll == value)
+            if (field == value)
                 return;
             
-            _allowScroll = value;
+            field = value;
             RecalculateScrollbars();
         }
-    }
+    } = (true, true);
 
     /// <summary>
     /// How fast this control is scrolled?
@@ -70,42 +68,36 @@ public class XNAScrollPanel : XNAPanel
                 = value;
     }
     
-    private Point _overscrollMargin;
-
     /// <summary>
     /// How much can the content be "overscrolled", used for the purposes of inner panel size calculation.
     /// </summary>
     public Point OverscrollMargin
     {
-        get => _overscrollMargin;
+        get => field;
         set
         {
             value = new(Math.Max(0, value.X), Math.Max(0, value.Y));
             
-            if (_overscrollMargin == value)
+            if (field == value)
                 return;
             
-            ContentSize = ContentSize.Add(value).Subtract(_overscrollMargin);
-            _overscrollMargin = value;
+            ContentSize = ContentSize.Add(value).Subtract(field);
+            field = value;
         }
     }
     
-    private bool _drawBorders;
-
     public override bool DrawBorders
     {
-        get => _drawBorders;
+        get => field;
         set
         {
-            if (_drawBorders == value)
+            if (field == value)
                 return;
             
-            _drawBorders = value;
+            field = value;
             RecalculateScrollbars();
         }
     }
-
-    private bool _includeHiddenChildrenInContentSize = true;
 
     /// <summary>
     /// Determines whether children with <see cref="DrawableGameComponent.Visible"/> set to
@@ -113,16 +105,16 @@ public class XNAScrollPanel : XNAPanel
     /// </summary>
     public bool IncludeHiddenChildrenInContentSize
     {
-        get => _includeHiddenChildrenInContentSize;
+        get => field;
         set
         {
-            if (_includeHiddenChildrenInContentSize != value)
+            if (field != value)
             {
-                _includeHiddenChildrenInContentSize = value;
+                field = value;
                 RecalculateContentSize();
             }
         }
-    }
+    } = true;
 
     #endregion
     

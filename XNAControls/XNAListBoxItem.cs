@@ -52,8 +52,6 @@ public class XNAListBoxItem
 
     public bool IsHeader { get; set; }
 
-    private string _text;
-
     /// <summary>
     /// The text of the list box item prior to its parsing by the list box.
     /// If this is modified when the item belongs to a <see cref="XNAListBox"/>, the ListBox
@@ -62,8 +60,8 @@ public class XNAListBoxItem
     /// </summary>
     public string Text
     {
-        get => _text;
-        set { _text = value; TextChanged?.Invoke(this, EventArgs.Empty); }
+        get => field;
+        set { field = value; TextChanged?.Invoke(this, EventArgs.Empty); }
     }
 
     /// <summary>
@@ -76,38 +74,36 @@ public class XNAListBoxItem
     public int TextXPadding { get; set; }
     public bool Selectable { get; set; } = true;
 
-    private float alpha = 0.0f;
     public float Alpha
     {
-        get => alpha;
+        get => field;
         set
         {
             if (value < 0.0f)
-                alpha = 0.0f;
+                field = 0.0f;
             else if (value > 1.0f)
-                alpha = 1.0f;
+                field = 1.0f;
             else
-                alpha = value;
+                field = value;
         }
-    }
+    } = 0.0f;
 
     /// <summary>
     /// Whether this list box item is visible.
     /// Invisible list box items are not drawn and cannot be selected.
     /// </summary>
-    private bool _visible = true;
     public bool Visible
     {
-        get => _visible;
+        get => field;
         set
         {
-            if (_visible != value)
+            if (field != value)
             {
-                _visible = value;
+                field = value;
                 VisibilityChanged?.Invoke(this, EventArgs.Empty);
             }
         }
-    }
+    } = true;
 
     public List<string> TextLines;
 }

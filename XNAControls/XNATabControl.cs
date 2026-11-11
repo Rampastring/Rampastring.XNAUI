@@ -103,19 +103,18 @@ public class XNATabControl : XNAControl
         }
     }
 
-    private Tab _hoveredTab = null;
     public Tab HoveredTab
     {
-        get => _hoveredTab;
+        get => field;
         set
         {
-            if (_hoveredTab == value)
+            if (field == value)
                 return;
 
-            _hoveredTab = value;
-            HoveredTabChanged?.Invoke(this, new TabEventArgs(_hoveredTab));
+            field = value;
+            HoveredTabChanged?.Invoke(this, new TabEventArgs(field));
         }
-    }
+    } = null;
 
     public int FontIndex { get; set; }
 

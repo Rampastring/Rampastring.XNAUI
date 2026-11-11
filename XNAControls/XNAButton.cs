@@ -49,19 +49,18 @@ public class XNAButton : XNAControl
 
     public float TextShadowDistance { get; set; } = UISettings.ActiveSettings.TextShadowDistance;
 
-    private bool _allowClick = true;
     public bool AllowClick
     {
-        get => _allowClick;
+        get => field;
         set
         {
-            _allowClick = value;
-            if (_allowClick && cursorOnControl)
+            field = value;
+            if (field && cursorOnControl)
                 AnimationMode = ButtonAnimationMode.HIGHLIGHT;
             else
                 AnimationMode = ButtonAnimationMode.RETURN;
         }
-    }
+    } = true;
 
     private string _text = string.Empty;
     public override string Text

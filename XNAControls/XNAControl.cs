@@ -385,14 +385,14 @@ public class XNAControl : DrawableGameComponent
     /// </summary>
     public string Name
     {
-        get => name;
+        get => field;
         set
         {
-            if (name == value)
+            if (field == value)
                 return;
             
             NameChanging?.Invoke(this, EventArgs.Empty);
-            name = value;
+            field = value;
             NameChanged?.Invoke(this, EventArgs.Empty);
         }
     }
@@ -418,20 +418,20 @@ public class XNAControl : DrawableGameComponent
     public bool HandlesDragging { get; protected set; } = false;
 
     private bool CursorOnControl = false;
-    private float alpha = 1.0f;
+
     public virtual float Alpha
     {
-        get => alpha;
+        get => field;
         set
         {
             if (value > 1.0f)
-                alpha = 1.0f;
+                field = 1.0f;
             else if (value < 0.0)
-                alpha = 0.0f;
+                field = 0.0f;
             else
-                alpha = value;
+                field = value;
         }
-    }
+    } = 1.0f;
 
     public int CursorTextureIndex;
 
@@ -520,8 +520,6 @@ public class XNAControl : DrawableGameComponent
     /// </summary>
     public bool IsIgnoringInput => !AppliesToSelfAndAllParents(c => c.InputIgnoreTime <= TimeSpan.Zero);
 
-    private ControlDrawMode drawMode = ControlDrawMode.NORMAL;
-
     /// <summary>
     /// The draw mode of the control.
     /// Cannot be changed after the control's <see cref="Initialize"/>
@@ -529,7 +527,7 @@ public class XNAControl : DrawableGameComponent
     /// </summary>
     public ControlDrawMode DrawMode
     {
-        get => drawMode;
+        get => field;
         set
         {
             if (Initialized)
@@ -538,11 +536,9 @@ public class XNAControl : DrawableGameComponent
                     "changed after a control has been initialized.");
             }
 
-            drawMode = value;
+            field = value;
         }
-    }
-
-    private bool _isChangingSize = false;
+    } = ControlDrawMode.NORMAL;
 
     /// <summary>
     /// If set to true and the control has 
@@ -551,14 +547,14 @@ public class XNAControl : DrawableGameComponent
     /// </summary>
     public bool IsChangingSize
     {
-        get => _isChangingSize || (Parent != null && Parent.IsChangingSize);
+        get => field || (Parent != null && Parent.IsChangingSize);
         set
         {
-            _isChangingSize = value;
-            if (!_isChangingSize)
+            field = value;
+            if (!field)
                 CheckForRenderAreaChange();
         }
-    }
+    } = false;
 
     public int Scaling
     {
@@ -1557,7 +1553,6 @@ public class XNAControl : DrawableGameComponent
     #region Draw helpers
 
     private Point drawPoint;
-    private string name;
 
     /// <summary>
     /// Draws a texture relative to the control's location.
