@@ -262,6 +262,7 @@ public class XNAContextMenu : XNAControl
         }
 
         Height = height;
+        HoveredIndex = -1;
 
         Enable();
 
@@ -301,6 +302,7 @@ public class XNAContextMenu : XNAControl
         }
 
         openedOnThisFrame = true;
+        WindowManager.RequestRedraw();
     }
 
     public void ClearItems()
@@ -327,10 +329,13 @@ public class XNAContextMenu : XNAControl
 
             int itemIndexOnCursor = GetItemIndexOnCursor();
 
-            if (itemIndexOnCursor > -1 && Items[itemIndexOnCursor].Selectable)
-                HoveredIndex = itemIndexOnCursor;
-            else
-                HoveredIndex = -1;
+            int hoveredIndex = itemIndexOnCursor > -1 && Items[itemIndexOnCursor].Selectable ? itemIndexOnCursor : -1;
+
+            if (HoveredIndex != hoveredIndex)
+            {
+                HoveredIndex = hoveredIndex;
+                WindowManager.RequestRedraw();
+            }
         }
     }
 
