@@ -173,7 +173,7 @@ public class XNADropDown : XNAControl
 
     public EnhancedSoundEffect ClickSoundEffect { get; set; }
 
-    private int hoveredIndex = 0;
+    private int hoveredIndex = -1;
     private bool clickedAfterOpen = false;
     private int numFittingItems = 0;
 
@@ -306,15 +306,20 @@ public class XNADropDown : XNAControl
                 return;
             }
 
-            // Update hovered index
-
-            int itemIndexOnCursor = GetItemIndexOnCursor();
-
-            if (itemIndexOnCursor > -1 && Items[itemIndexOnCursor].Selectable)
-                hoveredIndex = itemIndexOnCursor;
-            else
-                hoveredIndex = -1;
+            UpdateHoveredIndex();
         }
+    }
+
+    private void UpdateHoveredIndex()
+    {
+        int itemIndexOnCursor = GetItemIndexOnCursor();
+        int newHoveredIndex = itemIndexOnCursor > -1 && Items[itemIndexOnCursor].Selectable ? itemIndexOnCursor : -1;
+
+        if (hoveredIndex == newHoveredIndex)
+            return;
+
+        hoveredIndex = newHoveredIndex;
+        WindowManager.RequestRedraw();
     }
 
     public override void OnMouseLeftDown(InputEventArgs inputEventArgs)
@@ -336,12 +341,12 @@ public class XNADropDown : XNAControl
         OpenDropDown();
 
         Detach();
-        hoveredIndex = -1;
     }
 
     public void OpenDropDown()
     {
         TopIndex = 0;
+        hoveredIndex = -1;
 
         if (!OpenUp)
         {
@@ -356,6 +361,8 @@ public class XNADropDown : XNAControl
             Y -= 1 + ItemHeight * Math.Min(numFittingItems, Items.Count);
             Height = DropDownTexture.Height + 1 + ItemHeight * Math.Min(numFittingItems, Items.Count);
         }
+
+        WindowManager.RequestRedraw();
     }
 
     public override void OnLeftClick(InputEventArgs inputEventArgs)
@@ -450,6 +457,8 @@ public class XNADropDown : XNAControl
                         TopIndex = Math.Max(0, TopIndex - 3);
                     }
                 }
+
+                UpdateHoveredIndex();
             }
         }
 
