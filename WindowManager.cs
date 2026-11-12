@@ -29,6 +29,21 @@ public class WindowManager : DrawableGameComponent
 {
     private const int XNA_MAX_TEXTURE_SIZE = 2048;
 
+    private static readonly (MouseButton Button, MouseInputFlags InputFlag,
+        Action<XNAControl, MouseInputEventArgs> OnDown, Action<XNAControl, MouseInputEventArgs> OnClick)[] MouseButtonHandlers =
+    {
+        (MouseButton.Left, MouseInputFlags.LeftMouseButton,
+            static (control, args) => { control.OnMouseLeftDown(args); control.OnMouseButtonDown(args); }, static (control, args) => { control.OnLeftClick(args); control.OnMouseButtonClick(args); }),
+        (MouseButton.Right, MouseInputFlags.RightMouseButton,
+            static (control, args) => { control.OnMouseRightDown(args); control.OnMouseButtonDown(args); }, static (control, args) => { control.OnRightClick(args); control.OnMouseButtonClick(args); }),
+        (MouseButton.Middle, MouseInputFlags.MiddleMouseButton,
+            static (control, args) => { control.OnMouseMiddleDown(args); control.OnMouseButtonDown(args); }, static (control, args) => { control.OnMiddleClick(args); control.OnMouseButtonClick(args); }),
+        (MouseButton.XButton1, MouseInputFlags.XButton1,
+            static (control, args) => control.OnMouseButtonDown(args), static (control, args) => control.OnMouseButtonClick(args)),
+        (MouseButton.XButton2, MouseInputFlags.XButton2,
+             static (control, args) => control.OnMouseButtonDown(args), static (control, args) => control.OnMouseButtonClick(args))
+    };
+
     /// <summary>
     /// Creates a new WindowManager.
     /// </summary>
@@ -762,46 +777,10 @@ public class WindowManager : DrawableGameComponent
                 {
                     bool isInputCaptured = IsInputExclusivelyCaptured && SelectedControl != ActiveControl;
 
-                    if (Cursor.LeftPressedDown)
+                    if (Cursor.PressedDownButtons != MouseButton.None ||
+                        (ActiveControl.PressedOnButtons & ~Cursor.DownButtons) != MouseButton.None)
                     {
-                        if (!isInputCaptured)
-                        {
-                            ActiveControl.IsLeftPressedOn = true;
-                            PropagateInputEvent(static (c, ie) => c.OnMouseLeftDown(ie), MouseInputFlags.LeftMouseButton);
-                        }
-                    }
-                    else if (!Cursor.LeftDown && ActiveControl.IsLeftPressedOn)
-                    {
-                        ActiveControl.IsLeftPressedOn = false;
-                        PropagateInputEvent(static (c, ie) => c.OnLeftClick(ie), MouseInputFlags.LeftMouseButton);
-                    }
-
-                    if (Cursor.RightPressedDown)
-                    {
-                        if (!isInputCaptured)
-                        {
-                            ActiveControl.IsRightPressedOn = true;
-                            PropagateInputEvent(static (c, ie) => c.OnMouseRightDown(ie), MouseInputFlags.RightMouseButton);
-                        }
-                    }
-                    else if (!Cursor.RightDown && ActiveControl.IsRightPressedOn)
-                    {
-                        ActiveControl.IsRightPressedOn = false;
-                        PropagateInputEvent(static (c, ie) => c.OnRightClick(ie), MouseInputFlags.RightMouseButton);
-                    }
-
-                    if (Cursor.MiddlePressedDown)
-                    {
-                        if (!isInputCaptured)
-                        {
-                            ActiveControl.IsMiddlePressedOn = true;
-                            PropagateInputEvent(static (c, ie) => c.OnMouseMiddleDown(ie), MouseInputFlags.MiddleMouseButton);
-                        }
-                    }
-                    else if (!Cursor.MiddleDown && ActiveControl.IsMiddlePressedOn)
-                    {
-                        ActiveControl.IsMiddlePressedOn = false;
-                        PropagateInputEvent(static (c, ie) => c.OnMiddleClick(ie), MouseInputFlags.MiddleMouseButton);
+                        UpdateMouseButtons(isInputCaptured);
                     }
 
                     if (Cursor.ScrollWheelValue != 0 && !isInputCaptured)
@@ -823,7 +802,7 @@ public class WindowManager : DrawableGameComponent
         // If either of these conditions is not true, then release the exclusively captured input.
         if (SelectedControl != null && SelectedControl.ExclusiveInputCapture)
         {
-            if ((!Cursor.RightDown && !Cursor.LeftDown) ||
+            if (!Cursor.IsButtonDown((MouseButton)0b11111111) ||
                 !SelectedControl.AppliesToSelfAndAllParents(p => p.Enabled && p.InputEnabled))
             {
                 SelectedControl = null;
@@ -831,9 +810,39 @@ public class WindowManager : DrawableGameComponent
         }
     }
 
-    private void PropagateInputEvent(Action<XNAControl, InputEventArgs> action, MouseInputFlags mouseInputFlags)
+    private void UpdateMouseButtons(bool isInputCaptured)
     {
-        var inputEventArgs = new InputEventArgs();
+        foreach (var (button, inputFlag, onDown, onClick) in MouseButtonHandlers)
+        {
+            // An earlier button handler may change the active control.
+            XNAControl control = ActiveControl;
+            if (control == null)
+                break;
+
+            Action<XNAControl, MouseInputEventArgs> action;
+            if (!isInputCaptured && Cursor.IsButtonPressedDown(button))
+            {
+                control.PressedOnButtons |= button;
+                action = onDown;
+            }
+            else if (control.IsButtonPressedOn(button) && !Cursor.IsButtonDown(button))
+            {
+                control.PressedOnButtons &= ~button;
+                action = onClick;
+            }
+            else
+            {
+                continue;
+            }
+
+            if (action != null)
+                PropagateInputEvent(action, inputFlag);
+        }
+    }
+
+    private void PropagateInputEvent(Action<XNAControl, MouseInputEventArgs> action, MouseInputFlags mouseInputFlags)
+    {
+        var mouseInputEventArgs = new MouseInputEventArgs(mouseInputFlags);
         XNAControl control = ActiveControl;
 
         while (control != null)
@@ -841,10 +850,10 @@ public class WindowManager : DrawableGameComponent
             if (!control.InputPassthrough)
             {
                 if ((control.HandledMouseInputs & mouseInputFlags) == mouseInputFlags)
-                    inputEventArgs.Handled = true;
+                    mouseInputEventArgs.Handled = true;
 
-                action(control, inputEventArgs);
-                if (inputEventArgs.Handled)
+                action(control, mouseInputEventArgs);
+                if (mouseInputEventArgs.Handled)
                     break;
             }
 

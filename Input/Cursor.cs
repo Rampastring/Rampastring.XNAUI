@@ -81,12 +81,12 @@ public class Cursor : DrawableGameComponent
     /// <summary>
     /// Returns whether any of the specified mouse buttons are held down on the current frame.
     /// </summary>
-    public bool IsButtonDown(MouseButton buttons) => (downButtons & buttons) != MouseButton.None;
+    public bool IsButtonDown(MouseButton buttons) => (DownButtons & buttons) != MouseButton.None;
 
     /// <summary>
     /// Returns whether any of the specified mouse buttons were newly pressed on the current frame.
     /// </summary>
-    public bool IsButtonPressedDown(MouseButton buttons) => (pressedDownButtons & buttons) != MouseButton.None;
+    public bool IsButtonPressedDown(MouseButton buttons) => (PressedDownButtons & buttons) != MouseButton.None;
 
     /// <summary>
     /// Returns whether any of the specified mouse buttons were released on the current frame.
@@ -96,7 +96,7 @@ public class Cursor : DrawableGameComponent
     /// <summary>
     /// True if the cursor has received input on the current frame.
     /// </summary>
-    public bool HasInput => !Disabled && (HasMoved || (downButtons | clickedButtons) != MouseButton.None ||
+    public bool HasInput => !Disabled && (HasMoved || (DownButtons | clickedButtons) != MouseButton.None ||
         ScrollWheelValue != 0 || HorizontalScrollWheelValue != 0);
 
     public bool Disabled { get; set; }
@@ -107,11 +107,12 @@ public class Cursor : DrawableGameComponent
 
     public Color RemapColor { get; set; }
 
+    internal MouseButton DownButtons { get; private set; }
+    internal MouseButton PressedDownButtons { get; private set; }
+
     private WindowManager windowManager;
     private MouseState previousMouseState;
     private MouseButton previousDownButtons;
-    private MouseButton downButtons;
-    private MouseButton pressedDownButtons;
     private MouseButton clickedButtons;
 
 #if WINFORMS
@@ -171,8 +172,8 @@ public class Cursor : DrawableGameComponent
 
         if (!windowManager.HasFocus || Disabled)
         {
-            downButtons = MouseButton.None;
-            pressedDownButtons = MouseButton.None;
+            DownButtons = MouseButton.None;
+            PressedDownButtons = MouseButton.None;
             clickedButtons = MouseButton.None;
             ScrollWheelValue = 0;
 #if !XNA
@@ -200,8 +201,8 @@ public class Cursor : DrawableGameComponent
 #endif
 
         MouseButton currentDownButtons = GetDownButtons(ms);
-        downButtons = currentDownButtons;
-        pressedDownButtons = currentDownButtons & ~previousDownButtons;
+        DownButtons = currentDownButtons;
+        PressedDownButtons = currentDownButtons & ~previousDownButtons;
         clickedButtons = previousDownButtons & ~currentDownButtons;
         previousDownButtons = currentDownButtons;
         previousMouseState = ms;

@@ -5,7 +5,6 @@ using Rampastring.XNAUI.Extensions;
 using Rampastring.XNAUI.Input;
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Globalization;
 using System.Linq;
 
@@ -21,8 +20,26 @@ public enum MouseInputFlags
     LeftMouseButton = 1,
     RightMouseButton = 2,
     MiddleMouseButton = 4,
-    ScrollWheel = 8,
-    ScrollWheelHorizontal = 16,
+    XButton1 = 8,
+    XButton2 = 16,
+    ScrollWheel = 32,
+    ScrollWheelHorizontal = 64,
+}
+
+/// <summary>
+/// Event args for handling generic mouse input.
+/// </summary>
+public class MouseInputEventArgs : InputEventArgs
+{
+    public MouseInputEventArgs(MouseInputFlags mouseInput) : base()
+    {
+        MouseInput = mouseInput;
+    }
+
+    /// <summary>
+    /// Which mouse input generated this input event.
+    /// </summary>
+    public MouseInputFlags MouseInput { get; }
 }
 
 /// <summary>
@@ -82,6 +99,12 @@ public class XNAControl : DrawableGameComponent
     public event EventHandler<InputEventArgs> MouseMiddleDown;
 
     /// <summary>
+    /// Raised once whenever a mouse button is pressed down while the
+    /// cursor is inside the control's area.
+    /// </summary>
+    public event EventHandler<MouseInputEventArgs> MouseButtonDown;
+
+    /// <summary>
     /// Raised when the mouse cursor leaves the control's area.
     /// </summary>
     public event EventHandler MouseLeave;
@@ -131,6 +154,12 @@ public class XNAControl : DrawableGameComponent
     /// while the cursor is inside the control's area.
     /// </summary>
     public event EventHandler<InputEventArgs> MiddleClick;
+
+    /// <summary>
+    /// Raised when any mouse button is clicked (pressed and released)
+    /// while the cursor is inside the control's area.
+    /// </summary>
+    public event EventHandler<MouseInputEventArgs> MouseButtonClick;
 
     /// <summary>
     /// Raised when the control's client rectangle is changed.
@@ -594,9 +623,17 @@ public class XNAControl : DrawableGameComponent
 
     private TimeSpan timeSinceLastLeftClick = TimeSpan.Zero;
 
-    public bool IsLeftPressedOn { get; internal set; }
-    public bool IsRightPressedOn { get; internal set; }
-    public bool IsMiddlePressedOn { get; internal set; }
+    internal MouseButton PressedOnButtons { get; set; }
+
+    public bool IsLeftPressedOn => IsButtonPressedOn(MouseButton.Left);
+    public bool IsRightPressedOn => IsButtonPressedOn(MouseButton.Right);
+    public bool IsMiddlePressedOn => IsButtonPressedOn(MouseButton.Middle);
+
+    /// <summary>
+    /// Returns whether any of the specified buttons started a press on this control
+    /// and are still tracked by it.
+    /// </summary>
+    public bool IsButtonPressedOn(MouseButton buttons) => (PressedOnButtons & buttons) != MouseButton.None;
 
     private bool isIteratingChildren = false;
 
@@ -1024,11 +1061,7 @@ public class XNAControl : DrawableGameComponent
     protected override void OnEnabledChanged(object sender, EventArgs args)
     {
         if (!Enabled)
-        {
-            IsLeftPressedOn = false;
-            IsRightPressedOn = false;
-            IsMiddlePressedOn = false;
-        }
+            PressedOnButtons = MouseButton.None;
 
         base.OnEnabledChanged(sender, args);
     }
@@ -1371,18 +1404,9 @@ public class XNAControl : DrawableGameComponent
                 CursorOnControl = false;
             }
 
-            // If the cursor is not on us and a button isn't pressed, but the button's input flag is set, then clear it.
-            // Otherwise we might accept a "click" on us that started by the user pressing down the mouse button
-            // while on another control.
-
-            if (IsLeftPressedOn && !Cursor.LeftDown)
-                IsLeftPressedOn = false;
-
-            if (IsRightPressedOn && !Cursor.RightDown)
-                IsRightPressedOn = false;
-
-            if (IsMiddlePressedOn && !Cursor.MiddleDown)
-                IsMiddlePressedOn = false;
+            // Forget buttons released away from this control so a later press elsewhere cannot trigger a click here.
+            if (PressedOnButtons != MouseButton.None)
+                PressedOnButtons &= Cursor.DownButtons;
         }
 
         isIteratingChildren = true;
@@ -1734,6 +1758,15 @@ public class XNAControl : DrawableGameComponent
     }
 
     /// <summary>
+    /// Called once when a mouse button is pressed down while the cursor
+    /// is on the control.
+    /// </summary>
+    public virtual void OnMouseButtonDown(MouseInputEventArgs mouseInputEventArgs)
+    {
+        MouseButtonDown?.Invoke(this, mouseInputEventArgs);
+    }
+
+    /// <summary>
     /// Called when the left mouse button has been 
     /// clicked on the control's client rectangle.
     /// </summary>
@@ -1775,6 +1808,15 @@ public class XNAControl : DrawableGameComponent
     public virtual void OnMiddleClick(InputEventArgs inputEventArgs)
     {
         MiddleClick?.Invoke(this, inputEventArgs);
+    }
+
+    /// <summary>
+    /// Called when a mouse button has been
+    /// clicked on the control's client rectangle.
+    /// </summary>
+    public virtual void OnMouseButtonClick(MouseInputEventArgs mouseInputEventArgs)
+    {
+        MouseButtonClick?.Invoke(this, mouseInputEventArgs);
     }
 
     /// <summary>
