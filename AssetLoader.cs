@@ -197,7 +197,8 @@ public static class AssetLoader
         var texture = new Texture2D(graphicsDevice, width, height, false, SurfaceFormat.Color);
 
         var colorArray = new Color[width * height];
-        Array.Fill(colorArray, color);
+        for (int i = 0; i < colorArray.Length; i++)
+            colorArray[i] = color;
 
         texture.SetData(colorArray);
 

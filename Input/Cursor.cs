@@ -1,8 +1,8 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
-using System;
 #if WINFORMS
+using System;
 using System.IO;
 using Rampastring.Tools;
 using Windows.Win32;
@@ -18,11 +18,10 @@ public class Cursor : DrawableGameComponent
         : base(windowManager.Game)
     {
         previousMouseState = Mouse.GetState();
+        previousDownButtons = GetDownButtons(previousMouseState);
         RemapColor = Color.White;
         this.windowManager = windowManager;
     }
-
-    public event EventHandler LeftClickEvent;
 
     public Point Location { get; set; }
     private Point DrawnLocation { get; set; }
@@ -34,55 +33,71 @@ public class Cursor : DrawableGameComponent
 
     public int TextureIndex { get; set; }
 
-    public bool LeftClicked { get; private set; }
+    public bool LeftClicked => IsButtonClicked(MouseButton.Left);
 
-    public bool RightClicked { get; private set; }
+    public bool RightClicked => IsButtonClicked(MouseButton.Right);
 
-    public bool MiddleClicked { get; private set; }
+    public bool MiddleClicked => IsButtonClicked(MouseButton.Middle);
 
     /// <summary>
     /// Gets a value that indicates whether the left mouse button is held down
     /// on the current frame.
     /// </summary>
-    public bool LeftDown { get; private set; }
+    public bool LeftDown => IsButtonDown(MouseButton.Left);
 
     /// <summary>
     /// Gets a value that indicates whether the left mouse button was pressed
     /// down on this frame (meaning it's down on the current frame, but wasn't down
     /// on the previous frame).
     /// </summary>
-    public bool LeftPressedDown { get; private set; }
+    public bool LeftPressedDown => IsButtonPressedDown(MouseButton.Left);
 
     /// <summary>
     /// Gets a value that indicates whether the right mouse button is held down
     /// on the current frame.
     /// </summary>
-    public bool RightDown { get; private set; }
+    public bool RightDown => IsButtonDown(MouseButton.Right);
 
     /// <summary>
     /// Gets a value that indicates whether the right mouse button was pressed
     /// down on this frame (meaning it's down on the current frame, but wasn't down
     /// on the previous frame).
     /// </summary>
-    public bool RightPressedDown { get; private set; }
+    public bool RightPressedDown => IsButtonPressedDown(MouseButton.Right);
 
     /// <summary>
     /// Gets a value that indicates whether the middle mouse button is held down
     /// on the current frame.
     /// </summary>
-    public bool MiddleDown { get; private set; }
+    public bool MiddleDown => IsButtonDown(MouseButton.Middle);
 
     /// <summary>
     /// Gets a value that indicates whether the middle mouse button was pressed
     /// down on this frame (meaning it's down on the current frame, but wasn't down
     /// on the previous frame).
     /// </summary>
-    public bool MiddlePressedDown { get; private set; }
+    public bool MiddlePressedDown => IsButtonPressedDown(MouseButton.Middle);
+
+    /// <summary>
+    /// Returns whether any of the specified mouse buttons are held down on the current frame.
+    /// </summary>
+    public bool IsButtonDown(MouseButton buttons) => (downButtons & buttons) != MouseButton.None;
+
+    /// <summary>
+    /// Returns whether any of the specified mouse buttons were newly pressed on the current frame.
+    /// </summary>
+    public bool IsButtonPressedDown(MouseButton buttons) => (pressedDownButtons & buttons) != MouseButton.None;
+
+    /// <summary>
+    /// Returns whether any of the specified mouse buttons were released on the current frame.
+    /// </summary>
+    public bool IsButtonClicked(MouseButton buttons) => (clickedButtons & buttons) != MouseButton.None;
 
     /// <summary>
     /// True if the cursor has received input on the current frame.
     /// </summary>
-    public bool HasInput => !Disabled && (HasMoved || LeftDown || RightDown || MiddleDown || LeftClicked || RightClicked || MiddleClicked || ScrollWheelValue != 0 || HorizontalScrollWheelValue != 0);
+    public bool HasInput => !Disabled && (HasMoved || (downButtons | clickedButtons) != MouseButton.None ||
+        ScrollWheelValue != 0 || HorizontalScrollWheelValue != 0);
 
     public bool Disabled { get; set; }
 
@@ -94,8 +109,12 @@ public class Cursor : DrawableGameComponent
 
     private WindowManager windowManager;
     private MouseState previousMouseState;
-#if WINFORMS
+    private MouseButton previousDownButtons;
+    private MouseButton downButtons;
+    private MouseButton pressedDownButtons;
+    private MouseButton clickedButtons;
 
+#if WINFORMS
     /// <summary>
     /// Attempts to replace the native operating system pointer cursor with
     /// a cursor file from a specific path for the game window. If successful,
@@ -152,15 +171,9 @@ public class Cursor : DrawableGameComponent
 
         if (!windowManager.HasFocus || Disabled)
         {
-            LeftClicked = false;
-            RightClicked = false;
-            MiddleClicked = false;
-            LeftDown = false;
-            RightDown = false;
-            MiddleDown = false;
-            LeftPressedDown = false;
-            RightPressedDown = false;
-            MiddlePressedDown = false;
+            downButtons = MouseButton.None;
+            pressedDownButtons = MouseButton.None;
+            clickedButtons = MouseButton.None;
             ScrollWheelValue = 0;
 #if !XNA
             HorizontalScrollWheelValue = 0;
@@ -186,23 +199,21 @@ public class Cursor : DrawableGameComponent
         HorizontalScrollWheelValue = -(ms.HorizontalScrollWheelValue - previousMouseState.HorizontalScrollWheelValue) / ScrollWheelValueDivisor;
 #endif
 
-        LeftDown = ms.LeftButton == ButtonState.Pressed;
-        LeftPressedDown = LeftDown && previousMouseState.LeftButton != ButtonState.Pressed;
-
-        LeftClicked = !LeftDown && previousMouseState.LeftButton == ButtonState.Pressed;
-
-        if (LeftClicked)
-            LeftClickEvent?.Invoke(this, EventArgs.Empty);
-
-        RightDown = ms.RightButton == ButtonState.Pressed;
-        RightPressedDown = RightDown && previousMouseState.RightButton != ButtonState.Pressed;
-        RightClicked = ms.RightButton == ButtonState.Released && previousMouseState.RightButton == ButtonState.Pressed;
-
-        MiddleDown = ms.MiddleButton == ButtonState.Pressed;
-        MiddlePressedDown = MiddleDown && previousMouseState.MiddleButton != ButtonState.Pressed;
-        MiddleClicked = ms.MiddleButton == ButtonState.Released && previousMouseState.MiddleButton == ButtonState.Pressed;
-
+        MouseButton currentDownButtons = GetDownButtons(ms);
+        downButtons = currentDownButtons;
+        pressedDownButtons = currentDownButtons & ~previousDownButtons;
+        clickedButtons = previousDownButtons & ~currentDownButtons;
+        previousDownButtons = currentDownButtons;
         previousMouseState = ms;
+    }
+
+    private static MouseButton GetDownButtons(MouseState state)
+    {
+        return (state.LeftButton == ButtonState.Pressed ? MouseButton.Left : MouseButton.None)
+            | (state.RightButton == ButtonState.Pressed ? MouseButton.Right : MouseButton.None)
+            | (state.MiddleButton == ButtonState.Pressed ? MouseButton.Middle : MouseButton.None)
+            | (state.XButton1 == ButtonState.Pressed ? MouseButton.XButton1 : MouseButton.None)
+            | (state.XButton2 == ButtonState.Pressed ? MouseButton.XButton2 : MouseButton.None);
     }
 
     public override void Draw(GameTime gameTime)
