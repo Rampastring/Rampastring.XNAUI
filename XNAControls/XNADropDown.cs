@@ -1,5 +1,5 @@
 ﻿using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
+using Rampastring.XNAUI.Graphics;
 using Rampastring.Tools;
 using Rampastring.XNAUI.FontManagement;
 using System;
@@ -168,8 +168,8 @@ public class XNADropDown : XNAControl
     /// </summary>
     public bool OpenUp { get; set; }
 
-    public Texture2D DropDownTexture { get; set; }
-    public Texture2D DropDownOpenTexture { get; set; }
+    public TextureReference DropDownTexture { get; set; }
+    public TextureReference DropDownOpenTexture { get; set; }
 
     public EnhancedSoundEffect ClickSoundEffect { get; set; }
 
@@ -206,7 +206,7 @@ public class XNADropDown : XNAControl
     /// </summary>
     /// <param name="text">The text of the item.</param>
     /// <param name="texture">The item's texture.</param>
-    public void AddItem(string text, Texture2D texture)
+    public void AddItem(string text, TextureReference texture)
     {
         var item = new XNADropDownItem();
         item.Text = text;
@@ -236,8 +236,8 @@ public class XNADropDown : XNAControl
     {
         base.Initialize();
 
-        DropDownTexture = AssetLoader.LoadTexture("comboBoxArrow.png");
-        DropDownOpenTexture = AssetLoader.LoadTexture("openedComboBoxArrow.png");
+        DropDownTexture = AssetLoader.LoadUITexture("comboBoxArrow.png");
+        DropDownOpenTexture = AssetLoader.LoadUITexture("openedComboBoxArrow.png");
 
         Height = DropDownTexture.Height;
     }
@@ -250,10 +250,10 @@ public class XNADropDown : XNAControl
                 OpenUp = Conversions.BooleanFromString(value, OpenUp);
                 return;
             case "DropDownTexture":
-                DropDownTexture = AssetLoader.LoadTextureUncached(value);
+                DropDownTexture = AssetLoader.LoadUITexture(value);
                 return;
             case "DropDownOpenTexture":
-                DropDownOpenTexture = AssetLoader.LoadTextureUncached(value);
+                DropDownOpenTexture = AssetLoader.LoadUITexture(value);
                 return;
             case "ItemHeight":
                 ItemHeight = Conversions.IntFromString(value, ItemHeight);
@@ -535,7 +535,8 @@ public class XNADropDown : XNAControl
             XNADropDownItem item = Items[SelectedIndex];
 
             int textX = 3;
-            if (item.Texture != null)
+
+            if (!item.Texture.IsEmpty)
             {
                 DrawTexture(item.Texture,
                     new Rectangle(1, dropDownRect.Y + 2,
@@ -604,7 +605,8 @@ public class XNADropDown : XNAControl
         }
 
         int textX = 2;
-        if (item.Texture != null)
+
+        if (!item.Texture.IsEmpty)
         {
             DrawTexture(item.Texture, new Rectangle(1, y + 1, item.Texture.Width, item.Texture.Height), Color.White);
             textX += item.Texture.Width + 1;

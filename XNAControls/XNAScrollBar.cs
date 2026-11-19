@@ -1,5 +1,5 @@
 ﻿using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
+using Rampastring.XNAUI.Graphics;
 using System;
 
 namespace Rampastring.XNAUI.XNAControls;
@@ -23,16 +23,16 @@ public class XNAScrollBar : XNAControl
         ExclusiveInputCapture = true;
         HandlesDragging = true;
 
-        var scrollUpTexture = AssetLoader.LoadTexture("sbUpArrow.png");
+        var scrollUpTexture = AssetLoader.LoadUITexture("sbUpArrow.png");
 
         btnScrollUp = new XNAButton(WindowManager);
         btnScrollUp.Name = nameof(btnScrollUp);
         btnScrollUp.ClientRectangle = new Rectangle(0, 0, scrollUpTexture.Width, scrollUpTexture.Height);
         btnScrollUp.IdleTexture = scrollUpTexture;
         if (AssetLoader.AssetExists("sbUpArrowHovered.png"))
-            btnScrollUp.HoverTexture = AssetLoader.LoadTexture("sbUpArrowHovered.png");
+            btnScrollUp.HoverTexture = AssetLoader.LoadUITexture("sbUpArrowHovered.png");
 
-        var scrollDownTexture = AssetLoader.LoadTexture("sbDownArrow.png");
+        var scrollDownTexture = AssetLoader.LoadUITexture("sbDownArrow.png");
 
         btnScrollDown = new XNAButton(WindowManager);
         btnScrollDown.Name = nameof(btnScrollDown);
@@ -40,7 +40,7 @@ public class XNAScrollBar : XNAControl
             scrollDownTexture.Width, scrollDownTexture.Height);
         btnScrollDown.IdleTexture = scrollDownTexture;
         if (AssetLoader.AssetExists("sbDownArrowHovered.png"))
-            btnScrollDown.HoverTexture = AssetLoader.LoadTexture("sbDownArrowHovered.png");
+            btnScrollDown.HoverTexture = AssetLoader.LoadUITexture("sbDownArrowHovered.png");
 
         ClientRectangleUpdated += XNAScrollBar_ClientRectangleUpdated;
     }
@@ -109,10 +109,10 @@ public class XNAScrollBar : XNAControl
 
     private XNAButton btnScrollDown;
 
-    private Texture2D background;
-    private Texture2D thumbMiddle;
-    private Texture2D thumbTop;
-    private Texture2D thumbBottom;
+    private TextureReference background;
+    private TextureReference thumbMiddle;
+    private TextureReference thumbTop;
+    private TextureReference thumbBottom;
 
     private bool isHeldDown = false;
 
@@ -126,19 +126,19 @@ public class XNAScrollBar : XNAControl
         btnScrollUp.LeftClick += BtnScrollUp_LeftClick;
         btnScrollDown.LeftClick += BtnScrollDown_LeftClick;
 
-        background = AssetLoader.LoadTexture("sbBackground.png");
-        thumbMiddle = AssetLoader.LoadTexture("sbMiddle.png");
-        thumbTop = AssetLoader.LoadTexture("sbThumbTop.png");
-        thumbBottom = AssetLoader.LoadTexture("sbThumbBottom.png");
+        background = AssetLoader.LoadUITexture("sbBackground.png");
+        thumbMiddle = AssetLoader.LoadUITexture("sbMiddle.png");
+        thumbTop = AssetLoader.LoadUITexture("sbThumbTop.png");
+        thumbBottom = AssetLoader.LoadUITexture("sbThumbBottom.png");
     }
 
     public override void Kill()
     {
         // These textures are cached, don't allow the buttons to dispose them
-        btnScrollDown.IdleTexture = null;
-        btnScrollDown.HoverTexture = null;
-        btnScrollUp.IdleTexture = null;
-        btnScrollUp.HoverTexture = null;
+        btnScrollDown.IdleTexture = default;
+        btnScrollDown.HoverTexture = default;
+        btnScrollUp.IdleTexture = default;
+        btnScrollUp.HoverTexture = default;
 
         base.Kill();
     }

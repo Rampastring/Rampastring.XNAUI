@@ -1,5 +1,5 @@
 ﻿using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
+using Rampastring.XNAUI.Graphics;
 using Rampastring.Tools;
 using System;
 
@@ -21,7 +21,7 @@ public class XNACheckBox : XNAControl
         AlphaRate = UISettings.ActiveSettings.CheckBoxAlphaRate * 2.0;
 
         // We can't know our final height by this point, but we can make an educated guess to help layout initialization.
-        if (UISettings.ActiveSettings.CheckBoxCheckedTexture != null)
+        if (!UISettings.ActiveSettings.CheckBoxCheckedTexture.IsEmpty)
             Height = UISettings.ActiveSettings.CheckBoxCheckedTexture.Height;
 
         CheckedTexture = UISettings.ActiveSettings.CheckBoxCheckedTexture;
@@ -32,11 +32,11 @@ public class XNACheckBox : XNAControl
 
     public event EventHandler CheckedChanged;
 
-    public Texture2D CheckedTexture { get; set; }
-    public Texture2D ClearTexture { get; set; }
+    public TextureReference CheckedTexture { get; set; }
+    public TextureReference ClearTexture { get; set; }
 
-    public Texture2D DisabledCheckedTexture { get; set; }
-    public Texture2D DisabledClearTexture { get; set; }
+    public TextureReference DisabledCheckedTexture { get; set; }
+    public TextureReference DisabledClearTexture { get; set; }
 
     /// <summary>
     /// The sound effect that is played when the check box is clicked on.
@@ -181,7 +181,7 @@ public class XNACheckBox : XNAControl
         int textureHeight = 0;
         int textureWidth = 0;
 
-        if (CheckedTexture != null)
+        if (!CheckedTexture.IsEmpty)
         {
             textureWidth = CheckedTexture.Width;
             textureHeight = CheckedTexture.Height;
@@ -244,8 +244,8 @@ public class XNACheckBox : XNAControl
     /// </summary>
     public override void Draw(GameTime gameTime)
     {
-        Texture2D clearTexture;
-        Texture2D checkedTexture;
+        TextureReference clearTexture;
+        TextureReference checkedTexture;
 
         if (AllowChecking)
         {

@@ -1,7 +1,7 @@
 using System;
 
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
+using Rampastring.XNAUI.Graphics;
 
 using Rampastring.XNAUI;
 using Rampastring.XNAUI.XNAControls;
@@ -27,16 +27,16 @@ public class XNAHorizontalScrollBar : XNAControl
         ExclusiveInputCapture = true;
         HandlesDragging = true;
 
-        var scrollLeftTexture = AssetLoader.LoadTexture("hsbLeftArrow.png");
+        var scrollLeftTexture = AssetLoader.LoadUITexture("hsbLeftArrow.png");
 
         btnScrollLeft = new XNAButton(WindowManager);
         btnScrollLeft.Name = nameof(btnScrollLeft);
         btnScrollLeft.ClientRectangle = new Rectangle(0, 0, scrollLeftTexture.Width, scrollLeftTexture.Height);
         btnScrollLeft.IdleTexture = scrollLeftTexture;
         if (AssetLoader.AssetExists("hsbLeftArrowHovered.png"))
-            btnScrollLeft.HoverTexture = AssetLoader.LoadTexture("hsbLeftArrowHovered.png");
+            btnScrollLeft.HoverTexture = AssetLoader.LoadUITexture("hsbLeftArrowHovered.png");
 
-        var scrollRightTexture = AssetLoader.LoadTexture("hsbRightArrow.png");
+        var scrollRightTexture = AssetLoader.LoadUITexture("hsbRightArrow.png");
 
         btnScrollRight = new XNAButton(WindowManager);
         btnScrollRight.Name = nameof(btnScrollRight);
@@ -44,7 +44,7 @@ public class XNAHorizontalScrollBar : XNAControl
             scrollRightTexture.Width, scrollRightTexture.Height);
         btnScrollRight.IdleTexture = scrollRightTexture;
         if (AssetLoader.AssetExists("hsbRightArrowHovered.png"))
-            btnScrollRight.HoverTexture = AssetLoader.LoadTexture("hsbRightArrowHovered.png");
+            btnScrollRight.HoverTexture = AssetLoader.LoadUITexture("hsbRightArrowHovered.png");
 
         ClientRectangleUpdated += XNAScrollBar_ClientRectangleUpdated;
     }
@@ -112,10 +112,10 @@ public class XNAHorizontalScrollBar : XNAControl
 
     private XNAButton btnScrollRight;
 
-    private Texture2D background;
-    private Texture2D thumbMiddle;
-    private Texture2D thumbLeft;
-    private Texture2D thumbRight;
+    private TextureReference background;
+    private TextureReference thumbMiddle;
+    private TextureReference thumbLeft;
+    private TextureReference thumbRight;
 
     private bool isHeldDown = false;
 
@@ -129,19 +129,19 @@ public class XNAHorizontalScrollBar : XNAControl
         btnScrollLeft.LeftClick += BtnScrollLeft_LeftClick;
         btnScrollRight.LeftClick += BtnScrollRight_LeftClick;
 
-        background = AssetLoader.LoadTexture("hsbBackground.png");
-        thumbMiddle = AssetLoader.LoadTexture("hsbMiddle.png");
-        thumbLeft = AssetLoader.LoadTexture("hsbThumbLeft.png");
-        thumbRight = AssetLoader.LoadTexture("hsbThumbRight.png");
+        background = AssetLoader.LoadUITexture("hsbBackground.png");
+        thumbMiddle = AssetLoader.LoadUITexture("hsbMiddle.png");
+        thumbLeft = AssetLoader.LoadUITexture("hsbThumbLeft.png");
+        thumbRight = AssetLoader.LoadUITexture("hsbThumbRight.png");
     }
     
     public override void Kill()
     {
         // These textures are cached, don't allow the buttons to dispose them
-        btnScrollRight.IdleTexture = null;
-        btnScrollRight.HoverTexture = null;
-        btnScrollLeft.IdleTexture = null;
-        btnScrollLeft.HoverTexture = null;
+        btnScrollRight.IdleTexture = default;
+        btnScrollRight.HoverTexture = default;
+        btnScrollLeft.IdleTexture = default;
+        btnScrollLeft.HoverTexture = default;
 
         base.Kill();
     }

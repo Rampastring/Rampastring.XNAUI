@@ -233,8 +233,9 @@ public class XNAScrollPanel : XNAPanel
         VerticalScrollBar.MouseScrolled += VerticalScrollBar_MouseScrolled;
         
         CornerPanel.BackgroundTexture = AssetLoader.AssetExists(CORNER_TEXTURE_FILENAME)
-            ? AssetLoader.LoadTexture(CORNER_TEXTURE_FILENAME)
-            : AssetLoader.CreateTexture(Color.Black, 2, 2);
+            ? AssetLoader.LoadUITexture(CORNER_TEXTURE_FILENAME)
+            : AssetLoader.GetSolidUITexture(Color.Black);
+
         CornerPanel.PanelBackgroundDrawMode = PanelBackgroundImageDrawMode.STRETCHED;
         
         ComposeControls();
@@ -259,10 +260,6 @@ public class XNAScrollPanel : XNAPanel
         {
             UnsubscribeFromChildControlEvents(child);
         }
-
-        // don't allow to dispose the cached generic texture
-        if (CornerPanel.BackgroundTexture.Name == CORNER_TEXTURE_FILENAME)
-            CornerPanel.BackgroundTexture = null;
 
         base.Kill();
     }

@@ -10,6 +10,12 @@ using Windows.Win32;
 
 namespace Rampastring.XNAUI.Input;
 
+public enum CursorType
+{
+    Default = 0,
+    Bar = 1,
+}
+
 public class Cursor : DrawableGameComponent
 {
     private const int ScrollWheelValueDivisor = 40;
@@ -221,6 +227,8 @@ public class Cursor : DrawableGameComponent
     {
         if (Textures == null)
             return;
+
+        int textureIndex = TextureIndex >= Textures.Length ? 0 : TextureIndex;
 
         Texture2D texture = Textures[TextureIndex];
 

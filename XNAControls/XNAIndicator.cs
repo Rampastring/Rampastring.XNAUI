@@ -1,5 +1,5 @@
 ﻿using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
+using Rampastring.XNAUI.Graphics;
 using Rampastring.Tools;
 using System;
 using System.Collections.Generic;
@@ -21,21 +21,21 @@ public class XNAIndicator<T> : XNAControl where T : Enum
     public XNAIndicator(WindowManager windowManager) : base(windowManager) =>
         AlphaRate = UISettings.ActiveSettings.IndicatorAlphaRate * 2.0;
 
-    public XNAIndicator(WindowManager windowManager, Dictionary<T, Texture2D> textures) : this(windowManager) =>
+    public XNAIndicator(WindowManager windowManager, Dictionary<T, TextureReference> textures) : this(windowManager) =>
         Textures = textures;
 
     /// <summary>
     /// Contains a pool of textures for indicator.
     /// </summary>
-    public Dictionary<T, Texture2D> Textures { get; set; }
+    public Dictionary<T, TextureReference> Textures { get; set; }
 
-    private Texture2D _oldTexture = null;
-    private Texture2D _currentTexture = null;
+    private TextureReference _oldTexture;
+    private TextureReference _currentTexture;
 
     /// <summary>
     /// Determines the currently displayed texture.
     /// </summary>
-    protected virtual Texture2D CurrentTexture
+    protected virtual TextureReference CurrentTexture
     {
         get => _currentTexture;
         set
@@ -121,10 +121,10 @@ public class XNAIndicator<T> : XNAControl where T : Enum
         if (Textures == null || Textures.Count == 0)
             throw new InvalidOperationException($"{nameof(XNAIndicator<T>)}: No textures specified!");
 
-        if (_oldTexture == null)
+        if (_oldTexture.IsEmpty)
             _oldTexture = Textures[default];
 
-        if (_currentTexture == null)
+        if (_currentTexture.IsEmpty)
             _currentTexture = Textures[default];
 
         SetTextPositionAndSize();
@@ -172,7 +172,7 @@ public class XNAIndicator<T> : XNAControl where T : Enum
 
         var enumerator = Textures.Values.GetEnumerator();
         enumerator.MoveNext();
-        Texture2D texture2D = enumerator.Current;
+        TextureReference texture = enumerator.Current;
 
         if (!string.IsNullOrEmpty(Text))
         {
@@ -180,13 +180,13 @@ public class XNAIndicator<T> : XNAControl where T : Enum
 
             TextLocationY = Renderer.GetTextYPadding(Text, FontIndex, Height);
 
-            Width = (int)textDimensions.X + TEXT_PADDING_DEFAULT + texture2D.Width;
-            Height = Math.Max((int)textDimensions.Y, texture2D.Height);
+            Width = (int)textDimensions.X + TEXT_PADDING_DEFAULT + texture.Width;
+            Height = Math.Max((int)textDimensions.Y, texture.Height);
         }
         else
         {
-            Width = texture2D.Width;
-            Height = texture2D.Height;
+            Width = texture.Width;
+            Height = texture.Height;
         }
     }
 

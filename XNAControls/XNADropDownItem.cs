@@ -1,5 +1,5 @@
 ﻿using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
+using Rampastring.XNAUI.Graphics;
 
 namespace Rampastring.XNAUI.XNAControls;
 
@@ -10,7 +10,7 @@ public class XNADropDownItem
 {
     public Color? TextColor { get; set; }
 
-    public Texture2D Texture { get; set; }
+    public TextureReference Texture { get; set; }
 
     public string Text { get; set; }
 

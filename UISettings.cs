@@ -1,5 +1,5 @@
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
+using Rampastring.XNAUI.Graphics;
 
 namespace Rampastring.XNAUI;
 
@@ -66,13 +66,13 @@ public class UISettings
 
     public Color WindowInactiveBorderColor { get; set; } = new Color(64, 64, 64);
 
-    public Texture2D CheckBoxCheckedTexture { get; set; }
+    public TextureReference CheckBoxCheckedTexture { get; set; }
 
-    public Texture2D CheckBoxClearTexture { get; set; }
+    public TextureReference CheckBoxClearTexture { get; set; }
 
-    public Texture2D CheckBoxDisabledCheckedTexture { get; set; }
+    public TextureReference CheckBoxDisabledCheckedTexture { get; set; }
 
-    public Texture2D CheckBoxDisabledClearTexture { get; set; }
+    public TextureReference CheckBoxDisabledClearTexture { get; set; }
     public int? DropDownDefaultItemHeight { get; set; }
     public int? ListBoxDefaultItemHeight { get; set; }
     public int? ContextMenuDefaultItemHeight { get; set; }

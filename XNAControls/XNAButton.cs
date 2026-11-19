@@ -1,5 +1,5 @@
 ﻿using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
+using Rampastring.XNAUI.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Rampastring.Tools;
 
@@ -15,9 +15,11 @@ public class XNAButton : XNAControl
         AlphaRate = UISettings.ActiveSettings.DefaultAlphaRate;
     }
 
-    public Texture2D IdleTexture { get; set; }
+    /// <summary>The idle image. The texture owner is responsible for disposal.</summary>
+    public TextureReference IdleTexture { get; set; }
 
-    public Texture2D HoverTexture { get; set; }
+    /// <summary>The hover image. The texture owner is responsible for disposal.</summary>
+    public TextureReference HoverTexture { get; set; }
 
     public EnhancedSoundEffect HoverSoundEffect { get; set; }
 
@@ -123,7 +125,7 @@ public class XNAButton : XNAControl
 
         HoverSoundEffect?.Play();
 
-        if (HoverTexture != null)
+        if (!HoverTexture.IsEmpty)
         {
             IdleTextureAlpha = 0.5f;
             HoverTextureAlpha = 0.75f;
@@ -140,7 +142,7 @@ public class XNAButton : XNAControl
         if (!AllowClick)
             return;
 
-        if (HoverTexture != null)
+        if (!HoverTexture.IsEmpty)
         {
             IdleTextureAlpha = 0.75f;
             HoverTextureAlpha = 0.5f;
@@ -163,7 +165,7 @@ public class XNAButton : XNAControl
     {
         base.Initialize();
 
-        if (IdleTexture != null && Width == 0 && Height == 0)
+        if (!IdleTexture.IsEmpty && Width == 0 && Height == 0)
         {
             ClientRectangle = new Rectangle(X, Y,
                 IdleTexture.Width, IdleTexture.Height);
@@ -224,14 +226,14 @@ public class XNAButton : XNAControl
                     CalculateTextPosition();
                 return;
             case "IdleTexture":
-                IdleTexture = AssetLoader.LoadTexture(value);
+                IdleTexture = AssetLoader.LoadUITexture(value);
                 ClientRectangle = new Rectangle(X, Y,
                     IdleTexture.Width, IdleTexture.Height);
                 if (AdaptiveText)
                     CalculateTextPosition();
                 return;
             case "HoverTexture":
-                HoverTexture = AssetLoader.LoadTexture(value);
+                HoverTexture = AssetLoader.LoadUITexture(value);
                 return;
             case "TextShadowDistance":
                 TextShadowDistance = Conversions.FloatFromString(value, TextShadowDistance);
@@ -244,12 +246,6 @@ public class XNAButton : XNAControl
     public override void Kill()
     {
         base.Kill();
-
-        if (IdleTexture != null)
-            IdleTexture.Dispose();
-
-        if (HoverTexture != null)
-            HoverTexture.Dispose();
 
         if (HoverSoundEffect != null)
             HoverSoundEffect.Dispose();
@@ -284,13 +280,13 @@ public class XNAButton : XNAControl
 
     public override void Draw(GameTime gameTime)
     {
-        if (IdleTexture != null && IdleTextureAlpha > 0f)
+        if (!IdleTexture.IsEmpty && IdleTextureAlpha > 0f)
         {
             DrawTexture(IdleTexture, new Rectangle(0, 0, Width, Height),
                 RemapColor * IdleTextureAlpha * Alpha);
         }
 
-        if (HoverTexture != null && HoverTextureAlpha > 0f)
+        if (!HoverTexture.IsEmpty && HoverTextureAlpha > 0f)
         {
             DrawTexture(HoverTexture, new Rectangle(0, 0, Width, Height),
                 RemapColor * HoverTextureAlpha * Alpha);

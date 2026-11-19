@@ -1,5 +1,6 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using Rampastring.XNAUI.Graphics;
 using Rampastring.Tools;
 using Rampastring.XNAUI.Extensions;
 using Rampastring.XNAUI.Input;
@@ -797,7 +798,7 @@ public class XNAControl : DrawableGameComponent
     /// <summary>
     /// Sets an alpha value and requests the window manager for a redraw on next frame if the value actually changed.
     /// </summary>
-    protected void SetTextureAlpha(ref float alpha, float value, Texture2D texture)
+    protected void SetTextureAlpha(ref float alpha, float value, TextureReference texture)
     {
         value = MathHelper.Clamp(value, 0.0f, 1.0f);
         if (alpha == value)
@@ -805,7 +806,7 @@ public class XNAControl : DrawableGameComponent
 
         alpha = value;
 
-        if (Visible && texture != null)
+        if (Visible && !texture.IsEmpty)
             WindowManager.RequestRedraw();
     }
 
@@ -1578,6 +1579,27 @@ public class XNAControl : DrawableGameComponent
 
     private Point drawPoint;
 
+    /// <summary>Draws a standalone texture relative to the control's location.</summary>
+    public void DrawTexture(Texture2D texture, Rectangle rectangle, Color color) =>
+        DrawTexture(new TextureReference(texture), rectangle, color);
+
+    /// <summary>Draws a standalone texture relative to the control's location at its original size.</summary>
+    public void DrawTexture(Texture2D texture, Point point, Color color) =>
+        DrawTexture(new TextureReference(texture), point, color);
+
+    /// <summary>Draws part of a standalone texture relative to the control's location.</summary>
+    public void DrawTexture(Texture2D texture, Rectangle sourceRectangle, Rectangle destinationRectangle, Color color) =>
+        DrawTexture(new TextureReference(texture), sourceRectangle, destinationRectangle, color);
+
+    /// <summary>Draws a standalone texture relative to the control's location with rotation and scaling.</summary>
+    public void DrawTexture(Texture2D texture, Vector2 location, float rotation, Vector2 origin, Vector2 scale, Color color, float layerDepth) =>
+        DrawTexture(new TextureReference(texture), location, rotation, origin, scale, color, layerDepth);
+
+    /// <summary>Draws a standalone texture or part of one relative to the control's location.</summary>
+    public void DrawTexture(Texture2D texture, Rectangle destinationRectangle, Rectangle? sourceRectangle, Color color, float rotation, Vector2 origin,
+        SpriteEffects effects, float layerDepth) =>
+        DrawTexture(new TextureReference(texture), destinationRectangle, sourceRectangle, color, rotation, origin, effects, layerDepth);
+
     /// <summary>
     /// Draws a texture relative to the control's location.
     /// </summary>
@@ -1585,7 +1607,7 @@ public class XNAControl : DrawableGameComponent
     /// <param name="rectangle">The rectangle where to draw the texture
     /// relative to the control.</param>
     /// <param name="color">The remap color.</param>
-    public void DrawTexture(Texture2D texture, Rectangle rectangle, Color color)
+    public void DrawTexture(TextureReference texture, Rectangle rectangle, Color color)
     {
         Renderer.DrawTexture(texture, new Rectangle(drawPoint.X + rectangle.X,
             drawPoint.Y + rectangle.Y, rectangle.Width, rectangle.Height), color);
@@ -1598,14 +1620,14 @@ public class XNAControl : DrawableGameComponent
     /// <param name="point">The point where to draw the texture
     /// relative to the control.</param>
     /// <param name="color">The remap color.</param>
-    public void DrawTexture(Texture2D texture, Point point, Color color) =>
+    public void DrawTexture(TextureReference texture, Point point, Color color) =>
         Renderer.DrawTexture(texture, new Rectangle(drawPoint.X + point.X, drawPoint.Y + point.Y, texture.Width, texture.Height), color);
 
     /// <summary>
     /// Draws a texture relative to the control's location
     /// within the used render target.
     /// </summary>
-    public void DrawTexture(Texture2D texture, Rectangle sourceRectangle, Rectangle destinationRectangle, Color color)
+    public void DrawTexture(TextureReference texture, Rectangle sourceRectangle, Rectangle destinationRectangle, Color color)
     {
         var destRect = new Rectangle(drawPoint.X + destinationRectangle.X,
             drawPoint.Y + destinationRectangle.Y,
@@ -1618,7 +1640,7 @@ public class XNAControl : DrawableGameComponent
     /// <summary>
     /// Draws a texture relative to the control's location.
     /// </summary>
-    public void DrawTexture(Texture2D texture, Vector2 location, float rotation, Vector2 origin, Vector2 scale, Color color, float layerDepth)
+    public void DrawTexture(TextureReference texture, Vector2 location, float rotation, Vector2 origin, Vector2 scale, Color color, float layerDepth)
     {
         Renderer.DrawTexture(texture,
             new Vector2(location.X + drawPoint.X, location.Y + drawPoint.Y),
@@ -1628,7 +1650,8 @@ public class XNAControl : DrawableGameComponent
     /// <summary>
     /// Draws a texture relative to the control's location.
     /// </summary>
-    public void DrawTexture(Texture2D texture, Rectangle destinationRectangle, Rectangle? sourceRectangle, Color color, float rotation, Vector2 origin, SpriteEffects effects, float layerDepth)
+    public void DrawTexture(TextureReference texture, Rectangle destinationRectangle, Rectangle? sourceRectangle, Color color, float rotation,
+        Vector2 origin, SpriteEffects effects, float layerDepth)
     {
         var destRect = new Rectangle(drawPoint.X + destinationRectangle.X,
             drawPoint.Y + destinationRectangle.Y,

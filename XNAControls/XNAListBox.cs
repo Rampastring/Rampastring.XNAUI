@@ -1,5 +1,5 @@
 ﻿using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
+using Rampastring.XNAUI.Graphics;
 using Microsoft.Xna.Framework.Input;
 #if WINFORMS
 using Rampastring.XNAUI.Input;
@@ -346,7 +346,7 @@ public class XNAListBox : XNAPanel
         AddItem(text, null, selectable);
     }
 
-    public void AddItem(string text, Texture2D texture)
+    public void AddItem(string text, TextureReference texture)
     {
         AddItem(text, texture, true, null);
     }
@@ -361,7 +361,7 @@ public class XNAListBox : XNAPanel
         AddItem(text, null, selectable, textColor);
     }
 
-    public void AddItem(string text, Texture2D texture, bool selectable, Color? textColor = null)
+    public void AddItem(string text, TextureReference texture, bool selectable, Color? textColor = null)
     {
         var item = new XNAListBoxItem();
         if (textColor.HasValue)
@@ -432,7 +432,7 @@ public class XNAListBox : XNAPanel
             width -= ScrollBar.Width;
         }
 
-        if (listBoxItem.Texture != null)
+        if (!listBoxItem.Texture.IsEmpty)
         {
             int textureHeight = listBoxItem.Texture.Height;
             int textureWidth = listBoxItem.Texture.Width;
@@ -1031,7 +1031,7 @@ public class XNAListBox : XNAPanel
                 FocusColor);
         }
 
-        if (lbItem.Texture != null)
+        if (!lbItem.Texture.IsEmpty)
         {
             int textureHeight = lbItem.Texture.Height;
             int textureWidth = lbItem.Texture.Width;

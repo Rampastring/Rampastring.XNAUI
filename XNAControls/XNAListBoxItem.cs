@@ -1,5 +1,5 @@
 ﻿using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
+using Rampastring.XNAUI.Graphics;
 using System;
 using System.Collections.Generic;
 
@@ -48,7 +48,7 @@ public class XNAListBoxItem
         set => _backgroundColor = value;
     }
 
-    public Texture2D Texture { get; set; }
+    public TextureReference Texture { get; set; }
 
     public bool IsHeader { get; set; }
 

@@ -1,5 +1,5 @@
 ﻿using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
+using Rampastring.XNAUI.Graphics;
 using Rampastring.XNAUI.FontManagement;
 using System;
 using System.Collections.Generic;
@@ -63,7 +63,7 @@ public class XNAContextMenuItem
     /// <summary>
     /// The texture of the context menu item.
     /// </summary>
-    public Texture2D Texture { get; set; }
+    public TextureReference Texture { get; set; }
 
     /// <summary>
     /// The background color of the context menu item.
@@ -206,7 +206,8 @@ public class XNAContextMenu : XNAControl
         AddItem(item);
     }
 
-    public void AddItem(string text, Action selectAction, Func<bool> selectableChecker = null, Func<bool> visibilityChecker = null, Texture2D texture = null, Func<string> hintTextGenerator = null)
+    public void AddItem(string text, Action selectAction, Func<bool> selectableChecker = null, Func<bool> visibilityChecker = null,
+        TextureReference texture = default, Func<string> hintTextGenerator = null)
     {
         var item = new XNAContextMenuItem()
         {
@@ -461,7 +462,7 @@ public class XNAContextMenu : XNAControl
         }
 
         int textX = point.X + TextHorizontalPadding;
-        if (item.Texture != null)
+        if (!item.Texture.IsEmpty)
         {
             Renderer.DrawTexture(item.Texture, new Rectangle(point.X + TEXTURE_PADDING, point.Y + TEXTURE_PADDING,
                 item.Texture.Width, item.Texture.Height), Color.White);

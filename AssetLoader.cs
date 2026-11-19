@@ -8,6 +8,7 @@ using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Media;
 using Color = Microsoft.Xna.Framework.Color;
 using System.Globalization;
+using Rampastring.XNAUI.Graphics;
 
 namespace Rampastring.XNAUI;
 
@@ -27,8 +28,15 @@ public static class AssetLoader
 
     private static List<Texture2D> textureCache;
     private static List<SoundEffect> soundCache;
+    private static UITextureCache uiTextureCache;
 
     public static bool IsInitialized { get; private set; } = false;
+
+    /// <summary>
+    /// Enables packing of new UI assets into shared texture pages. Set before loading UI assets
+    /// to use standalone textures throughout the UI. Existing references remain valid when this changes.
+    /// </summary>
+    public static bool UseUITextureAtlas { get; set; } = true;
 
     /// <summary>
     /// Initializes the AssetLoader.
@@ -47,7 +55,53 @@ public static class AssetLoader
         textureCache = new List<Texture2D>();
         soundCache = new List<SoundEffect>();
         contentManager = content;
+        uiTextureCache = new UITextureCache(gd, name => LoadTextureInternal(name, premultiplyAlpha: false));
+        gd.Disposing += (_, _) => ClearUITextures();
     }
+
+    /// <summary>
+    /// Loads a premultiplied UI image, fetching a reference from a shared sprite sheet when possible.
+    /// Missing images return a shared pink placeholder.
+    /// </summary>
+    public static TextureReference LoadUITexture(string name) => uiTextureCache.Load(name, UseUITextureAtlas);
+
+    /// <summary>
+    /// Creates a UI image from one color per pixel, in row order. The loader owns the backing texture
+    /// and packs the image into the UI atlas when it fits.
+    /// </summary>
+    public static TextureReference CreateUITexture(Color[] pixels, int width, int height, bool premultiplyAlpha = true)
+    {
+        if (pixels == null)
+            throw new ArgumentNullException(nameof(pixels));
+
+        if (width <= 0)
+            throw new ArgumentOutOfRangeException(nameof(width));
+
+        if (height <= 0)
+            throw new ArgumentOutOfRangeException(nameof(height));
+
+        if (pixels.LongLength != (long)width * height)
+            throw new ArgumentException("Pixel data must match the image dimensions.", nameof(pixels));
+
+        if (premultiplyAlpha)
+        {
+            pixels = (Color[])pixels.Clone();
+            TextureHelper.PremultiplyAlpha(pixels);
+        }
+
+        return uiTextureCache.AddPixels(pixels, width, height, UseUITextureAtlas);
+    }
+
+    /// <summary>
+    /// Releases all UI textures owned by the asset loader.
+    /// Make sure to reload any UI that still holds references from this cache.
+    /// </summary>
+    public static void ClearUITextures() => uiTextureCache?.Clear();
+
+    internal static TextureReference WhitePixel => uiTextureCache.GetWhitePixel(UseUITextureAtlas);
+
+    /// <summary>Gets a shared solid-color UI image owned by the loader.</summary>
+    public static TextureReference GetSolidUITexture(Color color) => uiTextureCache.GetSolidTexture(color, UseUITextureAtlas);
 
     /// <summary>
     /// Loads a texture with the specific name. If the texture isn't found from any
@@ -96,8 +150,9 @@ public static class AssetLoader
         return CreateDummyTexture();
     }
 
-    private static Texture2D LoadTextureInternal(string name)
+    private static Texture2D LoadTextureInternal(string name, bool premultiplyAlpha = true)
     {
+        Texture2D texture = null;
         try
         {
             foreach (string searchPath in AssetSearchPaths)
@@ -107,9 +162,11 @@ public static class AssetLoader
                 if (fileInfo.Exists)
                 {
                     using FileStream fs = fileInfo.OpenRead();
-                    var texture = Texture2D.FromStream(graphicsDevice, fs);
+                    texture = Texture2D.FromStream(graphicsDevice, fs);
                     texture.Name = name;
-                    PremultiplyAlpha(texture);
+
+                    if (premultiplyAlpha)
+                        PremultiplyAlpha(texture);
 
                     return texture;
                 }
@@ -117,6 +174,7 @@ public static class AssetLoader
         }
         catch (Exception ex)
         {
+            texture?.Dispose();
             Logger.Log("AssetLoader.LoadTextureInternal: loading texture " + name + " failed! Message: " + ex.Message);
         }
 
@@ -127,38 +185,7 @@ public static class AssetLoader
     /// Multiplies a texture's alpha channel into the color channels for each pixel.
     /// </summary>
     /// <param name="texture">The texture to modify.</param>
-    public static void PremultiplyAlpha(Texture2D texture)
-    {
-        var data = new Color[texture.Width * texture.Height];
-        texture.GetData(data);
-
-        bool colorsModified = false;
-        for (int i = 0; i < data.Length; i++)
-        {
-            // Caching data[i] in a local variable contributes to a performance increase
-            Color color = data[i];
-            byte alpha = color.A;
-            switch (alpha)
-            {
-                case 0:
-                    colorsModified = true;
-                    data[i] = Color.Transparent;
-                    break;
-                case 255:
-                    break;
-                default:
-                    colorsModified = true;
-                    color.R = (byte)(color.R * alpha / 255);
-                    color.G = (byte)(color.G * alpha / 255);
-                    color.B = (byte)(color.B * alpha / 255);
-                    data[i] = color;
-                    break;
-            }
-        }
-
-        if (colorsModified)
-            texture.SetData(data);
-    }
+    public static void PremultiplyAlpha(Texture2D texture) => TextureHelper.PremultiplyAlpha(texture);
 
     /// <summary>
     /// Creates and returns a 100x100 pink square.

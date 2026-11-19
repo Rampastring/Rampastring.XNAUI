@@ -1,5 +1,6 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using Rampastring.XNAUI.Graphics;
 using Rampastring.Tools;
 using System.Globalization;
 
@@ -13,7 +14,7 @@ public class XNAPanel : XNAControl
 
     public PanelBackgroundImageDrawMode PanelBackgroundDrawMode { get; set; } = PanelBackgroundImageDrawMode.STRETCHED;
 
-    public virtual Texture2D BackgroundTexture { get; set; }
+    public virtual TextureReference BackgroundTexture { get; set; }
 
     private Color? _borderColor;
 
@@ -74,10 +75,10 @@ public class XNAPanel : XNAControl
                 AlphaRate = Conversions.FloatFromString(value, 0.01f);
                 return;
             case "BackgroundTexture":
-                BackgroundTexture = AssetLoader.LoadTexture(value);
+                BackgroundTexture = AssetLoader.LoadUITexture(value);
                 return;
             case "SolidColorBackgroundTexture":
-                BackgroundTexture = AssetLoader.CreateTexture(AssetLoader.GetColorFromString(value), 2, 2);
+                BackgroundTexture = AssetLoader.GetSolidUITexture(AssetLoader.GetColorFromString(value));
                 PanelBackgroundDrawMode = PanelBackgroundImageDrawMode.STRETCHED;
                 return;
             case "DrawBorders":
@@ -113,9 +114,9 @@ public class XNAPanel : XNAControl
         base.Update(gameTime);
     }
 
-    protected void DrawBackgroundTexture(Texture2D texture, Color color)
+    protected void DrawBackgroundTexture(TextureReference texture, Color color)
     {
-        if (texture != null)
+        if (!texture.IsEmpty)
         {
             if (PanelBackgroundDrawMode == PanelBackgroundImageDrawMode.TILED)
             {

@@ -1,5 +1,5 @@
 ﻿using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
+using Rampastring.XNAUI.Graphics;
 using Rampastring.Tools;
 using System;
 
@@ -39,7 +39,7 @@ public class XNATrackbar : XNAPanel
 
     public EnhancedSoundEffect ClickSound { get; set; }
 
-    public Texture2D ButtonTexture { get; set; }
+    public TextureReference ButtonTexture { get; set; }
 
     private bool isHeldDown = false;
 
@@ -47,8 +47,8 @@ public class XNATrackbar : XNAPanel
     {
         base.Initialize();
 
-        if (ButtonTexture == null)
-            ButtonTexture = AssetLoader.LoadTexture("trackbarButton.png");
+        if (ButtonTexture.IsEmpty)
+            ButtonTexture = AssetLoader.LoadUITexture("trackbarButton.png");
 
         if (Height == 0)
             Height = ButtonTexture.Height;

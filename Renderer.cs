@@ -5,6 +5,7 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Content;
 using FontStashSharp;
 using Rampastring.XNAUI.FontManagement;
+using Rampastring.XNAUI.Graphics;
 #if XNA
 using System.Reflection;
 #endif
@@ -36,6 +37,9 @@ public static class Renderer
     private static ContentManager contentManager;
 
     private static Texture2D whitePixelTexture;
+
+    private static TextureReference PrimitiveTexture =>
+        AssetLoader.UseUITextureAtlas && CurrentSettings.Effect == null ? AssetLoader.WhitePixel : whitePixelTexture;
 
     private static readonly LinkedList<SpriteBatchSettings> settingStack = new LinkedList<SpriteBatchSettings>();
 
@@ -228,6 +232,35 @@ public static class Renderer
         spriteBatch.Draw(texture, location, null, color, rotation, origin, scale, SpriteEffects.None, layerDepth);
     }
 
+    public static void DrawTexture(TextureReference texture, Rectangle rectangle, Color color)
+    {
+        spriteBatch.Draw(texture.Texture, rectangle, texture.SourceRectangle, color);
+    }
+
+    public static void DrawTexture(TextureReference texture, Rectangle sourceRectangle, Rectangle destinationRectangle, Color color)
+    {
+        spriteBatch.Draw(texture.Texture, destinationRectangle, texture.GetSourceRectangle(sourceRectangle), color);
+    }
+
+    public static void DrawTexture(TextureReference texture, Rectangle sourceRectangle, Vector2 location, float rotation, Vector2 origin, Vector2 scale,
+        Color color, float layerDepth = 0f)
+    {
+        spriteBatch.Draw(texture.Texture, location, texture.GetSourceRectangle(sourceRectangle), color, rotation, origin, scale, SpriteEffects.None,
+            layerDepth);
+    }
+
+    public static void DrawTexture(TextureReference texture, Rectangle destinationRectangle, Rectangle? sourceRectangle, Color color, float rotation,
+        Vector2 origin, SpriteEffects effects, float layerDepth)
+    {
+        spriteBatch.Draw(texture.Texture, destinationRectangle, texture.GetSourceRectangle(sourceRectangle), color, rotation, origin, effects, layerDepth);
+    }
+
+    public static void DrawTexture(TextureReference texture, Vector2 location, float rotation, Vector2 origin, Vector2 scale, Color color,
+        float layerDepth = 0f)
+    {
+        spriteBatch.Draw(texture.Texture, location, texture.SourceRectangle, color, rotation, origin, scale, SpriteEffects.None, layerDepth);
+    }
+
     /// <summary>
     /// Draws a circle's perimiter.
     /// </summary>
@@ -264,7 +297,11 @@ public static class Renderer
     /// <param name="scale">The scale of the drawn texture compared to the size of the texture itself.</param>
     /// <param name="layerDepth">The depth of the texture.</param>
     public static void DrawCircleWithTexture(Vector2 position, float radius,
-        Texture2D texture, Color color, int precision = 8, float scale = 1f, float layerDepth = 0f)
+        Texture2D texture, Color color, int precision = 8, float scale = 1f, float layerDepth = 0f) =>
+        DrawCircleWithTexture(position, radius, new TextureReference(texture), color, precision, scale, layerDepth);
+
+    public static void DrawCircleWithTexture(Vector2 position, float radius,
+        TextureReference texture, Color color, int precision = 8, float scale = 1f, float layerDepth = 0f)
     {
         float angle = 0f;
         float increase = (float)Math.PI * 2f / precision;
@@ -293,15 +330,16 @@ public static class Renderer
 
     public static void DrawRectangle(Rectangle rect, Color color, int thickness = 1)
     {
-        spriteBatch.Draw(whitePixelTexture, new Rectangle(rect.X, rect.Y, rect.Width, thickness), color);
-        spriteBatch.Draw(whitePixelTexture, new Rectangle(rect.X, rect.Y + thickness, thickness, rect.Height - thickness), color);
-        spriteBatch.Draw(whitePixelTexture, new Rectangle(rect.X + rect.Width - thickness, rect.Y, thickness, rect.Height), color);
-        spriteBatch.Draw(whitePixelTexture, new Rectangle(rect.X, rect.Y + rect.Height - thickness, rect.Width, thickness), color);
+        TextureReference pixel = PrimitiveTexture;
+        DrawTexture(pixel, new Rectangle(rect.X, rect.Y, rect.Width, thickness), color);
+        DrawTexture(pixel, new Rectangle(rect.X, rect.Y + thickness, thickness, rect.Height - thickness), color);
+        DrawTexture(pixel, new Rectangle(rect.X + rect.Width - thickness, rect.Y, thickness, rect.Height), color);
+        DrawTexture(pixel, new Rectangle(rect.X, rect.Y + rect.Height - thickness, rect.Width, thickness), color);
     }
 
     public static void FillRectangle(Rectangle rect, Color color)
     {
-        spriteBatch.Draw(whitePixelTexture, rect, color);
+        DrawTexture(PrimitiveTexture, rect, color);
     }
 
     public static Vector2 GetTextDimensions(string text, int fontIndex) =>
@@ -323,7 +361,7 @@ public static class Renderer
             start += offset;
         }
 
-        spriteBatch.Draw(whitePixelTexture,
+        DrawTexture(PrimitiveTexture,
             new Rectangle((int)start.X, (int)start.Y, (int)line.Length(), thickness),
             null, color, (float)Math.Atan2(line.Y, line.X), new Vector2(0, 0), SpriteEffects.None, depth);
     }

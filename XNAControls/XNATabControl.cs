@@ -1,5 +1,5 @@
 ﻿using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
+using Rampastring.XNAUI.Graphics;
 using Rampastring.Tools;
 using System;
 using System.Collections.Generic;
@@ -118,6 +118,7 @@ public class XNATabControl : XNAControl
 
     public int FontIndex { get; set; }
 
+    /// <summary>Disposes whole textures assigned to the removed tab. Regions are borrowed from their owner.</summary>
     public bool DisposeTexturesOnTabRemove { get; set; }
 
     private Color? _textColor;
@@ -183,8 +184,11 @@ public class XNATabControl : XNAControl
 
         if (DisposeTexturesOnTabRemove)
         {
-            tab.DefaultTexture.Dispose();
-            tab.PressedTexture.Dispose();
+            if (!tab.DefaultTexture.SourceRectangle.HasValue)
+                tab.DefaultTexture.Texture?.Dispose();
+
+            if (!tab.PressedTexture.SourceRectangle.HasValue && tab.PressedTexture != tab.DefaultTexture)
+                tab.PressedTexture.Texture?.Dispose();
         }
 
         // Record selection state. Only fire event handlers after the removal has been completed,
@@ -217,14 +221,14 @@ public class XNATabControl : XNAControl
         Width = Tabs.Sum(t => t.Width);
     }
 
-    public void AddTab(string text, Texture2D defaultTexture, Texture2D pressedTexture)
+    public void AddTab(string text, TextureReference defaultTexture, TextureReference pressedTexture)
     {
         AddTab(text, defaultTexture, pressedTexture, true, null);
     }
 
-    public void AddTab(string text, Texture2D defaultTexture, Texture2D pressedTexture, bool selectable, object tag)
+    public void AddTab(string text, TextureReference defaultTexture, TextureReference pressedTexture, bool selectable, object tag)
     {
-        if (defaultTexture == null)
+        if (defaultTexture.IsEmpty)
             throw new ArgumentNullException($"{nameof(AddTab)} requires a default texture to be specified.");
 
         var tab = new Tab(text, defaultTexture, pressedTexture, selectable);
@@ -246,7 +250,7 @@ public class XNATabControl : XNAControl
 
         Tabs.Add(tab);
         Width += tab.Width;
-        if (tab.DefaultTexture != null && Height < tab.DefaultTexture.Height)
+        if (!tab.DefaultTexture.IsEmpty && Height < tab.DefaultTexture.Height)
             Height = tab.DefaultTexture.Height;
     }
 
@@ -330,7 +334,7 @@ public class XNATabControl : XNAControl
 
     public virtual void DrawTab(GameTime gameTime, int x, Tab tab)
     {
-        Texture2D texture = tab == SelectedTab ? tab.PressedTexture : tab.DefaultTexture;
+        TextureReference texture = tab == SelectedTab ? tab.PressedTexture : tab.DefaultTexture;
 
         DrawTexture(texture, new Point(x, 0), RemapColor);
 
@@ -356,7 +360,7 @@ public class Tab
 {
     public Tab() { }
 
-    public Tab(string text, Texture2D defaultTexture, Texture2D pressedTexture, bool selectable)
+    public Tab(string text, TextureReference defaultTexture, TextureReference pressedTexture, bool selectable)
     {
         Text = text;
         DefaultTexture = defaultTexture;
@@ -369,9 +373,9 @@ public class Tab
     /// </summary>
     public int Width => DefaultTexture.Width;
 
-    public Texture2D DefaultTexture { get; set; }
+    public TextureReference DefaultTexture { get; set; }
 
-    public Texture2D PressedTexture { get; set; }
+    public TextureReference PressedTexture { get; set; }
 
     public string Text { get; set; }
 
